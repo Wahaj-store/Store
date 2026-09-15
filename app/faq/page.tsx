@@ -1,0 +1,1 @@
+export default function Page(){return <main className="container py-24"><h1 className="text-4xl font-semibold">faq</h1><p className="mt-4" style={{color:"var(--muted)"}}>هذه الصفحة جزء من بنية وَهَج وقابلة للتوسع.</p></main>}
