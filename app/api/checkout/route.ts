@@ -3,20 +3,21 @@ import crypto from 'crypto';
 import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
 import { normalizePhone } from '@/lib/security';
-import { Prisma } from '@prisma/client';
+import { Prisma, PaymentMethod } from '@prisma/client';
 
 const Item = z.object({ productId: z.string().min(1), variantId: z.string().optional(), quantity: z.number().int().positive().max(50) });
 const S = z.object({
   name: z.string().trim().min(2).max(100), phone: z.string().trim().min(8).max(30),
   governorate: z.string().trim().min(2).max(80), city: z.string().trim().min(2).max(100), address: z.string().trim().min(5).max(500), notes: z.string().trim().max(1000).optional(),
-  paymentMethod: z.enum(['COD','VODAFONE_CASH','INSTAPAY']), couponCode: z.string().trim().max(50).optional(),
+  paymentMethod: z.nativeEnum(PaymentMethod), couponCode: z.string().trim().max(50).optional(),
   idempotencyKey: z.string().uuid().optional(), items: z.array(Item).min(1).max(100), paymentReference: z.string().trim().max(100).optional(), proofUrl: z.string().url().max(1000).optional()
 });
 
 export async function POST(req: Request) {
+  let idempotencyKey = '';
   try {
     const b = S.parse(await req.json());
-    const idempotencyKey = b.idempotencyKey || crypto.randomUUID();
+    idempotencyKey = b.idempotencyKey || crypto.randomUUID();
     const existing = await prisma.order.findUnique({ where: { idempotencyKey }, select: { number: true, total: true, shipping: true, discount: true } });
     if (existing) return NextResponse.json({ ok: true, orderNumber: existing.number, total: Number(existing.total), shipping: Number(existing.shipping), discount: Number(existing.discount), replay: true });
 
@@ -84,7 +85,7 @@ export async function POST(req: Request) {
       const o = await tx.order.create({ data: {
         number, idempotencyKey, customerId: c.id, customerNameSnapshot: b.name, customerPhoneSnapshot: normalizedPhone,
         paymentMethod: b.paymentMethod, total, shipping, discount, couponCode, notes: b.notes, shippingGovernorate: b.governorate, shippingCity: b.city, shippingAddress: b.address,
-        items: { create: requested.map(i => ({ productId: i.p.id, variantId: i.v?.id, variantName: i.v?.name, variantValue: i.v?.value, skuSnapshot: i.v?.sku || i.p.sku, name: i.p.name, quantity: i.quantity, price: i.price })) },
+        items: { create: requested.map(i => ({ productId: i.p.id, variantId: i.v?.id, variantName: i.v?.name, variantValue: i.v?.value, skuSnapshot: i.v?.sku || i.p.sku, name: i.p.name, quantity: i.quantity, price: new Prisma.Decimal(i.price) })) },
         payments: { create: { method: b.paymentMethod, amount: total, reference: b.paymentReference, proofUrl: b.proofUrl } },
         timeline: { create: { status: 'NEW', note: 'تم إنشاء الطلب' } }
       } });

@@ -1,0 +1,193 @@
+[1mdiff --git a/prisma/schema.prisma b/prisma/schema.prisma[m
+[1mindex f917a76..06e2eb1 100644[m
+[1m--- a/prisma/schema.prisma[m
+[1m+++ b/prisma/schema.prisma[m
+[36m@@ -8,40 +8,88 @@[m [mdatasource db {[m
+   directUrl = env("DIRECT_URL")[m
+ }[m
+ [m
+[31m-enum Role { OWNER ADMIN MANAGER EDITOR ORDER_MANAGER VIEWER }[m
+[31m-enum ProductStatus { DRAFT PUBLISHED HIDDEN ARCHIVED }[m
+[31m-enum OrderStatus { NEW PROCESSING SHIPPED DELIVERED CANCELLED }[m
+[31m-enum PaymentStatus { PENDING CONFIRMED FAILED }[m
+[31m-enum PaymentMethod { COD VODAFONE_CASH INSTAPAY }[m
+[31m-enum DiscountType { PERCENTAGE FIXED }[m
+[31m-enum OfferType { FLASH_SALE BUY_X_GET_Y FREE_SHIPPING FIRST_ORDER SEASONAL }[m
+[31m-enum RelationType { RELATED COMPLEMENTARY UPSELL CROSS_SELL FREQUENTLY_BOUGHT }[m
+[32m+[m[32menum Role {[m
+[32m+[m[32m  OWNER[m
+[32m+[m[32m  ADMIN[m
+[32m+[m[32m  MANAGER[m
+[32m+[m[32m  EDITOR[m
+[32m+[m[32m  ORDER_MANAGER[m
+[32m+[m[32m  VIEWER[m
+[32m+[m[32m}[m
+[32m+[m
+[32m+[m[32menum ProductStatus {[m
+[32m+[m[32m  DRAFT[m
+[32m+[m[32m  PUBLISHED[m
+[32m+[m[32m  HIDDEN[m
+[32m+[m[32m  ARCHIVED[m
+[32m+[m[32m}[m
+[32m+[m
+[32m+[m[32menum OrderStatus {[m
+[32m+[m[32m  NEW[m
+[32m+[m[32m  PROCESSING[m
+[32m+[m[32m  SHIPPED[m
+[32m+[m[32m  DELIVERED[m
+[32m+[m[32m  CANCELLED[m
+[32m+[m[32m}[m
+[32m+[m
+[32m+[m[32menum PaymentStatus {[m
+[32m+[m[32m  PENDING[m
+[32m+[m[32m  CONFIRMED[m
+[32m+[m[32m  FAILED[m
+[32m+[m[32m}[m
+[32m+[m
+[32m+[m[32menum PaymentMethod {[m
+[32m+[m[32m  COD[m
+[32m+[m[32m  VODAFONE_CASH[m
+[32m+[m[32m  INSTAPAY[m
+[32m+[m[32m}[m
+[32m+[m
+[32m+[m[32menum DiscountType {[m
+[32m+[m[32m  PERCENTAGE[m
+[32m+[m[32m  FIXED[m
+[32m+[m[32m}[m
+[32m+[m
+[32m+[m[32menum OfferType {[m
+[32m+[m[32m  FLASH_SALE[m
+[32m+[m[32m  BUY_X_GET_Y[m
+[32m+[m[32m  FREE_SHIPPING[m
+[32m+[m[32m  FIRST_ORDER[m
+[32m+[m[32m  SEASONAL[m
+[32m+[m[32m}[m
+[32m+[m
+[32m+[m[32menum RelationType {[m
+[32m+[m[32m  RELATED[m
+[32m+[m[32m  COMPLEMENTARY[m
+[32m+[m[32m  UPSELL[m
+[32m+[m[32m  CROSS_SELL[m
+[32m+[m[32m  FREQUENTLY_BOUGHT[m
+[32m+[m[32m}[m
+ [m
+ model User {[m
+[31m-  id                 String        @id @default(cuid())[m
+[31m-  email              String        @unique[m
+[31m-  passwordHash       String[m
+[31m-  role               Role          @default(VIEWER)[m
+[31m-  name               String?[m
+[31m-  active             Boolean       @default(true)[m
+[31m-  lastLoginAt        DateTime?[m
+[31m-  passwordChangedAt  DateTime?[m
+[31m-  createdAt          DateTime      @default(now())[m
+[31m-  updatedAt          DateTime      @updatedAt[m
+[31m-  logs               ActivityLog[][m
+[31m-  notifications      AdminNotification[][m
+[32m+[m[32m  id                String              @id @default(cuid())[m
+[32m+[m[32m  email             String              @unique[m
+[32m+[m[32m  passwordHash      String[m
+[32m+[m[32m  role              Role                @default(VIEWER)[m
+[32m+[m[32m  name              String?[m
+[32m+[m[32m  active            Boolean             @default(true)[m
+[32m+[m[32m  lastLoginAt       DateTime?[m
+[32m+[m[32m  passwordChangedAt DateTime?[m
+[32m+[m[32m  createdAt         DateTime            @default(now())[m
+[32m+[m[32m  updatedAt         DateTime            @updatedAt[m
+[32m+[m[32m  logs              ActivityLog[][m
+[32m+[m[32m  notifications     AdminNotification[][m
+ }[m
+ [m
+ model Customer {[m
+[31m-  id                String       @id @default(cuid())[m
+[32m+[m[32m  id                String                  @id @default(cuid())[m
+   name              String[m
+[31m-  phone             String       @unique[m
+[32m+[m[32m  phone             String                  @unique[m
+   email             String?[m
+   passwordHash      String?[m
+   lastLoginAt       DateTime?[m
+   passwordChangedAt DateTime?[m
+[31m-  createdAt         DateTime     @default(now())[m
+[31m-  updatedAt         DateTime     @updatedAt[m
+[32m+[m[32m  createdAt         DateTime                @default(now())[m
+[32m+[m[32m  updatedAt         DateTime                @updatedAt[m
+   orders            Order[][m
+   addresses         Address[][m
+   reviews           Review[][m
+[36m@@ -63,6 +111,7 @@[m [mmodel Address {[m
+   notes       String?[m
+   isDefault   Boolean  @default(false)[m
+   createdAt   DateTime @default(now())[m
+[32m+[m
+   @@index([customerId, isDefault])[m
+ }[m
+ [m
+[36m@@ -77,42 +126,44 @@[m [mmodel Category {[m
+   products    Product[][m
+   createdAt   DateTime  @default(now())[m
+   updatedAt   DateTime  @updatedAt[m
+[32m+[m
+   @@index([active, sortOrder])[m
+ }[m
+ [m
+ model Product {[m
+[31m-  id              String             @id @default(cuid())[m
+[31m-  name            String[m
+[31m-  slug            String             @unique[m
+[31m-  description     String?[m
+[31m-  price           Decimal            @db.Decimal(10, 2)[m
+[31m-  comparePrice    Decimal?           @db.Decimal(10, 2)[m
+[31m-  stock           Int                @default(0)[m
+[31m-  sku             String             @unique[m
+[31m-  barcode         String?[m
+[31m-  weight          Decimal?           @db.Decimal(10, 3)[m
+[31m-  material        String?[m
+[32m+[m[32m  id               String                    @id @default(cuid())[m
+[32m+[m[32m  name             String[m
+[32m+[m[32m  slug             String                    @unique[m
+[32m+[m[32m  description      String?[m
+[32m+[m[32m  price            Decimal                   @db.Decimal(10, 2)[m
+[32m+[m[32m  comparePrice     Decimal?                  @db.Decimal(10, 2)[m
+[32m+[m[32m  stock            Int                       @default(0)[m
+[32m+[m[32m  sku              String                    @unique[m
+[32m+[m[32m  barcode          String?[m
+[32m+[m[32m  weight           Decimal?                  @db.Decimal(10, 3)[m
+[32m+[m[32m  material         String?[m
+   careInstructions String?[m
+[31m-  videoUrl        String?[m
+[31m-  seoTitle        String?[m
+[31m-  seoDescription  String?[m
+[31m-  tags            String?[m
+[31m-  featured        Boolean            @default(false)[m
+[31m-  newArrival      Boolean            @default(false)[m
+[31m-  bestSeller      Boolean            @default(false)[m
+[31m-  status          ProductStatus      @default(DRAFT)[m
+[31m-  categoryId      String[m
+[31m-  category        Category           @relation(fields: [categoryId], references: [id])[m
+[31m-  images          ProductImage[][m
+[31m-  variants        ProductVariant[][m
+[31m-  reviews         Review[][m
+[31m-  orderItems      OrderItem[][m
+[31m-  wishlist        Wishlist[][m
+[31m-  relationsFrom   ProductRelation[]  @relation("RelationFrom")[m
+[31m-  relationsTo     ProductRelation[]  @relation("RelationTo")[m
+[31m-  backInStock     BackInStockSubscription[][m
+[31m-  createdAt       DateTime           @default(now())[m
+[31m-  updatedAt       DateTime           @updatedAt[m
+[32m+[m[32m  videoUrl         String?[m
+[32m+[m[32m  seoTitle         String?[m
+[32m+[m[32m  seoDescription   String?[m
+[32m+[m[32m  tags             String?[m
+[32m+[m[32m  featured         Boolean                   @default(false)[m
+[32m+[m[32m  newArrival       Boolean                   @default(false)[m
+[32m+[m[32m  bestSeller       Boolean                   @default(false)[m
+[32m+[m[32m  status           ProductStatus             @default(DRAFT)[m
+[32m+[m[32m  categoryId       String[m
+[32m+[m[32m  category         Category                  @relation(fields: [categoryId], references: [id])[m
+[32m+[m[32m  images           ProductImage[][m
+[32m+[m[32m  variants         ProductVariant[][m
+[32m+[m[32m  reviews          Review[][m
+[32m+[m[32m  orderItems       OrderItem[][m
+[32m+[m[32m  wishlist         Wishlist[][m
+[32m+[m[32m  relationsFrom    ProductRelation[]         @relation("RelationFrom")
