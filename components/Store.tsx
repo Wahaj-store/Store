@@ -4,10 +4,14 @@ function Pay({methods}:{methods:any[]}){return <div className="mt-3 flex items-c
 function QuickView({p,onClose}:{p:any,onClose:()=>void}){return <div className="fixed inset-0 z-[70] grid place-items-center bg-black/50 p-4" role="dialog" aria-modal="true" onClick={onClose}><div className="lux-card max-w-2xl w-full overflow-hidden p-4" onClick={e=>e.stopPropagation()}><div className="grid gap-5 md:grid-cols-2"><img src={p.images?.[0]?.url||'/placeholder.svg'} alt={p.name} className="aspect-square w-full rounded-lg object-cover"/><div className="self-center"><h2 className="text-2xl font-semibold">{p.name}</h2><p className="gold mt-3 text-xl font-semibold">{Number(p.price).toLocaleString('ar-EG')} ج.م</p><p className="muted mt-4 leading-8">{p.description||'قطعة مختارة بعناية من وَهَج.'}</p><a href={`/product/${p.slug}`} className="btn btn-gold mt-6 w-full">التفاصيل الكاملة</a></div></div></div></div>}
 function Card({p,methods}:{p:any,methods:any[]}){const [quick,setQuick]=useState(false);const discount=p.comparePrice&&p.comparePrice>p.price?Math.round((1-p.price/p.comparePrice)*100):0;return <article><div className="relative overflow-hidden rounded-lg bg-[#e9e1d5]"><a href={`/product/${p.slug}`}><img src={p.images?.[0]?.url||'/placeholder.svg'} alt={p.images?.[0]?.alt||p.name} loading="lazy" className="aspect-square w-full object-cover transition duration-500 hover:scale-105"/></a><div className="absolute top-3 start-3"><WishlistButton productId={p.id}/></div><button type="button" onClick={()=>setQuick(true)} className="absolute bottom-3 end-3 rounded-full border bg-[var(--bg)]/90 px-3 py-2 text-xs">عرض سريع</button>{discount>0&&<span className="absolute top-3 end-3 rounded-full bg-[#171513] px-2 py-1 text-xs text-white">-{discount}%</span>}</div><div className="pt-4"><a href={`/product/${p.slug}`}><h3 className="font-medium">{p.name}</h3></a><div className="mt-2 flex items-center gap-2"><b>{Number(p.price).toLocaleString('ar-EG')} ج.م</b>{p.comparePrice&&<del className="text-sm muted">{Number(p.comparePrice).toLocaleString('ar-EG')} ج.م</del>}</div><p className="mt-1 text-xs muted">{p.stock>0?(p.stock<=5?'متبقي القليل':'متوفر'):'غير متوفر'}</p><AddToCart product={p}/><Pay methods={methods}/>{quick&&<QuickView p={p} onClose={()=>setQuick(false)}/>}</div></article>}
 function ProductsSection({data,title='الأكثر تألقًا',subtitle='اختيارات وَهَج'}:{data:any,title?:string,subtitle?:string}){return <section className="container py-16"><div className="mb-8"><span className="gold text-sm">{subtitle}</span><h2 className="mt-2 text-3xl font-semibold">{title}</h2></div><div className="grid grid-cols-2 gap-x-3 gap-y-10 md:grid-cols-4 md:gap-6">{data.products.slice(0,8).map((p:any)=><Card key={p.id} p={p} methods={data.payments}/>)}</div></section>}
-export default function Store({data}:{data:any}){const[menu,setMenu]=useState(false);const[showPopup,setShowPopup]=useState(false);const[cartCount,setCartCount]=useState(0);useEffect(()=>{if(s.popup_enabled==='true'&&popup.title){const seen=sessionStorage.getItem('wahaj_popup_seen');if(!seen)setTimeout(()=>setShowPopup(true),1800)}const sync=()=>{try{setCartCount(JSON.parse(localStorage.getItem('wahaj_cart')||'[]').reduce((n:any,x:any)=>n+Number(x.quantity||0),0))}catch{setCartCount(0)}};sync();window.addEventListener('wahaj-cart-change',sync);window.addEventListener('storage',sync);return()=>{window.removeEventListener('wahaj-cart-change',sync);window.removeEventListener('storage',sync)}},[]);const{theme,setTheme}=useTheme();const s=data.settings||{};const parse=(v:any,d:any)=>{try{return v?JSON.parse(v):d}catch{return d}};const headerMenu=parse(s.header_menu,[{label:'الرئيسية',href:'/'},{label:'المتجر',href:'/shop'},{label:'من نحن',href:'/about'}]);const footerLinks=parse(s.footer_links,[{label:'تواصل معنا',href:'/contact'},{label:'الأسئلة الشائعة',href:'/faq'}]);const popup=parse(s.popup_config,{});const now=Date.now();const sections=(data.sections||[]).filter((x:any)=>x.visible!==false&&(!x.startsAt||new Date(x.startsAt).getTime()<=now)&&(!x.endsAt||new Date(x.endsAt).getTime()>=now)).sort((a:any,b:any)=>a.sortOrder-b.sortOrder);const hero=sections.find((x:any)=>x.type==='hero');return <div style={{'--brand-bg':data.theme?.background||'#F8F5EF','--brand-fg':data.theme?.textColor||'#171513','--brand-gold':data.theme?.accentColor||'#C8A96B'} as CSSProperties}><div className="bg-[#171513] px-4 py-2 text-center text-xs text-[#F8F5EF]">{s.announcement||'شحن لجميع المحافظات • اختاري ما يعبّر عن وهجك'}</div><header className="wahaj-header">
+export default function Store({data}:{data:any}){const[menu,setMenu]=useState(false);const[showPopup,setShowPopup]=useState(false);const[cartCount,setCartCount]=useState(0);useEffect(()=>{if(s.popup_enabled==='true'&&popup.title){const seen=sessionStorage.getItem('wahaj_popup_seen');if(!seen)setTimeout(()=>setShowPopup(true),1800)}const sync=()=>{try{setCartCount(JSON.parse(localStorage.getItem('wahaj_cart')||'[]').reduce((n:any,x:any)=>n+Number(x.quantity||0),0))}catch{setCartCount(0)}};sync();window.addEventListener('wahaj-cart-change',sync);window.addEventListener('storage',sync);return()=>{window.removeEventListener('wahaj-cart-change',sync);window.removeEventListener('storage',sync)}},[]);const{theme,setTheme}=useTheme();const s=data.settings||{};const parse=(v:any,d:any)=>{try{return v?JSON.parse(v):d}catch{return d}};const headerMenu=parse(s.header_menu,[{label:'الرئيسية',href:'/'},{label:'المتجر',href:'/shop'},{label:'من نحن',href:'/about'}]);const footerLinks=parse(s.footer_links,[{label:'تواصل معنا',href:'/contact'},{label:'الأسئلة الشائعة',href:'/faq'}]);const popup=parse(s.popup_config,{});const now=Date.now();const sections=(data.sections||[]).filter((x:any)=>x.visible!==false&&(!x.startsAt||new Date(x.startsAt).getTime()<=now)&&(!x.endsAt||new Date(x.endsAt).getTime()>=now)).sort((a:any,b:any)=>a.sortOrder-b.sortOrder);const hero=sections.find((x:any)=>x.type==='hero');return <div style={{'--brand-bg':data.theme?.background||'#F8F5EF','--brand-fg':data.theme?.textColor||'#171513','--brand-gold':data.theme?.accentColor||'#C8A96B'} as CSSProperties}><div className="bg-[#171513] px-4 py-2 text-center text-xs text-[#F8F5EF]">{s.announcement||'شحن لجميع المحافظات • اختاري ما يعبّر عن وهجك'}</div><header className="wahaj-header wahaj-header--luxury">
 <div className="container wahaj-header__inner">
+
 <div className="wahaj-header__brand">
-<button className="wahaj-header__menu md:hidden" onClick={()=>setMenu(true)} aria-label="القائمة"><Menu size={21}/></button>
+<button type="button" className="wahaj-header__menu md:hidden" onClick={()=>setMenu(true)} aria-label="فتح القائمة" title="القائمة">
+<Menu size={20}/>
+</button>
+
 <a href="/" className="wahaj-header__logo" aria-label="وَهَج - الصفحة الرئيسية">
 <span>وَهَج</span>
 <small>Wahaj</small>
@@ -15,21 +19,40 @@ export default function Store({data}:{data:any}){const[menu,setMenu]=useState(fa
 </div>
 
 <nav className="wahaj-header__nav hidden md:flex" aria-label="القائمة الرئيسية">
-{headerMenu.filter((x:any)=>x.active).map((x:any)=><a key={x.key} href={x.href}>{x.label}</a>)}
+{headerMenu.filter((x:any)=>x.active).map((x:any)=>
+<a key={x.key} href={x.href}>{x.label}</a>
+)}
 </nav>
 
 <div className="wahaj-header__actions">
-<a href="/shop" className="wahaj-header__action" aria-label="البحث" title="البحث"><Search size={19}/></a>
-<a href="/account" className="wahaj-header__action" aria-label="حسابي" title="حسابي"><User size={19}/></a>
-<button type="button" onClick={()=>setTheme(theme==='dark'?'light':'dark')} className="wahaj-header__action" aria-label="تبديل الوضع" title="تبديل الوضع">
+
+<a href="/shop" className="wahaj-header__action" aria-label="البحث" title="البحث">
+<Search size={19}/>
+</a>
+
+<a href="/account" className="wahaj-header__action" aria-label="حسابي" title="حسابي">
+<User size={19}/>
+</a>
+
+<button
+type="button"
+onClick={()=>setTheme(theme==='dark'?'light':'dark')}
+className="wahaj-header__action"
+aria-label="تبديل الوضع"
+title={theme==='dark'?'الوضع الفاتح':'الوضع الداكن'}
+>
 {theme==='dark'?<Sun size={19}/>:<Moon size={19}/>}
 </button>
+
 <a href="/cart" className="wahaj-header__action wahaj-header__cart" aria-label="السلة" title="السلة">
 <ShoppingBag size={19}/>
 {cartCount>0&&<span className="wahaj-header__cart-count">{cartCount}</span>}
 </a>
+
 </div>
 </div>
+
+<div className="wahaj-header__accent"></div>
 </header>{menu&&<div className="fixed inset-0 z-50 bg-black/40" onClick={()=>setMenu(false)}><aside className="h-full w-[82%] bg-[var(--bg)] p-6" onClick={e=>e.stopPropagation()}><button onClick={()=>setMenu(false)} aria-label="إغلاق"><X/></button><div className="mt-10 grid gap-6 text-lg">{headerMenu.filter((x:any)=>x?.href&&x?.label).map((x:any)=><a key={x.href} href={x.href}>{x.label}</a>)}<a href="/account">حسابي</a></div></aside></div>}
 <main>{sections.map((sec:any)=>{if(sec.type==='hero')return <section key={sec.id} className="container grid min-h-[620px] items-center gap-10 py-12 md:grid-cols-2"><div className="order-2 md:order-1"><span className="gold text-sm">وَهَج — تفاصيل تصنع الفرق</span><h1 className="mt-5 text-4xl font-semibold leading-[1.3] md:text-6xl">{sec.title||'لأن أناقتك تستحق أن تتألّق'}</h1><p className="mt-6 text-lg leading-9 muted">{sec.subtitle||'قطع مختارة بعناية لتضيف لمسة من الوهج إلى كل إطلالة.'}</p><div className="mt-8 flex flex-wrap gap-3"><a href={sec.ctaUrl||'/shop'} className="btn btn-gold">{sec.ctaText||'اكتشفي المجموعة'} <ChevronLeft size={18}/></a><a href="/shop" className="btn">تسوقي الآن</a></div></div><div className="order-1 h-[480px] overflow-hidden rounded-lg md:order-2 md:h-[600px]"><img src={sec.imageUrl||data.products?.[0]?.images?.[0]?.url||'/placeholder.svg'} alt="مجموعة وَهَج" className="h-full w-full object-cover"/></div></section>;
 if(sec.type==='story')return <section key={sec.id} className="border-y py-20 hairline"><div className="container max-w-3xl text-center"><span className="gold text-sm">قصة وَهَج</span><h2 className="mt-4 text-3xl font-semibold">{sec.title||'تفاصيل صغيرة تصنع وهجًا كبيرًا.'}</h2><p className="mt-6 leading-9 muted">{sec.subtitle||s.brand_story}</p></div></section>;
