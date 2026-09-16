@@ -1281,3 +1281,182 @@ a:focus-visible {
     gap:7px;
   }
 }
+
+/* WAHaj HEADER */
+
+.wahaj-header{
+  position:sticky;
+  top:0;
+  z-index:40;
+  border-bottom:1px solid var(--line);
+  background:color-mix(in srgb,var(--bg) 94%,transparent);
+  backdrop-filter:blur(18px);
+  -webkit-backdrop-filter:blur(18px);
+}
+
+.wahaj-header__inner{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  min-height:76px;
+  gap:24px;
+}
+
+.wahaj-header__brand{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  flex-shrink:0;
+}
+
+.wahaj-header__menu{
+  display:grid;
+  width:38px;
+  height:38px;
+  place-items:center;
+  border:1px solid var(--line);
+  border-radius:50%;
+  color:var(--fg);
+}
+
+.wahaj-header__logo{
+  display:flex;
+  align-items:baseline;
+  gap:7px;
+  color:var(--fg);
+  text-decoration:none;
+}
+
+.wahaj-header__logo span{
+  font-size:25px;
+  font-weight:600;
+  letter-spacing:.02em;
+}
+
+.wahaj-header__logo small{
+  color:var(--gold);
+  font-size:10px;
+  letter-spacing:.08em;
+}
+
+.wahaj-header__nav{
+  align-items:center;
+  justify-content:center;
+  gap:28px;
+  margin-inline:auto;
+}
+
+.wahaj-header__nav a{
+  position:relative;
+  padding:8px 0;
+  color:var(--fg);
+  font-size:12px;
+  white-space:nowrap;
+  transition:color .2s ease;
+}
+
+.wahaj-header__nav a::after{
+  content:"";
+  position:absolute;
+  right:0;
+  bottom:0;
+  left:0;
+  height:1px;
+  background:var(--gold);
+  transform:scaleX(0);
+  transform-origin:right;
+  transition:transform .25s ease;
+}
+
+.wahaj-header__nav a:hover{
+  color:var(--gold);
+}
+
+.wahaj-header__nav a:hover::after{
+  transform:scaleX(1);
+}
+
+.wahaj-header__actions{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  flex-shrink:0;
+}
+
+.wahaj-header__action{
+  position:relative;
+  display:grid;
+  width:38px;
+  height:38px;
+  place-items:center;
+  border:1px solid transparent;
+  border-radius:50%;
+  color:var(--fg);
+  transition:
+    color .2s ease,
+    background .2s ease,
+    border-color .2s ease;
+}
+
+.wahaj-header__action:hover{
+  border-color:var(--line);
+  background:color-mix(in srgb,var(--card) 70%,transparent);
+  color:var(--gold);
+}
+
+.wahaj-header__cart-count{
+  position:absolute;
+  top:-2px;
+  inset-inline-end:-2px;
+  display:grid;
+  min-width:17px;
+  height:17px;
+  padding:0 4px;
+  place-items:center;
+  border:2px solid var(--bg);
+  border-radius:999px;
+  background:var(--gold);
+  color:#171513;
+  font-size:9px;
+  font-weight:700;
+  line-height:1;
+}
+
+@media (max-width:800px){
+  .wahaj-header__inner{
+    min-height:68px;
+    gap:10px;
+  }
+
+  .wahaj-header__logo span{
+    font-size:22px;
+  }
+
+  .wahaj-header__logo small{
+    font-size:9px;
+  }
+
+  .wahaj-header__actions{
+    gap:2px;
+  }
+
+  .wahaj-header__action{
+    width:36px;
+    height:36px;
+  }
+}
+
+@media (max-width:420px){
+  .wahaj-header__logo small{
+    display:none;
+  }
+
+  .wahaj-header__action{
+    width:34px;
+    height:34px;
+  }
+
+  .wahaj-header__actions{
+    gap:0;
+  }
+}
