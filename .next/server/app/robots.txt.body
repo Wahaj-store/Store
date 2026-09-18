@@ -1,0 +1,8 @@
+User-Agent: *
+Allow: /
+Disallow: /admin
+Disallow: /api/admin
+Disallow: /api/customer
+Disallow: /api/checkout
+
+Sitemap: https://wahaj-store.vercel.app/sitemap.xml
