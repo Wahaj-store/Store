@@ -1,5 +1,37 @@
-import {NextResponse} from 'next/server';import {prisma} from '@/lib/prisma';import {requireUser} from '@/lib/auth';
-export async function GET(){const u=await requireUser(['OWNER','ADMIN','MANAGER','ORDER_MANAGER','VIEWER']);if(!u)return NextResponse.json({error:'غير مصرح'},{status:401});return NextResponse.json(await prisma.shippingZone.findMany({orderBy:{governorate:'asc'}}))}
-export async function POST(req:Request){const u=await requireUser(['OWNER','ADMIN','MANAGER']);if(!u)return NextResponse.json({error:'غير مصرح'},{status:403});const b=await req.json();return NextResponse.json(await prisma.shippingZone.create({data:{governorate:b.governorate,city:b.city||null,price:Number(b.price),freeAbove:b.freeAbove?Number(b.freeAbove):null,active:b.active!==false}}),{status:201})}
-export async function PUT(req:Request){const u=await requireUser(['OWNER','ADMIN','MANAGER']);if(!u)return NextResponse.json({error:'غير مصرح'},{status:403});const b=await req.json();return NextResponse.json(await prisma.shippingZone.update({where:{id:b.id},data:{governorate:b.governorate,city:b.city||null,price:Number(b.price),freeAbove:b.freeAbove?Number(b.freeAbove):null,active:b.active!==false}}))}
-export async function DELETE(req:Request){const u=await requireUser(['OWNER','ADMIN','MANAGER']);if(!u)return NextResponse.json({error:'غير مصرح'},{status:403});return NextResponse.json(await prisma.shippingZone.delete({where:{id:(await req.json()).id}}))}
+import { NextResponse } from "next/server";
+import { db } from "@/lib/db"; // أو المسار الصحيح لملف Prisma Client الخاص بك
+
+export async function GET() {
+  try {
+    const zones = await db.shippingZone.findMany({
+      orderBy: { governorate: "asc" },
+    });
+    return NextResponse.json(zones);
+  } catch (error) {
+    return NextResponse.json({ error: "Failed to fetch shipping zones" }, { status: 500 });
+  }
+}
+
+export async function POST(req: Request) {
+  try {
+    const body = await req.json();
+    const { governorate, price, freeAbove } = body;
+
+    if (!governorate || price === undefined) {
+      return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+    }
+
+    const newZone = await db.shippingZone.create({
+      data: {
+        governorate,
+        price: parseFloat(price),
+        freeAbove: freeAbove ? parseFloat(freeAbove) : null,
+        active: true,
+      },
+    });
+
+    return NextResponse.json(newZone, { status: 201 });
+  } catch (error) {
+    return NextResponse.json({ error: "Failed to create shipping zone (may already exist)" }, { status: 500 });
+  }
+}
