@@ -2,21 +2,12 @@
 import { useEffect, useState } from "react";
 import type { CSSProperties } from "react";
 import {
-  Search,
-  Heart,
-  ShoppingBag,
-  User,
-  Menu,
-  X,
-  Moon,
-  Sun,
   ChevronLeft,
   ShieldCheck,
   Truck,
   RotateCcw,
   MessageCircle,
 } from "lucide-react";
-import { useTheme } from "next-themes";
 import AddToCart from "./AddToCart";
 import WishlistButton from "./WishlistButton";
 function Pay({ methods }: { methods: any[] }) {
@@ -195,53 +186,7 @@ function ProductsSection({
   );
 }
 export default function Store({ data }: { data: any }) {
-  const [menu, setMenu] = useState(false);
-  const [showPopup, setShowPopup] = useState(false);
-  const [cartCount, setCartCount] = useState(0);
-  useEffect(() => {
-    if (s.popup_enabled === "true" && popup.title) {
-      const seen = sessionStorage.getItem("wahaj_popup_seen");
-      if (!seen) setTimeout(() => setShowPopup(true), 1800);
-    }
-    const sync = () => {
-      try {
-        setCartCount(
-          JSON.parse(localStorage.getItem("wahaj_cart") || "[]").reduce(
-            (n: any, x: any) => n + Number(x.quantity || 0),
-            0,
-          ),
-        );
-      } catch {
-        setCartCount(0);
-      }
-    };
-    sync();
-    window.addEventListener("wahaj-cart-change", sync);
-    window.addEventListener("storage", sync);
-    return () => {
-      window.removeEventListener("wahaj-cart-change", sync);
-      window.removeEventListener("storage", sync);
-    };
-  }, []);
-  const { theme, setTheme } = useTheme();
   const s = data.settings || {};
-  const parse = (v: any, d: any) => {
-    try {
-      return v ? JSON.parse(v) : d;
-    } catch {
-      return d;
-    }
-  };
-  const headerMenu = parse(s.header_menu, [
-    { label: "الرئيسية", href: "/" },
-    { label: "المتجر", href: "/shop" },
-    { label: "من نحن", href: "/about" },
-  ]);
-  const footerLinks = parse(s.footer_links, [
-    { label: "تواصل معنا", href: "/contact" },
-    { label: "الأسئلة الشائعة", href: "/faq" },
-  ]);
-  const popup = parse(s.popup_config, {});
   const now = Date.now();
   const sections = (data.sections || [])
     .filter(
@@ -251,7 +196,7 @@ export default function Store({ data }: { data: any }) {
         (!x.endsAt || new Date(x.endsAt).getTime() >= now),
     )
     .sort((a: any, b: any) => a.sortOrder - b.sortOrder);
-  const hero = sections.find((x: any) => x.type === "hero");
+
   return (
     <div
       style={
@@ -262,115 +207,6 @@ export default function Store({ data }: { data: any }) {
         } as CSSProperties
       }
     >
-      <div className="bg-[#171513] px-4 py-2 text-center text-xs text-[#F8F5EF]">
-        {s.announcement || "شحن لجميع المحافظات • اختاري ما يعبّر عن وهجك"}
-      </div>
-      <header className="wahaj-header wahaj-header--luxury">
-        <div className="container wahaj-header__inner">
-          <div className="wahaj-header__brand">
-            <button
-              type="button"
-              className="wahaj-header__menu md:hidden"
-              onClick={() => setMenu(true)}
-              aria-label="فتح القائمة"
-              title="القائمة"
-            >
-              <Menu size={20} />
-            </button>
-
-            <a
-              href="/"
-              className="wahaj-header__logo"
-              aria-label="وَهَج - الصفحة الرئيسية"
-            >
-              <span>وَهَج</span>
-              <small>Wahaj</small>
-            </a>
-          </div>
-
-          <nav
-            className="wahaj-header__nav hidden md:flex"
-            aria-label="القائمة الرئيسية"
-          >
-            {headerMenu
-              .filter((x: any) => x.active)
-              .map((x: any) => (
-                <a key={x.key} href={x.href}>
-                  {x.label}
-                </a>
-              ))}
-          </nav>
-
-          <div className="wahaj-header__actions">
-            <a
-              href="/shop"
-              className="wahaj-header__action"
-              aria-label="البحث"
-              title="البحث"
-            >
-              <Search size={19} />
-            </a>
-
-            <a
-              href="/account"
-              className="wahaj-header__action"
-              aria-label="حسابي"
-              title="حسابي"
-            >
-              <User size={19} />
-            </a>
-
-            <button
-              type="button"
-              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-              className="wahaj-header__action"
-              aria-label="تبديل الوضع"
-              title={theme === "dark" ? "الوضع الفاتح" : "الوضع الداكن"}
-            >
-              {theme === "dark" ? <Sun size={19} /> : <Moon size={19} />}
-            </button>
-
-            <a
-              href="/cart"
-              className="wahaj-header__action wahaj-header__cart"
-              aria-label="السلة"
-              title="السلة"
-            >
-              <ShoppingBag size={19} />
-              {cartCount > 0 && (
-                <span className="wahaj-header__cart-count">{cartCount}</span>
-              )}
-            </a>
-          </div>
-        </div>
-
-        <div className="wahaj-header__accent"></div>
-      </header>
-      {menu && (
-        <div
-          className="fixed inset-0 z-50 bg-black/40"
-          onClick={() => setMenu(false)}
-        >
-          <aside
-            className="h-full w-[82%] bg-[var(--bg)] p-6"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <button onClick={() => setMenu(false)} aria-label="إغلاق">
-              <X />
-            </button>
-            <div className="mt-10 grid gap-6 text-lg">
-              {headerMenu
-                .filter((x: any) => x?.href && x?.label)
-                .map((x: any) => (
-                  <a key={x.href} href={x.href}>
-                    {x.label}
-                  </a>
-                ))}
-              <a href="/account">حسابي</a>
-            </div>
-          </aside>
-        </div>
-      )}
       <main>
         {sections.map((sec: any) => {
           if (sec.type === "hero")
@@ -547,101 +383,6 @@ export default function Store({ data }: { data: any }) {
           );
         })}
       </main>
-      <footer className="bg-[#171513] py-16 text-[#F8F5EF]">
-        <div className="container grid gap-10 md:grid-cols-4">
-          <div>
-            <div className="text-2xl">وَهَج</div>
-            <p className="mt-4 leading-8 text-white/60">
-              إكسسوارات عصرية تمنح كل إطلالة لمستها الخاصة.
-            </p>
-          </div>
-          <div>
-            <h3 className="gold">المتجر</h3>
-            <div className="mt-4 grid gap-3 text-white/70">
-              <a href="/shop">المتجر</a>
-              <a href="#offers">العروض</a>
-            </div>
-          </div>
-          <div>
-            <h3 className="gold">روابط</h3>
-            <div className="mt-4 grid gap-3 text-white/70">
-              {footerLinks
-                .filter((x: any) => x?.href && x?.label)
-                .map((x: any) => (
-                  <a key={x.href} href={x.href}>
-                    {x.label}
-                  </a>
-                ))}
-            </div>
-          </div>
-          <div>
-            <h3 className="gold">طرق الدفع</h3>
-            <div className="mt-4 flex gap-2">
-              <span className="payment-icon">COD</span>
-              <span className="payment-icon">V</span>
-              <span className="payment-icon">IP</span>
-            </div>
-          </div>
-        </div>
-      </footer>
-      {showPopup && (
-        <div
-          className="fixed inset-0 z-[80] grid place-items-center bg-black/50 p-4"
-          role="dialog"
-          aria-modal="true"
-        >
-          <div className="lux-card w-full max-w-md p-7">
-            <button
-              className="float-start"
-              onClick={() => {
-                setShowPopup(false);
-                sessionStorage.setItem("wahaj_popup_seen", "1");
-              }}
-              aria-label="إغلاق"
-            >
-              ×
-            </button>
-            <span className="gold text-sm">وَهَج</span>
-            <h2 className="mt-3 text-2xl font-semibold">{popup.title}</h2>
-            <p className="muted mt-3 leading-8">{popup.text}</p>
-            {popup.ctaUrl && (
-              <a
-                onClick={() => sessionStorage.setItem("wahaj_popup_seen", "1")}
-                href={popup.ctaUrl}
-                className="btn btn-gold mt-6 w-full"
-              >
-                {popup.ctaText || "اكتشفي المجموعة"}
-              </a>
-            )}
-          </div>
-        </div>
-      )}
-      <nav className="fixed inset-x-0 bottom-0 z-40 flex justify-around border-t bg-[var(--bg)]/95 p-2 backdrop-blur md:hidden hairline">
-        <a href="/" className="text-xs">
-          الرئيسية
-        </a>
-        <a href="/shop" className="text-xs">
-          المتجر
-        </a>
-        <a href="/shop" className="text-xs">
-          البحث
-        </a>
-        <a href="/account" className="text-xs">
-          المفضلة
-        </a>
-        <a href="/account" className="text-xs">
-          الحساب
-        </a>
-      </nav>
-      {s.whatsapp && (
-        <a
-          href={`https://wa.me/${s.whatsapp.replace(/\D/g, "")}`}
-          aria-label="واتساب"
-          className="fixed bottom-20 end-5 z-30 rounded-full bg-[#25D366] p-4 text-white shadow-lg"
-        >
-          <MessageCircle />
-        </a>
-      )}
     </div>
   );
 }
