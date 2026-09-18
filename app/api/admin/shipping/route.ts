@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { db } from "@/lib/db"; // أو المسار الصحيح لملف Prisma Client الخاص بك
+import { db } from "@/lib/prisma"; // أو المسار الصحيح لملف Prisma Client الخاص بك
 
 export async function GET() {
   try {
