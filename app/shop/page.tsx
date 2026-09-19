@@ -39,12 +39,10 @@ export default async function Shop({
 
   return (
     <main className="container py-12">
-      {/* رأس صفحة المتجر والعنوان */}
       <div className="mt-2">
         <span className="text-[#D4AF37] text-sm font-medium tracking-wide">Wahaj Store</span>
         <h1 className="mt-1 text-3xl md:text-4xl font-semibold tracking-tight">المتجر</h1>
         
-        {/* شريط البحث الاحترافي */}
         <form className="mt-6 flex gap-2 max-w-xl">
           <input
             name="q"
@@ -58,7 +56,6 @@ export default async function Shop({
         </form>
       </div>
 
-      {/* التاجز (التصنيفات) بتصميم عصري راقٍ */}
       <div className="mt-6 flex flex-wrap gap-2">
         <a
           href="/shop"
@@ -85,12 +82,13 @@ export default async function Shop({
         ))}
       </div>
 
-      {/* شبكة المنتجات الاحترافية بدون أي مربعات دفع أسفل الأزرار */}
       <div className="mt-10 grid grid-cols-2 gap-x-3 gap-y-8 md:grid-cols-4 md:gap-6">
         {ps.map((p) => {
+          const priceNum = Number(p.price);
+          const compareNum = p.comparePrice ? Number(p.comparePrice) : 0;
           const discount =
-            p.comparePrice && p.comparePrice > p.price
-              ? Math.round((1 - p.price / p.comparePrice) * 100)
+            compareNum > priceNum
+              ? Math.round((1 - priceNum / compareNum) * 100)
               : 0;
 
           return (
@@ -123,11 +121,11 @@ export default async function Shop({
                   </a>
                   <div className="mt-1.5 flex items-center gap-2">
                     <span className="font-bold text-base text-[#D4AF37]">
-                      {Number(p.price).toLocaleString('ar-EG')} ج.م
+                      {priceNum.toLocaleString('ar-EG')} ج.م
                     </span>
-                    {p.comparePrice && (
+                    {compareNum > 0 && (
                       <del className="text-xs text-muted-foreground">
-                        {Number(p.comparePrice).toLocaleString('ar-EG')} ج.م
+                        {compareNum.toLocaleString('ar-EG')} ج.م
                       </del>
                     )}
                   </div>
@@ -141,7 +139,6 @@ export default async function Shop({
                 </div>
               </div>
 
-              {/* زر أضيفي إلى السلة نظيف وخالٍ من أي مربعات مزعجة */}
               <div className="mt-4 pt-2 border-t border-border/20">
                 <AddToCart product={p} />
               </div>
