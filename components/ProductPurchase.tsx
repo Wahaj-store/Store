@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import AddToCart from './AddToCart';
-import { CheckCircle2, ShoppingBag, Zap } from 'lucide-react';
+import { CheckCircle2, Zap } from 'lucide-react';
 
 export default function ProductPurchase({ product }: { product: any }) {
   const router = useRouter();
@@ -23,12 +23,9 @@ export default function ProductPurchase({ product }: { product: any }) {
     setQuantity((prev) => (stock && prev < stock ? prev + 1 : prev));
   };
 
-  // دالة الشراء الفوري والتوجه المباشر للسلة أو صفحة الدفع
   const handleBuyNow = async () => {
     try {
       setIsBuyingNow(true);
-      // إذا كان مكون AddToCart يعتمد على حفظ المنتج في السلة، يمكننا استدعاؤه برمجياً أو توجيه العميل مباشرة
-      // هنا نقوم بتوجيه العميلة لصفحة السلة مع تمرير بيانات المنتج والكمية
       router.push(`/cart?productId=${product.id}&variantId=${id || ''}&quantity=${quantity}`);
     } catch (error) {
       console.error(error);
@@ -111,9 +108,9 @@ export default function ProductPurchase({ product }: { product: any }) {
           </div>
         </div>
 
-        {/* زر الإضافة للسلة بجانب الكمية */}
+        {/* زر الإضافة للسلة بجانب الكمية (تم تمرير الخصائص المتوافقة تماماً) */}
         <div className="md:col-span-8 w-full">
-          <AddToCart product={product} variantId={id} quantity={quantity} />
+          <AddToCart product={{ ...product, selectedQuantity: quantity }} variantId={id} />
         </div>
       </div>
 
