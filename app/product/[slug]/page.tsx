@@ -5,7 +5,7 @@ import WishlistButton from '@/components/WishlistButton';
 import ReviewForm from '@/components/ReviewForm';
 import BackInStockForm from '@/components/BackInStockForm';
 import RecentlyViewed from '@/components/RecentlyViewed';
-import { ShieldCheck, Truck, RotateCcw, CheckCircle2, ChevronRight } from 'lucide-react';
+import { ShieldCheck, Truck, RotateCcw, ChevronRight } from 'lucide-react';
 
 export async function generateMetadata({ params }: { params: { slug: string } }) {
   const p = await prisma.product.findUnique({
@@ -76,14 +76,18 @@ export default async function ProductPage({ params }: { params: { slug: string }
     <main className="container py-10 max-w-6xl">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       
-      {/* رابط العودة للمتجر بتصميم احترافي */}
-      <a href="/shop" className="inline-flex items-center gap-1 text-sm font-medium text-[#D4AF37] hover:opacity-80 transition-opacity">
-        <ChevronRight size={16} /> العودة للمتجر
+      {/* زر العودة العلوي الاحترافي */}
+      <a 
+        href="/shop" 
+        className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl border border-border/50 bg-muted/30 text-xs font-semibold text-[#D4AF37] hover:bg-[#D4AF37]/10 transition-all shadow-2xs"
+      >
+        <ChevronRight size={15} /> 
+        <span>العودة للمتجر</span>
       </a>
 
       <div className="mt-6 grid gap-10 md:grid-cols-2">
         
-        {/* 1. معرض الصور الاحترافي (Gallery) */}
+        {/* 1. معرض الصور (Gallery) */}
         <div className="space-y-4">
           <div className="relative aspect-square overflow-hidden rounded-3xl border border-border/40 bg-muted/20 shadow-sm">
             <img
@@ -122,16 +126,12 @@ export default async function ProductPage({ params }: { params: { slug: string }
               </span>
             </div>
 
-            {/* حالة المخزون (بدون تكرار مزعج) */}
-            <div className="mt-3 flex items-center gap-2 text-xs font-medium text-emerald-600 dark:text-emerald-400">
-              <CheckCircle2 size={16} />
-              <span>{p.stock > 0 ? `متوفر بالمخزون (${p.stock} قطعة متاحة)` : 'غير متوفر حالياً'}</span>
+            <div className="mt-3">
+              <WishlistButton productId={p.id} />
             </div>
-
-            <WishlistButton productId={p.id} />
             
-            {/* مكون الشراء وإضافة للسلة */}
-            <div className="mt-5">
+            {/* مكون الشراء (بدون تكرار خارجي للمخزون) */}
+            <div className="mt-4">
               <ProductPurchase product={{ ...p, price: Number(p.price), images: p.images }} />
             </div>
 
@@ -143,28 +143,28 @@ export default async function ProductPage({ params }: { params: { slug: string }
               </div>
             )}
 
-            {/* أيقونات وسائل الدفع الآمنة */}
+            {/* بطاقات وسائل الدفع الآمنة (أحجام متناسقة تماماً) */}
             <div className="mt-6 rounded-2xl border border-border/50 bg-muted/20 p-4">
-              <span className="text-[11px] font-semibold text-muted-foreground block mb-2.5 text-center">
+              <span className="text-[11px] font-semibold text-muted-foreground block mb-3 text-center">
                 طرق الدفع الآمنة المتاحة
               </span>
-              <div className="flex items-center justify-around gap-2 text-xs font-medium">
+              <div className="grid grid-cols-3 gap-2.5 text-xs font-medium">
                 {payments.some((m) => m.method === 'COD') && (
-                  <div className="flex items-center gap-1.5 bg-[var(--bg)] px-3 py-2 rounded-xl border border-border/40 shadow-2xs">
-                    <Truck size={15} className="text-[#D4AF37]" />
-                    <span>الدفع عند الاستلام</span>
+                  <div className="flex flex-col items-center justify-center gap-1.5 bg-[var(--bg)] px-2 py-3 rounded-xl border border-border/40 shadow-2xs text-center">
+                    <Truck size={18} className="text-[#D4AF37]" />
+                    <span className="text-[11px]">الدفع عند الاستلام</span>
                   </div>
                 )}
                 {payments.some((m) => m.method === 'VODAFONE_CASH') && (
-                  <div className="flex items-center gap-1.5 bg-[var(--bg)] px-3 py-2 rounded-xl border border-border/40 shadow-2xs">
-                    <ShieldCheck size={15} className="text-[#D4AF37]" />
-                    <span>Vodafone Cash</span>
+                  <div className="flex flex-col items-center justify-center gap-1.5 bg-[var(--bg)] px-2 py-3 rounded-xl border border-border/40 shadow-2xs text-center">
+                    <ShieldCheck size={18} className="text-[#D4AF37]" />
+                    <span className="text-[11px]">Vodafone Cash</span>
                   </div>
                 )}
                 {payments.some((m) => m.method === 'INSTAPAY') && (
-                  <div className="flex items-center gap-1.5 bg-[var(--bg)] px-3 py-2 rounded-xl border border-border/40 shadow-2xs">
-                    <RotateCcw size={15} className="text-[#D4AF37]" />
-                    <span>InstaPay</span>
+                  <div className="flex flex-col items-center justify-center gap-1.5 bg-[var(--bg)] px-2 py-3 rounded-xl border border-border/40 shadow-2xs text-center">
+                    <RotateCcw size={18} className="text-[#D4AF37]" />
+                    <span className="text-[11px]">InstaPay</span>
                   </div>
                 )}
               </div>
@@ -173,7 +173,7 @@ export default async function ProductPage({ params }: { params: { slug: string }
         </div>
       </div>
 
-      {/* قسم التفاصيل والخامة والعناية */}
+      {/* قسم التفاصيل والخامة والعناية والـ SKU */}
       <div className="mt-16 grid gap-8 md:grid-cols-2 border-t border-border/40 pt-10">
         <div className="rounded-2xl border border-border/40 p-6 bg-muted/10">
           <h2 className="text-xl font-semibold mb-4 text-[#D4AF37]">التفاصيل والخامة</h2>
@@ -187,8 +187,8 @@ export default async function ProductPage({ params }: { params: { slug: string }
               <span>{p.careInstructions || 'يُحفظ بعيداً عن الرطوبة والعطور المباشرة.'}</span>
             </li>
             <li className="flex justify-between pb-2">
-              <span className="font-medium text-foreground">SKU:</span>
-              <span className="font-mono text-xs">{p.sku}</span>
+              <span className="font-medium text-foreground" title="رمز تعريفي فريد للمنتج في المخزن">رمز المنتج (SKU):</span>
+              <span className="font-mono text-xs">{p.sku || 'غير متوفر'}</span>
             </li>
           </ul>
         </div>
