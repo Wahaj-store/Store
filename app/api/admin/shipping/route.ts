@@ -34,7 +34,7 @@ async function ensureGovernoratesExist() {
   }
 }
 
-// GET: يقوم تلقائياً بضمان وجود المحافظات ثم إرجاعها للوحة التحكم أو صفحة إتمام الطلب
+// GET: يقوم تلقائياً بضمان وجود المحافظات ثم إرجاعها
 export async function GET() {
   try {
     await ensureGovernoratesExist(); // الإدراج التلقائي الفوري
@@ -71,4 +71,4 @@ export async function POST(req: Request) {
   } catch (error) {
     return NextResponse.json({ error: "Failed to create zone" }, { status: 500 });
   }
-}}
+}
