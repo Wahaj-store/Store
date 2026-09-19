@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import Link from 'next/link';
 import { Truck, CreditCard, ShieldCheck, ArrowRight } from 'lucide-react';
 
 function CheckoutContent() {
@@ -93,7 +94,7 @@ function CheckoutContent() {
     }
   }
 
-  // دالة لتحديد الأيقونة والشكل المناسب حسب طريقة الدفع القادمة من الداتا بأسلوب احترافي
+  // دالة لتحديد الأيقونة والشكل المناسب حسب طريقة الدفع
   const getPaymentIcon = (methodKey: string) => {
     switch (methodKey.toLowerCase()) {
       case 'cod':
@@ -111,15 +112,21 @@ function CheckoutContent() {
 
   return (
     <main className="container max-w-5xl py-8">
-      <div className="mb-6">
-        <a href="/cart" className="gold text-sm inline-flex items-center gap-1 mb-2">
+      {/* الترويسة العلوية مع زر العودة الاحترافي */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
+        <div>
+          <h1 className="text-3xl font-semibold">إتمام الطلب</h1>
+          <p className="mt-1 muted text-sm">تجربة دفع بسيطة، آمنة ومصممة خصيصاً لراحتك.</p>
+        </div>
+        <Link 
+          href="/cart" 
+          className="border border-[var(--gold)] text-[var(--gold)] hover:bg-[var(--gold)] hover:text-white transition flex items-center gap-2 text-sm py-2 px-4 rounded-lg font-medium shadow-sm"
+        >
           <ArrowRight size={16} /> العودة إلى السلة
-        </a>
-        <h1 className="text-3xl font-semibold">إتمام الطلب</h1>
-        <p className="mt-1 muted text-sm">تجربة دفع بسيطة، آمنة ومصممة خصيصاً لراحتك.</p>
+        </Link>
       </div>
       
-      <form onSubmit={submit} className="mt-6 grid gap-8 lg:grid-cols-[1fr_360px]">
+      <form onSubmit={submit} className="grid gap-8 lg:grid-cols-[1fr_360px]">
         {/* قسم البيانات وطرق الدفع */}
         <section className="space-y-6">
           <div className="lux-card p-6 bg-background border hairline rounded-xl space-y-4">
@@ -170,7 +177,7 @@ function CheckoutContent() {
             </label>
           </div>
 
-          {/* طرق الدفع المصممة بالأيقونات بدلاً من الإيموجي */}
+          {/* طرق الدفع المصممة بالأيقونات */}
           <div className="lux-card p-6 bg-background border hairline rounded-xl space-y-4">
             <h2 className="text-lg font-semibold flex items-center gap-2 pb-2 border-b hairline">
               <CreditCard size={20} className="text-[var(--gold)]" /> طريقة الدفع
