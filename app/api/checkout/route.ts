@@ -10,7 +10,7 @@ const S = z.object({
   name: z.string().trim().min(2).max(100), phone: z.string().trim().min(8).max(30),
   governorate: z.string().trim().min(2).max(80), city: z.string().trim().min(2).max(100), address: z.string().trim().min(5).max(500), notes: z.string().trim().max(1000).optional(),
   paymentMethod: z.nativeEnum(PaymentMethod), couponCode: z.string().trim().max(50).optional(),
-  idempotencyKey: z.string().uuid().optional(), items: z.array(Item).min(1).max(100), paymentReference: z.string().trim().max(100).optional(), proofUrl: z.string().url().max(1000).optional()
+  idempotencyKey: z.string().uuid().optional(), items: z.array(Item).min(1).max(100), paymentReference: z.string().trim().max(100).optional(), proofUrl: z.string().max(100000).optional()
 });
 
 export async function POST(req: Request) {
