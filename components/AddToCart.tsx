@@ -13,6 +13,8 @@ export default function AddToCart({ product, variantId }: { product: any; varian
 
     if (!available) return;
 
+    // استخدام الكمية المختارة من المنتج (أو 1 كافتراضي)
+    const selectedQty = Number(product.selectedQuantity) || 1;
     const price = variant?.price != null ? Number(variant.price) : Number(product.price);
     const cart = JSON.parse(localStorage.getItem('wahaj_cart') || '[]');
     const key = variant ? `${product.id}:${variant.id}` : product.id;
@@ -20,7 +22,7 @@ export default function AddToCart({ product, variantId }: { product: any; varian
     const i = cart.findIndex((x: any) => `${x.productId}:${x.variantId || ''}` === key);
 
     if (i >= 0) {
-      cart[i].quantity = Math.min(cart[i].quantity + 1, available);
+      cart[i].quantity = Math.min(cart[i].quantity + selectedQty, available);
     } else {
       cart.push({
         productId: product.id,
@@ -30,7 +32,7 @@ export default function AddToCart({ product, variantId }: { product: any; varian
         name: product.name,
         price,
         image: variant?.imageUrl || product.images?.[0]?.url || '',
-        quantity: 1,
+        quantity: selectedQty, // حفظ الكمية المختارة بدقة
         maxStock: available,
       });
     }
@@ -53,10 +55,10 @@ export default function AddToCart({ product, variantId }: { product: any; varian
       onClick={add}
       aria-live="polite"
       style={{
-        backgroundColor: disabled ? undefined : done ? '#059669' : '#D4AF37', // لون ذهبي متناسق ومضمون الظهور
-        color: disabled ? undefined : '#000000', // نص أسود واضح على الخلفية الذهبية
+        backgroundColor: disabled ? undefined : done ? '#059669' : '#D4AF37',
+        color: disabled ? undefined : '#000000',
       }}
-      className={`w-full rounded-xl py-3.5 px-6 text-sm font-bold transition-all shadow-md ${
+      className={`w-full rounded-2xl py-3.5 px-6 text-sm font-bold transition-all shadow-md ${
         disabled
           ? 'bg-zinc-800 text-zinc-400 cursor-not-allowed opacity-60 border border-zinc-700'
           : done
