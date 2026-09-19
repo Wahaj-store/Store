@@ -221,27 +221,27 @@ export default function Store({ data }: { data: any }) {
               <section
                 id="collections"
                 key={sec.id}
-                className="wahaj-collections py-16"
+                className="wahaj-collections py-20 border-t border-border/30 bg-muted/5"
               >
                 <div className="container">
-                  <div className="wahaj-collections__head mb-10 text-center md:text-start">
-                    <span className="text-[#D4AF37] text-sm font-medium tracking-wide">
+                  <div className="wahaj-collections__head mb-12 text-right">
+                    <span className="inline-block text-[#D4AF37] text-xs font-semibold tracking-widest uppercase px-3 py-1 rounded-full bg-[#D4AF37]/10 mb-3">
                       اكتشفي عالم وَهَج
                     </span>
-                    <h2 className="text-3xl font-semibold mt-1">
+                    <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-foreground">
                       {sec.title || "اختاري ما يشبهك"}
                     </h2>
-                    <p className="text-muted-foreground text-sm mt-2">
+                    <p className="text-muted-foreground text-sm md:text-base mt-2 max-w-xl">
                       {sec.subtitle ||
-                        "مجموعات مختارة بعناية لتمنح كل إطلالة لمستها الخاصة."}
+                        "مجموعات مختارة بعناية لتمنح كل إطلالة لمستها الخاصة من الفخامة."}
                     </p>
                   </div>
-                  <div className="wahaj-collections__grid grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className="wahaj-collections__grid grid grid-cols-2 md:grid-cols-4 gap-5 md:gap-6">
                     {data.categories.map((c: any) => (
                       <a
                         key={c.id}
                         href={`/shop?category=${c.slug}`}
-                        className="group relative overflow-hidden rounded-2xl aspect-[3/4] block shadow-sm"
+                        className="group relative overflow-hidden rounded-3xl aspect-[3/4] block shadow-md border border-border/40 transition-all duration-500 hover:shadow-xl hover:border-[#D4AF37]/60"
                       >
                         <img
                           src={
@@ -251,12 +251,15 @@ export default function Store({ data }: { data: any }) {
                           }
                           alt={c.name}
                           loading="lazy"
-                          className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+                          className="h-full w-full object-cover transition duration-700 group-hover:scale-110"
                         />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex flex-col justify-end p-4 text-white">
-                          <h3 className="font-semibold text-lg">{c.name}</h3>
-                          <span className="text-xs text-[#D4AF37] mt-1 flex items-center gap-1 font-medium">
-                            اكتشفي المجموعة <ChevronLeft size={14} />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent flex flex-col justify-end p-5 text-white text-right">
+                          <h3 className="font-bold text-lg md:text-xl tracking-wide group-hover:text-[#D4AF37] transition-colors">
+                            {c.name}
+                          </h3>
+                          <span className="text-xs text-[#D4AF37] mt-2 flex items-center justify-end gap-1.5 font-semibold opacity-90 group-hover:opacity-100 transition-opacity">
+                            <span>اكتشفي المجموعة</span>
+                            <ChevronLeft size={15} className="rotate-180 transition-transform duration-300 group-hover:-translate-x-1" />
                           </span>
                         </div>
                       </a>
