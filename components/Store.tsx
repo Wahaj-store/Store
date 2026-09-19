@@ -105,7 +105,6 @@ function Card({ p }: { p: any }) {
         </div>
       </div>
 
-      {/* تم إزالة مربعات وعناصر الدفع الوهمية نهائياً لتبقى الواجهة نظيفة واحترافية */}
       <div className="mt-4 pt-2 border-t border-border/20">
         <AddToCart product={p} />
       </div>
@@ -300,20 +299,25 @@ export default function Store({ data }: { data: any }) {
             );
           if (sec.type === "trust")
             return (
-              <section key={sec.id} className="border-y border-border/40 py-16 bg-muted/10">
-                <div className="container grid grid-cols-2 gap-8 md:grid-cols-4">
+              <section key={sec.id} className="container py-16">
+                <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
                   {[
-                    [Truck, "شحن لجميع المحافظات"],
-                    [ShieldCheck, "دفع آمن وموثوق"],
-                    [RotateCcw, "استبدال واسترجاع"],
-                    [MessageCircle, "دعم العملاء"],
-                  ].map(([I, t]: any) => (
-                    <div className="text-center flex flex-col items-center" key={t}>
-                      <div className="p-3 rounded-full bg-[#D4AF37]/10 text-[#D4AF37] mb-3">
+                    { icon: Truck, title: "شحن داخل مصر", desc: "توصيل سريع لكافة المحافظات", href: "/shipping-policy" },
+                    { icon: ShieldCheck, title: "طرق دفع متعددة", desc: "دفع آمن (إيستاباي، فودافون، كاش)", href: "/payment-policy" },
+                    { icon: RotateCcw, title: "استبدال واسترجاع", desc: "سياسة مرنة خلال 14 يوماً", href: "/returns-policy" },
+                    { icon: MessageCircle, title: "دعم سريع", desc: "خدمة عملاء متاحة على مدار الساعة", href: "/contact" },
+                  ].map(({ icon: I, title, desc, href }) => (
+                    <a
+                      href={href}
+                      key={title}
+                      className="group flex flex-col items-center text-center p-6 rounded-2xl border border-border/40 bg-[var(--bg)] shadow-sm transition-all hover:border-[#D4AF37] hover:shadow-md"
+                    >
+                      <div className="p-3.5 rounded-2xl bg-[#D4AF37]/10 text-[#D4AF37] mb-3 group-hover:scale-110 transition-transform">
                         <I size={24} />
                       </div>
-                      <p className="text-sm font-medium">{t}</p>
-                    </div>
+                      <h3 className="font-semibold text-sm mb-1">{title}</h3>
+                      <p className="text-xs text-muted-foreground leading-relaxed">{desc}</p>
+                    </a>
                   ))}
                 </div>
               </section>
