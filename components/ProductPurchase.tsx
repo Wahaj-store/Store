@@ -11,8 +11,8 @@ export default function ProductPurchase({ product }: { product: any }) {
   const stock = v ? v.stock : product.stock;
 
   return (
-    <div className="flex flex-col">
-      {/* عرض السعر مع السعر القديم إن وجد */}
+    <div className="flex flex-col items-start">
+      {/* عرض السعر مع السعر القديم إن وجد (محاذاة لليمين) */}
       <div className="mt-2 flex items-center gap-3">
         <span className="text-2xl md:text-3xl font-extrabold text-[#D4AF37]">
           {price.toLocaleString('ar-EG')} ج.م
@@ -26,9 +26,9 @@ export default function ProductPurchase({ product }: { product: any }) {
 
       {/* خيارات المنتجات (إن وجدت) */}
       {product.variants?.length > 0 && (
-        <div className="mt-6">
-          <h2 className="text-sm font-semibold mb-3">الخيارات المتاحة</h2>
-          <div className="flex flex-wrap gap-2">
+        <div className="mt-6 w-full">
+          <h2 className="text-sm font-semibold mb-3 text-right">الخيارات المتاحة</h2>
+          <div className="flex flex-wrap gap-2 justify-start">
             {product.variants.map((x: any) => (
               <button
                 type="button"
@@ -49,12 +49,12 @@ export default function ProductPurchase({ product }: { product: any }) {
         </div>
       )}
 
-      {/* حالة توفر المخزون مع العلامة الخضراء في جهة اليمين */}
-      <div className="mt-3 flex items-center justify-end gap-1.5 text-xs font-medium">
+      {/* حالة توفر المخزون: العلامة الخضراء في أقصى اليمين يليها النص */}
+      <div className="mt-3 flex items-center justify-start gap-1.5 text-xs font-medium w-full">
         {stock > 0 ? (
           <div className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400">
+            <CheckCircle2 size={15} className="flex-shrink-0" />
             <span>{stock <= 5 ? `متبقي القليل • ${stock} قطعة فقط` : `متوفر بالمخزون (${stock} قطعة متاحة)`}</span>
-            <CheckCircle2 size={15} />
           </div>
         ) : (
           <span className="text-rose-500 font-semibold">غير متوفر حالياً</span>
@@ -62,7 +62,7 @@ export default function ProductPurchase({ product }: { product: any }) {
       </div>
 
       {/* زر الإضافة للسلة */}
-      <div className="mt-7">
+      <div className="mt-7 w-full">
         <AddToCart product={product} variantId={id} />
       </div>
     </div>
