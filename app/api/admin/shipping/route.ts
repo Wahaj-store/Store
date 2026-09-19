@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
-import { prisma } from '@/lib/prisma'; // أو المسار الصحيح لملف Prisma Client الخاص بك
+import { prisma } from "@/lib/prisma";
 
 export async function GET() {
   try {
-    const zones = await db.shippingZone.findMany({
+    const zones = await prisma.shippingZone.findMany({
       orderBy: { governorate: "asc" },
     });
     return NextResponse.json(zones);
@@ -21,7 +21,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
-    const newZone = await db.shippingZone.create({
+    const newZone = await prisma.shippingZone.create({
       data: {
         governorate,
         price: parseFloat(price),
