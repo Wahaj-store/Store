@@ -218,11 +218,11 @@ export default function SiteChrome() {
         </div>
       )}
 
-      {/* شريط التنقل السفلي للموبايل (خلفية صلبة وحدود واضحة لعدم التداخل مع الفوتر) */}
+      {/* شريط التنقل السفلي للموبايل (تم تعديل ألوان الحالات غير المحددة لتكون واضحة تماماً في الوضع الداكن) */}
       <nav className="fixed inset-x-0 bottom-0 z-50 flex items-center justify-around border-t border-[var(--brand-gold)]/30 bg-[var(--bg)] px-3 py-3 md:hidden shadow-[0_-4px_20px_rgba(0,0,0,0.15)]">
         <a 
           href="/" 
-          className={`flex flex-col items-center gap-1 transition-colors ${pathname === '/' ? 'text-[var(--brand-gold)] font-bold' : 'text-foreground/70 hover:text-foreground'}`}
+          className={`flex flex-col items-center gap-1 transition-colors ${pathname === '/' ? 'text-[var(--brand-gold)] font-bold' : 'text-zinc-400 hover:text-zinc-100'}`}
         >
           <Home size={20} />
           <span className="text-[10px]">الرئيسية</span>
@@ -230,7 +230,7 @@ export default function SiteChrome() {
 
         <a 
           href="/shop" 
-          className={`flex flex-col items-center gap-1 transition-colors ${pathname === '/shop' ? 'text-[var(--brand-gold)] font-bold' : 'text-foreground/70 hover:text-foreground'}`}
+          className={`flex flex-col items-center gap-1 transition-colors ${pathname === '/shop' ? 'text-[var(--brand-gold)] font-bold' : 'text-zinc-400 hover:text-zinc-100'}`}
         >
           <Store size={20} />
           <span className="text-[10px]">المتجر</span>
@@ -238,7 +238,7 @@ export default function SiteChrome() {
 
         <a 
           href="/account" 
-          className={`flex flex-col items-center gap-1 transition-colors ${pathname === '/account' ? 'text-[var(--brand-gold)] font-bold' : 'text-foreground/70 hover:text-foreground'}`}
+          className={`flex flex-col items-center gap-1 transition-colors ${pathname === '/account' ? 'text-[var(--brand-gold)] font-bold' : 'text-zinc-400 hover:text-zinc-100'}`}
         >
           <User size={20} />
           <span className="text-[10px]">حسابي</span>
@@ -246,7 +246,7 @@ export default function SiteChrome() {
 
         <a 
           href="/cart" 
-          className={`relative flex flex-col items-center gap-1 transition-colors ${pathname === '/cart' ? 'text-[var(--brand-gold)] font-bold' : 'text-foreground/70 hover:text-foreground'}`}
+          className={`relative flex flex-col items-center gap-1 transition-colors ${pathname === '/cart' ? 'text-[var(--brand-gold)] font-bold' : 'text-zinc-400 hover:text-zinc-100'}`}
         >
           <div className="relative">
             <ShoppingBag size={20} />
