@@ -40,7 +40,7 @@ export default function AdminShippingPage() {
       });
       if (res.ok) {
         fetchZones();
-        alert("تمت إضافة جميع المحافظات بنجاح، يمكنك تعديل أسعارها في أي وقت!");
+        alert("تمت إضافة جميع المحافظات بنجاح!");
       } else {
         alert("حدث خطأ أثناء الإضافة الجماعية");
       }
@@ -51,10 +51,10 @@ export default function AdminShippingPage() {
 
   const handleSave = async (id: string) => {
     try {
-      const res = await fetch(`/api/admin/shipping/${id}`, {
+      const res = await fetch("/api/admin/shipping", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ price: editPrice, freeAbove: editFreeAbove }),
+        body: JSON.stringify({ id, price: editPrice, freeAbove: editFreeAbove }),
       });
       if (res.ok) {
         setEditingId(null);
@@ -70,7 +70,7 @@ export default function AdminShippingPage() {
   const handleDelete = async (id: string) => {
     if (!confirm("هل أنت متأكد من حذف هذه المحافظة؟")) return;
     try {
-      const res = await fetch(`/api/admin/shipping/${id}`, { method: "DELETE" });
+      const res = await fetch(`/api/admin/shipping?id=${id}`, { method: "DELETE" });
       if (res.ok) {
         fetchZones();
       } else {
@@ -115,9 +115,9 @@ export default function AdminShippingPage() {
           </h1>
           <p className="muted text-sm mt-1">تحكم في أسعار الشحن لجميع المحافظات بكل سهولة.</p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
           <button onClick={handleSeedAll} className="btn border border-[var(--gold)] text-[var(--gold)] flex items-center gap-2 hover:bg-[var(--gold)] hover:text-black transition">
-            <Database size={18} /> إدراج كل المحافظات دفعة واحدة
+            <Database size={18} /> إدراج كل المحافظات
           </button>
           <button onClick={() => setShowAddModal(true)} className="btn btn-gold flex items-center gap-2">
             <Plus size={18} /> إضافة محافظة
