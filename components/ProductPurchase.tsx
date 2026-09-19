@@ -1,12 +1,15 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import AddToCart from './AddToCart';
-import { CheckCircle2 } from 'lucide-react';
+import { CheckCircle2, ShoppingBag, Zap } from 'lucide-react';
 
 export default function ProductPurchase({ product }: { product: any }) {
+  const router = useRouter();
   const [id, setId] = useState<string | undefined>(product.variants?.[0]?.id);
   const [quantity, setQuantity] = useState(1);
+  const [isBuyingNow, setIsBuyingNow] = useState(false);
   
   const v = product.variants?.find((x: any) => x.id === id);
   const price = v?.price != null ? Number(v.price) : Number(product.price);
@@ -18,6 +21,19 @@ export default function ProductPurchase({ product }: { product: any }) {
 
   const handleIncrease = () => {
     setQuantity((prev) => (stock && prev < stock ? prev + 1 : prev));
+  };
+
+  // دالة الشراء الفوري والتوجه المباشر للسلة أو صفحة الدفع
+  const handleBuyNow = async () => {
+    try {
+      setIsBuyingNow(true);
+      // إذا كان مكون AddToCart يعتمد على حفظ المنتج في السلة، يمكننا استدعاؤه برمجياً أو توجيه العميل مباشرة
+      // هنا نقوم بتوجيه العميلة لصفحة السلة مع تمرير بيانات المنتج والكمية
+      router.push(`/cart?productId=${product.id}&variantId=${id || ''}&quantity=${quantity}`);
+    } catch (error) {
+      console.error(error);
+      setIsBuyingNow(false);
+    }
   };
 
   return (
@@ -71,31 +87,47 @@ export default function ProductPurchase({ product }: { product: any }) {
         )}
       </div>
 
-      {/* عداد تحديد الكمية (+ / -) */}
-      <div className="mt-6 flex items-center justify-between w-full rounded-2xl border border-border/40 bg-muted/10 p-3">
-        <span className="text-sm font-medium">الكمية المطلوبة:</span>
-        <div className="flex items-center gap-3 rounded-xl border border-border/60 bg-[var(--bg)] p-1 shadow-2xs">
-          <button
-            type="button"
-            onClick={handleDecrease}
-            className="flex h-8 w-8 items-center justify-center rounded-lg bg-muted/30 text-sm font-bold transition-colors hover:bg-[#D4AF37] hover:text-black"
-          >
-            -
-          </button>
-          <span className="w-8 text-center text-sm font-bold">{quantity}</span>
-          <button
-            type="button"
-            onClick={handleIncrease}
-            className="flex h-8 w-8 items-center justify-center rounded-lg bg-muted/30 text-sm font-bold transition-colors hover:bg-[#D4AF37] hover:text-black"
-          >
-            +
-          </button>
+      {/* صف التحكم في الكمية بجانبه زر الإضافة إلى السلة */}
+      <div className="mt-6 grid grid-cols-1 md:grid-cols-12 gap-3 w-full items-center">
+        {/* عداد تحديد الكمية (+ / -) */}
+        <div className="md:col-span-4 flex items-center justify-between rounded-2xl border border-border/40 bg-muted/10 p-2">
+          <span className="text-xs font-medium px-2">الكمية:</span>
+          <div className="flex items-center gap-2 rounded-xl border border-border/60 bg-[var(--bg)] p-1 shadow-2xs">
+            <button
+              type="button"
+              onClick={handleDecrease}
+              className="flex h-7 w-7 items-center justify-center rounded-lg bg-muted/30 text-xs font-bold transition-colors hover:bg-[#D4AF37] hover:text-black"
+            >
+              -
+            </button>
+            <span className="w-6 text-center text-xs font-bold">{quantity}</span>
+            <button
+              type="button"
+              onClick={handleIncrease}
+              className="flex h-7 w-7 items-center justify-center rounded-lg bg-muted/30 text-xs font-bold transition-colors hover:bg-[#D4AF37] hover:text-black"
+            >
+              +
+            </button>
+          </div>
+        </div>
+
+        {/* زر الإضافة للسلة بجانب الكمية */}
+        <div className="md:col-span-8 w-full">
+          <AddToCart product={product} variantId={id} quantity={quantity} />
         </div>
       </div>
 
-      {/* زر الإضافة للسلة (يمتمرير الكمية المختارة) */}
-      <div className="mt-6 w-full">
-        <AddToCart product={product} variantId={id} quantity={quantity} />
+      {/* زر اشتري الآن (أسفلهم للتحويل المباشر لسلة المشتريات) */}
+      <div className="mt-3 w-full">
+        <button
+          type="button"
+          onClick={handleBuyNow}
+          disabled={stock <= 0 || isBuyingNow}
+          className="w-full py-3.5 px-6 rounded-2xl bg-gradient-to-r from-[#D4AF37] to-[#aa8c2c] text-black font-bold text-sm shadow-md hover:opacity-95 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+        >
+          <Zap size={18} className="fill-black" />
+          <span>{isBuyingNow ? "جاري التحويل..." : "اشتري الآن (دفع سريع)"}</span>
+        </button>
       </div>
     </div>
   );
