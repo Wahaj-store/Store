@@ -16,7 +16,6 @@ export async function POST(req: Request) {
   try {
     const body = await req.json();
     
-    // إذا أرسل زر الإدخال التلقائي لكل المحافظات
     if (body.seedAll) {
       const egyptianGovernorates = [
         "القاهرة", "الجيزة", "الإسكندرية", "الدقهلية", "الشرقية", 
@@ -28,7 +27,6 @@ export async function POST(req: Request) {
       ];
 
       for (const gov of egyptianGovernorates) {
-        // التحقق مما إذا كانت المحافظة موجودة مسبقاً لتجنب التكرار والخطأ
         const existing = await prisma.shippingZone.findFirst({
           where: { governorate: gov },
         });
@@ -37,16 +35,15 @@ export async function POST(req: Request) {
           await prisma.shippingZone.create({
             data: {
               governorate: gov,
-              price: 60, // سعر افتراضي قابل للتعديل
+              price: 60,
               active: true,
             },
           });
         }
       }
-      return NextResponse.json({ success: true, message: "تمت إضافة جميع المحافظات بنجاح" });
+      return NextResponse.json({ success: true, message: "تمت إضافة المحافظات بنجاح" });
     }
 
-    // الإضافة الفردية العادية
     const { governorate, price, freeAbove } = body;
     if (!governorate || price === undefined) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
