@@ -267,24 +267,4 @@ export default function AdminShippingPage() {
       )}
     </div>
   );
-}              <div>
-                <label className="block text-sm mb-1">شحن مجاني عند طلب مبلغ (اختياري)</label>
-                <input
-                  type="number"
-                  value={newFreeAbove}
-                  onChange={(e) => setNewFreeAbove(e.target.value)}
-                  placeholder="مثال: 1000"
-                  className="w-full border rounded p-2"
-                />
-              </div>
-              <div className="flex justify-end gap-2 mt-4">
-                <button type="button" onClick={() => setShowAddModal(false)} className="btn">إلغاء</button>
-                <button type="submit" className="btn btn-gold">حفظ وإضافة</button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-    </div>
-  );
 }
