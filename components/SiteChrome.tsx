@@ -218,45 +218,49 @@ export default function SiteChrome() {
         </div>
       )}
 
-      {/* شريط التنقل السفلي للموبايل (تم تعديل ألوان الحالات غير المحددة لتكون واضحة تماماً في الوضع الداكن) */}
-      <nav className="fixed inset-x-0 bottom-0 z-50 flex items-center justify-around border-t border-[var(--brand-gold)]/30 bg-[var(--bg)] px-3 py-3 md:hidden shadow-[0_-4px_20px_rgba(0,0,0,0.15)]">
+      {/* شريط التنقل السفلي للموبايل (مضمون الوضوح والثبات بألوان مباشرة للوضع الداكن) */}
+      <nav className="fixed inset-x-4 bottom-4 z-50 flex items-center justify-around rounded-2xl border border-[#D4AF37]/30 bg-[#121110] px-4 py-3 md:hidden shadow-[0_10px_30px_rgba(0,0,0,0.9)]">
         <a 
           href="/" 
-          className={`flex flex-col items-center gap-1 transition-colors ${pathname === '/' ? 'text-[var(--brand-gold)] font-bold' : 'text-zinc-400 hover:text-zinc-100'}`}
+          className="flex flex-col items-center gap-1 transition-colors"
+          style={{ color: pathname === '/' ? '#D4AF37' : '#9ca3af' }}
         >
           <Home size={20} />
-          <span className="text-[10px]">الرئيسية</span>
+          <span className={`text-[10px] ${pathname === '/' ? 'font-bold' : ''}`}>الرئيسية</span>
         </a>
 
         <a 
           href="/shop" 
-          className={`flex flex-col items-center gap-1 transition-colors ${pathname === '/shop' ? 'text-[var(--brand-gold)] font-bold' : 'text-zinc-400 hover:text-zinc-100'}`}
+          className="flex flex-col items-center gap-1 transition-colors"
+          style={{ color: pathname === '/shop' ? '#D4AF37' : '#9ca3af' }}
         >
           <Store size={20} />
-          <span className="text-[10px]">المتجر</span>
+          <span className={`text-[10px] ${pathname === '/shop' ? 'font-bold' : ''}`}>المتجر</span>
         </a>
 
         <a 
           href="/account" 
-          className={`flex flex-col items-center gap-1 transition-colors ${pathname === '/account' ? 'text-[var(--brand-gold)] font-bold' : 'text-zinc-400 hover:text-zinc-100'}`}
+          className="flex flex-col items-center gap-1 transition-colors"
+          style={{ color: pathname === '/account' ? '#D4AF37' : '#9ca3af' }}
         >
           <User size={20} />
-          <span className="text-[10px]">حسابي</span>
+          <span className={`text-[10px] ${pathname === '/account' ? 'font-bold' : ''}`}>حسابي</span>
         </a>
 
         <a 
           href="/cart" 
-          className={`relative flex flex-col items-center gap-1 transition-colors ${pathname === '/cart' ? 'text-[var(--brand-gold)] font-bold' : 'text-zinc-400 hover:text-zinc-100'}`}
+          className="relative flex flex-col items-center gap-1 transition-colors"
+          style={{ color: pathname === '/cart' ? '#D4AF37' : '#9ca3af' }}
         >
           <div className="relative">
             <ShoppingBag size={20} />
             {cartCount > 0 && (
-              <span className="absolute -top-2 -end-2.5 flex h-4 w-4 items-center justify-center rounded-full bg-[var(--brand-gold)] text-[9px] font-bold text-black shadow-sm">
+              <span className="absolute -top-2 -end-2.5 flex h-4 w-4 items-center justify-center rounded-full bg-[#D4AF37] text-[9px] font-bold text-black shadow-sm">
                 {cartCount}
               </span>
             )}
           </div>
-          <span className="text-[10px]">السلة</span>
+          <span className={`text-[10px] ${pathname === '/cart' ? 'font-bold' : ''}`}>السلة</span>
         </a>
       </nav>
 
