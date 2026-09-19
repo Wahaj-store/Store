@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
-import { Plus, Trash2, Edit2, Save, X, Truck, ArrowLeft, Database } from "lucide-react";
+import { Plus, Trash2, Edit2, Save, X, Truck, ArrowLeft } from "lucide-react";
 
 export default function AdminShippingPage() {
   const [zones, setZones] = useState<any[]>([]);
@@ -30,25 +30,7 @@ export default function AdminShippingPage() {
     }
   };
 
-  const handleSeedAll = async () => {
-    if (!confirm("هل تريد إدخال جميع محافظات مصر دفعة واحدة بسعر افتراضي 60 جنيه؟")) return;
-    try {
-      const res = await fetch("/api/admin/shipping", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ seedAll: true }),
-      });
-      if (res.ok) {
-        fetchZones();
-        alert("تمت إضافة جميع المحافظات بنجاح!");
-      } else {
-        alert("حدث خطأ أثناء الإضافة الجماعية");
-      }
-    } catch (err) {
-      alert("حدث خطأ في الاتصال");
-    }
-  };
-
+  // تعديل سعر المحافظة باستخدام الـ API الموحد
   const handleSave = async (id: string) => {
     try {
       const res = await fetch("/api/admin/shipping", {
@@ -67,6 +49,7 @@ export default function AdminShippingPage() {
     }
   };
 
+  // حذف المحافظة باستخدام الـ API الموحد عبر الـ Query Parameter
   const handleDelete = async (id: string) => {
     if (!confirm("هل أنت متأكد من حذف هذه المحافظة؟")) return;
     try {
@@ -81,6 +64,7 @@ export default function AdminShippingPage() {
     }
   };
 
+  // إضافة محافظة جديدة يدوياً
   const handleAdd = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
@@ -113,14 +97,11 @@ export default function AdminShippingPage() {
           <h1 className="text-3xl font-semibold flex items-center gap-2">
             <Truck className="text-[var(--gold)]" /> إدارة الشحن والمحافظات
           </h1>
-          <p className="muted text-sm mt-1">تحكم في أسعار الشحن لجميع المحافظات بكل سهولة.</p>
+          <p className="muted text-sm mt-1">المحافظات مضافة تلقائياً، يمكنك تعديل الأسعار أو الحذف بكل سهولة.</p>
         </div>
-        <div className="flex flex-wrap items-center gap-3">
-          <button onClick={handleSeedAll} className="btn border border-[var(--gold)] text-[var(--gold)] flex items-center gap-2 hover:bg-[var(--gold)] hover:text-black transition">
-            <Database size={18} /> إدراج كل المحافظات
-          </button>
+        <div>
           <button onClick={() => setShowAddModal(true)} className="btn btn-gold flex items-center gap-2">
-            <Plus size={18} /> إضافة محافظة
+            <Plus size={18} /> إضافة محافظة جديدة
           </button>
         </div>
       </div>
@@ -143,10 +124,7 @@ export default function AdminShippingPage() {
                 {zones.length === 0 ? (
                   <tr>
                     <td colSpan={4} className="text-center p-10 muted">
-                      <p className="mb-3">لا توجد محافظات مضافة حالياً.</p>
-                      <button onClick={handleSeedAll} className="btn btn-gold text-sm inline-flex items-center gap-2">
-                        <Database size={16} /> اضغط هنا لإضافة كل محافظات مصر تلقائياً
-                      </button>
+                      لا توجد محافظات مضافة حالياً.
                     </td>
                   </tr>
                 ) : (
