@@ -5,7 +5,7 @@ import WishlistButton from '@/components/WishlistButton';
 import ReviewForm from '@/components/ReviewForm';
 import BackInStockForm from '@/components/BackInStockForm';
 import RecentlyViewed from '@/components/RecentlyViewed';
-import { ShieldCheck, Truck, RotateCcw, ChevronRight } from 'lucide-react';
+import { ShieldCheck, Truck, RotateCcw, ChevronRight, CheckCircle2 } from 'lucide-react';
 
 export async function generateMetadata({ params }: { params: { slug: string } }) {
   const p = await prisma.product.findUnique({
@@ -129,8 +129,32 @@ export default async function ProductPage({ params }: { params: { slug: string }
                 <WishlistButton productId={p.id} />
               </div>
             </div>
+
+            {/* السعر الحالي والسعر قبل الخصم */}
+            <div className="mt-3 flex items-center gap-3">
+              <span className="text-2xl md:text-3xl font-extrabold text-[#D4AF37]">
+                {priceNum.toLocaleString('ar-EG')} ج.م
+              </span>
+              {compareNum > priceNum && (
+                <del className="text-sm text-muted-foreground">
+                  {compareNum.toLocaleString('ar-EG')} ج.م
+                </del>
+              )}
+            </div>
+
+            {/* حالة المخزون المطابقة تماماً للصورة المطلوبة */}
+            <div className="mt-2 flex items-center gap-1.5 text-xs font-medium text-emerald-600 dark:text-emerald-400">
+              {p.stock > 0 ? (
+                <>
+                  <span>متوفر بالمخزون ({p.stock} قطعة متاحة)</span>
+                  <CheckCircle2 size={15} />
+                </>
+              ) : (
+                <span>غير متوفر حالياً</span>
+              )}
+            </div>
             
-            {/* مكون الشراء (يحتوي على السعر والمخزون بشكل موحد بدون تكرار خارجي) */}
+            {/* مكون الشراء (أزرار الكمية والإضافة للسلة دون تكرار للسعر أو المخزون) */}
             <div className="mt-5">
               <ProductPurchase product={{ ...p, price: priceNum, images: p.images }} />
             </div>
