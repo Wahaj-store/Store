@@ -52,12 +52,16 @@ export default function AddToCart({ product, variantId }: { product: any; varian
       disabled={disabled}
       onClick={add}
       aria-live="polite"
+      style={{
+        backgroundColor: disabled ? undefined : done ? '#059669' : '#D4AF37', // لون ذهبي متناسق ومضمون الظهور
+        color: disabled ? undefined : '#000000', // نص أسود واضح على الخلفية الذهبية
+      }}
       className={`w-full rounded-xl py-3.5 px-6 text-sm font-bold transition-all shadow-md ${
         disabled
-          ? 'bg-muted text-muted-foreground cursor-not-allowed opacity-60'
+          ? 'bg-zinc-800 text-zinc-400 cursor-not-allowed opacity-60 border border-zinc-700'
           : done
           ? 'bg-emerald-600 text-white shadow-emerald-600/20'
-          : 'bg-[var(--brand-gold)] text-black hover:opacity-90 shadow-[var(--brand-gold)]/20'
+          : 'hover:opacity-90 shadow-amber-500/20'
       }`}
     >
       {done
