@@ -98,7 +98,7 @@ function CheckoutContent() {
 
         canvas.width = width;
         canvas.height = height;
-        const ctx = canvas.getContext('20d') || canvas.getContext('2d');
+        const ctx = canvas.getContext('2d');
         ctx?.drawImage(img, 0, 0, width, height);
 
         // استخراج الصورة بجودة مضغوطة (0.7) لتصبح صغيرة الحجم وسريعة الإرسال
