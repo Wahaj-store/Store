@@ -10,8 +10,27 @@ const egyptianGovernorates = [
   "شمال سيناء", "جنوب سيناء"
 ];
 
-async function ensureGovernoratesExist() {
+// دالة لضمان وجود المحافظات وتنظيف أي تكرارات قديمة في القاعدة
+async function ensureGovernoratesExistAndCleanDuplicates() {
   try {
+    // 1. تنظيف التكرارات الموجودة حالياً
+    for (const gov of egyptianGovernorates) {
+      const records = await prisma.shippingZone.findMany({
+        where: { governorate: gov },
+        orderBy: { price: "asc" }
+      });
+      
+      // إذا وُجد أكثر من سجل لنفس المحافظة، نحتفظ بالأول ونحذف الباقي
+      if (records.length > 1) {
+        for (let i = 1; i < records.length; i++) {
+          await prisma.shippingZone.delete({
+            where: { id: records[i].id }
+          });
+        }
+      }
+    }
+
+    // 2. إضافة أي محافظة ناقصة
     for (const gov of egyptianGovernorates) {
       const existing = await prisma.shippingZone.findFirst({
         where: { governorate: gov },
@@ -28,13 +47,13 @@ async function ensureGovernoratesExist() {
       }
     }
   } catch (err) {
-    console.error("Error seeding governorates:", err);
+    console.error("Error managing governorates:", err);
   }
 }
 
 export async function GET() {
   try {
-    await ensureGovernoratesExist();
+    await ensureGovernoratesExistAndCleanDuplicates();
     const zones = await prisma.shippingZone.findMany({
       orderBy: { governorate: "asc" },
     });
@@ -51,6 +70,15 @@ export async function POST(req: Request) {
 
     if (!governorate || price === undefined) {
       return NextResponse.json({ error: "Missing fields" }, { status: 400 });
+    }
+
+    // التحقق من عدم وجودها مسبقاً لمنع التكرار
+    const existing = await prisma.shippingZone.findFirst({
+      where: { governorate },
+    });
+
+    if (existing) {
+      return NextResponse.json({ error: "Governorate already exists" }, { status: 400 });
     }
 
     const newZone = await prisma.shippingZone.create({
@@ -94,7 +122,15 @@ export async function PUT(req: Request) {
 export async function DELETE(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
-    const id = searchParams.get("id");
+    let id = searchParams.get("id");
+
+    // دعم إضافي لاستخراج الـ id إذا تم إرساله في الـ Body أيضاً لتجنب مشاكل Missing ID
+    if (!id) {
+      try {
+        const body = await req.json();
+        id = body.id;
+      } catch (e) {}
+    }
 
     if (!id) {
       return NextResponse.json({ error: "Missing ID" }, { status: 400 });
