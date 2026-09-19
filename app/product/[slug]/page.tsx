@@ -54,6 +54,9 @@ export default async function ProductPage({ params }: { params: { slug: string }
 
   if (!p || p.status !== 'PUBLISHED') notFound();
 
+  const priceNum = Number(p.price);
+  const compareNum = p.comparePrice ? Number(p.comparePrice) : 0;
+
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Product',
@@ -63,7 +66,7 @@ export default async function ProductPage({ params }: { params: { slug: string }
     image: p.images.map((x) => x.url),
     offers: {
       '@type': 'Offer',
-      price: Number(p.price),
+      price: priceNum,
       priceCurrency: 'EGP',
       availability: p.stock > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
       url: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://wahaj-store.vercel.app'}/product/${p.slug}`,
@@ -120,19 +123,30 @@ export default async function ProductPage({ params }: { params: { slug: string }
             </span>
             <h1 className="mt-2 text-3xl md:text-4xl font-bold tracking-tight">{p.name}</h1>
             
+            {/* السعر الحالي والسعر قبل الخصم (منسق بدون تكرار) */}
             <div className="mt-3 flex items-center gap-3">
               <span className="text-2xl md:text-3xl font-extrabold text-[#D4AF37]">
-                {Number(p.price).toLocaleString('ar-EG')} ج.م
+                {priceNum.toLocaleString('ar-EG')} ج.م
               </span>
+              {compareNum > priceNum && (
+                <del className="text-sm text-muted-foreground">
+                  {compareNum.toLocaleString('ar-EG')} ج.م
+                </del>
+              )}
+            </div>
+
+            {/* حالة المخزون المطابقة للصورة الثانية */}
+            <div className="mt-2 text-xs font-medium text-emerald-600 dark:text-emerald-400">
+              {p.stock > 0 ? `متوفر بالمخزون • ${p.stock} قطعة` : 'غير متوفر حالياً'}
             </div>
 
             <div className="mt-3">
               <WishlistButton productId={p.id} />
             </div>
             
-            {/* مكون الشراء (بدون تكرار خارجي للمخزون) */}
+            {/* مكون الشراء */}
             <div className="mt-4">
-              <ProductPurchase product={{ ...p, price: Number(p.price), images: p.images }} />
+              <ProductPurchase product={{ ...p, price: priceNum, images: p.images }} />
             </div>
 
             <p className="mt-6 text-sm text-muted-foreground leading-relaxed">{p.description}</p>
@@ -143,7 +157,7 @@ export default async function ProductPage({ params }: { params: { slug: string }
               </div>
             )}
 
-            {/* بطاقات وسائل الدفع الآمنة (أحجام متناسقة تماماً) */}
+            {/* بطاقات وسائل الدفع الآمنة */}
             <div className="mt-6 rounded-2xl border border-border/50 bg-muted/20 p-4">
               <span className="text-[11px] font-semibold text-muted-foreground block mb-3 text-center">
                 طرق الدفع الآمنة المتاحة
@@ -173,7 +187,7 @@ export default async function ProductPage({ params }: { params: { slug: string }
         </div>
       </div>
 
-      {/* قسم التفاصيل والخامة والعناية والـ SKU */}
+      {/* قسم التفاصيل والخامة والعناية */}
       <div className="mt-16 grid gap-8 md:grid-cols-2 border-t border-border/40 pt-10">
         <div className="rounded-2xl border border-border/40 p-6 bg-muted/10">
           <h2 className="text-xl font-semibold mb-4 text-[#D4AF37]">التفاصيل والخامة</h2>
@@ -187,7 +201,7 @@ export default async function ProductPage({ params }: { params: { slug: string }
               <span>{p.careInstructions || 'يُحفظ بعيداً عن الرطوبة والعطور المباشرة.'}</span>
             </li>
             <li className="flex justify-between pb-2">
-              <span className="font-medium text-foreground" title="رمز تعريفي فريد للمنتج في المخزن">رمز المنتج (SKU):</span>
+              <span className="font-medium text-foreground">رمز المنتج (SKU):</span>
               <span className="font-mono text-xs">{p.sku || 'غير متوفر'}</span>
             </li>
           </ul>
