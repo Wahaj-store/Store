@@ -84,37 +84,36 @@ export default function SiteChrome() {
     <>
       {/* إعلان المتجر العلوي */}
       {settings.announcement && (
-        <div className="bg-[#171513] py-2 text-center text-xs text-[#F8F5EF]">
+        <div className="bg-[#171513] py-2 text-center text-xs text-[#F8F5EF] tracking-wider">
           {settings.announcement}
         </div>
       )}
 
-      {/* الهيدر في أعلى الصفحة */}
-      <header className="wahaj-header wahaj-header--luxury sticky top-0 z-40">
-        <div className="container wahaj-header__inner">
-          <div className="wahaj-header__brand">
+      {/* الهيدر العلوي الاحترافي */}
+      <header className="wahaj-header wahaj-header--luxury sticky top-0 z-40 border-b border-[var(--brand-gold)]/20 bg-[var(--bg)]/95 backdrop-blur-md">
+        <div className="container wahaj-header__inner flex items-center justify-between py-3.5 px-4">
+          <div className="flex items-center gap-3">
             <button
               type="button"
-              className="wahaj-header__menu md:hidden"
+              className="wahaj-header__menu md:hidden text-foreground hover:text-[var(--brand-gold)] transition-colors"
               onClick={() => setMenu(true)}
               aria-label="فتح القائمة"
-              title="القائمة"
             >
-              <Menu size={20} />
+              <Menu size={22} />
             </button>
 
             <a
               href="/"
-              className="wahaj-header__logo"
+              className="wahaj-header__logo flex flex-col items-start"
               aria-label="وَهَج - الصفحة الرئيسية"
             >
-              <span>{settings.brand_name || 'وَهَج'}</span>
-              <small>Wahaj</small>
+              <span className="font-bold text-lg tracking-wider text-foreground">{settings.brand_name || 'وَهَج'}</span>
+              <small className="text-[9px] tracking-widest text-[#D4AF37]">Wahaj Store</small>
             </a>
           </div>
 
           <nav
-            className="wahaj-header__nav hidden md:flex"
+            className="wahaj-header__nav hidden md:flex items-center gap-6 text-sm font-medium"
             aria-label="القائمة الرئيسية"
           >
             {headerMenu
@@ -123,102 +122,113 @@ export default function SiteChrome() {
                 <a
                   key={`${x.href}-${x.label}`}
                   href={x.href}
-                  className={pathname === x.href ? 'is-active' : ''}
+                  className={`transition-colors hover:text-[#D4AF37] ${pathname === x.href ? 'text-[#D4AF37] font-bold border-b-2 border-[#D4AF37] pb-0.5' : 'text-foreground/80'}`}
                 >
                   {x.label}
                 </a>
               ))}
           </nav>
 
-          <div className="wahaj-header__actions">
+          {/* الأيقونات العلوية النظيفة والمرتبة */}
+          <div className="wahaj-header__actions flex items-center gap-4">
             <a
               href="/shop"
-              className="wahaj-header__action"
+              className="wahaj-header__action text-foreground/80 hover:text-[#D4AF37] transition-colors p-1"
               aria-label="البحث"
               title="البحث"
             >
-              <Search size={19} />
+              <Search size={20} />
             </a>
 
             <a
               href="/account"
-              className="wahaj-header__action"
+              className="wahaj-header__action text-foreground/80 hover:text-[#D4AF37] transition-colors p-1"
               aria-label="حسابي"
               title="حسابي"
             >
-              <User size={19} />
+              <User size={20} />
             </a>
 
             <button
               type="button"
               onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-              className="wahaj-header__action"
+              className="wahaj-header__action text-foreground/80 hover:text-[#D4AF37] transition-colors p-1"
               aria-label="تبديل الوضع"
               title={theme === 'dark' ? 'الوضع النهاري' : 'الوضع الليلي'}
             >
-              {theme === 'dark' ? <Sun size={19} /> : <Moon size={19} />}
+              {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
             </button>
 
             <a
               href="/cart"
-              className="wahaj-header__action wahaj-header__cart"
+              className="wahaj-header__action wahaj-header__cart relative text-foreground/80 hover:text-[#D4AF37] transition-colors p-1"
               aria-label="السلة"
               title="السلة"
             >
-              <ShoppingBag size={19} />
+              <ShoppingBag size={20} />
               {cartCount > 0 && (
-                <span className="wahaj-header__cart-count">
+                <span className="absolute -top-1.5 -end-2 flex h-4 w-4 items-center justify-center rounded-full bg-[#D4AF37] text-[9px] font-bold text-black shadow-sm">
                   {cartCount}
                 </span>
               )}
             </a>
           </div>
         </div>
-        <div className="wahaj-header__accent" />
+        <div className="wahaj-header__accent h-[1px] bg-gradient-to-r from-transparent via-[#D4AF37]/40 to-transparent" />
       </header>
 
       {/* القائمة الجانبية للموبايل */}
       {menu && (
         <div
-          className="fixed inset-0 z-50 bg-black/40"
+          className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm"
           onClick={() => setMenu(false)}
         >
           <aside
-            className="h-full w-[82%] bg-[var(--bg)] p-6 shadow-2xl"
+            className="h-full w-[82%] bg-[var(--bg)] p-6 shadow-2xl border-e border-[#D4AF37]/20 flex flex-col justify-between"
             onClick={e => e.stopPropagation()}
           >
-            <div className="flex items-center justify-between">
-              <span className="text-xl font-semibold">وَهَج</span>
-              <button
-                type="button"
-                onClick={() => setMenu(false)}
-                aria-label="إغلاق القائمة"
-              >
-                <X />
-              </button>
+            <div>
+              <div className="flex items-center justify-between pb-6 border-b border-border/40">
+                <div className="flex flex-col">
+                  <span className="text-xl font-bold tracking-wider">وَهَج</span>
+                  <span className="text-[10px] text-[#D4AF37] tracking-widest">Wahaj Store</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setMenu(false)}
+                  aria-label="إغلاق القائمة"
+                  className="p-2 rounded-full hover:bg-muted transition-colors"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+
+              <div className="mt-8 grid gap-5 text-base font-medium">
+                {headerMenu
+                  .filter((x: any) => x && x.href && x.label && x.active !== false)
+                  .map((x: any) => (
+                    <a
+                      key={`${x.href}-${x.label}`}
+                      href={x.href}
+                      onClick={() => setMenu(false)}
+                      className={`py-2 px-3 rounded-xl transition-all ${pathname === x.href ? 'bg-[#D4AF37]/15 text-[#D4AF37] font-bold border-s-4 border-[#D4AF37]' : 'hover:bg-muted/50'}`}
+                    >
+                      {x.label}
+                    </a>
+                  ))}
+                <a href="/account" onClick={() => setMenu(false)} className="py-2 px-3 rounded-xl hover:bg-muted/50">حسابي</a>
+                <a href="/cart" onClick={() => setMenu(false)} className="py-2 px-3 rounded-xl hover:bg-muted/50">السلة</a>
+              </div>
             </div>
 
-            <div className="mt-10 grid gap-5 text-lg">
-              {headerMenu
-                .filter((x: any) => x && x.href && x.label && x.active !== false)
-                .map((x: any) => (
-                  <a
-                    key={`${x.href}-${x.label}`}
-                    href={x.href}
-                    onClick={() => setMenu(false)}
-                    className={pathname === x.href ? 'gold' : ''}
-                  >
-                    {x.label}
-                  </a>
-                ))}
-              <a href="/account" onClick={() => setMenu(false)}>حسابي</a>
-              <a href="/cart" onClick={() => setMenu(false)}>السلة</a>
+            <div className="text-center text-xs text-muted-foreground pb-4">
+              جميع الحقوق محفوظة لمتجر وَهَج © 2026
             </div>
           </aside>
         </div>
       )}
 
-      {/* شريط التنقل السفلي للموبايل (مضمون الوضوح والثبات بألوان مباشرة للوضع الداكن) */}
+      {/* شريط التنقل السفلي للموبايل (عائم، آمن تماماً، ولا يتداخل مع أشرطة المتصفح) */}
       <nav className="fixed inset-x-4 bottom-4 z-50 flex items-center justify-around rounded-2xl border border-[#D4AF37]/30 bg-[#121110] px-4 py-3 md:hidden shadow-[0_10px_30px_rgba(0,0,0,0.9)]">
         <a 
           href="/" 
@@ -272,9 +282,9 @@ export default function SiteChrome() {
           rel="noopener noreferrer"
           aria-label="واتساب"
           title="تواصل معنا عبر واتساب"
-          className="fixed bottom-20 end-5 z-30 rounded-full bg-[#25D366] p-4 text-white shadow-lg"
+          className="fixed bottom-20 end-5 z-30 rounded-full bg-[#25D366] p-3.5 text-white shadow-xl hover:scale-105 transition-transform"
         >
-          <MessageCircle />
+          <MessageCircle size={24} />
         </a>
       )}
     </>
