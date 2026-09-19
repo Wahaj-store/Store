@@ -15,8 +15,34 @@ export async function GET() {
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { governorate, price, freeAbove } = body;
+    
+    // إذا أرسل زر الإدخال التلقائي لكل المحافظات
+    if (body.seedAll) {
+      const egyptianGovernorates = [
+        "القاهرة", "الجيزة", "الإسكندرية", "الدقهلية", "الشرقية", 
+        "المنوفية", "القليوبية", "الغربية", "البحيرة", "كفر الشيخ", 
+        "دمياط", "بورسعيد", "الإسماعيلية", "السويس", "الفيوم", 
+        "بني سويف", "المنيا", "أسيوط", "سوهاج", "قنا", 
+        "أسوان", "الأقصر", "البحر الأحمر", "الوادي الجديد", "مطروح", 
+        "شمال سيناء", "جنوب سيناء"
+      ];
 
+      for (const gov of egyptianGovernorates) {
+        await prisma.shippingZone.upsert({
+          where: { governorate: gov },
+          update: {},
+          create: {
+            governorate: gov,
+            price: 60, // سعر افتراضي قابل للتعديل
+            active: true,
+          },
+        });
+      }
+      return NextResponse.json({ success: true, message: "تمت إضافة جميع المحافظات بنجاح" });
+    }
+
+    // الإضافة الفردية العادية
+    const { governorate, price, freeAbove } = body;
     if (!governorate || price === undefined) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
@@ -32,6 +58,6 @@ export async function POST(req: Request) {
 
     return NextResponse.json(newZone, { status: 201 });
   } catch (error) {
-    return NextResponse.json({ error: "Failed to create shipping zone (may already exist)" }, { status: 500 });
+    return NextResponse.json({ error: "Failed to process request" }, { status: 500 });
   }
 }
