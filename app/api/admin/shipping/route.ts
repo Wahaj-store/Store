@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
-// قائمة محافظات مصر الأساسية
 const egyptianGovernorates = [
   "القاهرة", "الجيزة", "الإسكندرية", "الدقهلية", "الشرقية", 
   "المنوفية", "القليوبية", "الغربية", "البحيرة", "كفر الشيخ", 
@@ -11,7 +10,6 @@ const egyptianGovernorates = [
   "شمال سيناء", "جنوب سيناء"
 ];
 
-// دالة التحقق والإدراج التلقائي (تضمن وجود المحافظات دائماً في قاعدة البيانات)
 async function ensureGovernoratesExist() {
   try {
     for (const gov of egyptianGovernorates) {
@@ -23,39 +21,36 @@ async function ensureGovernoratesExist() {
         await prisma.shippingZone.create({
           data: {
             governorate: gov,
-            price: 60, // السعر الافتراضي القابل للتعديل لاحقاً
+            price: 60,
             active: true,
           },
         });
       }
     }
   } catch (err) {
-    console.error("Error seeding governorates automatically:", err);
+    console.error("Error seeding governorates:", err);
   }
 }
 
-// GET: يقوم تلقائياً بضمان وجود المحافظات ثم إرجاعها
 export async function GET() {
   try {
-    await ensureGovernoratesExist(); // الإدراج التلقائي الفوري
-
+    await ensureGovernoratesExist();
     const zones = await prisma.shippingZone.findMany({
       orderBy: { governorate: "asc" },
     });
     return NextResponse.json(zones);
   } catch (error) {
-    return NextResponse.json({ error: "Failed to fetch shipping zones" }, { status: 500 });
+    return NextResponse.json({ error: "Failed to fetch" }, { status: 500 });
   }
 }
 
-// POST: لإضافة محافظة جديدة يدوياً إذا رغبت
 export async function POST(req: Request) {
   try {
     const body = await req.json();
     const { governorate, price, freeAbove } = body;
 
     if (!governorate || price === undefined) {
-      return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+      return NextResponse.json({ error: "Missing fields" }, { status: 400 });
     }
 
     const newZone = await prisma.shippingZone.create({
@@ -69,6 +64,48 @@ export async function POST(req: Request) {
 
     return NextResponse.json(newZone, { status: 201 });
   } catch (error) {
-    return NextResponse.json({ error: "Failed to create zone" }, { status: 500 });
+    return NextResponse.json({ error: "Failed to create" }, { status: 500 });
+  }
+}
+
+export async function PUT(req: Request) {
+  try {
+    const body = await req.json();
+    const { id, price, freeAbove } = body;
+
+    if (!id) {
+      return NextResponse.json({ error: "Missing ID" }, { status: 400 });
+    }
+
+    const updated = await prisma.shippingZone.update({
+      where: { id },
+      data: {
+        price: price !== undefined ? parseFloat(price) : undefined,
+        freeAbove: freeAbove !== "" && freeAbove !== null ? parseFloat(freeAbove) : null,
+      },
+    });
+
+    return NextResponse.json(updated);
+  } catch (error) {
+    return NextResponse.json({ error: "Failed to update" }, { status: 500 });
+  }
+}
+
+export async function DELETE(req: Request) {
+  try {
+    const { searchParams } = new URL(req.url);
+    const id = searchParams.get("id");
+
+    if (!id) {
+      return NextResponse.json({ error: "Missing ID" }, { status: 400 });
+    }
+
+    await prisma.shippingZone.delete({
+      where: { id },
+    });
+
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    return NextResponse.json({ error: "Failed to delete" }, { status: 500 });
   }
 }
