@@ -84,14 +84,14 @@ export default function ProductPurchase({ product }: { product: any }) {
         )}
       </div>
 
-      {/* 3. زر "أضيفي إلى السلة" بجانب اختيار الكمية في نفس السطر */}
-      <div className="mt-6 flex flex-row-reverse items-center gap-3 w-full">
-        {/* زر الإضافة للسلة ليأخذ المساحة الأكبر بجوار الكمية */}
+      {/* 3. زر "أضيفي إلى السلة" في الجهة اليمنى، وأمامه اختيار الكمية في الجهة اليسرى */}
+      <div className="mt-6 flex flex-row items-center gap-3 w-full">
+        {/* زر الإضافة للسلة في الجهة اليمنى (يأخذ المساحة الكبرى) */}
         <div className="flex-1 w-full">
           <AddToCart product={{ ...product, selectedQuantity: quantity }} variantId={id} />
         </div>
 
-        {/* عداد تحديد الكمية (- و +) بالترتيب الصحيح */}
+        {/* عداد تحديد الكمية (- و +) في الجهة اليسرى */}
         <div className="flex items-center justify-between rounded-2xl border border-border/40 bg-muted/10 p-2.5 flex-shrink-0">
           <div className="flex items-center gap-2 rounded-xl border border-border/60 bg-[var(--bg)] p-1 shadow-2xs">
             <button
