@@ -337,7 +337,7 @@ function CheckoutContent() {
           </button>
 
           <div className="flex items-center justify-center gap-1.5 text-xs muted pt-2">
-            <ShieldCheck size5 size={14} className="text-[var(--gold)]" /> تسوق آمن ومحمي 100%
+            <ShieldCheck size={14} className="text-[var(--gold)]" /> تسوق آمن ومحمي 100%
           </div>
         </aside>
       </form>
