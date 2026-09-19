@@ -58,30 +58,54 @@ function CheckoutContent() {
   const finalTotal = subtotal + shippingCost;
 
   // دالة للتعامل مع رفع الصورة بشكل آمن والتحقق من النوع والحجم
+    // دالة محسنة لضغط الصورة وتهئتها لتكون بحجم صغير جداً وآمن
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     setUploadError('');
     
     if (!file) return;
 
-    // حماية أمنية: التحقق من أن الملف صورة وليست ملفات ضارة
     if (!file.type.startsWith('image/')) {
       setUploadError('يرجى رفع ملف صورة صالح (JPG, PNG)');
       return;
     }
 
-    // حماية أمنية: تحديد أقصى حجم للصورة (مثلاً 5 ميجابايت) لمنع الضغط على السيرفر
-    if (file.size > 5 * 1024 * 1024) {
-      setUploadError('حجم الصورة كبير جداً، الحد الأقصى هو 5 ميجابايت');
+    if (file.size > 10 * 1024 * 1024) {
+      setUploadError('حجم الصورة كبير جداً');
       return;
     }
 
     setProofFile(file);
 
-    // تحويل الصورة إلى Base64 لتخزينها أو إرسالها بشكل آمن مع بيانات الطلب
+    // ضغط الصورة باستخدام Canvas لتكون مساحتها النصية صغيرة جداً وتتخطى قيود الـ API بسهولة
     const reader = new FileReader();
-    reader.onloadend = () => {
-      setProofPreview(reader.result as string);
+    reader.onload = (event) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let width = img.width;
+        let height = img.height;
+        
+        // تصغير الأبعاد القصوى للصورة لتناسب الإيصالات (مثلاً بحد أقصى 800 بكسل)
+        const maxDim = 800;
+        if (width > height && width > maxDim) {
+          height = Math.round((height * maxDim) / width);
+          width = maxDim;
+        } else if (height > maxDim) {
+          width = Math.round((width * maxDim) / height);
+          height = maxDim;
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('20d') || canvas.getContext('2d');
+        ctx?.drawImage(img, 0, 0, width, height);
+
+        // استخراج الصورة بجودة مضغوطة (0.7) لتصبح صغيرة الحجم وسريعة الإرسال
+        const compressedBase64 = canvas.toDataURL('image/jpeg', 0.7);
+        setProofPreview(compressedBase64);
+      };
+      img.src = event.target?.result as string;
     };
     reader.readAsDataURL(file);
   };
