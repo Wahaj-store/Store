@@ -28,15 +28,20 @@ export async function POST(req: Request) {
       ];
 
       for (const gov of egyptianGovernorates) {
-        await prisma.shippingZone.upsert({
+        // التحقق مما إذا كانت المحافظة موجودة مسبقاً لتجنب التكرار والخطأ
+        const existing = await prisma.shippingZone.findFirst({
           where: { governorate: gov },
-          update: {},
-          create: {
-            governorate: gov,
-            price: 60, // سعر افتراضي قابل للتعديل
-            active: true,
-          },
         });
+
+        if (!existing) {
+          await prisma.shippingZone.create({
+            data: {
+              governorate: gov,
+              price: 60, // سعر افتراضي قابل للتعديل
+              active: true,
+            },
+          });
+        }
       }
       return NextResponse.json({ success: true, message: "تمت إضافة جميع المحافظات بنجاح" });
     }
