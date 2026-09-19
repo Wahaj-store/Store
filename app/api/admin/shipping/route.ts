@@ -1,9 +1,44 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
-// جلب كل المحافظات
+// قائمة محافظات مصر الأساسية
+const egyptianGovernorates = [
+  "القاهرة", "الجيزة", "الإسكندرية", "الدقهلية", "الشرقية", 
+  "المنوفية", "القليوبية", "الغربية", "البحيرة", "كفر الشيخ", 
+  "دمياط", "بورسعيد", "الإسماعيلية", "السويس", "الفيوم", 
+  "بني سويف", "المنيا", "أسيوط", "سوهاج", "قنا", 
+  "أسوان", "الأقصر", "البحر الأحمر", "الوادي الجديد", "مطروح", 
+  "شمال سيناء", "جنوب سيناء"
+];
+
+// دالة التحقق والإدراج التلقائي (تضمن وجود المحافظات دائماً في قاعدة البيانات)
+async function ensureGovernoratesExist() {
+  try {
+    for (const gov of egyptianGovernorates) {
+      const existing = await prisma.shippingZone.findFirst({
+        where: { governorate: gov },
+      });
+
+      if (!existing) {
+        await prisma.shippingZone.create({
+          data: {
+            governorate: gov,
+            price: 60, // السعر الافتراضي القابل للتعديل لاحقاً
+            active: true,
+          },
+        });
+      }
+    }
+  } catch (err) {
+    console.error("Error seeding governorates automatically:", err);
+  }
+}
+
+// GET: يقوم تلقائياً بضمان وجود المحافظات ثم إرجاعها للوحة التحكم أو صفحة إتمام الطلب
 export async function GET() {
   try {
+    await ensureGovernoratesExist(); // الإدراج التلقائي الفوري
+
     const zones = await prisma.shippingZone.findMany({
       orderBy: { governorate: "asc" },
     });
@@ -13,42 +48,12 @@ export async function GET() {
   }
 }
 
-// إضافة محافظة أو إدراج جميع المحافظات دفعة واحدة
+// POST: لإضافة محافظة جديدة يدوياً إذا رغبت
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    
-    // إدراج كل المحافظات دفعة واحدة
-    if (body.seedAll) {
-      const egyptianGovernorates = [
-        "القاهرة", "الجيزة", "الإسكندرية", "الدقهلية", "الشرقية", 
-        "المنوفية", "القليوبية", "الغربية", "البحيرة", "كفر الشيخ", 
-        "دمياط", "بورسعيد", "الإسماعيلية", "السويس", "الفيوم", 
-        "بني سويف", "المنيا", "أسيوط", "سوهاج", "قنا", 
-        "أسوان", "الأقصر", "البحر الأحمر", "الوادي الجديد", "مطروح", 
-        "شمال سيناء", "جنوب سيناء"
-      ];
-
-      for (const gov of egyptianGovernorates) {
-        const existing = await prisma.shippingZone.findFirst({
-          where: { governorate: gov },
-        });
-
-        if (!existing) {
-          await prisma.shippingZone.create({
-            data: {
-              governorate: gov,
-              price: 60,
-              active: true,
-            },
-          });
-        }
-      }
-      return NextResponse.json({ success: true, message: "تمت إضافة المحافظات بنجاح" });
-    }
-
-    // إضافة محافظة فردية
     const { governorate, price, freeAbove } = body;
+
     if (!governorate || price === undefined) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
@@ -64,50 +69,6 @@ export async function POST(req: Request) {
 
     return NextResponse.json(newZone, { status: 201 });
   } catch (error) {
-    return NextResponse.json({ error: "Failed to process request" }, { status: 500 });
+    return NextResponse.json({ error: "Failed to create zone" }, { status: 500 });
   }
-}
-
-// تعديل سعر محافظة
-export async function PUT(req: Request) {
-  try {
-    const body = await req.json();
-    const { id, price, freeAbove } = body;
-
-    if (!id) {
-      return NextResponse.json({ error: "Missing ID" }, { status: 400 });
-    }
-
-    const updatedZone = await prisma.shippingZone.update({
-      where: { id },
-      data: {
-        price: price !== undefined ? parseFloat(price) : undefined,
-        freeAbove: freeAbove !== "" && freeAbove !== null ? parseFloat(freeAbove) : null,
-      },
-    });
-
-    return NextResponse.json(updatedZone);
-  } catch (error) {
-    return NextResponse.json({ error: "Failed to update" }, { status: 500 });
-  }
-}
-
-// حذف محافظة باستخدام الـ ID مُرسلاً في الـ Query Parameters أو Body
-export async function DELETE(req: Request) {
-  try {
-    const { searchParams } = new URL(req.url);
-    const id = searchParams.get("id");
-
-    if (!id) {
-      return NextResponse.json({ error: "Missing ID" }, { status: 400 });
-    }
-
-    await prisma.shippingZone.delete({
-      where: { id },
-    });
-
-    return NextResponse.json({ success: true });
-  } catch (error) {
-    return NextResponse.json({ error: "Failed to delete" }, { status: 500 });
-  }
-}
+}}
