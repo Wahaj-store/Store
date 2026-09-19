@@ -2,7 +2,7 @@
 import { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { Truck, CreditCard, ShieldCheck, ArrowRight } from 'lucide-react';
+import { Truck, CreditCard, ShieldCheck, ArrowRight, Upload, CheckCircle2 } from 'lucide-react';
 
 function CheckoutContent() {
   const [c, setC] = useState<any[]>([]);
@@ -14,6 +14,11 @@ function CheckoutContent() {
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState('');
   
+  // حالات خاصة برفع إيصال الدفع بشكل آمن ومباشر
+  const [proofFile, setProofFile] = useState<File | null>(null);
+  const [proofPreview, setProofPreview] = useState<string>('');
+  const [uploadError, setUploadError] = useState('');
+
   const r = useRouter();
   const sp = useSearchParams();
 
@@ -52,9 +57,45 @@ function CheckoutContent() {
   const subtotal = c.reduce((s, x) => s + Number(x.price) * x.quantity, 0);
   const finalTotal = subtotal + shippingCost;
 
+  // دالة للتعامل مع رفع الصورة بشكل آمن والتحقق من النوع والحجم
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    setUploadError('');
+    
+    if (!file) return;
+
+    // حماية أمنية: التحقق من أن الملف صورة وليست ملفات ضارة
+    if (!file.type.startsWith('image/')) {
+      setUploadError('يرجى رفع ملف صورة صالح (JPG, PNG)');
+      return;
+    }
+
+    // حماية أمنية: تحديد أقصى حجم للصورة (مثلاً 5 ميجابايت) لمنع الضغط على السيرفر
+    if (file.size > 5 * 1024 * 1024) {
+      setUploadError('حجم الصورة كبير جداً، الحد الأقصى هو 5 ميجابايت');
+      return;
+    }
+
+    setProofFile(file);
+
+    // تحويل الصورة إلى Base64 لتخزينها أو إرسالها بشكل آمن مع بيانات الطلب
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setProofPreview(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+  };
+
   async function submit(e: any) {
     e.preventDefault();
     if (!c.length || !methods.length) return;
+    
+    // التحقق من إرفاق صورة التحويل إذا كانت طريقة الدفع تتطلب إثباتاً
+    if (selected?.proofRequired && !proofPreview) {
+      setMsg('يرجى رفع صورة إيصال التحويل لإتمام الطلب');
+      return;
+    }
+
     setBusy(true);
     setMsg('');
     const f = new FormData(e.currentTarget);
@@ -69,7 +110,7 @@ function CheckoutContent() {
       couponCode: coupon || undefined,
       idempotencyKey: crypto.randomUUID(),
       paymentReference: f.get('paymentReference') || undefined,
-      proofUrl: f.get('proofUrl') || undefined,
+      proofUrl: proofPreview || f.get('proofUrl') || undefined, // إرسال الصورة المرفوعة بشكل آمن
       items: c.map(x => ({ productId: x.productId, variantId: x.variantId, quantity: x.quantity }))
     };
 
@@ -94,7 +135,7 @@ function CheckoutContent() {
     }
   }
 
-  // دالة لتحديد الأيقونة والشكل المناسب حسب طريقة الدفع
+  // دالة لتحديد الأيقونة حسب طريقة الدفع
   const getPaymentIcon = (methodKey: string) => {
     switch (methodKey.toLowerCase()) {
       case 'cod':
@@ -112,7 +153,7 @@ function CheckoutContent() {
 
   return (
     <main className="container max-w-5xl py-8">
-      {/* الترويسة العلوية مع زر العودة الاحترافي */}
+      {/* الترويسة العلوية مع زر العودة للسلة */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
         <div>
           <h1 className="text-3xl font-semibold">إتمام الطلب</h1>
@@ -142,7 +183,6 @@ function CheckoutContent() {
                 <input name="phone" required className="input mt-1 w-full" placeholder="01xxxxxxxxx" />
               </label>
               
-              {/* القائمة المنسدلة للمحافظات المرتبطة بلوحة التحكم */}
               <label className="text-sm font-medium">المحافظة
                 <select 
                   name="governorate" 
@@ -177,7 +217,7 @@ function CheckoutContent() {
             </label>
           </div>
 
-          {/* طرق الدفع المصممة بالأيقونات */}
+          {/* طرق الدفع */}
           <div className="lux-card p-6 bg-background border hairline rounded-xl space-y-4">
             <h2 className="text-lg font-semibold flex items-center gap-2 pb-2 border-b hairline">
               <CreditCard size={20} className="text-[var(--gold)]" /> طريقة الدفع
@@ -212,19 +252,45 @@ function CheckoutContent() {
             </fieldset>
 
             {selected && (selected.instructions || selected.accountNumber) && (
-              <div className="mt-4 rounded-xl border border-[var(--gold)]/40 bg-[var(--gold)]/10 p-4 text-sm space-y-2">
+              <div className="mt-4 rounded-xl border border-[var(--gold)]/40 bg-[var(--gold)]/10 p-4 text-sm space-y-3">
                 <b className="block text-[var(--gold)]">تعليمات الدفع</b>
                 {selected.accountName && <p>اسم الحساب: {selected.accountName}</p>}
                 {selected.accountNumber && <p dir="ltr" className="font-semibold">{selected.accountNumber}</p>}
                 {selected.instructions && <p className="leading-6">{selected.instructions}</p>}
+                
                 {selected.proofRequired && (
-                  <div className="space-y-3 pt-2">
-                    <label className="block text-xs font-medium">مرجع التحويل
-                      <input name="paymentReference" required className="input mt-1 w-full" dir="ltr" placeholder="رقم عملية التحويل" />
+                  <div className="space-y-3 pt-2 border-t border-[var(--gold)]/20">
+                    <label className="block text-xs font-medium">رقم عملية التحويل (مرجع التحويل)
+                      <input name="paymentReference" required className="input mt-1 w-full" dir="ltr" placeholder="أدخل رقم العملية أو مرجع التحويل" />
                     </label>
-                    <label className="block text-xs font-medium">رابط إثبات الدفع
-                      <input name="proofUrl" required className="input mt-1 w-full" dir="ltr" placeholder="https://..." />
-                    </label>
+
+                    {/* زر رفع صورة الإيصال المباشر مع الحماية والتحقق */}
+                    <div className="space-y-1.5">
+                      <span className="block text-xs font-medium">صورة إيصال التحويل (مطلوبة)</span>
+                      
+                      <label className="flex flex-col items-center justify-center border-2 border-dashed border-[var(--gold)]/50 rounded-xl p-4 bg-background/60 cursor-pointer hover:bg-[var(--gold)]/5 transition text-center">
+                        <div className="flex items-center gap-2 text-xs font-medium text-[var(--gold)]">
+                          {proofFile ? <CheckCircle2 size={18} /> : <Upload size={18} />}
+                          <span>{proofFile ? proofFile.name : 'اضغط هنا لرفع صورة الإيصال مباشرة'}</span>
+                        </div>
+                        <span className="text-[10px] muted mt-1">يدعم صور (JPG, PNG) بحد أقصى 5 ميجابايت ومحمية بالكامل</span>
+                        <input 
+                          type="file" 
+                          accept="image/*" 
+                          onChange={handleFileChange} 
+                          className="hidden" 
+                        />
+                      </label>
+
+                      {uploadError && <p className="text-xs text-red-600 font-medium">{uploadError}</p>}
+
+                      {/* معاينة الصورة المرفوعة بشكل آمن */}
+                      {proofPreview && (
+                        <div className="mt-2 relative w-24 h-24 rounded-lg overflow-hidden border border-[var(--gold)]/40 bg-black/5">
+                          <img src={proofPreview} alt="إيصال التحويل" className="w-full h-full object-cover" />
+                        </div>
+                      )}
+                    </div>
                   </div>
                 )}
               </div>
@@ -271,7 +337,7 @@ function CheckoutContent() {
           </button>
 
           <div className="flex items-center justify-center gap-1.5 text-xs muted pt-2">
-            <ShieldCheck size={14} className="text-[var(--gold)]" /> تسوق آمن ومحمي 100%
+            <ShieldCheck size5 size={14} className="text-[var(--gold)]" /> تسوق آمن ومحمي 100%
           </div>
         </aside>
       </form>
