@@ -5,7 +5,7 @@ import WishlistButton from '@/components/WishlistButton';
 import ReviewForm from '@/components/ReviewForm';
 import BackInStockForm from '@/components/BackInStockForm';
 import RecentlyViewed from '@/components/RecentlyViewed';
-import { ShieldCheck, Truck, RotateCcw, ChevronRight, CheckCircle2 } from 'lucide-react';
+import { ShieldCheck, Truck, RotateCcw, ChevronRight } from 'lucide-react';
 
 export async function generateMetadata({ params }: { params: { slug: string } }) {
   const p = await prisma.product.findUnique({
@@ -55,7 +55,6 @@ export default async function ProductPage({ params }: { params: { slug: string }
   if (!p || p.status !== 'PUBLISHED') notFound();
 
   const priceNum = Number(p.price);
-  const compareNum = p.comparePrice ? Number(p.comparePrice) : 0;
 
   const jsonLd = {
     '@context': 'https://schema.org',
@@ -130,32 +129,8 @@ export default async function ProductPage({ params }: { params: { slug: string }
               </div>
             </div>
 
-            {/* السعر الحالي والسعر قبل الخصم */}
-            <div className="mt-3 flex items-center gap-3">
-              <span className="text-2xl md:text-3xl font-extrabold text-[#D4AF37]">
-                {priceNum.toLocaleString('ar-EG')} ج.م
-              </span>
-              {compareNum > priceNum && (
-                <del className="text-sm text-muted-foreground">
-                  {compareNum.toLocaleString('ar-EG')} ج.م
-                </del>
-              )}
-            </div>
-
-            {/* حالة المخزون المطابقة تماماً للصورة المطلوبة */}
-            <div className="mt-2 flex items-center gap-1.5 text-xs font-medium text-emerald-600 dark:text-emerald-400">
-              {p.stock > 0 ? (
-                <>
-                  <span>متوفر بالمخزون ({p.stock} قطعة متاحة)</span>
-                  <CheckCircle2 size={15} />
-                </>
-              ) : (
-                <span>غير متوفر حالياً</span>
-              )}
-            </div>
-            
-            {/* مكون الشراء (أزرار الكمية والإضافة للسلة دون تكرار للسعر أو المخزون) */}
-            <div className="mt-5">
+            {/* مكون الشراء (يحتوي على السعر والمخزون المنظم مرة واحدة فقط بدون أي تكرار) */}
+            <div className="mt-4">
               <ProductPurchase product={{ ...p, price: priceNum, images: p.images }} />
             </div>
 
