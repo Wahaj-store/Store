@@ -72,12 +72,12 @@ export default function ProductPurchase({ product }: { product: any }) {
         </div>
       )}
 
-      {/* 2. حالة توفر المخزون في الجهة اليمنى تماماً */}
-      <div className="mt-3 flex items-center justify-end gap-1.5 text-xs font-medium w-full">
+      {/* 2. حالة توفر المخزون والأيقونة في الجهة اليمنى تماماً */}
+      <div className="mt-3 flex items-center justify-end gap-1.5 text-xs font-medium w-full flex-row-reverse">
         {stock > 0 ? (
-          <div className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400">
-            <span>{stock <= 5 ? `متبقي القليل • ${stock} قطعة فقط` : `متوفر بالمخزون (${stock} قطعة متاحة)`}</span>
+          <div className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 flex-row-reverse">
             <CheckCircle2 size={15} className="flex-shrink-0" />
+            <span>{stock <= 5 ? `متبقي القليل • ${stock} قطعة فقط` : `متوفر بالمخزون (${stock} قطعة متاحة)`}</span>
           </div>
         ) : (
           <span className="text-rose-500 font-semibold">غير متوفر حالياً</span>
@@ -107,7 +107,7 @@ export default function ProductPurchase({ product }: { product: any }) {
           </div>
         </div>
 
-        {/* زر الإضافة للسلة في الجهة اليمنى (يأخذ باقي المساحة) */}
+        {/* زر الإضافة للسلة في الجهة اليمنى */}
         <div className="flex-1 w-full">
           <AddToCart product={{ ...product, selectedQuantity: quantity }} variantId={id} />
         </div>
