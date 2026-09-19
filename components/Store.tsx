@@ -14,7 +14,7 @@ import WishlistButton from "./WishlistButton";
 function QuickView({ p, onClose }: { p: any; onClose: () => void }) {
   return (
     <div
-      className="fixed inset-0 z-[70] grid place-items-center bg-black/50 p-4"
+      className="fixed inset-0 z-[70] grid place-items-center bg-black/50 p-4 backdrop-blur-sm"
       role="dialog"
       aria-modal="true"
       onClick={onClose}
@@ -57,7 +57,7 @@ function Card({ p }: { p: any }) {
   return (
     <article className="group flex flex-col justify-between rounded-2xl border border-border/40 bg-[var(--bg)] p-3 shadow-sm transition-all hover:shadow-md">
       <div>
-        <div className="relative overflow-hidden rounded-xl bg-muted/30">
+        <div className="relative overflow-hidden rounded-xl bg-muted/35">
           <a href={`/product/${p.slug}`}>
             <img
               src={p.images?.[0]?.url || "/placeholder.svg"}
@@ -105,7 +105,7 @@ function Card({ p }: { p: any }) {
         </div>
       </div>
 
-      {/* زر أضيفي إلى السلة فقط بدون أي مربعات دفع أو بطاقات إضافية أسفله */}
+      {/* تم إزالة مربعات وعناصر الدفع الوهمية نهائياً لتبقى الواجهة نظيفة واحترافية */}
       <div className="mt-4 pt-2 border-t border-border/20">
         <AddToCart product={p} />
       </div>
@@ -131,7 +131,7 @@ function ProductsSection({
         <h2 className="mt-1 text-3xl font-semibold tracking-tight">{title}</h2>
       </div>
       <div className="grid grid-cols-2 gap-x-3 gap-y-8 md:grid-cols-4 md:gap-6">
-        {data.products.slice(0, 8).map((p: any) => (
+        {data.products.map((p: any) => (
           <Card key={p.id} p={p} />
         ))}
       </div>
@@ -242,7 +242,7 @@ export default function Store({ data }: { data: any }) {
                       <a
                         key={c.id}
                         href={`/shop?category=${c.slug}`}
-                        className="group relative overflow-hidden rounded-2xl aspect-[3/4] block"
+                        className="group relative overflow-hidden rounded-2xl aspect-[3/4] block shadow-sm"
                       >
                         <img
                           src={
