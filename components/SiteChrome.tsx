@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import { useTheme } from 'next-themes';
-import { Menu, X, Search, User, Moon, Sun, ShoppingBag, MessageCircle } from 'lucide-react';
+import { Menu, X, Search, User, Moon, Sun, ShoppingBag, MessageCircle, Home, Store } from 'lucide-react';
 
 type SettingMap = Record<string, any>;
 
@@ -62,7 +62,6 @@ export default function SiteChrome() {
     }
   }, [pathname, themeSettings]);
 
-  // استثناء لوحة التحكم فقط، والسماح بالظهور في الرئيسية وكل الصفحات الداخلية
   if (pathname?.startsWith('/admin')) return null;
 
   const parse = (value: any, fallback: any) => {
@@ -76,14 +75,6 @@ export default function SiteChrome() {
       { label: 'الرئيسية', href: '/' },
       { label: 'المتجر', href: '/shop' },
       { label: 'من نحن', href: '/about' }
-    ]
-  );
-
-  const footerLinks = parse(
-    settings.footer_links,
-    [
-      { label: 'تواصل معنا', href: '/contact' },
-      { label: 'الأسئلة الشائعة', href: '/faq' }
     ]
   );
 
@@ -227,18 +218,45 @@ export default function SiteChrome() {
         </div>
       )}
 
-      {/* شريط التنقل السفلي للموبايل */}
-      <nav className="fixed inset-x-0 bottom-0 z-40 flex justify-around border-t bg-[var(--bg)]/95 px-2 py-3 backdrop-blur md:hidden hairline">
-        <a href="/" className="text-xs">الرئيسية</a>
-        <a href="/shop" className="text-xs">المتجر</a>
-        <a href="/account" className="text-xs">حسابي</a>
-        <a href="/cart" className="relative text-xs">
-          السلة
-          {cartCount > 0 && (
-            <span className="absolute -top-2 -end-3 min-w-4 rounded-full bg-[var(--brand-gold)] px-1 text-center text-[9px] text-black">
-              {cartCount}
-            </span>
-          )}
+      {/* شريط التنقل السفلي للموبايل (محدث بأيقونات احترافية) */}
+      <nav className="fixed inset-x-0 bottom-0 z-40 flex items-center justify-around border-t bg-[var(--bg)]/95 px-3 py-2.5 backdrop-blur-md md:hidden hairline shadow-lg">
+        <a 
+          href="/" 
+          className={`flex flex-col items-center gap-1 transition-colors ${pathname === '/' ? 'text-[var(--brand-gold)] font-semibold' : 'text-muted-foreground hover:text-foreground'}`}
+        >
+          <Home size={20} />
+          <span className="text-[10px]">الرئيسية</span>
+        </a>
+
+        <a 
+          href="/shop" 
+          className={`flex flex-col items-center gap-1 transition-colors ${pathname === '/shop' ? 'text-[var(--brand-gold)] font-semibold' : 'text-muted-foreground hover:text-foreground'}`}
+        >
+          <Store size={20} />
+          <span className="text-[10px]">المتجر</span>
+        </a>
+
+        <a 
+          href="/account" 
+          className={`flex flex-col items-center gap-1 transition-colors ${pathname === '/account' ? 'text-[var(--brand-gold)] font-semibold' : 'text-muted-foreground hover:text-foreground'}`}
+        >
+          <User size={20} />
+          <span className="text-[10px]">حسابي</span>
+        </a>
+
+        <a 
+          href="/cart" 
+          className={`relative flex flex-col items-center gap-1 transition-colors ${pathname === '/cart' ? 'text-[var(--brand-gold)] font-semibold' : 'text-muted-foreground hover:text-foreground'}`}
+        >
+          <div className="relative">
+            <ShoppingBag size={20} />
+            {cartCount > 0 && (
+              <span className="absolute -top-2 -end-2.5 flex h-4 w-4 items-center justify-center rounded-full bg-[var(--brand-gold)] text-[9px] font-bold text-black shadow-sm">
+                {cartCount}
+              </span>
+            )}
+          </div>
+          <span className="text-[10px]">السلة</span>
         </a>
       </nav>
 
