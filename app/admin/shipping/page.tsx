@@ -30,7 +30,6 @@ export default function AdminShippingPage() {
     }
   };
 
-  // تعديل سعر المحافظة باستخدام الـ API الموحد
   const handleSave = async (id: string) => {
     try {
       const res = await fetch("/api/admin/shipping", {
@@ -49,22 +48,25 @@ export default function AdminShippingPage() {
     }
   };
 
-  // حذف المحافظة باستخدام الـ API الموحد عبر الـ Query Parameter
   const handleDelete = async (id: string) => {
     if (!confirm("هل أنت متأكد من حذف هذه المحافظة؟")) return;
     try {
-      const res = await fetch(`/api/admin/shipping?id=${id}`, { method: "DELETE" });
+      const res = await fetch(`/api/admin/shipping?id=${id}`, { 
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id })
+      });
       if (res.ok) {
         fetchZones();
       } else {
-        alert("فشل حذف المحافظة");
+        const errData = await res.json();
+        alert(errData.error || "فشل حذف المحافظة");
       }
     } catch (err) {
       alert("حدث خطأ أثناء الحذف");
     }
   };
 
-  // إضافة محافظة جديدة يدوياً
   const handleAdd = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
@@ -80,7 +82,7 @@ export default function AdminShippingPage() {
         setShowAddModal(false);
         fetchZones();
       } else {
-        alert("فشل الإضافة، تأكد أن المحافظة غير مسجلة مسبقاً");
+        alert("هذه المحافظة موجودة مسبقاً أو حدث خطأ");
       }
     } catch (err) {
       alert("حدث خطأ أثناء الإضافة");
@@ -97,7 +99,7 @@ export default function AdminShippingPage() {
           <h1 className="text-3xl font-semibold flex items-center gap-2">
             <Truck className="text-[var(--gold)]" /> إدارة الشحن والمحافظات
           </h1>
-          <p className="muted text-sm mt-1">المحافظات مضافة تلقائياً، يمكنك تعديل الأسعار أو الحذف بكل سهولة.</p>
+          <p className="muted text-sm mt-1">تم منع التكرار وإصلاح الحذف بنجاح.</p>
         </div>
         <div>
           <button onClick={() => setShowAddModal(true)} className="btn btn-gold flex items-center gap-2">
@@ -107,7 +109,7 @@ export default function AdminShippingPage() {
       </div>
 
       {loading ? (
-        <p className="text-center py-12 muted">جاري تحميل بيانات الشحن...</p>
+        <p className="text-center py-12 muted">جاري التحميل...</p>
       ) : (
         <div className="lux-card overflow-hidden">
           <div className="overflow-x-auto">
@@ -123,9 +125,7 @@ export default function AdminShippingPage() {
               <tbody>
                 {zones.length === 0 ? (
                   <tr>
-                    <td colSpan={4} className="text-center p-10 muted">
-                      لا توجد محافظات مضافة حالياً.
-                    </td>
+                    <td colSpan={4} className="text-center p-10 muted">لا توجد محافظات.</td>
                   </tr>
                 ) : (
                   zones.map((zone) => (
@@ -159,10 +159,10 @@ export default function AdminShippingPage() {
                       <td className="p-4 text-center">
                         {editingId === zone.id ? (
                           <div className="flex items-center justify-center gap-2">
-                            <button onClick={() => handleSave(zone.id)} className="p-2 bg-green-600 text-white rounded hover:opacity-90" title="حفظ">
+                            <button onClick={() => handleSave(zone.id)} className="p-2 bg-green-600 text-white rounded" title="حفظ">
                               <Save size={16} />
                             </button>
-                            <button onClick={() => setEditingId(null)} className="p-2 bg-gray-500 text-white rounded hover:opacity-90" title="إلغاء">
+                            <button onClick={() => setEditingId(null)} className="p-2 bg-gray-500 text-white rounded" title="إلغاء">
                               <X size={16} />
                             </button>
                           </div>
@@ -171,18 +171,18 @@ export default function AdminShippingPage() {
                             <button
                               onClick={() => {
                                 setEditingId(zone.id);
-                                setEditPrice(zone.price);
+                                setEditPrice(zone.id ? zone.price : "");
                                 setEditFreeAbove(zone.freeAbove || "");
                               }}
                               className="p-2 border rounded hover:bg-black/10"
-                              title="تعديل السعر"
+                              title="تعديل"
                             >
                               <Edit2 size={16} />
                             </button>
                             <button
                               onClick={() => handleDelete(zone.id)}
                               className="p-2 border rounded text-red-600 hover:bg-red-50"
-                              title="حذف المحافظة"
+                              title="حذف"
                             >
                               <Trash2 size={16} />
                             </button>
@@ -210,7 +210,7 @@ export default function AdminShippingPage() {
                   required
                   value={newGov}
                   onChange={(e) => setNewGov(e.target.value)}
-                  placeholder="مثال: أسوان، الإسكندرية..."
+                  placeholder="مثال: الإسكندرية..."
                   className="input w-full"
                 />
               </div>
@@ -221,23 +221,23 @@ export default function AdminShippingPage() {
                   required
                   value={newPrice}
                   onChange={(e) => setNewPrice(e.target.value)}
-                  placeholder="مثال: 60"
+                  placeholder="60"
                   className="input w-full"
                 />
               </div>
               <div>
-                <label className="block text-sm mb-1">شحن مجاني عند طلب مبلغ (اختياري)</label>
+                <label className="block text-sm mb-1">شحن مجاني عند (اختياري)</label>
                 <input
                   type="number"
                   value={newFreeAbove}
                   onChange={(e) => setNewFreeAbove(e.target.value)}
-                  placeholder="مثال: 1000"
+                  placeholder="1000"
                   className="input w-full"
                 />
               </div>
               <div className="flex justify-end gap-2 mt-4">
                 <button type="button" onClick={() => setShowAddModal(false)} className="btn">إلغاء</button>
-                <button type="submit" className="btn btn-gold">حفظ وإضافة</button>
+                <button type="submit" className="btn btn-gold">حفظ</button>
               </div>
             </form>
           </div>
