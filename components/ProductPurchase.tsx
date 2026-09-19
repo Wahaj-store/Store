@@ -35,7 +35,7 @@ export default function ProductPurchase({ product }: { product: any }) {
 
   return (
     <div className="flex flex-col items-end text-right w-full">
-      {/* عرض السعر مع السعر القديم إن وجد */}
+      {/* السعر والسعر القديم في الجهة اليمنى */}
       <div className="mt-2 flex items-center justify-end gap-3 w-full">
         {product.comparePrice && Number(product.comparePrice) > price && (
           <del className="text-sm text-muted-foreground">
@@ -72,7 +72,7 @@ export default function ProductPurchase({ product }: { product: any }) {
         </div>
       )}
 
-      {/* حالة توفر المخزون */}
+      {/* حالة توفر المخزون والعلامة الخضراء في الجهة اليمنى */}
       <div className="mt-3 flex items-center justify-end gap-1.5 text-xs font-medium w-full">
         {stock > 0 ? (
           <div className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400">
@@ -84,20 +84,11 @@ export default function ProductPurchase({ product }: { product: any }) {
         )}
       </div>
 
-      {/* صف التحكم في الكمية بجانبه زر الإضافة إلى السلة */}
+      {/* صف التحكم في الكمية بجانبه زر الإضافة إلى السلة في نفس السطر */}
       <div className="mt-6 grid grid-cols-1 md:grid-cols-12 gap-3 w-full items-center">
         {/* عداد تحديد الكمية (+ / -) */}
-        <div className="md:col-span-4 flex items-center justify-between rounded-2xl border border-border/40 bg-muted/10 p-2">
-          <span className="text-xs font-medium px-2">الكمية:</span>
+        <div className="md:col-span-4 flex items-center justify-between rounded-2xl border border-border/40 bg-muted/10 p-2.5">
           <div className="flex items-center gap-2 rounded-xl border border-border/60 bg-[var(--bg)] p-1 shadow-2xs">
-            <button
-              type="button"
-              onClick={handleDecrease}
-              className="flex h-7 w-7 items-center justify-center rounded-lg bg-muted/30 text-xs font-bold transition-colors hover:bg-[#D4AF37] hover:text-black"
-            >
-              -
-            </button>
-            <span className="w-6 text-center text-xs font-bold">{quantity}</span>
             <button
               type="button"
               onClick={handleIncrease}
@@ -105,16 +96,25 @@ export default function ProductPurchase({ product }: { product: any }) {
             >
               +
             </button>
+            <span className="w-6 text-center text-xs font-bold">{quantity}</span>
+            <button
+              type="button"
+              onClick={handleDecrease}
+              className="flex h-7 w-7 items-center justify-center rounded-lg bg-muted/30 text-xs font-bold transition-colors hover:bg-[#D4AF37] hover:text-black"
+            >
+              -
+            </button>
           </div>
+          <span className="text-xs font-medium px-2">الكمية:</span>
         </div>
 
-        {/* زر الإضافة للسلة بجانب الكمية (تم تمرير الخصائص المتوافقة تماماً) */}
+        {/* زر الإضافة للسلة بجانب الكمية مع تمرير الكمية المختارة */}
         <div className="md:col-span-8 w-full">
           <AddToCart product={{ ...product, selectedQuantity: quantity }} variantId={id} />
         </div>
       </div>
 
-      {/* زر اشتري الآن (أسفلهم للتحويل المباشر لسلة المشتريات) */}
+      {/* زر اشتري الآن (دفع سريع) أسفلهم */}
       <div className="mt-3 w-full">
         <button
           type="button"
