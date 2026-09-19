@@ -121,31 +121,17 @@ export default async function ProductPage({ params }: { params: { slug: string }
             <span className="text-xs uppercase tracking-widest text-[#D4AF37] font-semibold">
               {p.category?.name || 'وَهَج فخامة'}
             </span>
-            <h1 className="mt-2 text-3xl md:text-4xl font-bold tracking-tight">{p.name}</h1>
             
-            {/* السعر الحالي والسعر قبل الخصم (منسق بدون تكرار) */}
-            <div className="mt-3 flex items-center gap-3">
-              <span className="text-2xl md:text-3xl font-extrabold text-[#D4AF37]">
-                {priceNum.toLocaleString('ar-EG')} ج.م
-              </span>
-              {compareNum > priceNum && (
-                <del className="text-sm text-muted-foreground">
-                  {compareNum.toLocaleString('ar-EG')} ج.م
-                </del>
-              )}
-            </div>
-
-            {/* حالة المخزون المطابقة للصورة الثانية */}
-            <div className="mt-2 text-xs font-medium text-emerald-600 dark:text-emerald-400">
-              {p.stock > 0 ? `متوفر بالمخزون • ${p.stock} قطعة` : 'غير متوفر حالياً'}
-            </div>
-
-            <div className="mt-3">
-              <WishlistButton productId={p.id} />
+            {/* اسم المنتج وبجواره زر المفضلة مباشرة */}
+            <div className="mt-2 flex items-center justify-between gap-4">
+              <h1 className="text-3xl md:text-4xl font-bold tracking-tight">{p.name}</h1>
+              <div className="flex-shrink-0">
+                <WishlistButton productId={p.id} />
+              </div>
             </div>
             
-            {/* مكون الشراء */}
-            <div className="mt-4">
+            {/* مكون الشراء (يحتوي على السعر والمخزون بشكل موحد بدون تكرار خارجي) */}
+            <div className="mt-5">
               <ProductPurchase product={{ ...p, price: priceNum, images: p.images }} />
             </div>
 
