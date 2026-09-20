@@ -61,7 +61,7 @@ export default function SiteFooter() {
   };
 
   return (
-    <footer className="wahaj-footer">
+    <footer className="wahaj-footer border-t border-[var(--gold)]/20 shadow-[0_-4px_20px_rgba(0,0,0,0.2)]">
       <div className="container">
         <div className="wahaj-footer__main">
 
