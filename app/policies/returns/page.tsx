@@ -1,30 +1,17 @@
 import { prisma } from '@/lib/prisma';
 import { RotateCcw, ShieldCheck, Truck, HelpCircle } from 'lucide-react';
 
-export const revalidate = 0;
+export const revalidate = 0; // لضمان تحديث المحتوى فورا عند التعديل من لوحة التحكم
 
 export const metadata = {
   title: 'سياسة الاستبدال والاسترجاع — وَهَج',
 };
 
 export default async function ReturnsPolicyPage() {
-  // جلب الإعدادات من الموديل الصحيح والمعرف في مشروعك (مثل setting أو settings)
-  let content = '';
-  try {
-    // جرب البحث بالموديل الصحيح للإعدادات (تأكد من اسم الموديل في schema.prisma لديك)
-    const setting = await prisma.setting.findUnique({
-      where: { key: 'return_policy' },
-    });
-    content = setting?.value || '';
-  } catch {
-    try {
-      // محاولة بديلة في حال كان الجدول باسم settings أو بطريقة أخرى
-      const setting = await (prisma as any).config?.findUnique({
-        where: { key: 'return_policy' },
-      });
-      content = setting?.value || '';
-    } catch {}
-  }
+  // جلب سياسة الاستبدال والاسترجاع من جدول الإعدادات الصحيح SiteSetting
+  const setting = await prisma.siteSetting.findUnique({
+    where: { key: 'return_policy' },
+  }).catch(() => null);
 
   const defaultReturnsText = `
     نحرص على وصول منتجات وَهَج بحالة سليمة. عند وجود مشكلة في المنتج، تواصلي مع خدمة العملاء بأسرع وقت ممكن.
@@ -34,7 +21,7 @@ export default async function ReturnsPolicyPage() {
     يجب الحفاظ على المنتج وتغليفه بحالتهما المناسبة لحين إتمام المراجعة.
   `;
 
-  const finalContent = content || defaultReturnsText;
+  const content = setting?.value || defaultReturnsText;
 
   return (
     <main className="min-h-screen py-16 px-4 bg-background text-foreground" dir="rtl">
@@ -51,10 +38,10 @@ export default async function ReturnsPolicyPage() {
           </p>
         </div>
 
-        {/* محتوى الصفحة */}
+        {/* محتوى الصفحة المستورد من قاعدة البيانات */}
         <div className="lux-card p-8 md:p-12 space-y-6 leading-9 text-sm md:text-base border hairline rounded-2xl bg-background shadow-sm">
           <div className="whitespace-pre-wrap font-sans text-foreground/90">
-            {finalContent}
+            {content}
           </div>
         </div>
 
