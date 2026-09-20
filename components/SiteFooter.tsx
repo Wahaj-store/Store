@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { Banknote, Smartphone, QrCode, CreditCard } from 'lucide-react';
 
 type SettingMap = Record<string, any>;
 
@@ -44,6 +45,20 @@ export default function SiteFooter() {
       { label: 'الأسئلة الشائعة', href: '/faq' }
     ]
   );
+
+  // دالة لتحديد الأيقونة الاحترافية المناسبة لكل طريقة دفع
+  const getPaymentIcon = (methodName: string) => {
+    const name = methodName?.toLowerCase() || '';
+    if (name.includes('cash') || name.includes('استلام')) {
+      return <Banknote size={18} className="text-[var(--gold)] shrink-0" />;
+    } else if (name.includes('vodafone') || name.includes('فودافون') || name.includes('محفظة') || name.includes('wallet')) {
+      return <Smartphone size={18} className="text-red-500 shrink-0" />;
+    } else if (name.includes('insta') || name.includes('انستاباي')) {
+      return <QrCode size={18} className="text-purple-400 shrink-0" />;
+    } else {
+      return <CreditCard size={18} className="text-[var(--gold)] shrink-0" />;
+    }
+  };
 
   return (
     <footer className="wahaj-footer">
@@ -100,18 +115,29 @@ export default function SiteFooter() {
               خيارات دفع متاحة لتجربة شراء أكثر راحة.
             </p>
 
-            <div className="wahaj-footer__payments flex flex-wrap gap-2">
-              {payments.length > 0
-                ? payments.map((payment: any) => (
-                    <span
+            {/* عرض طرق الدفع بأيقونات SVG احترافية بجانبها */}
+            <div className="wahaj-footer__payments flex flex-col gap-2.5 pt-1">
+              {payments.length > 0 ? (
+                payments.map((payment: any) => {
+                  const label = payment.label || payment.name || payment.method;
+                  return (
+                    <div
                       key={payment.method || payment.id}
-                      className="payment-badge px-3 py-1 rounded-md bg-white/5 border border-white/10 text-xs font-medium text-gray-200"
-                      title={payment.label || payment.name}
+                      className="flex items-center gap-3 px-3.5 py-2.5 rounded-xl bg-card border border-border/60 shadow-sm transition hover:border-[var(--gold)]/50 text-foreground"
                     >
-                      {payment.label || payment.name || payment.method}
-                    </span>
-                  ))
-                : <span className="payment-badge px-3 py-1 rounded-md bg-white/5 border border-white/10 text-xs font-medium">الدفع عند الاستلام</span>}
+                      {getPaymentIcon(label)}
+                      <span className="text-xs md:text-sm font-medium">
+                        {label}
+                      </span>
+                    </div>
+                  );
+                })
+              ) : (
+                <div className="flex items-center gap-3 px-3.5 py-2.5 rounded-xl bg-card border border-border/60 text-foreground">
+                  <Banknote size={18} className="text-[var(--gold)] shrink-0" />
+                  <span className="text-xs md:text-sm font-medium">الدفع عند الاستلام</span>
+                </div>
+              )}
             </div>
           </div>
 
