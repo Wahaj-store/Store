@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { 
   Heart, Package, UserRound, LogOut, Save, Sparkles, Phone, 
-  Lock, User, ArrowLeft, MapPin, Eye, Clock, ChevronLeft, Trash2, CheckCircle2 
+  Lock, User, ArrowLeft, MapPin, Eye, Clock, CheckCircle2, ChevronLeft, Trash2 
 } from 'lucide-react';
 
 export default function Account() {
@@ -13,7 +13,6 @@ export default function Account() {
   const [msg, setMsg] = useState('');
   const [tab, setTab] = useState('profile');
   
-  // حالات تفاصيل الطلب والعناوين وسجل المشاهدة
   const [selectedOrder, setSelectedOrder] = useState<any>(null);
   const [recentProducts, setRecentProducts] = useState<any[]>([]);
   const [addresses, setAddresses] = useState<any[]>([
@@ -28,7 +27,6 @@ export default function Account() {
 
   useEffect(() => {
     load();
-    // تحميل المنتجات التي شاهدتها من التخزين المحلي
     const recents = JSON.parse(localStorage.getItem('wahaj_recent_products') || '[]');
     setRecentProducts(recents);
   }, []);
@@ -54,7 +52,6 @@ export default function Account() {
     setC(null);
   }
 
-  // شاشة تسجيل الدخول وإنشاء الحساب
   if (!c) {
     return (
       <main className="min-h-screen py-12 px-4 md:px-8 bg-background text-foreground transition-colors duration-300 flex items-center justify-center" dir="rtl">
@@ -181,7 +178,6 @@ export default function Account() {
     );
   }
 
-  // لوحة التحكم المتكاملة للحساب الشخصي
   return (
     <main className="min-h-screen py-10 px-4 md:px-8 bg-background text-foreground transition-colors duration-300" dir="rtl">
       <div className="container max-w-6xl mx-auto space-y-8">
@@ -203,11 +199,11 @@ export default function Account() {
           </button>
         </div>
 
-        {/* تخطيط اللوحة */}
-        <div className="grid gap-8 lg:grid-cols-[280px_1fr] items-start">
+        {/* تخطيط الصفحة (تمت إزالة الـ sticky لمنع التداخل نهائياً) */}
+        <div className="flex flex-col lg:grid lg:grid-cols-[280px_1fr] gap-8 items-start">
           
-          {/* القائمة الجانبية للتبويبات */}
-          <aside className="bg-card border border-border/60 rounded-3xl p-3 shadow-sm sticky top-24 space-y-1.5">
+          {ങ്ങൾ /* القائمة الجانبية */}
+          <aside className="w-full bg-card border border-border/60 rounded-3xl p-3 shadow-sm space-y-1.5">
             {[
               ['profile', 'حسابي والبيانات', UserRound],
               ['orders', 'الطلبات ومتابعتها', Package],
@@ -242,10 +238,9 @@ export default function Account() {
             </div>
           </aside>
 
-          {/* محتوى التبويبات النشطة */}
-          <section className="space-y-6">
+          {/* محتوى التبويبات */}
+          <section className="w-full space-y-6">
             
-            {/* 1. حسابي (البيانات الشخصية) */}
             {tab === 'profile' && (
               <div className="bg-card border border-border/60 rounded-3xl p-6 md:p-8 shadow-sm space-y-6">
                 <h2 className="text-xl font-bold border-b border-border/40 pb-4">البيانات الشخصية</h2>
@@ -301,7 +296,6 @@ export default function Account() {
               </div>
             )}
 
-            {/* 2 & 3 & 4. الطلبات، تفاصيل الطلب، ومتابعة الطلب */}
             {tab === 'orders' && (
               <div className="bg-card border border-border/60 rounded-3xl p-6 md:p-8 shadow-sm space-y-6">
                 {selectedOrder ? (
@@ -319,7 +313,6 @@ export default function Account() {
                       </button>
                     </div>
 
-                    {/* متابعة الطلب (Tracking Timeline) */}
                     <div className="p-4 rounded-2xl bg-background border border-border/60 space-y-3">
                       <h3 className="font-bold text-sm flex items-center gap-2">
                         <Clock size={16} className="text-[var(--gold)]" /> خط سير ومتابعة الطلب
@@ -387,7 +380,6 @@ export default function Account() {
               </div>
             )}
 
-            {/* 5. العناوين */}
             {tab === 'addresses' && (
               <div className="bg-card border border-border/60 rounded-3xl p-6 md:p-8 shadow-sm space-y-6">
                 <div className="flex justify-between items-center border-b border-border/40 pb-4">
@@ -413,7 +405,6 @@ export default function Account() {
               </div>
             )}
 
-            {/* 6. المفضلة */}
             {tab === 'wishlist' && (
               <div className="bg-card border border-border/60 rounded-3xl p-6 md:p-8 shadow-sm space-y-6">
                 <h2 className="text-xl font-bold border-b border-border/40 pb-4">قائمة المفضلة</h2>
@@ -443,7 +434,6 @@ export default function Account() {
               </div>
             )}
 
-            {/* 7. المنتجات التي شاهدتها */}
             {tab === 'recent' && (
               <div className="bg-card border border-border/60 rounded-3xl p-6 md:p-8 shadow-sm space-y-6">
                 <h2 className="text-xl font-bold border-b border-border/40 pb-4">المنتجات التي شاهدتها مؤخراً</h2>
@@ -463,7 +453,6 @@ export default function Account() {
               </div>
             )}
 
-            {/* 8. تغيير كلمة المرور */}
             {tab === 'security' && (
               <div className="bg-card border border-border/60 rounded-3xl p-6 md:p-8 shadow-sm space-y-6">
                 <h2 className="text-xl font-bold border-b border-border/40 pb-4">تغيير كلمة المرور</h2>
