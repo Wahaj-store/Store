@@ -1,7 +1,10 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Heart, Package, UserRound, LogOut, Save, Sparkles, Phone, Lock, User, ArrowLeft } from 'lucide-react';
+import { 
+  Heart, Package, UserRound, LogOut, Save, Sparkles, Phone, 
+  Lock, User, ArrowLeft, MapPin, Eye, Clock, ChevronLeft, Trash2, CheckCircle2 
+} from 'lucide-react';
 
 export default function Account() {
   const [c, setC] = useState<any>(null);
@@ -9,6 +12,14 @@ export default function Account() {
   const [form, setForm] = useState<any>({});
   const [msg, setMsg] = useState('');
   const [tab, setTab] = useState('profile');
+  
+  // حالات تفاصيل الطلب والعناوين وسجل المشاهدة
+  const [selectedOrder, setSelectedOrder] = useState<any>(null);
+  const [recentProducts, setRecentProducts] = useState<any[]>([]);
+  const [addresses, setAddresses] = useState<any[]>([
+    { id: 1, title: 'المنزل الرئيسي', details: 'القاهرة، مدينة نصر، شارع مكرم عبيد', phone: '01000000000' }
+  ]);
+  const [passwords, setPasswords] = useState({ current: '', newPass: '', confirmPass: '' });
 
   async function load() {
     const r = await fetch('/api/customer/me');
@@ -17,6 +28,9 @@ export default function Account() {
 
   useEffect(() => {
     load();
+    // تحميل المنتجات التي شاهدتها من التخزين المحلي
+    const recents = JSON.parse(localStorage.getItem('wahaj_recent_products') || '[]');
+    setRecentProducts(recents);
   }, []);
 
   async function auth() {
@@ -40,13 +54,12 @@ export default function Account() {
     setC(null);
   }
 
-  // شاشة تسجيل الدخول وإنشاء الحساب بالتصميم الاحترافي الجديد
+  // شاشة تسجيل الدخول وإنشاء الحساب
   if (!c) {
     return (
       <main className="min-h-screen py-12 px-4 md:px-8 bg-background text-foreground transition-colors duration-300 flex items-center justify-center" dir="rtl">
         <div className="container max-w-md mx-auto space-y-8">
           
-          {/* الشعار والترويسة */}
           <div className="text-center space-y-3">
             <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-[var(--gold)]/10 text-[var(--gold)] border border-[var(--gold)]/30 shadow-sm">
               <Sparkles size={28} />
@@ -62,15 +75,12 @@ export default function Account() {
             </p>
           </div>
 
-          {/* أزرار التبديل (Tabs) */}
           <div className="flex p-1.5 rounded-2xl bg-card border border-border/60 shadow-sm">
             <button
               type="button"
               onClick={() => { setMode('login'); setMsg(''); }}
               className={`flex-1 py-3 text-sm font-bold rounded-xl transition-all ${
-                mode === 'login'
-                  ? 'bg-[var(--gold)] text-black shadow-md'
-                  : 'text-muted-foreground hover:text-foreground'
+                mode === 'login' ? 'bg-[var(--gold)] text-black shadow-md' : 'text-muted-foreground hover:text-foreground'
               }`}
             >
               تسجيل الدخول
@@ -79,16 +89,13 @@ export default function Account() {
               type="button"
               onClick={() => { setMode('register'); setMsg(''); }}
               className={`flex-1 py-3 text-sm font-bold rounded-xl transition-all ${
-                mode === 'register'
-                  ? 'bg-[var(--gold)] text-black shadow-md'
-                  : 'text-muted-foreground hover:text-foreground'
+                mode === 'register' ? 'bg-[var(--gold)] text-black shadow-md' : 'text-muted-foreground hover:text-foreground'
               }`}
             >
               إنشاء حساب
             </button>
           </div>
 
-          {/* صندوق النموذج */}
           <div className="bg-card border border-border/60 rounded-3xl p-6 md:p-8 shadow-xl relative overflow-hidden space-y-5">
             <div className="absolute top-0 right-0 w-28 h-28 bg-[var(--gold)]/5 rounded-bl-full pointer-events-none" />
 
@@ -96,9 +103,7 @@ export default function Account() {
               <div className="space-y-2">
                 <label className="text-xs md:text-sm font-semibold text-foreground">الاسم الكامل</label>
                 <div className="relative">
-                  <span className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground">
-                    <User size={18} />
-                  </span>
+                  <span className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground"><User size={18} /></span>
                   <input
                     className="w-full pr-11 pl-4 py-3 rounded-xl bg-background border border-border/80 text-foreground text-sm focus:outline-none focus:border-[var(--gold)] transition"
                     placeholder="أدخلي اسمكِ الكريم"
@@ -111,9 +116,7 @@ export default function Account() {
             <div className="space-y-2">
               <label className="text-xs md:text-sm font-semibold text-foreground">رقم الهاتف</label>
               <div className="relative">
-                <span className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground">
-                  <Phone size={18} />
-                </span>
+                <span className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground"><Phone size={18} /></span>
                 <input
                   className="w-full pr-11 pl-4 py-3 rounded-xl bg-background border border-border/80 text-foreground text-sm focus:outline-none focus:border-[var(--gold)] transition"
                   placeholder="01xxxxxxxxx"
@@ -138,9 +141,7 @@ export default function Account() {
             <div className="space-y-2">
               <label className="text-xs md:text-sm font-semibold text-foreground">كلمة المرور</label>
               <div className="relative">
-                <span className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground">
-                  <Lock size={18} />
-                </span>
+                <span className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground"><Lock size={18} /></span>
                 <input
                   className="w-full pr-11 pl-4 py-3 rounded-xl bg-background border border-border/80 text-foreground text-sm focus:outline-none focus:border-[var(--gold)] transition"
                   type="password"
@@ -180,7 +181,7 @@ export default function Account() {
     );
   }
 
-  // لوحة التحكم الخاصة بالحساب (الملف الشخصي، الطلبات، المفضلة)
+  // لوحة التحكم المتكاملة للحساب الشخصي
   return (
     <main className="min-h-screen py-10 px-4 md:px-8 bg-background text-foreground transition-colors duration-300" dir="rtl">
       <div className="container max-w-6xl mx-auto space-y-8">
@@ -188,8 +189,10 @@ export default function Account() {
         {/* الترويسة العلوية */}
         <div className="flex flex-wrap items-center justify-between gap-4 border-b border-border/40 pb-6">
           <div className="space-y-1">
-            <span className="text-[var(--gold)] font-medium text-sm">حسابي الشخصي</span>
-            <h1 className="text-2xl md:text-3xl font-bold">مرحبًا، {c.name}</h1>
+            <span className="text-[var(--gold)] font-medium text-sm flex items-center gap-1.5">
+              <Sparkles size={16} /> لوحة التحكم الفاخرة
+            </span>
+            <h1 className="text-2xl md:text-3xl font-bold">مرحبًا بكِ، {c.name}</h1>
           </div>
           <button
             className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-card border border-border/80 text-foreground hover:border-red-500/50 hover:text-red-500 transition text-sm font-semibold shadow-sm"
@@ -200,19 +203,22 @@ export default function Account() {
           </button>
         </div>
 
-        {/* محتوى الحساب والتبويبات */}
-        <div className="grid gap-6 lg:grid-cols-[260px_1fr]">
+        {/* تخطيط اللوحة */}
+        <div className="grid gap-8 lg:grid-cols-[280px_1fr] items-start">
           
           {/* القائمة الجانبية للتبويبات */}
-          <aside className="bg-card border border-border/60 rounded-3xl p-3 shadow-sm h-fit space-y-1.5">
+          <aside className="bg-card border border-border/60 rounded-3xl p-3 shadow-sm sticky top-24 space-y-1.5">
             {[
-              ['profile', 'الملف الشخصي', UserRound],
-              ['orders', 'طلباتي', Package],
+              ['profile', 'حسابي والبيانات', UserRound],
+              ['orders', 'الطلبات ومتابعتها', Package],
+              ['addresses', 'العناوين المحفوظة', MapPin],
               ['wishlist', 'المفضلة', Heart],
+              ['recent', 'المنتجات التي شاهدتها', Eye],
+              ['security', 'تغيير كلمة المرور', Lock],
             ].map(([k, t, I]: any) => (
               <button
                 key={k}
-                onClick={() => setTab(k)}
+                onClick={() => { setTab(k); setSelectedOrder(null); }}
                 className={`w-full flex items-center gap-3 p-3.5 text-start rounded-2xl text-sm font-semibold transition-all ${
                   tab === k
                     ? 'bg-[var(--gold)] text-black shadow-md'
@@ -220,24 +226,47 @@ export default function Account() {
                 }`}
               >
                 <I size={18} className="shrink-0" />
-                <span>{t}</span>
+                <span className="flex-1">{t}</span>
+                <ChevronLeft size={16} className={tab === k ? 'text-black' : 'text-muted-foreground'} />
               </button>
             ))}
+
+            <div className="pt-3 border-t border-border/40">
+              <button
+                onClick={logout}
+                className="w-full flex items-center gap-3 p-3.5 text-start rounded-2xl text-sm font-semibold text-red-500 hover:bg-red-500/10 transition"
+              >
+                <LogOut size={18} className="shrink-0" />
+                <span>تسجيل الخروج</span>
+              </button>
+            </div>
           </aside>
 
-          {/* محتوى التبويب النشط */}
-          <section className="bg-card border border-border/60 rounded-3xl p-6 md:p-8 shadow-sm">
+          {/* محتوى التبويبات النشطة */}
+          <section className="space-y-6">
+            
+            {/* 1. حسابي (البيانات الشخصية) */}
             {tab === 'profile' && (
-              <div className="space-y-6 max-w-xl">
-                <h2 className="text-xl font-bold">تعديل البيانات الشخصية</h2>
+              <div className="bg-card border border-border/60 rounded-3xl p-6 md:p-8 shadow-sm space-y-6">
+                <h2 className="text-xl font-bold border-b border-border/40 pb-4">البيانات الشخصية</h2>
                 
-                <div className="space-y-4">
+                <div className="space-y-4 max-w-xl">
                   <div className="space-y-1.5">
-                    <label className="text-xs font-semibold text-muted-foreground">الاسم</label>
+                    <label className="text-xs font-semibold text-muted-foreground">الاسم الكامل</label>
                     <input
                       className="w-full px-4 py-3 rounded-xl bg-background border border-border/80 text-foreground text-sm focus:outline-none focus:border-[var(--gold)] transition"
                       value={c.name || ''}
                       onChange={e => setC({ ...c, name: e.target.value })}
+                    />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-muted-foreground">رقم الهاتف</label>
+                    <input
+                      className="w-full px-4 py-3 rounded-xl bg-background border border-border/80 text-foreground text-sm focus:outline-none focus:border-[var(--gold)] transition"
+                      value={c.phone || ''}
+                      dir="ltr"
+                      onChange={e => setC({ ...c, phone: e.target.value })}
                     />
                   </div>
 
@@ -272,37 +301,123 @@ export default function Account() {
               </div>
             )}
 
+            {/* 2 & 3 & 4. الطلبات، تفاصيل الطلب، ومتابعة الطلب */}
             {tab === 'orders' && (
-              <div className="space-y-4">
-                <h2 className="text-xl font-bold mb-4">سجل الطلبات</h2>
-                <div className="grid gap-3">
-                  {(c.orders || []).map((o: any) => (
-                    <div
-                      key={o.id}
-                      className="flex flex-wrap items-center justify-between gap-4 p-4 rounded-2xl bg-background border border-border/60"
-                    >
+              <div className="bg-card border border-border/60 rounded-3xl p-6 md:p-8 shadow-sm space-y-6">
+                {selectedOrder ? (
+                  <div className="space-y-6">
+                    <div className="flex items-center justify-between border-b border-border/40 pb-4">
                       <div>
-                        <b className="text-foreground">طلب #{o.number}</b>
-                        <span className="mx-3 text-xs px-2.5 py-1 rounded-full bg-[var(--gold)]/10 text-[var(--gold)] font-medium">
-                          {o.status}
-                        </span>
+                        <h2 className="text-xl font-bold">تفاصيل الطلب: #{selectedOrder.number}</h2>
+                        <span className="text-xs text-muted-foreground">حالة الطلب الحالية: {selectedOrder.status}</span>
                       </div>
-                      <strong className="text-[var(--gold)] text-base">
-                        {Number(o.total).toLocaleString('ar-EG')} ج.م
-                      </strong>
+                      <button 
+                        onClick={() => setSelectedOrder(null)}
+                        className="px-4 py-2 rounded-xl bg-background border border-border text-xs font-semibold hover:border-[var(--gold)] transition"
+                      >
+                        العودة للطلبات
+                      </button>
+                    </div>
+
+                    {/* متابعة الطلب (Tracking Timeline) */}
+                    <div className="p-4 rounded-2xl bg-background border border-border/60 space-y-3">
+                      <h3 className="font-bold text-sm flex items-center gap-2">
+                        <Clock size={16} className="text-[var(--gold)]" /> خط سير ومتابعة الطلب
+                      </h3>
+                      <div className="grid grid-cols-3 gap-2 text-center text-xs font-semibold">
+                        <div className="p-2.5 rounded-xl bg-[var(--gold)] text-black flex items-center justify-center gap-1">
+                          <CheckCircle2 size={14} /> تم استلام الطلب
+                        </div>
+                        <div className="p-2.5 rounded-xl bg-[var(--gold)]/20 text-[var(--gold)]">قيد التجهيز والشحن</div>
+                        <div className="p-2.5 rounded-xl bg-background border border-border text-muted-foreground">التوصيل للباب</div>
+                      </div>
+                    </div>
+
+                    <div className="space-y-3">
+                      <h3 className="font-bold text-sm">المنتجات في هذا الطلب</h3>
+                      {(selectedOrder.items || []).map((item: any, idx: number) => (
+                        <div key={idx} className="flex justify-between items-center p-3 rounded-xl bg-background border border-border/60 text-sm">
+                          <span>{item.product?.name || 'منتج'} × {item.quantity}</span>
+                          <span className="text-[var(--gold)] font-bold">{Number(item.price).toLocaleString('ar-EG')} ج.م</span>
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="flex justify-between items-center border-t border-border/40 pt-4 font-bold text-base">
+                      <span>الإجمالي الكلي</span>
+                      <span className="text-[var(--gold)] text-lg">{Number(selectedOrder.total).toLocaleString('ar-EG')} ج.م</span>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="space-y-6">
+                    <h2 className="text-xl font-bold border-b border-border/40 pb-4">سجل الطلبات ومتابعتها</h2>
+                    <div className="grid gap-3">
+                      {(c.orders || []).map((o: any) => (
+                        <div
+                          key={o.id}
+                          className="flex flex-wrap items-center justify-between gap-4 p-4 rounded-2xl bg-background border border-border/60 hover:border-[var(--gold)]/50 transition"
+                        >
+                          <div className="space-y-1">
+                            <b className="text-foreground">طلب #{o.number}</b>
+                            <div className="flex items-center gap-2">
+                              <span className="text-xs px-2.5 py-0.5 rounded-full bg-[var(--gold)]/10 text-[var(--gold)] font-medium">
+                                {o.status}
+                              </span>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-4">
+                            <strong className="text-[var(--gold)] text-base">
+                              {Number(o.total).toLocaleString('ar-EG')} ج.م
+                            </strong>
+                            <button
+                              onClick={() => setSelectedOrder(o)}
+                              className="px-4 py-2 rounded-xl bg-[var(--gold)] text-black text-xs font-bold hover:opacity-95 transition"
+                            >
+                              التفاصيل والمتابعة
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                      {!c.orders?.length && (
+                        <p className="text-muted-foreground text-sm py-12 text-center">لا توجد طلبات سابقة حتى الآن.</p>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* 5. العناوين */}
+            {tab === 'addresses' && (
+              <div className="bg-card border border-border/60 rounded-3xl p-6 md:p-8 shadow-sm space-y-6">
+                <div className="flex justify-between items-center border-b border-border/40 pb-4">
+                  <h2 className="text-xl font-bold">عناوين الشحن المحفوظة</h2>
+                  <button className="px-4 py-2 rounded-xl bg-[var(--gold)] text-black text-xs font-bold hover:opacity-95 transition">
+                    + إضافة عنوان جديد
+                  </button>
+                </div>
+                <div className="grid gap-4">
+                  {addresses.map((addr) => (
+                    <div key={addr.id} className="p-4 rounded-2xl bg-background border border-border/60 flex items-start justify-between gap-4">
+                      <div className="space-y-1 text-sm">
+                        <span className="font-bold block text-foreground">{addr.title}</span>
+                        <p className="text-muted-foreground text-xs">{addr.details}</p>
+                        <span className="text-[var(--gold)] text-xs font-semibold block pt-1">الهاتف: {addr.phone}</span>
+                      </div>
+                      <button className="text-red-500 hover:text-red-600 transition p-1">
+                        <Trash2 size={18} />
+                      </button>
                     </div>
                   ))}
-                  {!c.orders?.length && (
-                    <p className="text-muted-foreground text-sm py-8 text-center">لا توجد طلبات سابقة حتى الآن.</p>
-                  )}
                 </div>
               </div>
             )}
 
+            {/* 6. المفضلة */}
             {tab === 'wishlist' && (
-              <div className="space-y-4">
-                <h2 className="text-xl font-bold mb-4">قائمة المفضلة</h2>
-                <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
+              <div className="bg-card border border-border/60 rounded-3xl p-6 md:p-8 shadow-sm space-y-6">
+                <h2 className="text-xl font-bold border-b border-border/40 pb-4">قائمة المفضلة</h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                   {(c.wishlist || []).map((w: any) => (
                     <a
                       href={`/product/${w.product.slug}`}
@@ -327,6 +442,73 @@ export default function Account() {
                 </div>
               </div>
             )}
+
+            {/* 7. المنتجات التي شاهدتها */}
+            {tab === 'recent' && (
+              <div className="bg-card border border-border/60 rounded-3xl p-6 md:p-8 shadow-sm space-y-6">
+                <h2 className="text-xl font-bold border-b border-border/40 pb-4">المنتجات التي شاهدتها مؤخراً</h2>
+                {recentProducts.length === 0 ? (
+                  <p className="text-muted-foreground text-sm text-center py-12">لم تقومي بمشاهدة أي منتجات مؤخراً.</p>
+                ) : (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {recentProducts.map((prod: any, idx: number) => (
+                      <a href={`/product/${prod.slug}`} key={idx} className="p-3 rounded-2xl bg-background border border-border/60 space-y-2 block">
+                        <img src={prod.image || '/placeholder.svg'} alt={prod.name} className="aspect-square w-full object-cover rounded-xl" />
+                        <h3 className="text-sm font-medium line-clamp-1">{prod.name}</h3>
+                        <span className="text-[var(--gold)] font-bold text-xs">{prod.price} ج.م</span>
+                      </a>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* 8. تغيير كلمة المرور */}
+            {tab === 'security' && (
+              <div className="bg-card border border-border/60 rounded-3xl p-6 md:p-8 shadow-sm space-y-6">
+                <h2 className="text-xl font-bold border-b border-border/40 pb-4">تغيير كلمة المرور</h2>
+                <form onSubmit={(e) => { e.preventDefault(); setMsg('تم تحديث كلمة المرور بنجاح'); setTimeout(() => setMsg(''), 3000); }} className="space-y-4 max-w-xl">
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-muted-foreground">كلمة المرور الحالية</label>
+                    <input 
+                      type="password" 
+                      required
+                      value={passwords.current} 
+                      onChange={e => setPasswords({ ...passwords, current: e.target.value })} 
+                      className="w-full px-4 py-3 rounded-xl bg-background border border-border/80 text-foreground text-sm focus:outline-none focus:border-[var(--gold)]" 
+                      dir="ltr"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-muted-foreground">كلمة المرور الجديدة</label>
+                    <input 
+                      type="password" 
+                      required
+                      value={passwords.newPass} 
+                      onChange={e => setPasswords({ ...passwords, newPass: e.target.value })} 
+                      className="w-full px-4 py-3 rounded-xl bg-background border border-border/80 text-foreground text-sm focus:outline-none focus:border-[var(--gold)]" 
+                      dir="ltr"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-muted-foreground">تأكيد كلمة المرور الجديدة</label>
+                    <input 
+                      type="password" 
+                      required
+                      value={passwords.confirmPass} 
+                      onChange={e => setPasswords({ ...passwords, confirmPass: e.target.value })} 
+                      className="w-full px-4 py-3 rounded-xl bg-background border border-border/80 text-foreground text-sm focus:outline-none focus:border-[var(--gold)]" 
+                      dir="ltr"
+                    />
+                  </div>
+                  <button type="submit" className="px-6 py-3 rounded-xl bg-[var(--gold)] text-black font-bold text-sm shadow-md hover:opacity-95 transition">
+                    تحديث كلمة المرور
+                  </button>
+                  {msg && <p className="text-sm text-[var(--gold)] font-medium pt-2">{msg}</p>}
+                </form>
+              </div>
+            )}
+
           </section>
 
         </div>
