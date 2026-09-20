@@ -199,10 +199,10 @@ export default function Account() {
           </button>
         </div>
 
-        {/* تخطيط الصفحة (تمت إزالة الـ sticky لمنع التداخل نهائياً) */}
+        {/* تخطيط الصفحة */}
         <div className="flex flex-col lg:grid lg:grid-cols-[280px_1fr] gap-8 items-start">
           
-          {ങ്ങൾ /* القائمة الجانبية */}
+          {/* القائمة الجانبية */}
           <aside className="w-full bg-card border border-border/60 rounded-3xl p-3 shadow-sm space-y-1.5">
             {[
               ['profile', 'حسابي والبيانات', UserRound],
