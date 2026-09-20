@@ -16,7 +16,11 @@ export default function SiteFooter() {
       .then(data => {
         if (!mounted || !data) return;
         setSettings(data.settings || {});
-        setPayments(Array.isArray(data.payments) ? data.payments : []);
+        
+        // فلترة طرق الدفع لجلب المفعلة فقط (enabled === true)
+        const allPayments = Array.isArray(data.payments) ? data.payments : [];
+        const activePayments = allPayments.filter((p: any) => p.enabled !== false && p.enabled !== 0);
+        setPayments(activePayments);
       })
       .catch(() => {});
 
@@ -96,18 +100,18 @@ export default function SiteFooter() {
               خيارات دفع متاحة لتجربة شراء أكثر راحة.
             </p>
 
-            <div className="wahaj-footer__payments">
+            <div className="wahaj-footer__payments flex flex-wrap gap-2">
               {payments.length > 0
                 ? payments.map((payment: any) => (
                     <span
-                      key={payment.method}
-                      className="payment-icon"
-                      title={payment.label || payment.method}
+                      key={payment.method || payment.id}
+                      className="payment-badge px-3 py-1 rounded-md bg-white/5 border border-white/10 text-xs font-medium text-gray-200"
+                      title={payment.label || payment.name}
                     >
-                      {payment.iconKey || payment.method}
+                      {payment.label || payment.name || payment.method}
                     </span>
                   ))
-                : <span className="payment-icon">COD</span>}
+                : <span className="payment-badge px-3 py-1 rounded-md bg-white/5 border border-white/10 text-xs font-medium">الدفع عند الاستلام</span>}
             </div>
           </div>
 
