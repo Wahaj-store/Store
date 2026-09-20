@@ -5,6 +5,7 @@ import WishlistButton from '@/components/WishlistButton';
 import ReviewForm from '@/components/ReviewForm';
 import BackInStockForm from '@/components/BackInStockForm';
 import RecentlyViewed from '@/components/RecentlyViewed';
+import ClientRecentTracker from '@/components/ClientRecentTracker';
 import { ShieldCheck, Truck, RotateCcw, ChevronRight } from 'lucide-react';
 
 export async function generateMetadata({ params }: { params: { slug: string } }) {
@@ -55,6 +56,7 @@ export default async function ProductPage({ params }: { params: { slug: string }
   if (!p || p.status !== 'PUBLISHED') notFound();
 
   const priceNum = Number(p.price);
+  const mainImage = p.images[0]?.url || '/placeholder.svg';
 
   const jsonLd = {
     '@context': 'https://schema.org',
@@ -72,10 +74,18 @@ export default async function ProductPage({ params }: { params: { slug: string }
     },
   };
 
-  const mainImage = p.images[0]?.url || '/placeholder.svg';
-
   return (
-    <main className="container py-10 max-w-6xl">
+    <main className="container py-10 max-w-6xl" dir="rtl">
+      {/* تتبع المنتج تلقائياً وإضافته لقائمة المشاهدات الأخيرة */}
+      <ClientRecentTracker 
+        product={{
+          name: p.name,
+          slug: p.slug,
+          price: priceNum,
+          image: mainImage
+        }} 
+      />
+
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       
       {/* زر العودة العلوي الاحترافي */}
