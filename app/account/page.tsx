@@ -103,7 +103,7 @@ export default function Account() {
                   <span className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground"><User size={18} /></span>
                   <input
                     className="w-full pr-11 pl-4 py-3 rounded-xl bg-background border border-border/80 text-foreground text-sm focus:outline-none focus:border-[var(--gold)] transition"
-                    placeholder="أدخلي اسمكِ الكريم"
+                    placeholder="أدخلي اسمكِ "
                     onChange={e => setForm({ ...form, name: e.target.value })}
                   />
                 </div>
@@ -186,7 +186,7 @@ export default function Account() {
         <div className="flex flex-wrap items-center justify-between gap-4 border-b border-border/40 pb-6">
           <div className="space-y-1">
             <span className="text-[var(--gold)] font-medium text-sm flex items-center gap-1.5">
-              <Sparkles size={16} /> لوحة التحكم الفاخرة
+              <Sparkles size={16} /> لوحة التحكم 
             </span>
             <h1 className="text-2xl md:text-3xl font-bold">مرحبًا بكِ، {c.name}</h1>
           </div>
