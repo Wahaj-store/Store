@@ -173,11 +173,112 @@ function Editor({tab,value,cats,onCancel,onSave,upload}:any){
   if(tab==='offers')return <div className="lux-card mt-6 p-5"><div className="grid gap-4 md:grid-cols-2"><Field label="اسم العرض" value={v.name||''} onChange={(x:any)=>set('name',x)}/><label>نوع العرض<select className="input mt-1" value={v.type||'SEASONAL'} onChange={e=>set('type',e.target.value)}>{['FLASH_SALE','BUY_X_GET_Y','FREE_SHIPPING','FIRST_ORDER','SEASONAL'].map((x:any)=><option key={x}>{x}</option>)}</select></label><Field label="قيمة الخصم" value={v.discountValue||''} onChange={(x:any)=>set('discountValue',x)} type="number"/><Field label="يبدأ" value={v.startsAt||''} onChange={(x:any)=>set('startsAt',x)}/><Field label="ينتهي" value={v.endsAt||''} onChange={(x:any)=>set('endsAt',x)}/></div><div className="mt-5 flex gap-2"><button className="btn btn-gold" onClick={()=>onSave(v)}><Save size={17}/> حفظ</button><button className="btn" onClick={onCancel}>إلغاء</button></div></div>;
   if(tab==='redirects')return <div className="lux-card mt-6 p-5"><div className="grid gap-4 md:grid-cols-2"><Field label="المسار القديم" value={v.fromPath||''} onChange={(x:any)=>set('fromPath',x)}/><Field label="المسار الجديد" value={v.toPath||''} onChange={(x:any)=>set('toPath',x)}/><Field label="كود التحويل" value={v.statusCode||301} onChange={(x:any)=>set('statusCode',x)} type="number"/></div><div className="mt-5 flex gap-2"><button className="btn btn-gold" onClick={()=>onSave(v)}><Save size={17}/> حفظ</button><button className="btn" onClick={onCancel}>إلغاء</button></div></div>;
   
-  return <div className="lux-card mt-6 p-5"><div className="grid gap-4 md:grid-cols-2">{tab==='products'?<><Field label="اسم المنتج" value={v.name} onChange={(x:any)=>set('name',x)}/><Field label="Slug" value={v.slug} onChange={(x:any)=>set('slug',x)}/><Field label="SKU" value={v.sku} onChange={(x:any)=>set('sku',x)}/><Field label="السعر" value={v.price} onChange={(x:any)=>set('price',x)} type="number"/><Field label="السعر قبل الخصم" value={v.comparePrice} onChange={(x:any)=>set('comparePrice',x)} type="number"/><Field label="المخزون" value={v.stock} onChange={(x:any)=>set('stock',x)} type="number"/><label>التصنيف<select className="input mt-1" value={v.categoryId} onChange={e=>set('categoryId',e.target.value)}><option value="">اختر التصنيف</option>{cats.map((c:any)=><option key={c.id} value={c.id}>{c.name}</option>)}</select></label><label>الحالة<select className="input mt-1" value={v.status} onChange={e=>set('status',e.target.value)}>{['DRAFT','PUBLISHED','HIDDEN','ARCHIVED'].map((x:any)=><option key={x}>{x}</option>)}</select></label><Field label="الخامة" value={v.material} onChange={(x:any)=>set('material',x)}/><Field label="تعليمات العناية" value={v.careInstructions} onChange={(x:any)=>set('careInstructions',x)}/><Field label="SEO Title" value={v.seoTitle} onChange={(x:any)=>set('seoTitle',x)}/><Field label="SEO Description" value={v.seoDescription} onChange={(x:any)=>set('seoDescription',x)}/><div className="md:col-span-2 grid grid-cols-2 md:grid-cols-4 gap-3">{[['featured','مميز'],['newArrival','وصل حديثًا'],['bestSeller','الأكثر مبيعًا']].map(([k,l])=><label key={k} className="flex items-center gap-2 text-sm"><input type="checkbox" checked={!!v[k]} onChange={e=>set(k,e.target.checked)}/>{l}</label>)}</div><label className="md:col-span-2">الوصف<textarea className="input mt-1 min-h-28" value={v.description||''} onChange={e=>set('description',e.target.value)}/></label><div className="md:col-span-2"><p className="mb-2 text-sm font-semibold">صور المنتج</p><div className="flex flex-wrap gap-3">{v.images.map((im:any,i:number)=><div key={i} className="relative"><img src={im.url} className="h-24 w-24 rounded-md object-cover"/><button className="absolute -top-2 -end-2 rounded-full bg-red-500 p-1 text-white" onClick={()=>set('images',v.images.filter((_:any,j:number)=>j!==i))}>×</button></div>)}<div className="flex items-center gap-2"><MediaPicker multiple value={v.images.map((x:any)=>x.url)} onChange={(urls:any)=>set('images',urls.map((url:string)=>({url,alt:v.name})))} /></div></div></div><div className="md:col-span-2"><div className="flex items-center justify-between"><b>Variants / الخيارات</b><button className="btn" onClick={addVar}>+ إضافة خيار</button></div>{v.variants.map((x:any,i:number)=><div className="mt-2 grid gap-2 md:grid-cols-5" key={i}><input className="input" placeholder="النوع" value={x.name} onChange={e=>{const a=[...v.variants];a[i].name=e.target.value;set('variants',a)}}/><input className="input" placeholder="القيمة" value={x.value} onChange={e=>{const a=[...v.variants];a[i].value=e.target.value;set('variants',a)}}/><input className="input" type="number" placeholder="المخزون" value={x.stock} onChange={e=>{const a=[...v.variants];a[i].stock=Number(e.target.value);set('variants',a)}}/><input className="input" type="number" placeholder="سعر خاص" value={x.price??""} onChange={e=>{const a=[...v.variants];a[i].price=e.target.value===''?null:Number(e.target.value);set('variants',a)}}/><input className="input" placeholder="SKU" value={x.sku||""} onChange={e=>{const a=[...v.variants];a[i].sku=e.target.value;set('variants',a)}}/><button className="btn border-red-400 text-red-500" onClick={()=>set('variants',v.variants.filter((_:any,j:number)=>j!==i))}>حذف</button></div>)}</div></>:common[tab]?.map((f:any)=><Field key={f[0]} label={f[1]} value={v[f[0]]??''} onChange={(x:any)=>set(f[0],x)}/>)}</div>{tab==='categories'&&<div className="mt-4"><p className="text-sm mb-2">صورة التصنيف</p><MediaPicker value={v.imageUrl||""} onChange={(url:any)=>set('imageUrl',url)}/></div>}{tab==='offers'&&<Select label="النوع" value={v.type||'FLASH_SALE'} options={['FLASH_SALE','BUY_X_GET_Y','FREE_SHIPPING','FIRST_ORDER','SEASONAL']} onChange={(x:any)=>set('type',x)}/>} {tab==='coupons'&&<Select label="النوع" value={v.type||'PERCENTAGE'} options={['PERCENTAGE','FIXED']} onChange={(x:any)=>set('type',x)}/>} {tab==='homepage'&&<><Select label="الظهور" value={String(v.visible!==false)} options={['true','false']} onChange={(x:any)=>set('visible',x==='true')}/><div className="mt-4"><p className="text-sm mb-2">صورة القسم</p><MediaPicker value={v.imageUrl||""} onChange={(url:any)=>set('imageUrl',url)}/></div></>}<div className="mt-5 flex gap-2"><button className="btn btn-gold" onClick={()=>onSave(v)}><Save size={17}/> حفظ</button><button className="btn" onClick={onCancel}>إلغاء</button></div></div></div>;
+  return (
+    <div className="lux-card mt-6 p-5">
+      <div className="grid gap-4 md:grid-cols-2">
+        {tab==='products'?(
+          <>
+            <Field label="اسم المنتج" value={v.name} onChange={(x:any)=>set('name',x)}/>
+            <Field label="Slug" value={v.slug} onChange={(x:any)=>set('slug',x)}/>
+            <Field label="SKU" value={v.sku} onChange={(x:any)=>set('sku',x)}/>
+            <Field label="السعر" value={v.price} onChange={(x:any)=>set('price',x)} type="number"/>
+            <Field label="السعر قبل الخصم" value={v.comparePrice} onChange={(x:any)=>set('comparePrice',x)} type="number"/>
+            <Field label="المخزون" value={v.stock} onChange={(x:any)=>set('stock',x)} type="number"/>
+            <label>التصنيف
+              <select className="input mt-1" value={v.categoryId} onChange={e=>set('categoryId',e.target.value)}>
+                <option value="">اختر التصنيف</option>
+                {cats.map((c:any)=><option key={c.id} value={c.id}>{c.name}</option>)}
+              </select>
+            </label>
+            <label>الحالة
+              <select className="input mt-1" value={v.status} onChange={e=>set('status',e.target.value)}>
+                {['DRAFT','PUBLISHED','HIDDEN','ARCHIVED'].map((x:any)=><option key={x}>{x}</option>)}
+              </select>
+            </label>
+            <Field label="الخامة" value={v.material} onChange={(x:any)=>set('material',x)}/>
+            <Field label="تعليمات العناية" value={v.careInstructions} onChange={(x:any)=>set('careInstructions',x)}/>
+            <Field label="SEO Title" value={v.seoTitle} onChange={(x:any)=>set('seoTitle',x)}/>
+            <Field label="SEO Description" value={v.seoDescription} onChange={(x:any)=>set('seoDescription',x)}/>
+            <div className="md:col-span-2 grid grid-cols-2 md:grid-cols-4 gap-3">
+              {[['featured','مميز'],['newArrival','وصل حديثًا'],['bestSeller','الأكثر مبيعًا']].map(([k,l])=>(
+                <label key={k} className="flex items-center gap-2 text-sm">
+                  <input type="checkbox" checked={!!v[k]} onChange={e=>set(k,e.target.checked)}/>{l}
+                </label>
+              ))}
+            </div>
+            <label className="md:col-span-2">الوصف
+              <textarea className="input mt-1 min-h-28" value={v.description||''} onChange={e=>set('description',e.target.value)}/>
+            </label>
+            <div className="md:col-span-2">
+              <p className="mb-2 text-sm font-semibold">صور المنتج</p>
+              <div className="flex flex-wrap gap-3">
+                {v.images.map((im:any,i:number)=>(
+                  <div key={i} className="relative">
+                    <img src={im.url} className="h-24 w-24 rounded-md object-cover"/>
+                    <button className="absolute -top-2 -end-2 rounded-full bg-red-500 p-1 text-white" onClick={()=>set('images',v.images.filter((_:any,j:number)=>j!==i))}>×</button>
+                  </div>
+                ))}
+                <div className="flex items-center gap-2">
+                  <MediaPicker multiple value={v.images.map((x:any)=>x.url)} onChange={(urls:any)=>set('images',urls.map((url:string)=>({url,alt:v.name})))} />
+                </div>
+              </div>
+            </div>
+            <div className="md:col-span-2">
+              <div className="flex items-center justify-between">
+                <b>Variants / الخيارات</b>
+                <button className="btn" onClick={addVar}>+ إضافة خيار</button>
+              </div>
+              {v.variants.map((x:any,i:number)=>(
+                <div className="mt-2 grid gap-2 md:grid-cols-5" key={i}>
+                  <input className="input" placeholder="النوع" value={x.name} onChange={e=>{const a=[...v.variants];a[i].name=e.target.value;set('variants',a)}}/>
+                  <input className="input" placeholder="القيمة" value={x.value} onChange={e=>{const a=[...v.variants];a[i].value=e.target.value;set('variants',a)}}/>
+                  <input className="input" type="number" placeholder="المخزون" value={x.stock} onChange={e=>{const a=[...v.variants];a[i].stock=Number(e.target.value);set('variants',a)}}/>
+                  <input className="input" type="number" placeholder="سعر خاص" value={x.price??""} onChange={e=>{const a=[...v.variants];a[i].price=e.target.value===''?null:Number(e.target.value);set('variants',a)}}/>
+                  <input className="input" placeholder="SKU" value={x.sku||""} onChange={e=>{const a=[...v.variants];a[i].sku=e.target.value;set('variants',a)}}/>
+                  <button className="btn border-red-400 text-red-500" onClick={()=>set('variants',v.variants.filter((_:any,j:number)=>j!==i))}>حذف</button>
+                </div>
+              ))}
+            </div>
+          </>
+        ):(
+          common[tab]?.map((f:any)=><Field key={f[0]} label={f[1]} value={v[f[0]]??''} onChange={(x:any)=>set(f[0],x)}/>)
+        )}
+      </div>
+
+      {tab==='categories'&&(
+        <div className="mt-4">
+          <p className="text-sm mb-2">صورة التصنيف</p>
+          <MediaPicker value={v.imageUrl||""} onChange={(url:any)=>set('imageUrl',url)}/>
+        </div>
+      )}
+
+      {tab==='offers'&&<Select label="النوع" value={v.type||'FLASH_SALE'} options={['FLASH_SALE','BUY_X_GET_Y','FREE_SHIPPING','FIRST_ORDER','SEASONAL']} onChange={(x:any)=>set('type',x)}/>} 
+      {tab==='coupons'&&<Select label="النوع" value={v.type||'PERCENTAGE'} options={['PERCENTAGE','FIXED']} onChange={(x:any)=>set('type',x)}/>} 
+      {tab==='homepage'&&(
+        <>
+          <Select label="الظهور" value={String(v.visible!==false)} options={['true','false']} onChange={(x:any)=>set('visible',x==='true')}/>
+          <div className="mt-4">
+            <p className="text-sm mb-2">صورة القسم</p>
+            <MediaPicker value={v.imageUrl||""} onChange={(url:any)=>set('imageUrl',url)}/>
+          </div>
+        </>
+      )}
+
+      <div className="mt-5 flex gap-2">
+        <button className="btn btn-gold" onClick={()=>onSave(v)}><Save size={17}/> حفظ</button>
+        <button className="btn" onClick={onCancel}>إلغاء</button>
+      </div>
+    </div>
+  );
 }
 
-function Field({label,value,onChange,type='text'}:any){return <label className="text-sm">{label}<input className="input mt-1" type={type} value={value??''} onChange={e=>onChange(e.target.value)}/></label>}
-function Select({label,value,options,onChange}:any){return <label className="mt-4 block text-sm">{label}<select className="input mt-1" value={value} onChange={e=>onChange(e.target.value)}>{options.map((x:string)=><option key={x}>{x}</option>)}</select></label>}
+function Field({label,value,onChange,type='text'}:any){
+  return <label className="text-sm">{label}<input className="input mt-1" type={type} value={value??''} onChange={e=>onChange(e.target.value)}/></label>
+}
+
+function Select({label,value,options,onChange}:any){
+  return <label className="mt-4 block text-sm">{label}<select className="input mt-1" value={value} onChange={e=>onChange(e.target.value)}>{options.map((x:string)=><option key={x}>{x}</option>)}</select></label>
+}
 
 function Content({tab,data,onEdit,onDelete,onRefresh,onReorder}:any){
   if(tab==='analytics')return <Analytics data={data[0]||{}}/>;
