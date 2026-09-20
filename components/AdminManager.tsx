@@ -426,6 +426,33 @@ function Content({tab,data,onEdit,onDelete,onRefresh,onReorder}:any){
   return <div className="mt-6 space-y-2">{data.map((x:any)=><div className="lux-card p-4 flex items-center justify-between gap-3" key={x.id}><div><b>{x.name||x.title||x.code||x.governorate||x.type}</b><p className="muted text-xs mt-1">{tab==='products'?`${x.sku||''} • ${Number(x.price||0).toLocaleString('ar-EG')} ج.م • مخزون ${x.stock}`:tab==='categories'?x.slug:tab==='coupons'?`${x.type} • ${x.value}`:''}</p></div><div className="flex gap-2"><button className="btn" onClick={()=>onEdit(x)}>تعديل</button><button className="btn border-red-400 text-red-500" onClick={()=>onDelete(x.id)}><Trash2 size={16}/></button></div></div>)}{!data.length&&<div className="lux-card p-10 text-center muted">لا توجد بيانات.</div>}</div>;
 }
 
+function Analytics({data}:any){
+  return (
+    <div className="mt-6 grid gap-4 md:grid-cols-3">
+      <div className="lux-card p-5">
+        <p className="muted text-xs">إجمالي المبيعات</p>
+        <h3 className="text-xl font-bold mt-1">{data.totalSales || 0} ج.م</h3>
+      </div>
+      <div className="lux-card p-5">
+        <p className="muted text-xs">إجمالي الطلبات</p>
+        <h3 className="text-xl font-bold mt-1">{data.totalOrders || 0}</h3>
+      </div>
+      <div className="lux-card p-5">
+        <p className="muted text-xs">إجمالي العملاء</p>
+        <h3 className="text-xl font-bold mt-1">{data.totalCustomers || 0}</h3>
+      </div>
+    </div>
+  );
+}
+
+function Customers({data}:any){
+  return <div className="mt-6 space-y-2">{data.map((c:any)=><div className="lux-card p-4 flex justify-between items-center" key={c.id}><div><b>{c.name}</b><p className="muted text-xs">{c.phone} • {c.email || 'بدون إيميل'}</p></div></div>)}{!data.length&&<div className="lux-card p-10 text-center muted">لا توجد عملاء.</div>}</div>;
+}
+
+function Orders({data,onRefresh}:any){
+  return <div className="mt-6 space-y-2">{data.map((o:any)=><div className="lux-card p-4 flex justify-between items-center" key={o.id}><div><b>طلب #{o.number}</b><p className="muted text-xs">{o.customerNameSnapshot} • {o.total} ج.م • <span className="text-[var(--gold)]">{o.status}</span></p></div></div>)}{!data.length&&<div className="lux-card p-10 text-center muted">لا توجد طلبات.</div>}</div>;
+}
+
 function Sortable({data,onEdit,onDelete,onReorder}:any){
   const[items,setItems]=useState(data);
   useEffect(()=>setItems(data),[data]);
@@ -452,5 +479,5 @@ function Media({data,onDelete,onRefresh}:any){
 }
 
 function Reviews({data,onRefresh}:any){
-  return <div className="mt-6 space-y-2">{data.map((x:any)=><div className="lux-card p-4 flex flex-wrap items-center gap-4" key={x.id}><div className="flex-1"><b>{x.customer?.name||'عميل'} — {x.product?.name}</b><p className="text-sm">{'★'.repeat(x.rating)} <span className="muted">{x.text||''}</span></p></div><button className={`btn ${x.approved?'btn-gold':`tn`}`} onClick={async()=>{await api('/api/admin/reviews','PUT',{id:x.id,approved:!x.approved});onRefresh()}}>{x.approved?'معتمد':'معلق'}</button></div>)}</div>;
+  return <div className="mt-6 space-y-2">{data.map((x:any)=><div className="lux-card p-4 flex flex-wrap items-center gap-4" key={x.id}><div className="flex-1"><b>{x.customer?.name||'عميل'} — {x.product?.name}</b><p className="text-sm">{'★'.repeat(x.rating)} <span className="muted">{x.text||''}</span></p></div><button className={`btn ${x.approved?'btn-gold':''}`} onClick={async()=>{await api('/api/admin/reviews','PUT',{id:x.id,approved:!x.approved});onRefresh()}}>{x.approved?'معتمد':'معلق'}</button></div>)}</div>;
 }
