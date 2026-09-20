@@ -197,7 +197,7 @@ function CheckoutContent() {
         </div>
         <div className="flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs md:text-sm font-bold bg-[var(--gold)] text-black shadow-md">
           <span className="w-5 h-5 rounded-full bg-black/10 flex items-center justify-center text-xs">2</span>
-          <span>بيانات الشحن والدفع</span>
+          <span> الشحن والدفع</span>
         </div>
         <div className="flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs md:text-sm font-bold text-muted-foreground">
           <span className="w-5 h-5 rounded-full bg-black/10 flex items-center justify-center text-xs">3</span>
