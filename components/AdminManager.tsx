@@ -22,6 +22,7 @@ const tabs:any[]=[
   ['relations','ترشيحات المنتجات'],
   ['gift-cards','بطاقات الهدايا'],
   ['security','الأمان والسجل'],
+  ['faq','الأسئلة الشائعة'],
   ['contact','رسائل العملاء'],
   ['settings','الإعدادات']
 ];
@@ -65,6 +66,7 @@ export default function AdminManager(){
         users:'/api/admin/users',
         orders:'/api/admin/orders',
         analytics:'/api/admin/analytics',
+        faq:'/api/admin/faq',
         contact:'/api/admin/contact',
         settings:'/api/admin/config'
       };
@@ -84,7 +86,13 @@ export default function AdminManager(){
 
   async function save(v:any){
     try{
-      const endpoint=tab==='products'?(v.id?`/api/admin/products/${v.id}`:'/api/admin/products'):`/api/admin/${tab}`;
+      let endpoint = `/api/admin/${tab}`;
+      if(tab==='products'){
+        endpoint = v.id ? `/api/admin/products/${v.id}` : '/api/admin/products';
+      } else if(tab==='faq'){
+        endpoint = v.id ? `/api/admin/faq/${v.id}` : '/api/admin/faq';
+      }
+      
       await api(endpoint,v.id?'PUT':'POST',v);
       setMsg('تم الحفظ بنجاح');
       setEditing(null);
@@ -99,6 +107,8 @@ export default function AdminManager(){
     try{
       if(tab==='contact'){
         await api(`/api/admin/contact?id=${id}`,'DELETE');
+      }else if(tab==='faq'){
+        await api(`/api/admin/faq/${id}`,'DELETE');
       }else{
         await api(tab==='products'?`/api/admin/products/${id}`:`/api/admin/${tab}`,'DELETE',{id});
       }
@@ -141,8 +151,8 @@ export default function AdminManager(){
             <h2 className="text-2xl font-semibold">{tabs.find(x=>x[0]===tab)?.[1]}</h2>
             <p className="muted text-sm mt-1">تعديل مباشر لبيانات المتجر من قاعدة البيانات.</p>
           </div>
-          {!editing&&['products','categories','offers','coupons','shipping','homepage','gift-cards','relations'].includes(tab)&&(
-            <button className="btn btn-gold" onClick={()=>setEditing(tab==='products'?emptyProduct:{})}>
+          {!editing&&['products','categories','offers','coupons','shipping','homepage','gift-cards','relations','faq'].includes(tab)&&(
+            <button className="btn btn-gold" onClick={()=>setEditing(tab==='products'?emptyProduct:tab==='faq'?{question:'',answer:'',category:'general',displayOrder:0,published:true}:{})}>
               <Plus size={17}/> إضافة
             </button>
           )}
@@ -165,7 +175,49 @@ function Editor({tab,value,cats,onCancel,onSave,upload}:any){
   const set=(k:string,x:any)=>setV((p:any)=>({...p,[k]:x}));
   const addVar=()=>set('variants',[...v.variants,{name:'اللون',value:'',stock:0,price:''}]);
   
-  if(tab==='settings')return <div className="lux-card mt-6 p-5"><Settings initial={value[0]||{}}/><button className="btn mt-4" onClick={onCancel}>عودة</button></div>;
+  if(tab==='settings')return (
+    <div className="lux-card mt-6 p-5 space-y-4">
+      <h3 className="font-semibold text-lg">إعدادات المتجر العامة</h3>
+      <div className="grid gap-4 md:grid-cols-2">
+        <Field label="المفتاح (Key)" value={v.key||''} onChange={(x:any)=>set('key',x)}/>
+        <Field label="القيمة (Value)" value={v.value||''} onChange={(x:any)=>set('value',x)}/>
+      </div>
+      <div className="flex gap-2 pt-2">
+        <button className="btn btn-gold" onClick={()=>onSave(v)}><Save size={17}/> حفظ الإعدادات</button>
+        <button className="btn" onClick={onCancel}>إلغاء</button>
+      </div>
+    </div>
+  );
+
+  if(tab==='faq')return (
+    <div className="lux-card mt-6 p-5 space-y-4">
+      <h3 className="font-semibold text-lg">{v.id ? 'تعديل السؤال' : 'إضافة سؤال جديد'}</h3>
+      <div className="grid gap-4 md:grid-cols-2">
+        <Field label="السؤال" value={v.question||''} onChange={(x:any)=>set('question',x)}/>
+        <label className="text-sm">القسم
+          <select className="input mt-1" value={v.category||'general'} onChange={e=>set('category',e.target.value)}>
+            <option value="general">عام</option>
+            <option value="shipping">الشحن والتوصيل</option>
+            <option value="payment">الدفع</option>
+            <option value="returns">الاستبدال والاسترجاع</option>
+            <option value="products">المنتجات</option>
+          </select>
+        </label>
+        <Field label="ترتيب الظهور" type="number" value={v.displayOrder??0} onChange={(x:any)=>set('displayOrder',Number(x))}/>
+        <label className="flex items-center gap-2 pt-6">
+          <input type="checkbox" checked={!!v.published} onChange={e=>set('published',e.target.checked)}/> منشور في المتجر
+        </label>
+        <label className="md:col-span-2 text-sm">الإجابة
+          <textarea className="input mt-1 min-h-24" value={v.answer||''} onChange={e=>set('answer',e.target.value)}/>
+        </label>
+      </div>
+      <div className="flex gap-2 pt-2">
+        <button className="btn btn-gold" onClick={()=>onSave(v)}><Save size={17}/> حفظ</button>
+        <button className="btn" onClick={onCancel}>إلغاء</button>
+      </div>
+    </div>
+  );
+
   if(tab==='payments')return <div className="lux-card mt-6 p-5"><div className="grid gap-4 md:grid-cols-2"><Field label="اسم الطريقة" value={v.label} onChange={(x:any)=>set('label',x)}/><Field label="ترتيب الظهور" value={v.displayOrder||0} onChange={(x:any)=>set('displayOrder',x)} type="number"/><Field label="اسم الحساب" value={v.accountName||''} onChange={(x:any)=>set('accountName',x)}/><Field label="رقم/معرف الحساب" value={v.accountNumber||''} onChange={(x:any)=>set('accountNumber',x)}/><label className="md:col-span-2">الوصف<textarea className="input mt-1" value={v.description||''} onChange={e=>set('description',e.target.value)}/></label><label className="md:col-span-2">تعليمات الدفع<textarea className="input mt-1 min-h-24" value={v.instructions||''} onChange={e=>set('instructions',e.target.value)}/></label><label className="flex items-center gap-2"><input type="checkbox" checked={!!v.enabled} onChange={e=>set('enabled',e.target.checked)}/> مفعلة</label><label className="flex items-center gap-2"><input type="checkbox" checked={!!v.proofRequired} onChange={e=>set('proofRequired',e.target.checked)}/> طلب إثبات دفع</label></div><div className="mt-5 flex gap-2"><button className="btn btn-gold" onClick={()=>onSave(v)}><Save size={17}/> حفظ</button><button className="btn" onClick={onCancel}>إلغاء</button></div></div>;
   
   const common:any={relations:[['type','نوع العلاقة'],['fromProductId','المنتج الأساسي'],['toProductId','المنتج المقترح'],['sortOrder','الترتيب']], 'gift-cards':[['code','كود البطاقة'],['amount','القيمة'],['expiresAt','تاريخ الانتهاء']],categories:[['name','اسم التصنيف'],['slug','Slug'],['description','الوصف'],['sortOrder','الترتيب']],offers:[['name','اسم العرض'],['type','نوع العرض'],['discountValue','قيمة الخصم'],['startsAt','يبدأ'],['endsAt','ينتهي']],coupons:[['code','الكود'],['value','قيمة الخصم'],['minOrder','الحد الأدنى'],['maxUses','عدد الاستخدامات']],shipping:[['governorate','المحافظة'],['city','المدينة'],['price','سعر الشحن'],['freeAbove','مجاني فوق']],homepage:[['type','نوع القسم'],['title','العنوان'],['subtitle','الوصف'],['ctaText','نص الزر'],['ctaUrl','رابط الزر'],['sortOrder','الترتيب']],redirects:[['fromPath','المسار القديم'],['toPath','المسار الجديد'],['statusCode','كود التحويل']]};
@@ -284,6 +336,39 @@ function Content({tab,data,onEdit,onDelete,onRefresh,onReorder}:any){
   if(tab==='analytics')return <Analytics data={data[0]||{}}/>;
   if(tab==='media')return <Media data={data} onDelete={onDelete} onRefresh={onRefresh}/>;
   
+  if(tab==='faq')return (
+    <div className="mt-6 space-y-4">
+      {data.map((faq:any)=>(
+        <div key={faq.id} className="lux-card p-5 space-y-2">
+          <div className="flex justify-between items-start gap-4">
+            <div>
+              <b className="text-base text-gray-900">{faq.question}</b>
+              <div className="flex items-center gap-2 text-xs muted mt-1">
+                <span className="px-2 py-0.5 rounded bg-black/5 dark:bg-white/5">{faq.category}</span>
+                <span>•</span>
+                <span>الترتيب: {faq.displayOrder}</span>
+                <span>•</span>
+                <span className={faq.published ? 'text-green-600 font-medium' : 'text-gray-400'}>
+                  {faq.published ? 'منشور' : 'مخفي'}
+                </span>
+              </div>
+            </div>
+            <div className="flex gap-2">
+              <button className="btn" onClick={()=>onEdit(faq)}>تعديل</button>
+              <button className="btn border-red-400 text-red-500" onClick={()=>onDelete(faq.id)}>
+                <Trash2 size={16}/>
+              </button>
+            </div>
+          </div>
+          <p className="text-sm text-gray-700 bg-black/5 dark:bg-white/5 p-3 rounded-md mt-2">
+            {faq.answer}
+          </p>
+        </div>
+      ))}
+      {!data.length&&<div className="lux-card p-10 text-center muted">لا توجد أسئلة شائعة مضافة حتى الآن.</div>}
+    </div>
+  );
+
   if(tab==='contact')return (
     <div className="mt-6 space-y-4">
       {data.map((msg:any)=>(
@@ -367,5 +452,5 @@ function Media({data,onDelete,onRefresh}:any){
 }
 
 function Reviews({data,onRefresh}:any){
-  return <div className="mt-6 space-y-2">{data.map((x:any)=><div className="lux-card p-4 flex flex-wrap items-center gap-4" key={x.id}><div className="flex-1"><b>{x.customer?.name||'عميل'} — {x.product?.name}</b><p className="text-sm">{'★'.repeat(x.rating)} <span className="muted">{x.text||''}</span></p></div><button className={`btn ${x.approved?'btn-gold':''}`} onClick={async()=>{await api('/api/admin/reviews','PUT',{id:x.id,approved:!x.approved});onRefresh()}}>{x.approved?'معتمد':'معلق'}</button></div>)}</div>;
+  return <div className="mt-6 space-y-2">{data.map((x:any)=><div className="lux-card p-4 flex flex-wrap items-center gap-4" key={x.id}><div className="flex-1"><b>{x.customer?.name||'عميل'} — {x.product?.name}</b><p className="text-sm">{'★'.repeat(x.rating)} <span className="muted">{x.text||''}</span></p></div><button className={`btn ${x.approved?'btn-gold':`tn`}`} onClick={async()=>{await api('/api/admin/reviews','PUT',{id:x.id,approved:!x.approved});onRefresh()}}>{x.approved?'معتمد':'معلق'}</button></div>)}</div>;
 }
