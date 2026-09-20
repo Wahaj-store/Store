@@ -101,7 +101,7 @@ export default function ContactPage() {
 
         {/* نموذج التواصل */}
         <div className="lux-card p-8 bg-background border hairline rounded-2xl space-y-6">
-          هندسة نموذج التواصل...
+          ملء جميع الحقول للتواصل مع الادارة ...
           <h2 className="text-xl font-semibold border-b hairline pb-4">أرسل رسالة</h2>
 
           {success ? (
