@@ -545,6 +545,18 @@ model OrderTimeline {
 
   @@index([orderId, createdAt])
 }
+model ContactMessage {
+  id        String   @id @default(cuid())
+  name      String
+  phone     String
+  subject   String?
+  message   String
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+}
+
 model FaqItem {
   id           String   @id @default(cuid())
   question     String
