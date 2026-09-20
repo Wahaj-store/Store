@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { ShoppingBag, ArrowRight, Trash2, Plus, Minus, Sparkles, MapPin, CheckCircle2 } from 'lucide-react';
+import { ShoppingBag, ArrowRight, Trash2, Plus, Minus, Sparkles } from 'lucide-react';
 
 export default function Cart() {
   const [c, setC] = useState<any[]>([]);
@@ -71,7 +71,7 @@ export default function Cart() {
           </Link>
         </div>
 
-        {/* مؤشر خطوات الطلب التفاعلي (Checkout Progress Bar) */}
+        {/* مؤشر خطوات الطلب التفاعلي */}
         <div className="grid grid-cols-3 gap-2 p-3 bg-card border border-border/60 rounded-2xl shadow-sm">
           <div className="flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs md:text-sm font-bold bg-[var(--gold)] text-black shadow-md">
             <span className="w-5 h-5 rounded-full bg-black/10 flex items-center justify-center text-xs">1</span>
@@ -87,7 +87,7 @@ export default function Cart() {
           </div>
         </div>
 
-        {/* شبكة المحتوى (المنتجات والملخص) */}
+        {/* شبكة المحتوى */}
         <div className="grid gap-8 lg:grid-cols-[1fr_380px] items-start">
           
           {/* قائمة المنتجات */}
@@ -172,7 +172,7 @@ export default function Cart() {
             </div>
 
             <div className="flex justify-between items-center text-base font-bold border-t border-border/40 pt-4">
-              <span className="text-muted-foreground text-sm">الإجمالي
+              <span className="text-muted-foreground text-sm">الإجمالي </span>
               <span className="text-[var(--gold)] text-lg">{total.toLocaleString('ar-EG')} ج.م</span>
             </div>
 
