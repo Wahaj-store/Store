@@ -545,3 +545,15 @@ model OrderTimeline {
 
   @@index([orderId, createdAt])
 }
+model FaqItem {
+  id           String   @id @default(cuid())
+  question     String
+  answer       String
+  category     String   @default("general") // general, shipping, payment, returns, products
+  displayOrder Int      @default(0)
+  published    Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([published, displayOrder])
+}
