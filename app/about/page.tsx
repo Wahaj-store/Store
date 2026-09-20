@@ -51,14 +51,16 @@ export default function AboutPage() {
           </div>
         </div>
 
-        {/* قسم الفلسفة والمميزات */}
+        {/* قسم الفلسفة وما يميز وهج */}
         <div className="grid gap-6 md:grid-cols-2 items-stretch">
-          <div className="bg-card border border-border/60 rounded-3xl p-8 shadow-sm space-y-4 flex flex-col justify-between">
-            <div className="space-y-3">
-              <div className="inline-flex p-3 rounded-xl bg-[var(--gold)]/10 text-[var(--gold)]">
+          
+          {/* فلسفتنا (تم تعديل الأيقونة لتصبح بجانب العنوان) */}
+          <div className="bg-card border border-border/60 rounded-3xl p-8 shadow-sm space-y-6 flex flex-col justify-between">
+            <div className="space-y-4">
+              <div className="flex items-center gap-3 text-[var(--gold)]">
                 <Compass size={24} />
+                <h3 className="text-2xl font-bold tracking-wide text-foreground">فلسفتنا</h3>
               </div>
-              <h3 className="text-xl font-bold">فلسفتنا</h3>
               <p className="text-muted-foreground text-sm md:text-base leading-relaxed">
                 نختار التفاصيل بعناية. من التصميم إلى طريقة تقديم القطعة، نهتم بأن تكون تجربة وَهَج مختلفة؛ بسيطة، أنيقة، أنثوية، ومليئة بالتفاصيل التي تشعركِ بأن القطعة صُممت لتكون جزءًا من أسلوبك.
               </p>
@@ -68,8 +70,9 @@ export default function AboutPage() {
             </p>
           </div>
 
+          {/* ما الذي يميز وَهَج؟ */}
           <div className="bg-card border border-border/60 rounded-3xl p-8 shadow-sm space-y-6">
-            <h3 className="text-xl font-bold text-foreground">ما الذي يميز وَهَج؟</h3>
+            <h3 className="text-2xl font-bold text-foreground">ما الذي يميز وَهَج؟</h3>
             
             <div className="space-y-4">
               <div className="space-y-1">
@@ -90,20 +93,24 @@ export default function AboutPage() {
           </div>
         </div>
 
-        {/* وعد وَهَج */}
-        <div className="bg-gradient-to-br from-[var(--gold)]/10 via-card to-card border border-[var(--gold)]/30 rounded-3xl p-8 md:p-10 text-center space-y-6 shadow-md">
-          <div className="inline-flex p-3 rounded-2xl bg-[var(--gold)]/15 text-[var(--gold)]">
-            <Heart size={28} />
+        {/* وعد وَهَج (تم تعديل الأيقونة لتصبح بجانب العنوان) */}
+        <div className="bg-gradient-to-br from-[var(--gold)]/10 via-card to-card border border-[var(--gold)]/30 rounded-3xl p-8 md:p-10 space-y-6 shadow-md">
+          <div className="flex items-center gap-3 text-[var(--gold)]">
+            <Heart size={26} />
+            <h3 className="text-2xl font-bold tracking-wide text-foreground">وعد وَهَج</h3>
           </div>
-          <div className="space-y-3 max-w-2xl mx-auto">
-            <h3 className="text-2xl font-bold">وعد وَهَج</h3>
-            <p className="text-foreground/90 text-base md:text-lg leading-relaxed">
+          
+          <div className="space-y-4 text-foreground/90 text-base md:text-lg leading-relaxed">
+            <p>
               أن تكون كل قطعة تختارينها… إضافة حقيقية إلى أسلوبك. نحن لا نريد أن تكون وَهَج مجرد وجهة لشراء الإكسسوارات، بل مساحة تجدين فيها القطعة التي تشبهك، وتضيف إلى إطلالتك ذلك التفصيل الصغير الذي يصنع الفرق.
             </p>
           </div>
-          <p className="text-[var(--gold)] font-bold text-base md:text-lg tracking-wide pt-2">
-            وَهَج — لأنكِ تستحقين أن تتألقي بطريقتك.
-          </p>
+
+          <div className="pt-2 text-center">
+            <p className="text-[var(--gold)] font-bold text-base md:text-lg tracking-wide">
+              وَهَج — لأنكِ تستحقين أن تتألقي بطريقتك.
+            </p>
+          </div>
         </div>
 
         {/* زر تسوقي الآن */}
