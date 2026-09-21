@@ -1,41 +1,49 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, use } from 'react';
 import { Clock, CheckCircle2, Truck, XCircle, AlertCircle, Save } from 'lucide-react';
+import Link from 'next/link';
 
-export default function OrderDetail({ params }: { params: { id: string } }) {
+export default function OrderDetail({ params }: { params: Promise<{ id: string }> | { id: string } }) {
+  //فك الـ params لضمان التوافق مع Next.js الحديث
+  const resolvedParams = params instanceof Promise ? use(params) : params;
+  const orderId = resolvedParams.id;
+
   const [o, setO] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [msg, setMsg] = useState('');
   
   const [shippingProvider, setShippingProvider] = useState('');
   const [trackingNumber, setTrackingNumber] = useState('');
-  const [shippingNote, setShippingNote] = useState('');
   const [generalNote, setGeneralNote] = useState('');
 
   const fetchOrder = async () => {
-    const res = await fetch(`/api/admin/orders/${params.id}`);
-    if (res.ok) {
-      const data = await res.json();
-      setO(data);
+    try {
+      const res = await fetch(`/api/admin/orders/${orderId}`);
+      if (res.ok) {
+        const data = await res.json();
+        setO(data);
+      }
+    } catch (e) {
+      console.error(e);
     }
   };
 
   useEffect(() => {
-    fetchOrder();
-  }, [params.id]);
+    if (orderId) fetchOrder();
+  }, [orderId]);
 
   const updateStatus = async (newStatus: string) => {
     setLoading(true);
     setMsg('');
     try {
-      const res = await fetch(`/api/admin/orders/${params.id}`, {
+      const res = await fetch(`/api/admin/orders/${orderId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           status: newStatus,
           shippingProvider: newStatus === 'SHIPPED' ? shippingProvider : undefined,
           trackingNumber: newStatus === 'SHIPPED' ? trackingNumber : undefined,
-          note: generalNote || shippingNote || `تم تغيير الحالة إلى ${newStatus}`
+          note: generalNote || `تم تغيير الحالة إلى ${newStatus}`
         }),
       });
 
@@ -43,9 +51,8 @@ export default function OrderDetail({ params }: { params: { id: string } }) {
       if (!res.ok) {
         setMsg(data.error || 'حدث خطأ أثناء التحديث');
       } else {
-        setMsg('تم تحديث حالة الطلب بنجاح');
+        setMsg('تم تحديث حالة الطلب بنجاح وتحديث خط سير العميل!');
         setGeneralNote('');
-        setShippingNote('');
         await fetchOrder();
       }
     } catch (err) {
@@ -55,12 +62,14 @@ export default function OrderDetail({ params }: { params: { id: string } }) {
     }
   };
 
-  if (!o) return <main className="container py-10" dir="rtl">جارٍ التحميل…</main>;
+  if (!o) return <main className="container py-10" dir="rtl">جارٍ التحميل وتحضير بيانات الطلب…</main>;
 
   return (
     <main className="container py-10" dir="rtl">
-      <a href="/admin" className="text-[var(--gold)] hover:underline">‹ الإدارة</a>
-      <h1 className="mt-5 text-3xl font-semibold">تفاصيل الطلب #{o.number}</h1>
+      <Link href="/admin/orders" className="text-[var(--gold)] hover:underline inline-block mb-4">
+        ‹ العودة لقائمة الطلبات
+      </Link>
+      <h1 className="text-3xl font-semibold">تفاصيل الطلب #{o.number}</h1>
       
       {msg && (
         <div className="mt-4 p-3 rounded-xl bg-[var(--gold)]/10 border border-[var(--gold)]/30 text-sm text-[var(--gold)] font-medium">
@@ -73,7 +82,7 @@ export default function OrderDetail({ params }: { params: { id: string } }) {
           
           <div className="lux-card p-5 space-y-4 bg-card border border-border/60 rounded-2xl shadow-sm">
             <h2 className="font-semibold flex items-center gap-2">
-              <Clock size={18} className="text-[var(--gold)]" /> خط سير الطلب والحالة الحالية
+              <Clock size={18} className="text-[var(--gold)]" /> خط سير الطلب والحالة الحالية (مربوط بحساب العميل)
             </h2>
             
             <div className="flex flex-wrap items-center justify-between gap-2 p-3 rounded-xl bg-background border border-border/60 text-sm">
@@ -140,7 +149,7 @@ export default function OrderDetail({ params }: { params: { id: string } }) {
                 <button
                   disabled={loading}
                   onClick={() => updateStatus('PROCESSING')}
-                  className="px-4 py-2.5 rounded-xl bg-[var(--gold)] text-black text-xs font-bold hover:opacity-95 transition disabled:opacity-50"
+                  className="px-4 py-2.5 rounded-xl bg-[var(--gold)] text-black text-xs font-bold hover:opacity-95 transition disabled:opacity-50 cursor-pointer"
                 >
                   بدء تجهيز الطلب (Processing)
                 </button>
@@ -150,7 +159,7 @@ export default function OrderDetail({ params }: { params: { id: string } }) {
                 <button
                   disabled={loading}
                   onClick={() => updateStatus('SHIPPED')}
-                  className="px-4 py-2.5 rounded-xl bg-[var(--gold)] text-black text-xs font-bold hover:opacity-95 transition disabled:opacity-50"
+                  className="px-4 py-2.5 rounded-xl bg-[var(--gold)] text-black text-xs font-bold hover:opacity-95 transition disabled:opacity-50 cursor-pointer"
                 >
                   تأكيد الشحن (Shipped)
                 </button>
@@ -160,7 +169,7 @@ export default function OrderDetail({ params }: { params: { id: string } }) {
                 <button
                   disabled={loading}
                   onClick={() => updateStatus('DELIVERED')}
-                  className="px-4 py-2.5 rounded-xl bg-[var(--gold)] text-black text-xs font-bold hover:opacity-95 transition disabled:opacity-50"
+                  className="px-4 py-2.5 rounded-xl bg-[var(--gold)] text-black text-xs font-bold hover:opacity-95 transition disabled:opacity-50 cursor-pointer"
                 >
                   تأكيد التسليم (Delivered)
                 </button>
@@ -170,7 +179,7 @@ export default function OrderDetail({ params }: { params: { id: string } }) {
                 <button
                   disabled={loading}
                   onClick={() => updateStatus('CANCELLED')}
-                  className="px-4 py-2.5 rounded-xl bg-red-500/10 text-red-500 border border-red-500/20 text-xs font-bold hover:bg-red-500/20 transition disabled:opacity-50 mr-auto"
+                  className="px-4 py-2.5 rounded-xl bg-red-500/10 text-red-500 border border-red-500/20 text-xs font-bold hover:bg-red-500/20 transition disabled:opacity-50 mr-auto cursor-pointer"
                 >
                   إلغاء الطلب (Cancelled)
                 </button>
@@ -180,10 +189,10 @@ export default function OrderDetail({ params }: { params: { id: string } }) {
 
           <section className="lux-card p-5 space-y-4 bg-card border border-border/60 rounded-2xl shadow-sm">
             <h2 className="font-semibold">المنتجات</h2>
-            {o.items.map((x: any) => (
+            {o.items?.map((x: any) => (
               <div key={x.id} className="flex justify-between border-b border-border/40 py-4">
                 <div>
-                  <b>{x.name}</b>
+                  <b>{x.product?.name || x.name}</b>
                   {x.variantName && <p className="text-xs text-muted-foreground mt-0.5">الخيار: {x.variantName}</p>}
                   <p className="text-muted-foreground text-sm">الكمية: {x.quantity}</p>
                 </div>
@@ -213,35 +222,6 @@ export default function OrderDetail({ params }: { params: { id: string } }) {
             {o.trackingNumber && <p><span className="text-muted-foreground">رقم التتبع:</span> <span className="font-semibold" dir="ltr">{o.trackingNumber}</span></p>}
           </div>
 
-          {o.payments && o.payments.length > 0 && (
-            <div className="border-t border-border/40 pt-3 space-y-2">
-              <h3 className="font-semibold text-sm text-[var(--gold)]">إيصال التحويل والدفع</h3>
-              {o.payments.map((p: any, idx: number) => (
-                <div key={idx} className="space-y-2 text-xs">
-                  {p.reference && (
-                    <p>
-                      <span className="text-muted-foreground">رقم العملية:</span>{' '}
-                      <span dir="ltr" className="font-bold">{p.reference}</span>
-                    </p>
-                  )}
-                  {p.proofUrl && (
-                    <div className="space-y-1">
-                      <span className="text-muted-foreground block">صورة الإيصال (اضغط للتكبير):</span>
-                      <a 
-                        href={p.proofUrl} 
-                        target="_blank" 
-                        rel="noopener noreferrer" 
-                        className="block relative w-full h-40 rounded-lg overflow-hidden border border-[var(--gold)]/40 bg-black/5 hover:opacity-95 transition shadow-sm"
-                      >
-                        <img src={p.proofUrl} alt="إيصال التحويل" className="w-full h-full object-cover" />
-                      </a>
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          )}
-
           <div className="border-t border-border/40 pt-3 text-xs leading-relaxed">
             <span className="text-muted-foreground block font-medium mb-1">عنوان الشحن:</span>
             <p>
@@ -252,13 +232,6 @@ export default function OrderDetail({ params }: { params: { id: string } }) {
                     : 'لا يوجد عنوان محفوظ')}
             </p>
           </div>
-
-          {o.couponCode && (
-            <div className="border-t border-border/40 pt-3 text-xs">
-              <p>كوبون الخصم: <b dir="ltr">{o.couponCode}</b></p>
-              <p className="text-muted-foreground mt-0.5">قيمة الخصم: {Number(o.discount || 0).toLocaleString('ar-EG')} ج.م • الشحن: {Number(o.shipping || 0).toLocaleString('ar-EG')} ج.م</p>
-            </div>
-          )}
         </aside>
       </div>
     </main>
