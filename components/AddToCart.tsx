@@ -38,7 +38,10 @@ export default function AddToCart({ product, variantId }: { product: any; varian
     }
 
     localStorage.setItem('wahaj_cart', JSON.stringify(cart));
+    
+    // إطلاق الحدثين لضمان التحديث الفوري واللحظي في الهيدر وباقي المكونات
     window.dispatchEvent(new Event('wahaj-cart-change'));
+    window.dispatchEvent(new Event('storage'));
     
     setDone(true);
     setTimeout(() => setDone(false), 1400);
