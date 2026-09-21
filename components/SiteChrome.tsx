@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import { useTheme } from 'next-themes';
-import { Menu, X, Search, User, Moon, Sun, ShoppingBag, MessageCircle, Home, Store, Truck } from 'lucide-react';
+import { Menu, X, Search, User, Moon, Sun, ShoppingBag, MessageCircle, Home, Store, Truck, Info } from 'lucide-react';
 
 type SettingMap = Record<string, any>;
 
@@ -78,7 +78,13 @@ export default function SiteChrome() {
     ]
   );
 
-  const whatsapp = String(settings.whatsapp || '').replace(/\D/g, '');
+  // دالة لتحديد الأيقونة المناسبة حسب الرابط أو النص
+  const getMenuIcon = (href: string) => {
+    if (href === '/') return <Home size={18} />;
+    if (href === '/shop') return <Store size={18} />;
+    if (href === '/about') return <Info size={18} />;
+    return <Store size={18} />;
+  };
 
   return (
     <>
@@ -203,7 +209,7 @@ export default function SiteChrome() {
                 </button>
               </div>
 
-              <div className="mt-8 grid gap-4 text-base font-medium">
+              <div className="mt-6 grid gap-3 text-base font-medium">
                 {headerMenu
                   .filter((x: any) => x && x.href && x.label && x.active !== false)
                   .map((x: any) => (
@@ -211,16 +217,46 @@ export default function SiteChrome() {
                       key={`${x.href}-${x.label}`}
                       href={x.href}
                       onClick={() => setMenu(false)}
-                      className={`py-2 px-3 rounded-xl transition-all ${pathname === x.href ? 'bg-[#D4AF37]/15 text-[#D4AF37] font-bold border-s-4 border-[#D4AF37]' : 'hover:bg-muted/50'}`}
+                      className={`py-2.5 px-3 rounded-xl transition-all flex items-center gap-3 ${pathname === x.href ? 'bg-[#D4AF37]/15 text-[#D4AF37] font-bold border-s-4 border-[#D4AF37]' : 'hover:bg-muted/50 text-foreground/90'}`}
                     >
-                      {x.label}
+                      {getMenuIcon(x.href)}
+                      <span>{x.label}</span>
                     </a>
                   ))}
-                <a href="/track-order" onClick={() => setMenu(false)} className={`py-2 px-3 rounded-xl transition-all flex items-center gap-2 ${pathname === '/track-order' ? 'bg-[#D4AF37]/15 text-[#D4AF37] font-bold border-s-4 border-[#D4AF37]' : 'hover:bg-muted/50'}`}>
-                  <Truck size={18} /> تتبع الطلب
+
+                <a 
+                  href="/track-order" 
+                  onClick={() => setMenu(false)} 
+                  className={`py-2.5 px-3 rounded-xl transition-all flex items-center gap-3 ${pathname === '/track-order' ? 'bg-[#D4AF37]/15 text-[#D4AF37] font-bold border-s-4 border-[#D4AF37]' : 'hover:bg-muted/50 text-foreground/90'}`}
+                >
+                  <Truck size={18} />
+                  <span>تتبع الطلب</span>
                 </a>
-                <a href="/account" onClick={() => setMenu(false)} className={`py-2 px-3 rounded-xl transition-all ${pathname === '/account' ? 'bg-[#D4AF37]/15 text-[#D4AF37] font-bold border-s-4 border-[#D4AF37]' : 'hover:bg-muted/50'}`}>حسابي</a>
-                <a href="/cart" onClick={() => setMenu(false)} className={`py-2 px-3 rounded-xl transition-all ${pathname === '/cart' ? 'bg-[#D4AF37]/15 text-[#D4AF37] font-bold border-s-4 border-[#D4AF37]' : 'hover:bg-muted/50'}`}>السلة</a>
+
+                <a 
+                  href="/account" 
+                  onClick={() => setMenu(false)} 
+                  className={`py-2.5 px-3 rounded-xl transition-all flex items-center gap-3 ${pathname === '/account' ? 'bg-[#D4AF37]/15 text-[#D4AF37] font-bold border-s-4 border-[#D4AF37]' : 'hover:bg-muted/50 text-foreground/90'}`}
+                >
+                  <User size={18} />
+                  <span>حسابي</span>
+                </a>
+
+                <a 
+                  href="/cart" 
+                  onClick={() => setMenu(false)} 
+                  className={`py-2.5 px-3 rounded-xl transition-all flex items-center justify-between ${pathname === '/cart' ? 'bg-[#D4AF37]/15 text-[#D4AF37] font-bold border-s-4 border-[#D4AF37]' : 'hover:bg-muted/50 text-foreground/90'}`}
+                >
+                  <div className="flex items-center gap-3">
+                    <ShoppingBag size={18} />
+                    <span>السلة</span>
+                  </div>
+                  {cartCount > 0 && (
+                    <span className="px-2 py-0.5 rounded-full bg-[#D4AF37] text-[10px] font-bold text-black">
+                      {cartCount}
+                    </span>
+                  )}
+                </a>
               </div>
             </div>
 
@@ -277,19 +313,17 @@ export default function SiteChrome() {
         </a>
       </nav>
 
-      {/* زر واتساب العائم */}
-      {whatsapp && (
-        <a
-          href={`https://wa.me/${whatsapp}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          aria-label="واتساب"
-          title="تواصل معنا عبر واتساب"
-          className="fixed bottom-20 end-5 z-30 rounded-full bg-[#25D366] p-3.5 text-white shadow-xl hover:scale-105 transition-transform"
-        >
-          <MessageCircle size={24} />
-        </a>
-      )}
+      {/* زر واتساب العائم (مفعل ودائم الظهور) */}
+      <a
+        href="https://wa.me/2010xxxxxxxx"
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="واتساب"
+        title="تواصل معنا عبر واتساب"
+        className="fixed bottom-20 end-5 z-30 rounded-full bg-[#25D366] p-3.5 text-white shadow-xl hover:scale-105 transition-transform flex items-center justify-center"
+      >
+        <MessageCircle size={24} />
+      </a>
     </>
   );
 }
