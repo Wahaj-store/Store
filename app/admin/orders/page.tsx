@@ -1,5 +1,6 @@
 'use client';
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 
 export default function Orders() {
   const [o, setO] = useState<any[]>([]);
@@ -10,15 +11,17 @@ export default function Orders() {
 
   return (
     <main className="container py-10" dir="rtl">
-      <a href="/admin" className="text-[var(--gold)] text-sm hover:underline">‹ لوحة التحكم</a>
+      <Link href="/admin" className="text-[var(--gold)] text-sm hover:underline inline-block">
+        ‹ لوحة التحكم
+      </Link>
       <h1 className="mt-5 text-3xl font-semibold">الطلبات</h1>
       
       <div className="mt-8 grid gap-3">
         {o.map(x => (
-          <a 
+          <Link 
             key={x.id} 
             href={`/admin/orders/${x.id}`}
-            className="lux-card p-5 block hover:border-[var(--gold)] transition shadow-sm bg-card border border-border/60 rounded-2xl"
+            className="lux-card p-5 block w-full hover:border-[var(--gold)] transition shadow-sm bg-card border border-border/60 rounded-2xl cursor-pointer"
           >
             <div className="flex justify-between items-center">
               <b className="text-foreground">طلب #{x.number}</b>
@@ -32,7 +35,7 @@ export default function Orders() {
             <p className="mt-3 text-sm font-semibold text-foreground">
               {Number(x.total).toLocaleString('ar-EG')} ج.م • <span className="text-[var(--gold)]">{x.paymentMethod}</span>
             </p>
-          </a>
+          </Link>
         ))}
 
         {!o.length && (
