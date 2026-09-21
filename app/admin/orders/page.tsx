@@ -6,7 +6,9 @@ export default function Orders() {
   const [o, setO] = useState<any[]>([]);
 
   useEffect(() => {
-    fetch('/api/admin/orders').then(r => r.json()).then(setO);
+    fetch('/api/admin/orders').then(r => r.json()).then((data) => {
+      if (Array.isArray(data)) setO(data);
+    });
   }, []);
 
   return (
@@ -20,13 +22,12 @@ export default function Orders() {
         {o.map(x => (
           <div 
             key={x.id} 
-            className="p-5 bg-card border border-border rounded-2xl shadow-sm space-y-3 relative z-10"
+            className="p-5 bg-card border border-border rounded-2xl shadow-sm space-y-3 relative z-10 hover:border-[var(--gold)]/50 transition"
           >
             <div className="flex justify-between items-center">
-              {/* رابط نصي مباشر وصريح برقم الطلب لتجنب أي مشاكل بالضغط */}
               <Link 
                 href={`/admin/orders/${x.id}`}
-                className="text-[var(--gold)] font-bold text-base underline hover:opacity-80 py-1 px-2 -mx-2"
+                className="text-[var(--gold)] font-bold text-base underline hover:opacity-80 py-2 px-2 cursor-pointer"
               >
                 طلب #{x.number} 🔗
               </Link>
@@ -46,9 +47,9 @@ export default function Orders() {
               
               <Link 
                 href={`/admin/orders/${x.id}`}
-                className="px-4 py-2 rounded-xl bg-[var(--gold)] text-black text-xs font-bold hover:opacity-95 transition"
+                className="px-4 py-2 rounded-xl bg-[var(--gold)] text-black text-xs font-bold hover:opacity-95 transition cursor-pointer"
               >
-                إدارة الطلب ←
+                إدارة الطلب وتغيير الحالة ←
               </Link>
             </div>
           </div>
