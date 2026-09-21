@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { 
   Heart, Package, UserRound, LogOut, Save, Sparkles, Phone, 
-  Lock, User, ArrowLeft, MapPin, Eye, Clock, CheckCircle2, ChevronLeft, Trash2 
+  Lock, User, ArrowLeft, MapPin, Eye, Clock, CheckCircle2, ChevronLeft, Trash2, XCircle, Truck, PackageCheck 
 } from 'lucide-react';
 
 export default function Account() {
@@ -51,6 +51,17 @@ export default function Account() {
     });
     setC(null);
   }
+
+  // دالة مساعدة للحصول على تاريخ ووقت مرحلة معينة من OrderTimeline
+  const getTimelineDate = (statusName: string) => {
+    if (!selectedOrder?.timeline) return null;
+    const match = selectedOrder.timeline.find((t: any) => t.status === statusName);
+    if (!match) return null;
+    return new Date(match.createdAt).toLocaleString('ar-EG', { 
+      dateStyle: 'medium', 
+      timeStyle: 'short' 
+    });
+  };
 
   if (!c) {
     return (
@@ -103,7 +114,7 @@ export default function Account() {
                   <span className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground"><User size={18} /></span>
                   <input
                     className="w-full pr-11 pl-4 py-3 rounded-xl bg-background border border-border/80 text-foreground text-sm focus:outline-none focus:border-[var(--gold)] transition"
-                    placeholder="أدخلي اسمكِ الكريم"
+                    placeholder="أدخلي اسمكِ "
                     onChange={e => setForm({ ...form, name: e.target.value })}
                   />
                 </div>
@@ -186,7 +197,7 @@ export default function Account() {
         <div className="flex flex-wrap items-center justify-between gap-4 border-b border-border/40 pb-6">
           <div className="space-y-1">
             <span className="text-[var(--gold)] font-medium text-sm flex items-center gap-1.5">
-              <Sparkles size={16} /> لوحة التحكم الفاخرة
+              <Sparkles size={16} /> لوحة التحكم 
             </span>
             <h1 className="text-2xl md:text-3xl font-bold">مرحبًا بكِ، {c.name}</h1>
           </div>
@@ -303,7 +314,7 @@ export default function Account() {
                     <div className="flex items-center justify-between border-b border-border/40 pb-4">
                       <div>
                         <h2 className="text-xl font-bold">تفاصيل الطلب: #{selectedOrder.number}</h2>
-                        <span className="text-xs text-muted-foreground">حالة الطلب الحالية: {selectedOrder.status}</span>
+                        <span className="text-xs text-muted-foreground">حالة الطلب الحالية: <b className="text-[var(--gold)]">{selectedOrder.status}</b></span>
                       </div>
                       <button 
                         onClick={() => setSelectedOrder(null)}
@@ -313,24 +324,94 @@ export default function Account() {
                       </button>
                     </div>
 
-                    <div className="p-4 rounded-2xl bg-background border border-border/60 space-y-3">
+                    {/* خط سير ومتابعة الطلب الديناميكي المرتبط بقاعدة البيانات */}
+                    <div className="p-5 rounded-2xl bg-background border border-border/60 space-y-4">
                       <h3 className="font-bold text-sm flex items-center gap-2">
                         <Clock size={16} className="text-[var(--gold)]" /> خط سير ومتابعة الطلب
                       </h3>
-                      <div className="grid grid-cols-3 gap-2 text-center text-xs font-semibold">
-                        <div className="p-2.5 rounded-xl bg-[var(--gold)] text-black flex items-center justify-center gap-1">
-                          <CheckCircle2 size={14} /> تم استلام الطلب
+
+                      {selectedOrder.status === 'CANCELLED' ? (
+                        <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-center space-y-2">
+                          <XCircle size={28} className="mx-auto text-red-500" />
+                          <h4 className="font-bold text-sm text-red-500">تم إلغاء هذا الطلب</h4>
+                          <p className="text-xs text-muted-foreground">عذراً، تم إلغاء الطلب من قبل الإدارة أو بناءً على رغبتك.</p>
                         </div>
-                        <div className="p-2.5 rounded-xl bg-[var(--gold)]/20 text-[var(--gold)]">قيد التجهيز والشحن</div>
-                        <div className="p-2.5 rounded-xl bg-background border border-border text-muted-foreground">التوصيل للباب</div>
-                      </div>
+                      ) : (
+                        <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 text-center text-xs font-semibold">
+                          
+                          {/* 1. تم استلام الطلب */}
+                          <div className={`p-3 rounded-xl border flex flex-col items-center justify-center gap-1 ${
+                            ['NEW', 'PROCESSING', 'SHIPPED', 'DELIVERED'].includes(selectedOrder.status)
+                              ? 'bg-[var(--gold)]/15 border-[var(--gold)] text-[var(--gold)] font-bold'
+                              : 'border-border text-muted-foreground'
+                          }`}>
+                            <div className="flex items-center gap-1">
+                              <CheckCircle2 size={14} /> تم استلام الطلب
+                            </div>
+                            <span className="text-[10px] opacity-75 font-normal" dir="ltr">
+                              {getTimelineDate('NEW') || getTimelineDate('PENDING') || '-'}
+                            </span>
+                          </div>
+
+                          {/* 2. قيد التجهيز */}
+                          <div className={`p-3 rounded-xl border flex flex-col items-center justify-center gap-1 ${
+                            ['PROCESSING', 'SHIPPED', 'DELIVERED'].includes(selectedOrder.status)
+                              ? 'bg-[var(--gold)]/15 border-[var(--gold)] text-[var(--gold)] font-bold'
+                              : 'border-border text-muted-foreground'
+                          }`}>
+                            <div className="flex items-center gap-1">
+                              <Package size={14} /> قيد التجهيز
+                            </div>
+                            <span className="text-[10px] opacity-75 font-normal" dir="ltr">
+                              {getTimelineDate('PROCESSING') || '-'}
+                            </span>
+                          </div>
+
+                          {/* 3. تم الشحن */}
+                          <div className={`p-3 rounded-xl border flex flex-col items-center justify-center gap-1 ${
+                            ['SHIPPED', 'DELIVERED'].includes(selectedOrder.status)
+                              ? 'bg-[var(--gold)]/15 border-[var(--gold)] text-[var(--gold)] font-bold'
+                              : 'border-border text-muted-foreground'
+                          }`}>
+                            <div className="flex items-center gap-1">
+                              <Truck size={14} /> تم الشحن
+                            </div>
+                            <span className="text-[10px] opacity-75 font-normal" dir="ltr">
+                              {getTimelineDate('SHIPPED') || '-'}
+                            </span>
+                          </div>
+
+                          {/* 4. تم التسليم */}
+                          <div className={`p-3 rounded-xl border flex flex-col items-center justify-center gap-1 ${
+                            selectedOrder.status === 'DELIVERED'
+                              ? 'bg-[var(--gold)] text-black border-[var(--gold)] font-bold bg-[var(--gold)]'
+                              : 'border-border text-muted-foreground'
+                          }`}>
+                            <div className="flex items-center gap-1">
+                              <PackageCheck size={14} /> تم التسليم
+                            </div>
+                            <span className="text-[10px] opacity-75 font-normal" dir="ltr">
+                              {getTimelineDate('DELIVERED') || '-'}
+                            </span>
+                          </div>
+
+                        </div>
+                      )}
+
+                      {/* معلومات شركة الشحن ورقم التتبع إن وجدت */}
+                      {(selectedOrder.shippingProvider || selectedOrder.trackingNumber) && (
+                        <div className="p-3 rounded-xl bg-muted/20 border border-border/50 text-xs flex flex-wrap justify-between gap-2 mt-3">
+                          {selectedOrder.shippingProvider && <span><b>شركة الشحن:</b> {selectedOrder.shippingProvider}</span>}
+                          {selectedOrder.trackingNumber && <span dir="ltr"><b>رقم التتبع:</b> {selectedOrder.trackingNumber}</span>}
+                        </div>
+                      )}
                     </div>
 
                     <div className="space-y-3">
                       <h3 className="font-bold text-sm">المنتجات في هذا الطلب</h3>
                       {(selectedOrder.items || []).map((item: any, idx: number) => (
                         <div key={idx} className="flex justify-between items-center p-3 rounded-xl bg-background border border-border/60 text-sm">
-                          <span>{item.product?.name || 'منتج'} × {item.quantity}</span>
+                          <span>{item.name || item.product?.name || 'منتج'} × {item.quantity}</span>
                           <span className="text-[var(--gold)] font-bold">{Number(item.price).toLocaleString('ar-EG')} ج.م</span>
                         </div>
                       ))}
