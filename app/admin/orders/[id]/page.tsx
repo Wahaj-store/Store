@@ -4,12 +4,13 @@ import { Clock, CheckCircle2, Truck, XCircle, AlertCircle, Save } from 'lucide-r
 import Link from 'next/link';
 
 export default function OrderDetail({ params }: { params: Promise<{ id: string }> | { id: string } }) {
-  //فك الـ params لضمان التوافق مع Next.js الحديث
+  // فك الـ params لضمان التوافق مع Next.js الحديث
   const resolvedParams = params instanceof Promise ? use(params) : params;
   const orderId = resolvedParams.id;
 
   const [o, setO] = useState<any>(null);
   const [loading, setLoading] = useState(false);
+  const [fetchError, setFetchError] = useState(false); // أضفنا حالة للخطأ لتجنب التعليق
   const [msg, setMsg] = useState('');
   
   const [shippingProvider, setShippingProvider] = useState('');
@@ -18,13 +19,17 @@ export default function OrderDetail({ params }: { params: Promise<{ id: string }
 
   const fetchOrder = async () => {
     try {
+      setFetchError(false);
       const res = await fetch(`/api/admin/orders/${orderId}`);
       if (res.ok) {
         const data = await res.json();
         setO(data);
+      } else {
+        setFetchError(true);
       }
     } catch (e) {
       console.error(e);
+      setFetchError(true);
     }
   };
 
@@ -61,6 +66,26 @@ export default function OrderDetail({ params }: { params: Promise<{ id: string }
       setLoading(false);
     }
   };
+
+  // حماية إضافية: إذا حدث خطأ في الـ API لا تترك الشاشة معلقة للأبد
+  if (fetchError && !o) {
+    return (
+      <main className="container py-10" dir="rtl">
+        <Link href="/admin/orders" className="text-[var(--gold)] hover:underline inline-block mb-4">
+          ‹ العودة لقائمة الطلبات
+        </Link>
+        <div className="p-5 rounded-2xl bg-card border border-red-500/30 text-center space-y-3">
+          <p className="text-red-500 font-semibold">حدث خطأ أثناء جلب بيانات الطلب من الخادم.</p>
+          <button 
+            onClick={fetchOrder}
+            className="px-4 py-2 rounded-xl bg-[var(--gold)] text-black text-xs font-bold cursor-pointer"
+          >
+            إعادة المحاولة
+          </button>
+        </div>
+      </main>
+    );
+  }
 
   if (!o) return <main className="container py-10" dir="rtl">جارٍ التحميل وتحضير بيانات الطلب…</main>;
 
