@@ -12,8 +12,7 @@ export async function GET(_: Request, { params }: { params: { id: string } }) {
     const o = await prisma.order.findUnique({
       where: { id: params.id },
       include: {
-        // ⚠️ ملاحظة: إذا لم يكن لديك حقل addresses في موديل Customer، احذف السطر التالي
-        customer: { select: { id: true, name: true, phone: true, email: true } }, 
+        customer: { select: { id: true, name: true, phone: true, email: true, addresses: true } },
         items: { include: { product: true } },
         payments: true,
         timeline: { orderBy: { createdAt: 'desc' } },
@@ -23,7 +22,7 @@ export async function GET(_: Request, { params }: { params: { id: string } }) {
     if (!o) return NextResponse.json({ error: 'الطلب غير موجود' }, { status: 404 });
     return NextResponse.json(o);
   } catch (error: any) {
-    console.error('GET Order Error:', error);
+    console.error('GET Order Error:', error); // سيظهر الخطأ الحقيقي في Terminal
     return NextResponse.json({ error: 'حدث خطأ في جلب الطلب: ' + error.message }, { status: 500 });
   }
 }
@@ -41,39 +40,33 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
       return NextResponse.json({ error: 'الحالة المطلوبة غير موجودة' }, { status: 400 });
     }
 
-    // التحقق من صحة الحالة باستخدام الـ Enum الخاص بـ Prisma
+    // استخدام الـ Enum الخاص بـ Prisma للتحقق من صحة الحالة
     const validStatuses = Object.values(OrderStatus);
     if (!validStatuses.includes(status as OrderStatus)) {
       return NextResponse.json({ error: 'حالة الطلب غير صالحة' }, { status: 400 });
     }
 
-    // استخدام Interactive Transaction لضمان الترابط
-    const result = await prisma.$transaction(async (tx) => {
-      // أولاً: تحديث الطلب
-      const updatedOrder = await tx.order.update({
+    const [updatedOrder] = await prisma.$transaction([
+      prisma.order.update({
         where: { id: params.id },
         data: {
           status: status as OrderStatus,
           ...(shippingProvider !== undefined ? { shippingProvider } : {}),
           ...(trackingNumber !== undefined ? { trackingNumber } : {}),
         },
-      });
-
-      // ثانياً: إضافة السجل في خط سير الطلب (Timeline)
-      await tx.orderTimeline.create({
+      }),
+      prisma.orderTimeline.create({
         data: {
           orderId: params.id,
-          status,
+          status: status,
           note: note || `تم تحديث حالة الطلب إلى ${status} بواسطة ${u.name || u.email || 'المسؤول'}`,
         },
-      });
+      }),
+    ]);
 
-      return updatedOrder;
-    });
-
-    return NextResponse.json({ success: true, updatedOrder: result });
+    return NextResponse.json({ success: true, updatedOrder });
   } catch (error: any) {
-    console.error('Error updating order status:', error);
+    console.error('PATCH Order Error:', error);
     return NextResponse.json({ error: error.message || 'حدث خطأ أثناء التحديث' }, { status: 500 });
   }
 }
