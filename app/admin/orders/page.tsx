@@ -16,8 +16,8 @@ export default function Orders() {
       <div className="mt-8 grid gap-3">
         {o.map(x => (
           <a 
-            href={`/admin/orders/${x.id}`}
             key={x.id} 
+            href={`/admin/orders/${x.id}`}
             className="lux-card p-5 block hover:border-[var(--gold)] transition shadow-sm bg-card border border-border/60 rounded-2xl"
           >
             <div className="flex justify-between items-center">
