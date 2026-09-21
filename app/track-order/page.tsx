@@ -1,7 +1,6 @@
 'use client';
 import { useState, FormEvent } from 'react';
-import { Search, Clock, CheckCircle2, Truck, PackageCheck, ArrowRight, MapPin, Phone, Hash, ShieldCheck } from 'lucide-react';
-import Link from 'next/link';
+import { Search, Clock, CheckCircle2, Truck, PackageCheck, MapPin, Phone, Hash, ShieldCheck } from 'lucide-react';
 
 interface TimelineItem {
   status: string;
@@ -78,7 +77,6 @@ export default function TrackOrderPage() {
     }
   };
 
-  // معرفة رقم الخطوة الحالية لتلوين الـ Timeline
   const getCurrentStepIndex = (status: string) => {
     switch (status) {
       case 'NEW': return 0;
@@ -94,12 +92,6 @@ export default function TrackOrderPage() {
 
   return (
     <main className="container max-w-3xl py-12 px-4" dir="rtl">
-      <div className="mb-6">
-        <Link href="/" className="text-[var(--gold)] text-sm hover:underline inline-flex items-center gap-1.5 font-medium">
-          <ArrowRight size={16} /> العودة إلى متجر وَهَج
-        </Link>
-      </div>
-
       <div className="text-center space-y-2 mb-8">
         <span className="px-3 py-1 rounded-full text-xs font-semibold bg-[var(--gold)]/15 text-[var(--gold)] border border-[var(--gold)]/30 inline-flex items-center gap-1">
           <ShieldCheck size={14} /> تتبع الشحنة المباشر
@@ -167,18 +159,16 @@ export default function TrackOrderPage() {
         <div className="mt-8 space-y-6 animate-fade-in">
           <div className="lux-card p-6 md:p-8 space-y-6 bg-card border border-border/60 rounded-3xl shadow-lg">
             
-            {/* ترويسة تفاصيل الطلب */}
             <div className="flex flex-wrap justify-between items-center gap-4 border-b border-border/40 pb-5">
               <div>
                 <span className="text-xs text-muted-foreground">رقم الشحنة</span>
                 <h2 className="text-2xl font-bold tracking-tight text-[var(--gold)]">#{order.number}</h2>
               </div>
               <span className={`px-4 py-1.5 rounded-full font-bold text-xs ${order.status === 'CANCELLED' ? 'bg-red-500/15 text-red-500 border border-red-500/30' : 'bg-[var(--gold)]/15 text-[var(--gold)] border border-[var(--gold)]/30'}`}>
-                {order.status === 'CANCELled' ? 'تم إلغاء الطلب' : `الحالة: ${order.status}`}
+                {order.status === 'CANCELLED' ? 'تم إلغاء الطلب' : `الحالة: ${order.status}`}
               </span>
             </div>
 
-            {/* خط سير الطلب البصري (Timeline Steps) */}
             {order.status !== 'CANCELLED' && (
               <div className="py-4">
                 <h3 className="text-xs font-semibold text-muted-foreground mb-4">خط سير الطلب والمراحل</h3>
@@ -209,7 +199,6 @@ export default function TrackOrderPage() {
               </div>
             )}
 
-            {/* معلومات عامة للطلب */}
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 p-4 rounded-2xl bg-background border border-border/60 text-sm">
               <div>
                 <span className="text-muted-foreground block text-xs">طريقة الدفع</span>
@@ -225,7 +214,6 @@ export default function TrackOrderPage() {
               </div>
             </div>
 
-            {/* بيانات الشحن */}
             {order.shippingProvider && (
               <div className="p-4 rounded-2xl bg-[var(--gold)]/5 border border-[var(--gold)]/20 text-sm flex flex-wrap justify-between items-center gap-2">
                 <div>
@@ -241,7 +229,6 @@ export default function TrackOrderPage() {
               </div>
             )}
 
-            {/* عنوان الشحن */}
             {order.shippingGovernorate && (
               <div className="text-xs space-y-1 pt-2 border-t border-border/40">
                 <span className="text-muted-foreground font-medium flex items-center gap-1">
@@ -253,7 +240,6 @@ export default function TrackOrderPage() {
               </div>
             )}
 
-            {/* سجل التحديثات والزمن */}
             <div className="space-y-3 border-t border-border/40 pt-4">
               <h3 className="font-semibold flex items-center gap-2 text-sm">
                 <Clock size={16} className="text-[var(--gold)]" /> سجل التحديثات التفصيلي
@@ -278,7 +264,6 @@ export default function TrackOrderPage() {
               </div>
             </div>
 
-            {/* قائمة المنتجات */}
             <div className="border-t border-border/40 pt-4 space-y-3">
               <h3 className="font-semibold text-sm">محتويات الطلب</h3>
               <div className="space-y-2">
