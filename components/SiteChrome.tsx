@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import { useTheme } from 'next-themes';
-import { Menu, X, Search, User, Moon, Sun, ShoppingBag, MessageCircle, Home, Store } from 'lucide-react';
+import { Menu, X, Search, User, Moon, Sun, ShoppingBag, MessageCircle, Home, Store, Truck } from 'lucide-react';
 
 type SettingMap = Record<string, any>;
 
@@ -203,7 +203,7 @@ export default function SiteChrome() {
                 </button>
               </div>
 
-              <div className="mt-8 grid gap-5 text-base font-medium">
+              <div className="mt-8 grid gap-4 text-base font-medium">
                 {headerMenu
                   .filter((x: any) => x && x.href && x.label && x.active !== false)
                   .map((x: any) => (
@@ -216,8 +216,11 @@ export default function SiteChrome() {
                       {x.label}
                     </a>
                   ))}
-                <a href="/account" onClick={() => setMenu(false)} className="py-2 px-3 rounded-xl hover:bg-muted/50">حسابي</a>
-                <a href="/cart" onClick={() => setMenu(false)} className="py-2 px-3 rounded-xl hover:bg-muted/50">السلة</a>
+                <a href="/track-order" onClick={() => setMenu(false)} className={`py-2 px-3 rounded-xl transition-all flex items-center gap-2 ${pathname === '/track-order' ? 'bg-[#D4AF37]/15 text-[#D4AF37] font-bold border-s-4 border-[#D4AF37]' : 'hover:bg-muted/50'}`}>
+                  <Truck size={18} /> تتبع الطلب
+                </a>
+                <a href="/account" onClick={() => setMenu(false)} className={`py-2 px-3 rounded-xl transition-all ${pathname === '/account' ? 'bg-[#D4AF37]/15 text-[#D4AF37] font-bold border-s-4 border-[#D4AF37]' : 'hover:bg-muted/50'}`}>حسابي</a>
+                <a href="/cart" onClick={() => setMenu(false)} className={`py-2 px-3 rounded-xl transition-all ${pathname === '/cart' ? 'bg-[#D4AF37]/15 text-[#D4AF37] font-bold border-s-4 border-[#D4AF37]' : 'hover:bg-muted/50'}`}>السلة</a>
               </div>
             </div>
 
@@ -228,7 +231,7 @@ export default function SiteChrome() {
         </div>
       )}
 
-      {/* شريط التنقل السفلي للموبايل (عائم، آمن تماماً، ولا يتداخل مع أشرطة المتصفح) */}
+      {/* شريط التنقل السفلي للموبايل */}
       <nav className="fixed inset-x-4 bottom-4 z-50 flex items-center justify-around rounded-2xl border border-[#D4AF37]/30 bg-[#121110] px-4 py-3 md:hidden shadow-[0_10px_30px_rgba(0,0,0,0.9)]">
         <a 
           href="/" 
