@@ -1,10 +1,9 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 export default function Orders() {
   const [o, setO] = useState<any[]>([]);
-  const router = useRouter();
 
   useEffect(() => {
     fetch('/api/admin/orders').then(r => r.json()).then(setO);
@@ -12,49 +11,51 @@ export default function Orders() {
 
   return (
     <main className="container py-10" dir="rtl">
-      <button 
-        onClick={() => router.push('/admin')} 
-        className="text-[var(--gold)] text-sm hover:underline bg-transparent border-none cursor-pointer p-0"
-      >
+      <Link href="/admin" className="text-[var(--gold)] text-sm hover:underline inline-block mb-4">
         ‹ لوحة التحكم
-      </button>
-      <h1 className="mt-5 text-3xl font-semibold">الطلبات</h1>
+      </Link>
+      <h1 className="text-3xl font-semibold">الطلبات</h1>
       
-      <div className="mt-8 grid gap-4">
+      <div className="mt-6 space-y-4">
         {o.map(x => (
           <div 
             key={x.id} 
-            className="lux-card p-5 bg-card border border-border/60 rounded-2xl shadow-sm space-y-3"
+            className="p-5 bg-card border border-border rounded-2xl shadow-sm space-y-3 relative z-10"
           >
             <div className="flex justify-between items-center">
-              <b className="text-foreground text-base">طلب #{x.number}</b>
+              {/* رابط نصي مباشر وصريح برقم الطلب لتجنب أي مشاكل بالضغط */}
+              <Link 
+                href={`/admin/orders/${x.id}`}
+                className="text-[var(--gold)] font-bold text-base underline hover:opacity-80 py-1 px-2 -mx-2"
+              >
+                طلب #{x.number} 🔗
+              </Link>
               <span className="text-xs px-3 py-1 rounded-full bg-[var(--gold)]/15 text-[var(--gold)] font-bold">
                 {x.status}
               </span>
             </div>
             
             <p className="text-sm text-muted-foreground">
-              {x.customer?.name || x.customerNameSnapshot || 'زائر'} • {x.customer?.phone || x.customerPhoneSnapshot || 'بدون هاتف'}
+              العميل: {x.customer?.name || x.customerNameSnapshot || 'زائر'} • {x.customer?.phone || x.customerPhoneSnapshot || 'بدون هاتف'}
             </p>
             
-            <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-border/40">
-              <span className="text-sm font-semibold text-foreground">
-                {Number(x.total).toLocaleString('ar-EG')} ج.م • <span className="text-[var(--gold)]">{x.paymentMethod}</span>
+            <div className="flex justify-between items-center pt-2 border-t border-border/40 text-sm">
+              <span className="font-semibold">
+                الإجمالي: {Number(x.total).toLocaleString('ar-EG')} ج.م ({x.paymentMethod})
               </span>
               
-              {/* زر صريح وبارز للتحكم وعرض الطلب يضمن فتحه فوراً على الجوال */}
-              <button
-                onClick={() => router.push(`/admin/orders/${x.id}`)}
-                className="px-4 py-2 rounded-xl bg-[var(--gold)] text-black text-xs font-bold hover:opacity-95 transition shadow-sm cursor-pointer"
+              <Link 
+                href={`/admin/orders/${x.id}`}
+                className="px-4 py-2 rounded-xl bg-[var(--gold)] text-black text-xs font-bold hover:opacity-95 transition"
               >
-                إدارة الطلب وخط السير ←
-              </button>
+                إدارة الطلب ←
+              </Link>
             </div>
           </div>
         ))}
 
         {!o.length && (
-          <div className="lux-card p-8 text-center text-muted-foreground rounded-2xl border border-border/60">
+          <div className="p-8 text-center text-muted-foreground rounded-2xl border border-border">
             لا توجد طلبات حتى الآن.
           </div>
         )}
