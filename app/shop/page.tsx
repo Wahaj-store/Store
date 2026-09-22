@@ -1,6 +1,5 @@
 import { prisma } from '@/lib/prisma';
 import AddToCart from '@/components/AddToCart';
-import Image from 'next/image';
 
 export const revalidate = 0;
 
@@ -84,7 +83,7 @@ export default async function Shop({
       </div>
 
       <div className="mt-10 grid grid-cols-2 gap-x-3 gap-y-8 md:grid-cols-4 md:gap-6">
-        {ps.map((p, index) => {
+        {ps.map((p) => {
           const priceNum = Number(p.price);
           const compareNum = p.comparePrice ? Number(p.comparePrice) : 0;
           const discount =
@@ -98,16 +97,14 @@ export default async function Shop({
               className="group flex flex-col justify-between rounded-2xl border border-border/40 bg-[var(--bg)] p-3 shadow-sm transition-all hover:shadow-md"
             >
               <div>
-                {/* تم استبدال img العادي بـ Next/Image المحسن لتحسين الأداء وسرعة التحميل */}
-                <div className="relative aspect-square overflow-hidden rounded-xl bg-muted/35">
-                  <a href={`/product/${p.slug}`} className="block relative w-full h-full">
-                    <Image
+                <div className="relative overflow-hidden rounded-xl bg-muted/35 aspect-square">
+                  <a href={`/product/${p.slug}`} className="block w-full h-full">
+                    <img
                       src={p.images[0]?.url || '/placeholder.svg'}
                       alt={p.name}
-                      fill
-                      sizes="(max-width: 768px) 50vw, 25vw"
-                      priority={index < 4} // تحميل فوري لأول 4 منتجات لتحسين مؤشر LCP
-                      className="object-cover transition duration-500 group-hover:scale-105"
+                      loading="lazy"
+                      decoding="async"
+                      className="aspect-square w-full h-full object-cover transition duration-500 group-hover:scale-105"
                     />
                   </a>
                   {discount > 0 && (
