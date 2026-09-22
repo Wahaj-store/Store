@@ -12,6 +12,12 @@ export default function Account() {
   const [form, setForm] = useState<any>({});
   const [msg, setMsg] = useState('');
   const [tab, setTab] = useState('profile');
+
+  // حالات خاصة بنظام نسيت كلمة المرور عبر البريد (OTP)
+  const [isForgotMode, setIsForgotMode] = useState(false);
+  const [forgotStep, setForgotStep] = useState<'email' | 'verify'>('email');
+  const [resetData, setResetData] = useState({ email: '', otp: '', newPassword: '' });
+  const [loading, setLoading] = useState(false);
   
   const [selectedOrder, setSelectedOrder] = useState<any>(null);
   const [recentProducts, setRecentProducts] = useState<any[]>([]);
@@ -52,6 +58,56 @@ export default function Account() {
     setC(null);
   }
 
+  // طلب إرسال رمز OTP عبر البريد
+  async function handleSendOtp(e: React.FormEvent) {
+    e.preventDefault();
+    setMsg('');
+    setLoading(true);
+    try {
+      const res = await fetch('/api/auth/forgot-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: resetData.email }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'حدث خطأ ما');
+      
+      setMsg('تم إرسال رمز التحقق إلى بريدك الإلكتروني بنجاح');
+      setForgotStep('verify');
+    } catch (err: any) {
+      setMsg(err.message);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  // تأكيد الرمز وتغيير كلمة المرور
+  async function handleResetPassword(e: React.FormEvent) {
+    e.preventDefault();
+    setMsg('');
+    setLoading(true);
+    try {
+      const res = await fetch('/api/auth/reset-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(resetData),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'فشل تغيير كلمة المرور');
+
+      setMsg('تم تغيير كلمة المرور بنجاح! جاري العودة لتسجيل الدخول...');
+      setTimeout(() => {
+        setIsForgotMode(false);
+        setForgotStep('email');
+        setMsg('');
+      }, 2500);
+    } catch (err: any) {
+      setMsg(err.message);
+    } finally {
+      setLoading(false);
+    }
+  }
+
   // دالة مساعدة للحصول على تاريخ ووقت مرحلة معينة من OrderTimeline
   const getTimelineDate = (statusName: string) => {
     if (!selectedOrder?.timeline) return null;
@@ -76,111 +132,210 @@ export default function Account() {
               وَهَج
             </a>
             <h1 className="text-2xl md:text-3xl font-bold tracking-tight">
-              {mode === 'login' ? 'أهلاً بكِ مجدداً' : 'انضمي إلى عائلة وَهَج'}
+              {isForgotMode ? 'استعادة كلمة المرور' : (mode === 'login' ? 'أهلاً بكِ مجدداً' : 'انضمي إلى عائلة وَهَج')}
             </h1>
             <p className="text-muted-foreground text-sm">
-              {mode === 'login' ? 'سجلي دخولك لمتابعة طلبياتك وإدارتها بكل سهولة.' : 'أنشئي حسابك الجديد واستمتعي بتجربة تسوق فريدة.'}
+              {isForgotMode 
+                ? 'أدخلي بريدك الإلكتروني المسجل لاستلام رمز التحقق.' 
+                : (mode === 'login' ? 'سجلي دخولك لمتابعة طلبياتك وإدارتها بكل سهولة.' : 'أنشئي حسابك الجديد واستمتعي بتجربة تسوق فريدة.')}
             </p>
           </div>
 
-          <div className="flex p-1.5 rounded-2xl bg-card border border-border/60 shadow-sm">
-            <button
-              type="button"
-              onClick={() => { setMode('login'); setMsg(''); }}
-              className={`flex-1 py-3 text-sm font-bold rounded-xl transition-all ${
-                mode === 'login' ? 'bg-[var(--gold)] text-black shadow-md' : 'text-muted-foreground hover:text-foreground'
-              }`}
-            >
-              تسجيل الدخول
-            </button>
-            <button
-              type="button"
-              onClick={() => { setMode('register'); setMsg(''); }}
-              className={`flex-1 py-3 text-sm font-bold rounded-xl transition-all ${
-                mode === 'register' ? 'bg-[var(--gold)] text-black shadow-md' : 'text-muted-foreground hover:text-foreground'
-              }`}
-            >
-              إنشاء حساب
-            </button>
-          </div>
+          {!isForgotMode && (
+            <div className="flex p-1.5 rounded-2xl bg-card border border-border/60 shadow-sm">
+              <button
+                type="button"
+                onClick={() => { setMode('login'); setMsg(''); }}
+                className={`flex-1 py-3 text-sm font-bold rounded-xl transition-all ${
+                  mode === 'login' ? 'bg-[var(--gold)] text-black shadow-md' : 'text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                تسجيل الدخول
+              </button>
+              <button
+                type="button"
+                onClick={() => { setMode('register'); setMsg(''); }}
+                className={`flex-1 py-3 text-sm font-bold rounded-xl transition-all ${
+                  mode === 'register' ? 'bg-[var(--gold)] text-black shadow-md' : 'text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                إنشاء حساب
+              </button>
+            </div>
+          )}
 
           <div className="bg-card border border-border/60 rounded-3xl p-6 md:p-8 shadow-xl relative overflow-hidden space-y-5">
             <div className="absolute top-0 right-0 w-28 h-28 bg-[var(--gold)]/5 rounded-bl-full pointer-events-none" />
 
-            {mode === 'register' && (
-              <div className="space-y-2">
-                <label className="text-xs md:text-sm font-semibold text-foreground">الاسم الكامل</label>
-                <div className="relative">
-                  <span className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground"><User size={18} /></span>
-                  <input
-                    className="w-full pr-11 pl-4 py-3 rounded-xl bg-background border border-border/80 text-foreground text-sm focus:outline-none focus:border-[var(--gold)] transition"
-                    placeholder="أدخلي اسمكِ "
-                    onChange={e => setForm({ ...form, name: e.target.value })}
-                  />
+            {isForgotMode ? (
+              <div className="space-y-4">
+                {forgotStep === 'email' ? (
+                  <form onSubmit={handleSendOtp} className="space-y-4">
+                    <div className="space-y-2">
+                      <label className="text-xs md:text-sm font-semibold text-foreground">البريد الإلكتروني المسجل</label>
+                      <input
+                        type="email"
+                        required
+                        className="w-full px-4 py-3 rounded-xl bg-background border border-border/80 text-foreground text-sm focus:outline-none focus:border-[var(--gold)] transition"
+                        placeholder="name@example.com"
+                        dir="ltr"
+                        value={resetData.email}
+                        onChange={e => setResetData({ ...resetData, email: e.target.value })}
+                      />
+                    </div>
+                    <button
+                      type="submit"
+                      disabled={loading}
+                      className="w-full py-3.5 rounded-xl bg-[var(--gold)] text-black font-bold text-sm shadow-lg hover:opacity-95 transition flex items-center justify-center gap-2"
+                    >
+                      <span>{loading ? 'جاري الإرسال...' : 'إرسال رمز التحقق'}</span>
+                      <ArrowLeft size={18} />
+                    </button>
+                  </form>
+                ) : (
+                  <form onSubmit={handleResetPassword} className="space-y-4">
+                    <div className="space-y-2">
+                      <label className="text-xs md:text-sm font-semibold text-foreground">رمز التحقق (6 أرقام)</label>
+                      <input
+                        type="text"
+                        required
+                        maxLength={6}
+                        className="w-full px-4 py-3 rounded-xl bg-background border border-border/80 text-foreground text-sm tracking-widest text-center font-bold focus:outline-none focus:border-[var(--gold)] transition"
+                        placeholder="123456"
+                        dir="ltr"
+                        value={resetData.otp}
+                        onChange={e => setResetData({ ...resetData, otp: e.target.value })}
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="text-xs md:text-sm font-semibold text-foreground">كلمة المرور الجديدة</label>
+                      <input
+                        type="password"
+                        required
+                        className="w-full px-4 py-3 rounded-xl bg-background border border-border/80 text-foreground text-sm focus:outline-none focus:border-[var(--gold)] transition"
+                        placeholder="••••••••"
+                        dir="ltr"
+                        value={resetData.newPassword}
+                        onChange={e => setResetData({ ...resetData, newPassword: e.target.value })}
+                      />
+                    </div>
+
+                    <button
+                      type="submit"
+                      disabled={loading}
+                      className="w-full py-3.5 rounded-xl bg-[var(--gold)] text-black font-bold text-sm shadow-lg hover:opacity-95 transition flex items-center justify-center gap-2"
+                    >
+                      <span>{loading ? 'جاري التحديث...' : 'تحديث كلمة المرور'}</span>
+                      <CheckCircle2 size={18} />
+                    </button>
+                  </form>
+                )}
+
+                <div className="text-center pt-2">
+                  <button
+                    type="button"
+                    className="text-xs text-muted-foreground hover:text-[var(--gold)] transition font-medium"
+                    onClick={() => { setIsForgotMode(false); setForgotStep('email'); setMsg(''); }}
+                  >
+                    العودة لتسجيل الدخول
+                  </button>
                 </div>
               </div>
+            ) : (
+              <>
+                {mode === 'register' && (
+                  <div className="space-y-2">
+                    <label className="text-xs md:text-sm font-semibold text-foreground">الاسم الكامل</label>
+                    <div className="relative">
+                      <span className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground"><User size={18} /></span>
+                      <input
+                        className="w-full pr-11 pl-4 py-3 rounded-xl bg-background border border-border/80 text-foreground text-sm focus:outline-none focus:border-[var(--gold)] transition"
+                        placeholder="أدخلي اسمكِ "
+                        onChange={e => setForm({ ...form, name: e.target.value })}
+                      />
+                    </div>
+                  </div>
+                )}
+
+                <div className="space-y-2">
+                  <label className="text-xs md:text-sm font-semibold text-foreground">
+                    {mode === 'login' ? 'رقم الهاتف أو البريد الإلكتروني' : 'رقم الهاتف'}
+                  </label>
+                  <div className="relative">
+                    <span className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground"><Phone size={18} /></span>
+                    <input
+                      className="w-full pr-11 pl-4 py-3 rounded-xl bg-background border border-border/80 text-foreground text-sm focus:outline-none focus:border-[var(--gold)] transition"
+                      placeholder={mode === 'login' ? 'رقم الهاتف أو الإيميل' : '01xxxxxxxxx'}
+                      dir="ltr"
+                      onChange={e => setForm({ ...form, phone: e.target.value, email: e.target.value })}
+                    />
+                  </div>
+                </div>
+
+                {mode === 'register' && (
+                  <div className="space-y-2">
+                    <label className="text-xs md:text-sm font-semibold text-foreground">البريد الإلكتروني</label>
+                    <input
+                      className="w-full px-4 py-3 rounded-xl bg-background border border-border/80 text-foreground text-sm focus:outline-none focus:border-[var(--gold)] transition"
+                      placeholder="name@example.com"
+                      dir="ltr"
+                      onChange={e => setForm({ ...form, email: e.target.value })}
+                    />
+                  </div>
+                )}
+
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center">
+                    <label className="text-xs md:text-sm font-semibold text-foreground">كلمة المرور</label>
+                    {mode === 'login' && (
+                      <button
+                        type="button"
+                        onClick={() => { setIsForgotMode(true); setMsg(''); }}
+                        className="text-xs text-[var(--gold)] hover:underline font-medium"
+                      >
+                        نسيت كلمة المرور؟
+                      </button>
+                    )}
+                  </div>
+                  <div className="relative">
+                    <span className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground"><Lock size={18} /></span>
+                    <input
+                      className="w-full pr-11 pl-4 py-3 rounded-xl bg-background border border-border/80 text-foreground text-sm focus:outline-none focus:border-[var(--gold)] transition"
+                      type="password"
+                      placeholder="••••••••"
+                      onChange={e => setForm({ ...form, password: e.target.value })}
+                    />
+                  </div>
+                </div>
+
+                <button
+                  className="w-full mt-2 py-3.5 rounded-xl bg-[var(--gold)] text-black font-bold text-sm md:text-base shadow-lg hover:opacity-95 transition flex items-center justify-center gap-2"
+                  onClick={auth}
+                >
+                  <span>{mode === 'login' ? 'دخول' : 'إنشاء الحساب'}</span>
+                  <ArrowLeft size={18} />
+                </button>
+
+                <div className="text-center pt-2">
+                  <button
+                    type="button"
+                    className="text-xs md:text-sm text-[var(--gold)] hover:underline font-medium"
+                    onClick={() => setMode(mode === 'login' ? 'register' : 'login')}
+                  >
+                    {mode === 'login' ? 'ليس لديك حساب؟ إنشاء حساب جديد' : 'لديك حساب بالفعل؟ تسجيل الدخول'}
+                  </button>
+                </div>
+              </>
             )}
-
-            <div className="space-y-2">
-              <label className="text-xs md:text-sm font-semibold text-foreground">رقم الهاتف</label>
-              <div className="relative">
-                <span className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground"><Phone size={18} /></span>
-                <input
-                  className="w-full pr-11 pl-4 py-3 rounded-xl bg-background border border-border/80 text-foreground text-sm focus:outline-none focus:border-[var(--gold)] transition"
-                  placeholder="01xxxxxxxxx"
-                  dir="ltr"
-                  onChange={e => setForm({ ...form, phone: e.target.value })}
-                />
-              </div>
-            </div>
-
-            {mode === 'register' && (
-              <div className="space-y-2">
-                <label className="text-xs md:text-sm font-semibold text-foreground">البريد الإلكتروني</label>
-                <input
-                  className="w-full px-4 py-3 rounded-xl bg-background border border-border/80 text-foreground text-sm focus:outline-none focus:border-[var(--gold)] transition"
-                  placeholder="name@example.com"
-                  dir="ltr"
-                  onChange={e => setForm({ ...form, email: e.target.value })}
-                />
-              </div>
-            )}
-
-            <div className="space-y-2">
-              <label className="text-xs md:text-sm font-semibold text-foreground">كلمة المرور</label>
-              <div className="relative">
-                <span className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground"><Lock size={18} /></span>
-                <input
-                  className="w-full pr-11 pl-4 py-3 rounded-xl bg-background border border-border/80 text-foreground text-sm focus:outline-none focus:border-[var(--gold)] transition"
-                  type="password"
-                  placeholder="••••••••"
-                  onChange={e => setForm({ ...form, password: e.target.value })}
-                />
-              </div>
-            </div>
-
-            <button
-              className="w-full mt-2 py-3.5 rounded-xl bg-[var(--gold)] text-black font-bold text-sm md:text-base shadow-lg hover:opacity-95 transition flex items-center justify-center gap-2"
-              onClick={auth}
-            >
-              <span>{mode === 'login' ? 'دخول' : 'إنشاء الحساب'}</span>
-              <ArrowLeft size={18} />
-            </button>
 
             {msg && (
-              <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-center text-sm text-red-500">
+              <div className={`p-3 rounded-xl text-center text-xs md:text-sm ${
+                msg.includes('نجاح') || msg.includes('تم إرسال') ? 'bg-[var(--gold)]/10 border border-[var(--gold)]/30 text-[var(--gold)]' : 'bg-red-500/10 border border-red-500/20 text-red-500'
+              }`}>
                 {msg}
               </div>
             )}
-
-            <div className="text-center pt-2">
-              <button
-                className="text-xs md:text-sm text-[var(--gold)] hover:underline font-medium"
-                onClick={() => setMode(mode === 'login' ? 'register' : 'login')}
-              >
-                {mode === 'login' ? 'ليس لديك حساب؟ إنشاء حساب جديد' : 'لديك حساب بالفعل؟ تسجيل الدخول'}
-              </button>
-            </div>
 
           </div>
 
@@ -324,7 +479,6 @@ export default function Account() {
                       </button>
                     </div>
 
-                    {/* عرض ملاحظة الطلب الإدارية إن وجدت */}
                     {selectedOrder.notes && (
                       <div className="p-4 rounded-2xl bg-[var(--gold)]/10 border border-[var(--gold)]/30 space-y-1.5">
                         <span className="font-bold text-xs text-[var(--gold)] flex items-center gap-1.5">
@@ -334,7 +488,6 @@ export default function Account() {
                       </div>
                     )}
 
-                    {/* خط سير ومتابعة الطلب الديناميكي المرتبط بقاعدة البيانات */}
                     <div className="p-5 rounded-2xl bg-background border border-border/60 space-y-4">
                       <h3 className="font-bold text-sm flex items-center gap-2">
                         <Clock size={16} className="text-[var(--gold)]" /> خط سير ومتابعة الطلب
@@ -349,7 +502,6 @@ export default function Account() {
                       ) : (
                         <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 text-center text-xs font-semibold">
                           
-                          {/* 1. تم استلام الطلب */}
                           <div className={`p-3 rounded-xl border flex flex-col items-center justify-center gap-1 ${
                             ['NEW', 'PROCESSING', 'SHIPPED', 'DELIVERED'].includes(selectedOrder.status)
                               ? 'bg-[var(--gold)]/15 border-[var(--gold)] text-[var(--gold)] font-bold'
@@ -363,7 +515,6 @@ export default function Account() {
                             </span>
                           </div>
 
-                          {/* 2. قيد التجهيز */}
                           <div className={`p-3 rounded-xl border flex flex-col items-center justify-center gap-1 ${
                             ['PROCESSING', 'SHIPPED', 'DELIVERED'].includes(selectedOrder.status)
                               ? 'bg-[var(--gold)]/15 border-[var(--gold)] text-[var(--gold)] font-bold'
@@ -377,7 +528,6 @@ export default function Account() {
                             </span>
                           </div>
 
-                          {/* 3. تم الشحن */}
                           <div className={`p-3 rounded-xl border flex flex-col items-center justify-center gap-1 ${
                             ['SHIPPED', 'DELIVERED'].includes(selectedOrder.status)
                               ? 'bg-[var(--gold)]/15 border-[var(--gold)] text-[var(--gold)] font-bold'
@@ -391,10 +541,9 @@ export default function Account() {
                             </span>
                           </div>
 
-                          {/* 4. تم التسليم */}
                           <div className={`p-3 rounded-xl border flex flex-col items-center justify-center gap-1 ${
                             selectedOrder.status === 'DELIVERED'
-                              ? 'bg-[var(--gold)] text-black border-[var(--gold)] font-bold bg-[var(--gold)]'
+                              ? 'bg-[var(--gold)] text-black border-[var(--gold)] font-bold'
                               : 'border-border text-muted-foreground'
                           }`}>
                             <div className="flex items-center gap-1">
@@ -408,7 +557,6 @@ export default function Account() {
                         </div>
                       )}
 
-                      {/* معلومات شركة الشحن ورقم التتبع إن وجدت */}
                       {(selectedOrder.shippingProvider || selectedOrder.trackingNumber) && (
                         <div className="p-3 rounded-xl bg-muted/20 border border-border/50 text-xs flex flex-wrap justify-between gap-2 mt-3">
                           {selectedOrder.shippingProvider && <span><b>شركة الشحن:</b> {selectedOrder.shippingProvider}</span>}
