@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { 
   Heart, Package, UserRound, LogOut, Save, Sparkles, Phone, 
-  Lock, User, ArrowLeft, MapPin, Eye, Clock, CheckCircle2, ChevronLeft, Trash2, XCircle, Truck, PackageCheck 
+  Lock, User, ArrowLeft, MapPin, Eye, Clock, CheckCircle2, ChevronLeft, Trash2, XCircle, Truck, PackageCheck, MessageSquareText 
 } from 'lucide-react';
 
 export default function Account() {
@@ -323,6 +323,16 @@ export default function Account() {
                         العودة للطلبات
                       </button>
                     </div>
+
+                    {/* عرض ملاحظة الطلب الإدارية إن وجدت */}
+                    {selectedOrder.notes && (
+                      <div className="p-4 rounded-2xl bg-[var(--gold)]/10 border border-[var(--gold)]/30 space-y-1.5">
+                        <span className="font-bold text-xs text-[var(--gold)] flex items-center gap-1.5">
+                          <MessageSquareText size={16} /> ملاحظة من الإدارة على الطلب:
+                        </span>
+                        <p className="text-xs md:text-sm text-foreground/90 leading-relaxed">{selectedOrder.notes}</p>
+                      </div>
+                    )}
 
                     {/* خط سير ومتابعة الطلب الديناميكي المرتبط بقاعدة البيانات */}
                     <div className="p-5 rounded-2xl bg-background border border-border/60 space-y-4">
