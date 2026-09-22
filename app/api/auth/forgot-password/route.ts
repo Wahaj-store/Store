@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { db } from '@/lib/db'; // تأكد من مسار قاعدة البيانات لديك
+import { prisma } from '@/lib/prisma';
 
 export async function POST(req: Request) {
   try {
@@ -10,9 +10,8 @@ export async function POST(req: Request) {
     }
 
     // 1. التحقق من وجود العميل بهذا البريد
-    const customer = await db.customer.findUnique({ where: { email } });
+    const customer = await prisma.customer.findUnique({ where: { email } });
     if (!customer) {
-      // لأسباب أمنية، يفضل ألا تخبر المهاجم صراحة أن الإيميل غير موجود، ولكن للتسهيل:
       return NextResponse.json({ error: 'البريد الإلكتروني غير مسجل لدينا' }, { status: 404 });
     }
 
@@ -21,7 +20,7 @@ export async function POST(req: Request) {
     const otpExpiry = new Date(Date.now() + 10 * 60 * 1000); // صالح لمدة 10 دقائق
 
     // 3. حفظ الرمز ووقت الانتهاء في قاعدة البيانات للعميل
-    await db.customer.update({
+    await prisma.customer.update({
       where: { id: customer.id },
       data: {
         resetToken: otp,
