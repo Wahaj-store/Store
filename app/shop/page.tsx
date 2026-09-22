@@ -1,5 +1,6 @@
 import { prisma } from '@/lib/prisma';
 import AddToCart from '@/components/AddToCart';
+import Image from 'next/image';
 
 export const revalidate = 0;
 
@@ -38,7 +39,7 @@ export default async function Shop({
   });
 
   return (
-    <main className="container py-12">
+    <main className="container py-12" dir="rtl">
       <div className="mt-2">
         <span className="text-[#D4AF37] text-sm font-medium tracking-wide">Wahaj Store</span>
         <h1 className="mt-1 text-3xl md:text-4xl font-semibold tracking-tight">المتجر</h1>
@@ -50,7 +51,7 @@ export default async function Shop({
             className="flex-1 rounded-xl border border-border/60 bg-[var(--bg)] px-4 py-3 text-sm outline-none focus:border-[#D4AF37] transition-colors"
             placeholder="ابحثي عن منتج أو SKU..."
           />
-          <button className="rounded-xl bg-[#D4AF37] text-black font-bold px-6 py-3 text-sm hover:opacity-90 transition-opacity shadow-sm">
+          <button className="rounded-xl bg-[#D4AF37] text-black font-bold px-6 py-3 text-sm hover:opacity-90 transition-opacity shadow-sm cursor-pointer">
             بحث
           </button>
         </form>
@@ -83,7 +84,7 @@ export default async function Shop({
       </div>
 
       <div className="mt-10 grid grid-cols-2 gap-x-3 gap-y-8 md:grid-cols-4 md:gap-6">
-        {ps.map((p) => {
+        {ps.map((p, index) => {
           const priceNum = Number(p.price);
           const compareNum = p.comparePrice ? Number(p.comparePrice) : 0;
           const discount =
@@ -97,17 +98,20 @@ export default async function Shop({
               className="group flex flex-col justify-between rounded-2xl border border-border/40 bg-[var(--bg)] p-3 shadow-sm transition-all hover:shadow-md"
             >
               <div>
-                <div className="relative overflow-hidden rounded-xl bg-muted/35">
-                  <a href={`/product/${p.slug}`}>
-                    <img
+                {/* تم استبدال img العادي بـ Next/Image المحسن لتحسين الأداء وسرعة التحميل */}
+                <div className="relative aspect-square overflow-hidden rounded-xl bg-muted/35">
+                  <a href={`/product/${p.slug}`} className="block relative w-full h-full">
+                    <Image
                       src={p.images[0]?.url || '/placeholder.svg'}
                       alt={p.name}
-                      loading="lazy"
-                      className="aspect-square w-full object-cover transition duration-500 group-hover:scale-105"
+                      fill
+                      sizes="(max-width: 768px) 50vw, 25vw"
+                      priority={index < 4} // تحميل فوري لأول 4 منتجات لتحسين مؤشر LCP
+                      className="object-cover transition duration-500 group-hover:scale-105"
                     />
                   </a>
                   {discount > 0 && (
-                    <span className="absolute top-2.5 end-2.5 rounded-full bg-[#171513] px-2 py-0.5 text-[10px] font-bold text-white shadow-sm">
+                    <span className="absolute top-2.5 end-2.5 z-10 rounded-full bg-[#171513] px-2 py-0.5 text-[10px] font-bold text-white shadow-sm">
                       -{discount}%
                     </span>
                   )}
