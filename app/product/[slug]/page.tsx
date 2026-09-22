@@ -105,6 +105,8 @@ export default async function ProductPage({ params }: { params: { slug: string }
             <img
               src={mainImage}
               alt={p.images[0]?.alt || p.name}
+              loading="eager"
+              decoding="async"
               className="h-full w-full object-cover transition-all duration-500 hover:scale-105"
             />
           </div>
@@ -117,7 +119,13 @@ export default async function ProductPage({ params }: { params: { slug: string }
                   key={im.id || i}
                   className="relative aspect-square w-20 flex-shrink-0 overflow-hidden rounded-xl border-2 border-border/40 hover:border-[#D4AF37] transition-all cursor-pointer"
                 >
-                  <img src={im.url} alt="" className="h-full w-full object-cover" />
+                  <img 
+                    src={im.url} 
+                    alt="" 
+                    loading="lazy"
+                    decoding="async"
+                    className="h-full w-full object-cover" 
+                  />
                 </div>
               ))}
             </div>
@@ -139,7 +147,7 @@ export default async function ProductPage({ params }: { params: { slug: string }
               </div>
             </div>
 
-            {/* مكون الشراء (يحتوي على السعر والمخزون المنظم مرة واحدة فقط بدون أي تكرار) */}
+            {/* مكون الشراء */}
             <div className="mt-4">
               <ProductPurchase product={{ ...p, price: priceNum, images: p.images }} />
             </div>
@@ -241,6 +249,8 @@ export default async function ProductPage({ params }: { params: { slug: string }
                   <img
                     src={r.toProduct.images?.[0]?.url || '/placeholder.svg'}
                     alt={r.toProduct.name}
+                    loading="lazy"
+                    decoding="async"
                     className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
                   />
                 </div>
