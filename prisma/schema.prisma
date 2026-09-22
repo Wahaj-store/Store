@@ -18,10 +18,8 @@ model Customer {
   password           String
   resetToken         String?                // مضاف حديثاً لتخزين رمز OTP
   resetTokenExpiry   DateTime?              // مضاف حديثاً لتخزين وقت انتهاء صلاحية الرمز
-  
   notifications      CustomerNotification[]
   orders             Order[]
-  
   createdAt          DateTime               @default(now())
   updatedAt          DateTime               @updatedAt
 }
