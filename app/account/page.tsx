@@ -500,6 +500,8 @@ export default function Account() {
                         className="aspect-square w-full object-cover rounded-xl"
                         src={w.product.images?.[0]?.url || '/placeholder.svg'}
                         alt={w.product.name}
+                        loading="lazy"
+                        decoding="async"
                       />
                       <p className="text-sm font-medium group-hover:text-[var(--gold)] transition line-clamp-1">
                         {w.product.name}
@@ -524,7 +526,13 @@ export default function Account() {
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                     {recentProducts.map((prod: any, idx: number) => (
                       <a href={`/product/${prod.slug}`} key={idx} className="p-3 rounded-2xl bg-background border border-border/60 space-y-2 block">
-                        <img src={prod.image || '/placeholder.svg'} alt={prod.name} className="aspect-square w-full object-cover rounded-xl" />
+                        <img 
+                          src={prod.image || '/placeholder.svg'} 
+                          alt={prod.name} 
+                          loading="lazy"
+                          decoding="async"
+                          className="aspect-square w-full object-cover rounded-xl" 
+                        />
                         <h3 className="text-sm font-medium line-clamp-1">{prod.name}</h3>
                         <span className="text-[var(--gold)] font-bold text-xs">{prod.price} ج.م</span>
                       </a>
