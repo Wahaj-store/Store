@@ -100,6 +100,8 @@ export default function Cart() {
                 <img 
                   src={x.image || '/placeholder.png'} 
                   alt={x.name} 
+                  loading="lazy"
+                  decoding="async"
                   className="h-20 w-20 md:h-24 md:w-24 rounded-2xl object-cover flex-shrink-0 border border-border/40 bg-black/5" 
                 />
                 <div className="flex-1 space-y-1.5">
