@@ -1,40 +1,51 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
 
 generator client {
   provider = "prisma-client-js"
 }
 
-datasource db {
-  provider = "postgresql" // أو نوع القاعدة لديك (مثل sqlite أو mysql)
-  url      = env("DATABASE_URL")
-}
-
 model Customer {
-  id                 String                 @id @default(cuid())
+  id                 String              @id @default(cuid())
   name               String?
-  email              String                 @unique
-  phone              String?                @unique
+  phone              String?             @unique
+  email              String?             @unique
   password           String
-  resetToken         String?                // مضاف حديثاً لتخزين رمز OTP
-  resetTokenExpiry   DateTime?              // مضاف حديثاً لتخزين وقت انتهاء صلاحية الرمز
-  notifications      CustomerNotification[]
+  resetToken         String?
+  resetTokenExpiry   DateTime?
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
   orders             Order[]
-  createdAt          DateTime               @default(now())
-  updatedAt          DateTime               @updatedAt
+  wishlist           Wishlist[]
+  notifications      CustomerNotification[]
 }
 
-model CustomerNotification {
-  id         String    @id @default(cuid())
-  customerId String
-  customer   Customer  @relation(fields: [customerId], references: [id], onDelete: Cascade)
-  title      String
-  body       String
-  type       String    @default("INFO")
-  readAt     DateTime?
-  createdAt  DateTime  @default(now())
+model Order {
+  id               String          @id @default(cuid())
+  number           String          @unique
+  customerId       String
+  customer         Customer        @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  status           String          @default("NEW")
+  total            Decimal         @db.Decimal(10, 2)
+  notes            String?
+  shippingProvider String?
+  trackingNumber   String?
+  items            OrderItem[]
+  timeline         OrderTimeline[]
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+}
 
-  @@index([customerId, readAt, createdAt])
+model OrderItem {
+  id        String   @id @default(cuid())
+  orderId   String
+  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId String
+  name      String
+  price     Decimal  @db.Decimal(10, 2)
+  quantity  Int
 }
 
 model OrderTimeline {
@@ -42,33 +53,23 @@ model OrderTimeline {
   orderId   String
   order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
   status    String
-  note      String?
   createdAt DateTime @default(now())
-
-  @@index([orderId, createdAt])
 }
 
-model ContactMessage {
-  id        String   @id @default(cuid())
-  name      String
-  phone     String
-  subject   String?
-  message   String
-  isRead    Boolean  @default(false)
-  createdAt DateTime @default(now())
-
-  @@index([createdAt])
+model Wishlist {
+  id         String   @id @default(cuid())
+  customerId String
+  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  productId  String
+  createdAt  DateTime @default(now())
 }
 
-model FaqItem {
-  id           String   @id @default(cuid())
-  question     String
-  answer       String
-  category     String   @default("general") // general, shipping, payment, returns, products
-  displayOrder Int      @default(0)
-  published    Boolean  @default(true)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-
-  @@index([published, displayOrder])
+model CustomerNotification {
+  id         String   @id @default(cuid())
+  customerId String
+  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  title      String
+  body       String
+  isRead     Boolean  @default(false)
+  createdAt  DateTime @default(now())
 }
