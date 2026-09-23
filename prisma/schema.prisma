@@ -280,6 +280,8 @@ model Order {
   shippingGovernorate   String?
   shippingCity          String?
   shippingAddress       String?
+  shippingProvider      String?      
+  trackingNumber        String?    
   couponCode            String?
   customerNameSnapshot  String?
   customerPhoneSnapshot String?
