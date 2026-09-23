@@ -93,6 +93,9 @@ model Customer {
   orders             Order[]
   wishlist           Wishlist[]
   notifications      CustomerNotification[]
+  addresses          Address[]
+  reviews            Review[]
+  segmentMemberships CustomerSegmentMember[]
   @@index([createdAt])
 }
 
