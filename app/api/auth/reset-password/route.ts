@@ -22,7 +22,7 @@ export async function POST(req: Request) {
     await prisma.customer.update({
       where: { id: customer.id },
       data: {
-        password: hashedPassword,
+        passwordHash: hashedPassword,
         resetToken: null,
         resetTokenExpiry: null,
       },
