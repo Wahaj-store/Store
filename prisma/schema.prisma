@@ -86,6 +86,7 @@ model Customer {
   phone              String?             @unique
   email              String?             @unique
   password           String
+  lastLoginAt        DateTime?               // الحقل الذي كان مطلوباً في الـ API
   resetToken         String?
   resetTokenExpiry   DateTime?
   createdAt          DateTime            @default(now())
