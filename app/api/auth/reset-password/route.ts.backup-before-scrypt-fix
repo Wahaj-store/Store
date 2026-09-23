@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { hashPassword } from '@/lib/auth';
+import bcrypt from 'bcrypt';
 
 export async function POST(req: Request) {
   try {
@@ -16,13 +16,13 @@ export async function POST(req: Request) {
     }
 
     // تشفير كلمة المرور الجديدة
-    const hashedPassword = await hashPassword(newPassword);
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
 
     // تحديث كلمة المرور ومسح الرمز المستعمل
     await prisma.customer.update({
       where: { id: customer.id },
       data: {
-        passwordHash: hashedPassword,
+        password: hashedPassword,
         resetToken: null,
         resetTokenExpiry: null,
       },
