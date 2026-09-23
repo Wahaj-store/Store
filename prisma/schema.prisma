@@ -85,7 +85,7 @@ model Customer {
   name               String?
   phone              String?             @unique
   email              String?             @unique
-  password           String?
+  passwordHash           String?
   lastLoginAt        DateTime?               // الحقل الذي كان مطلوباً في الـ API
   resetToken         String?
   resetTokenExpiry   DateTime?
