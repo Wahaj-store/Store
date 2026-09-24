@@ -1,3 +1,36 @@
-import {rateLimit,getClientKey} from '@/lib/rate-limit';import {NextResponse} from 'next/server';import {customerLogin,customerRegister,getCustomer} from '@/lib/customer-auth';import {cookies} from 'next/headers';
-export async function GET(){const c=await getCustomer();return NextResponse.json(c?{id:c.id,name:c.name,phone:c.phone,email:c.email}:null)}
-export async function POST(req:Request){try{const rl=rateLimit(`customer:${getClientKey(req)}`);if(!rl.ok)return NextResponse.json({error:'محاولات كثيرة. حاولي مرة أخرى لاحقًا.'},{status:429});const b=await req.json();if(b.action==='logout'){cookies().delete('wahaj_customer');return NextResponse.json({ok:true})}const c=b.action==='register'?await customerRegister(b):await customerLogin(b.phone,b.password);return NextResponse.json({id:c.id,name:c.name,phone:c.phone,email:c.email})}catch(e:any){return NextResponse.json({error:e.message||'تعذر تنفيذ العملية'},{status:400})}}
+import { rateLimit, getClientKey } from '@/lib/rate-limit';
+import { NextResponse } from 'next/server';
+import { customerLogin, customerRegister, getCustomer } from '@/lib/customer-auth';
+import { cookies } from 'next/headers';
+
+export async function GET() {
+  const c = await getCustomer();
+  return NextResponse.json(c ? { id: c.id, name: c.name, phone: c.phone, email: c.email } : null);
+}
+
+export async function POST(req: Request) {
+  try {
+    const rl = rateLimit(`customer:${getClientKey(req)}`);
+    if (!rl.ok) {
+      return NextResponse.json({ error: 'محاولات كثيرة. حاولي مرة أخرى لاحقًا.' }, { status: 429 });
+    }
+
+    const b = await req.json();
+    
+    if (b.action === 'logout') {
+      cookies().delete('wahaj_customer');
+      return NextResponse.json({ ok: true });
+    }
+
+    const c = b.action === 'register' 
+      ? await customerRegister(b) 
+      : await customerLogin(b.phone, b.password);
+
+    return NextResponse.json({ id: c.id, name: c.name, phone: c.phone, email: c.email });
+  } catch (e: any) {
+    // طباعة الخطأ الحقيقي بالتفصيل في لوجز Vercel لنتمكن من رؤيته
+    console.error("CUSTOMER_AUTH_ERROR_DETAILS:", e);
+    
+    return NextResponse.json({ error: e.message || 'تعذر تنفيذ العملية' }, { status: 400 });
+  }
+}
