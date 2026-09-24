@@ -22,11 +22,12 @@ const customerSelect: Prisma.CustomerSelect = {
       total: true,
       shipping: true,
       discount: true,
-      shippingProvider: true, // أضفنا شركة الشحن
-      trackingNumber: true,   // أضفنا رقم التتبع
+      shippingProvider: true,
+      trackingNumber: true,
+      notes: true, // أضفنا حقل ملاحظات الطلب لكي يتم عرضه في تفاصيل الطلب للعميل
       createdAt: true,
       updatedAt: true,
-      timeline: {             // أضفنا سجل الملاحظات والخطوات
+      timeline: {
         select: {
           id: true,
           status: true,
@@ -89,6 +90,7 @@ export async function PUT(req: Request) {
   if (name.length < 2 || name.length > 100) return NextResponse.json({error: 'الاسم غير صالح'}, {status: 400});
   const email = b.email ? String(b.email).trim().toLowerCase() : null;
   if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return NextResponse.json({error: 'البريد الإلكتروني غير صالح'}, {status: 400});
+  
   return NextResponse.json(await prisma.customer.update({
     where: {id: c.id},
     data: {name, email},
