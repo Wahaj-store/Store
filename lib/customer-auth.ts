@@ -56,23 +56,35 @@ export async function customerRegister(data: { name: string; phone: string; emai
   return c;
 }
 
-export async function customerLogin(rawPhone: string, password: string) {
-  const phone = normalizePhone(rawPhone);
+export async function customerLogin(identifier: string, password: string) {
+  const cleanIdentifier = identifier.trim();
   
-  // البحث عن المستخدم برقم الهاتف
-  const c = await prisma.customer.findUnique({ where: { phone } });
+  // التحقق مما إذا كان المدخل بريداً إلكترونياً أم رقم هاتف
+  const isEmail = cleanIdentifier.includes('@');
+  
+  let c;
+  if (isEmail) {
+    c = await prisma.customer.findUnique({ 
+      where: { email: cleanIdentifier.toLowerCase() } 
+    });
+  } else {
+    const phone = normalizePhone(cleanIdentifier);
+    c = await prisma.customer.findUnique({ 
+      where: { phone } 
+    });
+  }
   
   if (!c || !c.passwordHash) {
-    throw new Error('رقم الهاتف أو كلمة المرور غير صحيحة');
+    throw new Error('رقم الهاتف/البريد أو كلمة المرور غير صحيحة');
   }
 
-  // التحقق من صحة كلمة المرور المقارنة مع الحقل المشفر
+  // التحقق من صحة كلمة المرور
   const isValid = await verifyPassword(password, c.passwordHash);
   if (!isValid) {
-    throw new Error('رقم الهاتف أو كلمة المرور غير صحيحة');
+    throw new Error('رقم الهاتف/البريد أو كلمة المرور غير صحيحة');
   }
 
-  // تحديث وقت آخر تسجيل دخول وتوليد الجلسة
+  // تحديث وقت آخر دخول وإنشاء الجلسة
   await prisma.customer.update({
     where: { id: c.id },
     data: { lastLoginAt: new Date() },
