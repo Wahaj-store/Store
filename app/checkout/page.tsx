@@ -1,8 +1,96 @@
+// مسار الملف: app/checkout/page.tsx
+
 'use client';
 import { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Truck, CreditCard, ShieldCheck, ArrowRight, Upload, CheckCircle2, Sparkles } from 'lucide-react';
+
+// مكون اختيار العناوين المحفوظة للعميل
+interface Address {
+  id: string;
+  label?: string;
+  name: string;
+  phone: string;
+  secondaryPhone?: string;
+  governorate: string;
+  city: string;
+  address: string;
+  notes?: string;
+  isDefault: boolean;
+}
+
+function AddressSelector({ onSelectAddress }: { onSelectAddress: (address: Address | null) => void }) {
+  const [addresses, setAddresses] = useState<Address[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function fetchAddresses() {
+      try {
+        const res = await fetch('/api/customer/addresses');
+        if (res.ok) {
+          const data = await res.json();
+          setAddresses(data);
+          const defaultAddr = data.find((a: Address) => a.isDefault) || data[0];
+          if (defaultAddr) {
+            setSelectedId(defaultAddr.id);
+            onSelectAddress(defaultAddr);
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching addresses:', error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchAddresses();
+  }, [onSelectAddress]);
+
+  if (loading) return <div className="text-xs text-muted-foreground py-2">جاري التحقق من العناوين المحفوظة...</div>;
+  if (addresses.length === 0) return null; // إذا لم تكن هناك عناوين محفوظة، يتم تخطي عرضه وترك الإدخال اليدوي
+
+  return (
+    <div className="space-y-3 mb-6 p-4 rounded-2xl bg-background/55 border border-border/60">
+      <label className="block text-xs font-bold text-foreground">اختار من عناوينك المحفوظة:</label>
+      <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
+        {addresses.map((addr) => (
+          <div
+            key={addr.id}
+            onClick={() => {
+              setSelectedId(addr.id);
+              onSelectAddress(addr);
+            }}
+            className={`cursor-pointer rounded-xl border p-3 transition-all text-xs ${
+              selectedId === addr.id
+                ? 'border-[var(--gold)] bg-[var(--gold)]/10 ring-1 ring-[var(--gold)]'
+                : 'border-border/60 bg-card hover:border-[var(--gold)]/40'
+            }`}
+          >
+            <div className="flex items-center justify-between mb-1">
+              <span className="font-bold text-foreground">{addr.label || 'عنوان'}</span>
+              {addr.isDefault && (
+                <span className="rounded bg-[var(--gold)] px-1.5 py-0.2 text-[10px] text-black font-bold">أساسي</span>
+              )}
+            </div>
+            <p className="text-muted-foreground">{addr.name} - {addr.phone}</p>
+            <p className="text-[11px] text-muted-foreground mt-0.5 truncate">{addr.governorate}، {addr.city} - {addr.address}</p>
+          </div>
+        ))}
+      </div>
+      <button
+        type="button"
+        onClick={() => {
+          setSelectedId(null);
+          onSelectAddress(null);
+        }}
+        className="text-[11px] text-[var(--gold)] underline hover:opacity-80 mt-1 block"
+      >
+        أو إدخال عنوان جديد لهذا الطلب
+      </button>
+    </div>
+  );
+}
 
 function CheckoutContent() {
   const [c, setC] = useState<any[]>([]);
@@ -14,7 +102,15 @@ function CheckoutContent() {
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState('');
   
-  // حالات خاصة برفع إيصال الدفع بشكل آمن ومباشر
+  // حقول الفورم الموجهة لإدارة البيانات بدقة
+  const [formData, setFormData] = useState({
+    name: '',
+    phone: '',
+    city: '',
+    address: '',
+    notes: '',
+  });
+
   const [proofFile, setProofFile] = useState<File | null>(null);
   const [proofPreview, setProofPreview] = useState<string>('');
   const [uploadError, setUploadError] = useState('');
@@ -26,7 +122,6 @@ function CheckoutContent() {
     setC(JSON.parse(localStorage.getItem('wahaj_cart') || '[]'));
     setCoupon(sp.get('coupon') || '');
 
-    // جلب طرق الدفع وإعدادات المتجر بشكل يدعم الشكلين (المباشر أو داخل كائن)
     fetch('/api/settings')
       .then(x => x.json())
       .then(data => {
@@ -56,32 +151,49 @@ function CheckoutContent() {
         setPay('COD');
       });
 
-    // جلب مناطق وأسعار الشحن من لوحة التحكم
     fetch('/api/admin/shipping')
       .then(x => x.json())
       .then(data => {
         if (Array.isArray(data)) {
           setShippingZones(data);
-          if (data[0]) setSelectedGovernorate(data[0].governorate);
+          if (data[0] && !selectedGovernorate) setSelectedGovernorate(data[0].governorate);
         }
       })
       .catch(() => {});
   }, [sp]);
 
+  // دالة التعامل مع اختيار العنوان المحفوظ
+  const handleSelectAddress = (addr: Address | null) => {
+    if (addr) {
+      setFormData({
+        name: addr.name || '',
+        phone: addr.phone || '',
+        city: addr.city || '',
+        address: addr.address || '',
+        notes: addr.notes || '',
+      });
+      if (addr.governorate) {
+        setSelectedGovernorate(addr.governorate);
+      }
+    } else {
+      setFormData({ name: '', phone: '', city: '', address: '', notes: '' });
+    }
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
   const selected = methods.find(x => x.method === pay);
-  
-  // حساب سياق الشحن الحالي بناءً على المحافظة المختارة
   const currentZone = shippingZones.find(z => z.governorate === selectedGovernorate);
   const shippingCost = currentZone ? Number(currentZone.price) : 0;
   
   const subtotal = c.reduce((s, x) => s + Number(x.price) * x.quantity, 0);
   const finalTotal = subtotal + shippingCost;
 
-  // دالة محسنة لضغط الصورة وتهئتها لتكون بحجم صغير جداً وآمن
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     setUploadError('');
-    
     if (!file) return;
 
     if (!file.type.startsWith('image/')) {
@@ -95,7 +207,6 @@ function CheckoutContent() {
     }
 
     setProofFile(file);
-
     const reader = new FileReader();
     reader.onload = (event) => {
       const img = new Image();
@@ -103,7 +214,6 @@ function CheckoutContent() {
         const canvas = document.createElement('canvas');
         let width = img.width;
         let height = img.height;
-        
         const maxDim = 800;
         if (width > height && width > maxDim) {
           height = Math.round((height * maxDim) / width);
@@ -112,14 +222,11 @@ function CheckoutContent() {
           width = Math.round((width * maxDim) / height);
           height = maxDim;
         }
-
         canvas.width = width;
         canvas.height = height;
         const ctx = canvas.getContext('2d');
         ctx?.drawImage(img, 0, 0, width, height);
-
-        const compressedBase64 = canvas.toDataURL('image/jpeg', 0.7);
-        setProofPreview(compressedBase64);
+        setProofPreview(canvas.toDataURL('image/jpeg', 0.7));
       };
       img.src = event.target?.result as string;
     };
@@ -137,19 +244,18 @@ function CheckoutContent() {
 
     setBusy(true);
     setMsg('');
-    const f = new FormData(e.currentTarget);
     const body = {
-      name: f.get('name'),
-      phone: f.get('phone'),
+      name: formData.name,
+      phone: formData.phone,
       governorate: selectedGovernorate,
-      city: f.get('city'),
-      address: f.get('address'),
-      notes: f.get('notes'),
+      city: formData.city,
+      address: formData.address,
+      notes: formData.notes,
       paymentMethod: pay,
       couponCode: coupon || undefined,
       idempotencyKey: crypto.randomUUID(),
-      paymentReference: f.get('paymentReference') || undefined,
-      proofUrl: proofPreview || f.get('proofUrl') || undefined,
+      paymentReference: e.currentTarget.paymentReference?.value || undefined,
+      proofUrl: proofPreview || undefined,
       items: c.map(x => ({ productId: x.productId, variantId: x.variantId, quantity: x.quantity }))
     };
 
@@ -192,7 +298,6 @@ function CheckoutContent() {
   return (
     <main className="container max-w-5xl py-10 px-4 md:px-8 bg-background text-foreground transition-colors duration-300" dir="rtl">
       
-      {/* الترويسة العليا */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8 border-b border-border/40 pb-6">
         <div className="space-y-1">
           <span className="text-[var(--gold)] font-medium text-sm flex items-center gap-1.5">
@@ -209,7 +314,6 @@ function CheckoutContent() {
         </Link>
       </div>
 
-      {/* مؤشر خطوات الطلب التفاعلي (Checkout Progress Bar) */}
       <div className="grid grid-cols-3 gap-2 p-3 bg-card border border-border/60 rounded-2xl shadow-sm mb-8">
         <div className="flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs md:text-sm font-bold text-muted-foreground">
           <span className="w-5 h-5 rounded-full bg-black/10 flex items-center justify-center text-xs">1</span>
@@ -217,7 +321,7 @@ function CheckoutContent() {
         </div>
         <div className="flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs md:text-sm font-bold bg-[var(--gold)] text-black shadow-md">
           <span className="w-5 h-5 rounded-full bg-black/10 flex items-center justify-center text-xs">2</span>
-          <span> الشحن والدفع</span>
+          <span>الشحن والدفع</span>
         </div>
         <div className="flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs md:text-sm font-bold text-muted-foreground">
           <span className="w-5 h-5 rounded-full bg-black/10 flex items-center justify-center text-xs">3</span>
@@ -226,7 +330,6 @@ function CheckoutContent() {
       </div>
       
       <form onSubmit={submit} className="grid gap-8 lg:grid-cols-[1fr_380px] items-start">
-        {/* قسم البيانات وطرق الدفع */}
         <section className="space-y-6">
           <div className="bg-card border border-border/60 rounded-3xl p-6 md:p-8 shadow-sm space-y-6">
             <h2 className="text-xl font-bold flex items-center gap-2 pb-4 border-b border-border/40">
@@ -236,12 +339,15 @@ function CheckoutContent() {
               بيانات الشحن والتوصيل
             </h2>
 
+            {/* مكون اختيار العناوين المحفوظة يظهر تلقائياً للعملاء المسجلين */}
+            <AddressSelector onSelectAddress={handleSelectAddress} />
+
             <div className="grid gap-4 md:grid-cols-2">
               <label className="text-xs font-semibold text-muted-foreground space-y-1">الاسم بالكامل
-                <input name="name" required className="w-full mt-1 px-4 py-3 rounded-xl bg-background border border-border/80 text-foreground text-sm focus:outline-none focus:border-[var(--gold)]" placeholder="أدخلي اسمكِ الثلاثي" />
+                <input name="name" required value={formData.name} onChange={handleInputChange} className="w-full mt-1 px-4 py-3 rounded-xl bg-background border border-border/80 text-foreground text-sm focus:outline-none focus:border-[var(--gold)]" placeholder="أدخلي اسمكِ الثلاثي" />
               </label>
               <label className="text-xs font-semibold text-muted-foreground space-y-1">رقم الهاتف
-                <input name="phone" required dir="ltr" className="w-full mt-1 px-4 py-3 rounded-xl bg-background border border-border/80 text-foreground text-sm focus:outline-none focus:border-[var(--gold)]" placeholder="01xxxxxxxx" />
+                <input name="phone" required value={formData.phone} onChange={handleInputChange} dir="ltr" className="w-full mt-1 px-4 py-3 rounded-xl bg-background border border-border/80 text-foreground text-sm focus:outline-none focus:border-[var(--gold)]" placeholder="01xxxxxxxx" />
               </label>
               
               <label className="text-xs font-semibold text-muted-foreground space-y-1">المحافظة
@@ -261,16 +367,16 @@ function CheckoutContent() {
               </label>
 
               <label className="text-xs font-semibold text-muted-foreground space-y-1">المدينة / المركز
-                <input name="city" required className="w-full mt-1 px-4 py-3 rounded-xl bg-background border border-border/80 text-foreground text-sm focus:outline-none focus:border-[var(--gold)]" placeholder="اسم المدينة أو الحي" />
+                <input name="city" required value={formData.city} onChange={handleInputChange} className="w-full mt-1 px-4 py-3 rounded-xl bg-background border border-border/80 text-foreground text-sm focus:outline-none focus:border-[var(--gold)]" placeholder="اسم المدينة أو الحي" />
               </label>
             </div>
 
             <label className="block text-xs font-semibold text-muted-foreground space-y-1">العنوان بالتفصيل
-              <textarea name="address" required rows={2} className="w-full mt-1 px-4 py-3 rounded-xl bg-background border border-border/80 text-foreground text-sm focus:outline-none focus:border-[var(--gold)]" placeholder="اسم الشارع، رقم العمارة، رقم الشقة..." />
+              <textarea name="address" required rows={2} value={formData.address} onChange={handleInputChange} className="w-full mt-1 px-4 py-3 rounded-xl bg-background border border-border/80 text-foreground text-sm focus:outline-none focus:border-[var(--gold)]" placeholder="اسم الشارع، رقم العمارة، رقم الشقة..." />
             </label>
             
             <label className="block text-xs font-semibold text-muted-foreground space-y-1">ملاحظات (اختياري)
-              <input name="notes" className="w-full mt-1 px-4 py-3 rounded-xl bg-background border border-border/80 text-foreground text-sm focus:outline-none focus:border-[var(--gold)]" placeholder="أي ملاحظات خاصة بالتوصيل..." />
+              <input name="notes" value={formData.notes} onChange={handleInputChange} className="w-full mt-1 px-4 py-3 rounded-xl bg-background border border-border/80 text-foreground text-sm focus:outline-none focus:border-[var(--gold)]" placeholder="أي ملاحظات خاصة بالتوصيل..." />
             </label>
             
             <label className="block text-xs font-semibold text-muted-foreground space-y-1">كود الخصم
@@ -278,7 +384,6 @@ function CheckoutContent() {
             </label>
           </div>
 
-          {/* طرق الدفع */}
           <div className="bg-card border border-border/60 rounded-3xl p-6 md:p-8 shadow-sm space-y-6">
             <h2 className="text-xl font-bold flex items-center gap-2 pb-4 border-b border-border/40">
               <div className="p-2.5 rounded-xl bg-[var(--gold)]/10 text-[var(--gold)]">
@@ -330,7 +435,6 @@ function CheckoutContent() {
                       <input name="paymentReference" required className="w-full mt-1 px-4 py-2.5 rounded-xl bg-background border border-border/80 text-foreground text-sm focus:outline-none focus:border-[var(--gold)]" dir="ltr" placeholder="أدخل رقم العملية أو مرجع التحويل" />
                     </label>
 
-                    {/* رفع صورة الإيصال المباشر مع الحماية والتحقق */}
                     <div className="space-y-1.5">
                       <span className="block text-xs font-semibold">صورة إيصال التحويل (مطلوبة)</span>
                       
@@ -340,17 +444,11 @@ function CheckoutContent() {
                           <span>{proofFile ? proofFile.name : 'اضغط هنا لرفع صورة الإيصال مباشرة'}</span>
                         </div>
                         <span className="text-[10px] text-muted-foreground mt-1">يدعم صور (JPG, PNG) بحد أقصى 5 ميجابايت ومحمية بالكامل</span>
-                        <input 
-                          type="file" 
-                          accept="image/*" 
-                          onChange={handleFileChange} 
-                          className="hidden" 
-                        />
+                        <input type="file" accept="image/*" onChange={handleFileChange} className="hidden" />
                       </label>
 
                       {uploadError && <p className="text-xs text-red-500 font-medium">{uploadError}</p>}
 
-                      {/* معاينة الصورة المرفوعة */}
                       {proofPreview && (
                         <div className="mt-2 relative w-24 h-24 rounded-xl overflow-hidden border border-[var(--gold)]/40 bg-black/5 shadow-sm">
                           <img src={proofPreview} alt="إيصال التحويل" className="w-full h-full object-cover" />
@@ -366,7 +464,6 @@ function CheckoutContent() {
           </div>
         </section>
 
-        {/* ملخص الطلب الجانبي */}
         <aside className="bg-card border border-border/60 rounded-3xl p-6 md:p-8 shadow-md sticky top-24 space-y-6">
           <h2 className="text-xl font-bold pb-4 border-b border-border/40">ملخص الطلب</h2>
           
