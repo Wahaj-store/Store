@@ -26,15 +26,35 @@ function CheckoutContent() {
     setC(JSON.parse(localStorage.getItem('wahaj_cart') || '[]'));
     setCoupon(sp.get('coupon') || '');
 
-    // جلب طرق الدفع وإعدادات المتجر
+    // جلب طرق الدفع وإعدادات المتجر بشكل يدعم الشكلين (المباشر أو داخل كائن)
     fetch('/api/settings')
       .then(x => x.json())
-      .then(x => {
-        const ms = (x.payments || []).filter((m: any) => m.enabled);
-        setMethods(ms);
-        if (ms[0]) setPay(ms[0].method);
+      .then(data => {
+        const rawMethods = Array.isArray(data) ? data : (data.payments || []);
+        const ms = rawMethods.filter((m: any) => m.enabled !== false);
+        
+        if (ms.length > 0) {
+          setMethods(ms);
+          setPay(ms[0].method);
+        } else {
+          const fallback = [
+            { method: 'COD', label: 'الدفع عند الاستلام', description: 'الدفع نقداً عند استلام طلبك', enabled: true },
+            { method: 'INSTAPAY', label: 'انستا باى (InstaPay)', description: 'التحويل اللحظي عبر إنستا باي', enabled: true, proofRequired: true },
+            { method: 'VODAFONE_CASH', label: 'فودافون كاش', description: 'التحويل المباشر لمحفظة فودافون كاش', enabled: true, proofRequired: true }
+          ];
+          setMethods(fallback);
+          setPay('COD');
+        }
       })
-      .catch(() => {});
+      .catch(() => {
+        const fallback = [
+          { method: 'COD', label: 'الدفع عند الاستلام', description: 'الدفع نقداً عند استلام طلبك', enabled: true },
+          { method: 'INSTAPAY', label: 'انستا باى (InstaPay)', description: 'التحويل اللحظي عبر إنستا باي', enabled: true, proofRequired: true },
+          { method: 'VODAFONE_CASH', label: 'فودافون كاش', description: 'التحويل المباشر لمحفظة فودافون كاش', enabled: true, proofRequired: true }
+        ];
+        setMethods(fallback);
+        setPay('COD');
+      });
 
     // جلب مناطق وأسعار الشحن من لوحة التحكم
     fetch('/api/admin/shipping')
