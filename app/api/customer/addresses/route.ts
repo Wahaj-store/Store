@@ -1,18 +1,16 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { cookies } from 'next/headers';
+import { getCustomer } from '@/lib/customer-auth';
 
 export async function GET(req: Request) {
   try {
-    const cookieStore = cookies();
-    const customerId = cookieStore.get('customer_id')?.value;
-
-    if (!customerId) {
+    const c = await getCustomer();
+    if (!c) {
       return NextResponse.json({ error: 'غير مخول، يرجى تسجيل الدخول' }, { status: 401 });
     }
 
     const addresses = await prisma.address.findMany({
-      where: { customerId },
+      where: { customerId: c.id },
       orderBy: { isDefault: 'desc' },
     });
 
@@ -25,10 +23,8 @@ export async function GET(req: Request) {
 
 export async function POST(req: Request) {
   try {
-    const cookieStore = cookies();
-    const customerId = cookieStore.get('customer_id')?.value;
-
-    if (!customerId) {
+    const c = await getCustomer();
+    if (!c) {
       return NextResponse.json({ error: 'غير مخول، يرجى تسجيل الدخول' }, { status: 401 });
     }
 
@@ -41,7 +37,7 @@ export async function POST(req: Request) {
 
     // التحقق من شرط الحد الأقصى (3 عناوين كحد أقصى لكل عميل)
     const currentAddressesCount = await prisma.address.count({
-      where: { customerId },
+      where: { customerId: c.id },
     });
 
     if (currentAddressesCount >= 3) {
@@ -52,14 +48,14 @@ export async function POST(req: Request) {
 
     if (shouldBeDefault) {
       await prisma.address.updateMany({
-        where: { customerId, isDefault: true },
+        where: { customerId: c.id, isDefault: true },
         data: { isDefault: false },
       });
     }
 
     const newAddress = await prisma.address.create({
       data: {
-        customerId,
+        customerId: c.id,
         label: label || 'المنزل',
         name,
         phone,
