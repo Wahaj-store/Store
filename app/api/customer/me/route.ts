@@ -7,6 +7,7 @@ const customerSelect: Prisma.CustomerSelect = {
   id: true,
   name: true,
   phone: true,
+  secondaryPhone: true, // إضافة الرقم الاحتياطي للعميل
   email: true,
   lastLoginAt: true,
   createdAt: true,
@@ -24,7 +25,7 @@ const customerSelect: Prisma.CustomerSelect = {
       discount: true,
       shippingProvider: true,
       trackingNumber: true,
-      notes: true, // أضفنا حقل ملاحظات الطلب لكي يتم عرضه في تفاصيل الطلب للعميل
+      notes: true,
       createdAt: true,
       updatedAt: true,
       timeline: {
@@ -86,14 +87,33 @@ export async function PUT(req: Request) {
   const c = await getCustomer();
   if (!c) return NextResponse.json({error: 'غير مسجل'}, {status: 401});
   const b = await req.json();
+
   const name = String(b.name || '').trim();
   if (name.length < 2 || name.length > 100) return NextResponse.json({error: 'الاسم غير صالح'}, {status: 400});
+
   const email = b.email ? String(b.email).trim().toLowerCase() : null;
   if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return NextResponse.json({error: 'البريد الإلكتروني غير صالح'}, {status: 400});
-  
+
+  // معالجة الرقم الاحتياطي وتحديثه بأمان دون المساس بالرقم الأساسي الثابت
+  const secondaryPhone = b.secondaryPhone ? String(b.secondaryPhone).trim() : null;
+
   return NextResponse.json(await prisma.customer.update({
     where: {id: c.id},
-    data: {name, email},
-    select: {id: true, name: true, phone: true, email: true, lastLoginAt: true, createdAt: true, updatedAt: true}
+    data: {
+      name,
+      email,
+      secondaryPhone
+    },
+    select: {
+      id: true,
+      name: true,
+      phone: true,
+      secondaryPhone: true,
+      email: true,
+      lastLoginAt: true,
+      createdAt: true,
+      updatedAt: true,
+      addresses: true
+    }
   }));
 }
