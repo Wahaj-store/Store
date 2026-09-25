@@ -1,11 +1,11 @@
 import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma'; // تأكد من مسار الـ prisma client الصحيح في مشروعك
-import { cookies } from 'headers'; // أو طريقة التحقق من الجلسة المتبعة لديك في المشروع
+import { prisma } from '@/lib/prisma';
+import { cookies } from 'next/headers';
 
 export async function GET(req: Request) {
   try {
-    // استخراج معرف العميل من الكوكيز أو الجلسة (يتم تعديلها حسب نظام المصادقة المتبع لديك)
-    const customerId = cookies().get('customer_id')?.value; // أو استخدام الـ session token
+    const cookieStore = cookies();
+    const customerId = cookieStore.get('customer_id')?.value;
 
     if (!customerId) {
       return NextResponse.json({ error: 'غير مخول، يرجى تسجيل الدخول' }, { status: 401 });
@@ -13,7 +13,7 @@ export async function GET(req: Request) {
 
     const addresses = await prisma.address.findMany({
       where: { customerId },
-      orderBy: { isDefault: 'desc' }, // جلب العنوان الأساسي أولاً
+      orderBy: { isDefault: 'desc' },
     });
 
     return NextResponse.json(addresses, { status: 200 });
@@ -25,7 +25,8 @@ export async function GET(req: Request) {
 
 export async function POST(req: Request) {
   try {
-    const customerId = cookies().get('customer_id')?.value;
+    const cookieStore = cookies();
+    const customerId = cookieStore.get('customer_id')?.value;
 
     if (!customerId) {
       return NextResponse.json({ error: 'غير مخول، يرجى تسجيل الدخول' }, { status: 401 });
@@ -34,7 +35,6 @@ export async function POST(req: Request) {
     const body = await req.json();
     const { label, name, phone, secondaryPhone, governorate, city, address, notes, isDefault } = body;
 
-    // التحقق من البيانات الأساسية المطلوبة
     if (!governorate || !city || !address) {
       return NextResponse.json({ error: 'جميع حقول العنوان الأساسية مطلوبة' }, { status: 400 });
     }
@@ -48,10 +48,8 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'عذراً، لا يمكنك إضافة أكثر من 3 عناوين كحد أقصى.' }, { status: 400 });
     }
 
-    // إذا كان هذا العنوان هو الأول للعميل، نجبره تلقائياً ليكون أساسياً
     const shouldBeDefault = currentAddressesCount === 0 ? true : Boolean(isDefault);
 
-    // إذا تم تحديد العنوان الجديد كأسياسي، نقوم بإلغاء صفة الأساسي عن باقي عناوين العميل
     if (shouldBeDefault) {
       await prisma.address.updateMany({
         where: { customerId, isDefault: true },
@@ -59,7 +57,6 @@ export async function POST(req: Request) {
       });
     }
 
-    // إنشاء العنوان الجديد
     const newAddress = await prisma.address.create({
       data: {
         customerId,
