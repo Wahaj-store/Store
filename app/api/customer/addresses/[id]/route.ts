@@ -1,6 +1,6 @@
- import { NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { cookies } from 'next/headers';
+import { getCustomer } from '@/lib/customer-auth';
 
 // تحديث عنوان أو تعيينه كعنوان أساسي
 export async function PUT(
@@ -8,10 +8,8 @@ export async function PUT(
   { params }: { params: { id: string } }
 ) {
   try {
-    const cookieStore = cookies();
-    const customerId = cookieStore.get('customer_id')?.value;
-
-    if (!customerId) {
+    const c = await getCustomer();
+    if (!c) {
       return NextResponse.json({ error: 'غير مخول، يرجى تسجيل الدخول' }, { status: 401 });
     }
 
@@ -19,7 +17,7 @@ export async function PUT(
 
     // التأكد من أن العنوان يتبع للعميل الحالي
     const existingAddress = await prisma.address.findFirst({
-      where: { id: addressId, customerId },
+      where: { id: addressId, customerId: c.id },
     });
 
     if (!existingAddress) {
@@ -32,7 +30,7 @@ export async function PUT(
     // إذا طلب تعيينه كعنوان أساسي، نقوم بإلغاء الأساسي عن باقي عناوين العميل
     if (isDefault) {
       await prisma.address.updateMany({
-        where: { customerId, isDefault: true },
+        where: { customerId: c.id, isDefault: true },
         data: { isDefault: false },
       });
     }
@@ -65,17 +63,15 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
-    const cookieStore = cookies();
-    const customerId = cookieStore.get('customer_id')?.value;
-
-    if (!customerId) {
+    const c = await getCustomer();
+    if (!c) {
       return NextResponse.json({ error: 'غير مخول، يرجى تسجيل الدخول' }, { status: 401 });
     }
 
     const addressId = params.id;
 
     const existingAddress = await prisma.address.findFirst({
-      where: { id: addressId, customerId },
+      where: { id: addressId, customerId: c.id },
     });
 
     if (!existingAddress) {
@@ -89,7 +85,7 @@ export async function DELETE(
     // إذا كان العنوان المحذوف هو الأساسي، يمكننا اختيار أول عنوان متبقي وجعله أساسياً تلقائياً
     if (existingAddress.isDefault) {
       const remainingAddress = await prisma.address.findFirst({
-        where: { customerId },
+        where: { customerId: c.id },
         orderBy: { createdAt: 'asc' },
       });
 
