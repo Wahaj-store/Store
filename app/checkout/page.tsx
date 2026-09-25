@@ -6,7 +6,6 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Truck, CreditCard, ShieldCheck, ArrowRight, Upload, CheckCircle2, Sparkles } from 'lucide-react';
 
-// مكون اختيار العناوين المحفوظة للعميل
 interface Address {
   id: string;
   label?: string;
@@ -31,7 +30,6 @@ function AddressSelector({ selectedId, onSelectAddress }: { selectedId: string |
         if (res.ok) {
           const data = await res.json();
           setAddresses(data);
-          // اختيار العنوان الافتراضي تلقائياً فقط إذا لم يكن هناك عنوان محدد مسبقاً
           if (!selectedId) {
             const defaultAddr = data.find((a: Address) => a.isDefault) || data[0];
             if (defaultAddr) {
@@ -97,10 +95,8 @@ function CheckoutContent() {
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState('');
   
-  // حالة تتبع معرف العنوان المختار حالياً
   const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
 
-  // حقول الفورم الموجهة لإدارة البيانات بدقة
   const [formData, setFormData] = useState({
     name: '',
     phone: '',
@@ -160,7 +156,6 @@ function CheckoutContent() {
       .catch(() => {});
   }, [sp]);
 
-  // دالة متكاملة لتحديث الحقول والمحافظة عند اختيار أي عنوان
   const handleSelectAddress = (addr: Address | null) => {
     if (addr) {
       setSelectedAddressId(addr.id);
@@ -339,7 +334,6 @@ function CheckoutContent() {
               بيانات الشحن والتوصيل
             </h2>
 
-            {/* مكون اختيار العناوين المحفوظة مع تتبع المعيار المختار */}
             <AddressSelector selectedId={selectedAddressId} onSelectAddress={handleSelectAddress} />
 
             <div className="grid gap-4 md:grid-cols-2">
@@ -497,4 +491,22 @@ function CheckoutContent() {
             className="w-full py-4 rounded-2xl bg-[var(--gold)] text-black font-bold text-base shadow-lg hover:opacity-95 transition disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer"
           >
             <span>{busy ? 'جارٍ إرسال الطلب...' : 'تأكيد وإتمام الطلب'}</span>
-            <CheckCircle2 size=...
+            <CheckCircle2 size={18} />
+          </button>
+
+          <div className="flex items-center justify-center gap-1.5 text-xs text-muted-foreground pt-2">
+            <ShieldCheck size={14} className="text-[var(--gold)]" /> تسوق آمن ومحمي 100%
+          </div>
+        </aside>
+      </form>
+    </main>
+  );
+}
+
+export default function Checkout() {
+  return (
+    <Suspense fallback={<main className="container py-12"><div className="bg-card border border-border/60 rounded-3xl p-6 text-center">جاري تحميل صفحة الدفع...</div></main>}>
+      <CheckoutContent />
+    </Suspense>
+  );
+}
