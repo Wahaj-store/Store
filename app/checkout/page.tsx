@@ -20,10 +20,9 @@ interface Address {
   isDefault: boolean;
 }
 
-function AddressSelector({ onSelectAddress }: { onSelectAddress: (address: Address | null) => void }) {
+function AddressSelector({ selectedId, onSelectAddress }: { selectedId: string | null, onSelectAddress: (address: Address | null) => void }) {
   const [addresses, setAddresses] = useState<Address[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedId, setSelectedId] = useState<string | null>(null);
 
   useEffect(() => {
     async function fetchAddresses() {
@@ -32,10 +31,12 @@ function AddressSelector({ onSelectAddress }: { onSelectAddress: (address: Addre
         if (res.ok) {
           const data = await res.json();
           setAddresses(data);
-          const defaultAddr = data.find((a: Address) => a.isDefault) || data[0];
-          if (defaultAddr) {
-            setSelectedId(defaultAddr.id);
-            onSelectAddress(defaultAddr);
+          // اختيار العنوان الافتراضي تلقائياً فقط إذا لم يكن هناك عنوان محدد مسبقاً
+          if (!selectedId) {
+            const defaultAddr = data.find((a: Address) => a.isDefault) || data[0];
+            if (defaultAddr) {
+              onSelectAddress(defaultAddr);
+            }
           }
         }
       } catch (error) {
@@ -45,10 +46,10 @@ function AddressSelector({ onSelectAddress }: { onSelectAddress: (address: Addre
       }
     }
     fetchAddresses();
-  }, [onSelectAddress]);
+  }, []);
 
   if (loading) return <div className="text-xs text-muted-foreground py-2">جاري التحقق من العناوين المحفوظة...</div>;
-  if (addresses.length === 0) return null; // إذا لم تكن هناك عناوين محفوظة، يتم تخطي عرضه وترك الإدخال اليدوي
+  if (addresses.length === 0) return null;
 
   return (
     <div className="space-y-3 mb-6 p-4 rounded-2xl bg-background/55 border border-border/60">
@@ -57,10 +58,7 @@ function AddressSelector({ onSelectAddress }: { onSelectAddress: (address: Addre
         {addresses.map((addr) => (
           <div
             key={addr.id}
-            onClick={() => {
-              setSelectedId(addr.id);
-              onSelectAddress(addr);
-            }}
+            onClick={() => onSelectAddress(addr)}
             className={`cursor-pointer rounded-xl border p-3 transition-all text-xs ${
               selectedId === addr.id
                 ? 'border-[var(--gold)] bg-[var(--gold)]/10 ring-1 ring-[var(--gold)]'
@@ -80,10 +78,7 @@ function AddressSelector({ onSelectAddress }: { onSelectAddress: (address: Addre
       </div>
       <button
         type="button"
-        onClick={() => {
-          setSelectedId(null);
-          onSelectAddress(null);
-        }}
+        onClick={() => onSelectAddress(null)}
         className="text-[11px] text-[var(--gold)] underline hover:opacity-80 mt-1 block"
       >
         أو إدخال عنوان جديد لهذا الطلب
@@ -102,6 +97,9 @@ function CheckoutContent() {
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState('');
   
+  // حالة تتبع معرف العنوان المختار حالياً
+  const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
+
   // حقول الفورم الموجهة لإدارة البيانات بدقة
   const [formData, setFormData] = useState({
     name: '',
@@ -162,9 +160,10 @@ function CheckoutContent() {
       .catch(() => {});
   }, [sp]);
 
-  // دالة محدثة بالكامل لضمان تعبئة كافة حقول العنوان بدقة واختيار المحافظة المرتبطة به
+  // دالة متكاملة لتحديث الحقول والمحافظة عند اختيار أي عنوان
   const handleSelectAddress = (addr: Address | null) => {
     if (addr) {
+      setSelectedAddressId(addr.id);
       setFormData({
         name: addr.name || '',
         phone: addr.phone || '',
@@ -176,6 +175,7 @@ function CheckoutContent() {
         setSelectedGovernorate(addr.governorate);
       }
     } else {
+      setSelectedAddressId(null);
       setFormData({ name: '', phone: '', city: '', address: '', notes: '' });
     }
   };
@@ -339,8 +339,8 @@ function CheckoutContent() {
               بيانات الشحن والتوصيل
             </h2>
 
-            {/* مكون اختيار العناوين المحفوظة يظهر تلقائياً للعملاء المسجلين */}
-            <AddressSelector onSelectAddress={handleSelectAddress} />
+            {/* مكون اختيار العناوين المحفوظة مع تتبع المعيار المختار */}
+            <AddressSelector selectedId={selectedAddressId} onSelectAddress={handleSelectAddress} />
 
             <div className="grid gap-4 md:grid-cols-2">
               <label className="text-xs font-semibold text-muted-foreground space-y-1">الاسم بالكامل
@@ -497,22 +497,4 @@ function CheckoutContent() {
             className="w-full py-4 rounded-2xl bg-[var(--gold)] text-black font-bold text-base shadow-lg hover:opacity-95 transition disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer"
           >
             <span>{busy ? 'جارٍ إرسال الطلب...' : 'تأكيد وإتمام الطلب'}</span>
-            <CheckCircle2 size={18} />
-          </button>
-
-          <div className="flex items-center justify-center gap-1.5 text-xs text-muted-foreground pt-2">
-            <ShieldCheck size={14} className="text-[var(--gold)]" /> تسوق آمن ومحمي 100%
-          </div>
-        </aside>
-      </form>
-    </main>
-  );
-}
-
-export default function Checkout() {
-  return (
-    <Suspense fallback={<main className="container py-12"><div className="bg-card border border-border/60 rounded-3xl p-6 text-center">جاري تحميل صفحة الدفع...</div></main>}>
-      <CheckoutContent />
-    </Suspense>
-  );
-}
+            <CheckCircle2 size=...
