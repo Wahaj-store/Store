@@ -21,14 +21,15 @@ export default function Account() {
   
   const [selectedOrder, setSelectedOrder] = useState<any>(null);
   const [recentProducts, setRecentProducts] = useState<any[]>([]);
-  const [addresses, setAddresses] = useState<any[]>([
-    { id: 1, title: 'المنزل الرئيسي', details: 'القاهرة، مدينة نصر، شارع مكرم عبيد', phone: '01000000000' }
-  ]);
   const [passwords, setPasswords] = useState({ current: '', newPass: '', confirmPass: '' });
 
   async function load() {
-    const r = await fetch('/api/customer/me');
-    if (r.ok) setC(await r.json());
+    try {
+      const r = await fetch('/api/customer/me');
+      if (r.ok) setC(await r.json());
+    } catch (error) {
+      console.error('Failed to load customer data', error);
+    }
   }
 
   useEffect(() => {
@@ -58,7 +59,6 @@ export default function Account() {
     setC(null);
   }
 
-  // طلب إرسال رمز OTP عبر البريد
   async function handleSendOtp(e: React.FormEvent) {
     e.preventDefault();
     setMsg('');
@@ -81,7 +81,6 @@ export default function Account() {
     }
   }
 
-  // تأكيد الرمز وتغيير كلمة المرور
   async function handleResetPassword(e: React.FormEvent) {
     e.preventDefault();
     setMsg('');
@@ -108,7 +107,6 @@ export default function Account() {
     }
   }
 
-  // دالة مساعدة للحصول على تاريخ ووقت مرحلة معينة من OrderTimeline
   const getTimelineDate = (statusName: string) => {
     if (!selectedOrder?.timeline) return null;
     const match = selectedOrder.timeline.find((t: any) => t.status === statusName);
@@ -251,7 +249,7 @@ export default function Account() {
                       <span className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground"><User size={18} /></span>
                       <input
                         className="w-full pr-11 pl-4 py-3 rounded-xl bg-background border border-border/80 text-foreground text-sm focus:outline-none focus:border-[var(--gold)] transition"
-                        placeholder="أدخلي اسمكِ "
+                        placeholder="أدخلي اسمكِ"
                         onChange={e => setForm({ ...form, name: e.target.value })}
                       />
                     </div>
@@ -448,7 +446,7 @@ export default function Account() {
                     await fetch('/api/customer/me', {
                       method: 'PUT',
                       headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify(c),
+                      body: JSON.stringify({ name: c.name, phone: c.phone, email: c.email }),
                     });
                     setMsg('تم حفظ التغييرات بنجاح');
                     setTimeout(() => setMsg(''), 3000);
@@ -628,7 +626,7 @@ export default function Account() {
                   </button>
                 </div>
                 <div className="grid gap-4">
-                  {addresses.map((addr) => (
+                  {(c.addresses || []).map((addr: any) => (
                     <div key={addr.id} className="p-4 rounded-2xl bg-background border border-border/60 flex items-start justify-between gap-4">
                       <div className="space-y-1 text-sm">
                         <span className="font-bold block text-foreground">{addr.title}</span>
@@ -640,6 +638,9 @@ export default function Account() {
                       </button>
                     </div>
                   ))}
+                  {(!c.addresses || c.addresses.length === 0) && (
+                    <p className="text-muted-foreground text-sm text-center py-8">لا توجد عناوين محفوظة حالياً.</p>
+                  )}
                 </div>
               </div>
             )}
@@ -703,7 +704,15 @@ export default function Account() {
             {tab === 'security' && (
               <div className="bg-card border border-border/60 rounded-3xl p-6 md:p-8 shadow-sm space-y-6">
                 <h2 className="text-xl font-bold border-b border-border/40 pb-4">تغيير كلمة المرور</h2>
-                <form onSubmit={(e) => { e.preventDefault(); setMsg('تم تحديث كلمة المرور بنجاح'); setTimeout(() => setMsg(''), 3000); }} className="space-y-4 max-w-xl">
+                <form onSubmit={(e) => { 
+                  e.preventDefault(); 
+                  if (passwords.newPass !== passwords.confirmPass) {
+                    setMsg('كلمتا المرور الجديدتان غير متطابقتين');
+                    return;
+                  }
+                  setMsg('تم تحديث كلمة المرور بنجاح'); 
+                  setTimeout(() => setMsg(''), 3000); 
+                }} className="space-y-4 max-w-xl">
                   <div className="space-y-1.5">
                     <label className="text-xs font-semibold text-muted-foreground">كلمة المرور الحالية</label>
                     <input 
