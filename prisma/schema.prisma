@@ -83,10 +83,11 @@ model User {
 model Customer {
   id                 String              @id @default(cuid())
   name               String?
-  phone              String?             @unique
+  phone              String?             @unique // الرقم الأساسي للحساب (ثابت ولا يتغير بسهولة)
+  secondaryPhone     String?             // رقم هاتف احتياطي يمكن للعميل إضافته وتعديله
   email              String?             @unique
   passwordHash       String?
-  lastLoginAt        DateTime?               // الحقل الذي كان مطلوباً في الـ API
+  lastLoginAt        DateTime?
   resetToken         String?
   resetTokenExpiry   DateTime?
   createdAt          DateTime            @default(now())
@@ -529,8 +530,8 @@ model CustomerNotification {
   customerId String
   customer   Customer  @relation(fields: [customerId], references: [id], onDelete: Cascade)
   title      String
-  body       String
-  type       String    @default("INFO")
+  body      String
+  type      String    @default("INFO")
   readAt     DateTime?
   createdAt  DateTime  @default(now())
 
@@ -547,6 +548,7 @@ model OrderTimeline {
 
   @@index([orderId, createdAt])
 }
+
 model ContactMessage {
   id        String   @id @default(cuid())
   name      String
