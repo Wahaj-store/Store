@@ -621,7 +621,39 @@ export default function Account() {
               <div className="bg-card border border-border/60 rounded-3xl p-6 md:p-8 shadow-sm space-y-6">
                 <div className="flex justify-between items-center border-b border-border/40 pb-4">
                   <h2 className="text-xl font-bold">عناوين الشحن المحفوظة</h2>
-                  <button className="px-4 py-2 rounded-xl bg-[var(--gold)] text-black text-xs font-bold hover:opacity-95 transition">
+                  <button 
+                    onClick={async () => {
+                      const label = prompt('مسمى العنوان (مثال: المنزل، العمل):', 'المنزل');
+                      if (!label) return;
+                      const name = prompt('اسم المستلم:', c.name || '');
+                      if (!name) return;
+                      const phone = prompt('رقم الهاتف الأساسي:', c.phone || '');
+                      if (!phone) return;
+                      const governorate = prompt('المحافظة (مثال: القاهرة، الجيزة):');
+                      if (!governorate) return;
+                      const city = prompt('المدينة / المنطقة:');
+                      if (!city) return;
+                      const address = prompt('العنوان بالتفصيل (الشارع، رقم العمارة، الشقة):');
+                      if (!address) return;
+
+                      try {
+                        const res = await fetch('/api/customer/addresses', {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({ label, name, phone, governorate, city, address }),
+                        });
+                        const data = await res.json();
+                        if (!res.ok) throw new Error(data.error || 'فشل حفظ العنوان');
+                        
+                        load();
+                        setMsg('تم إضافة العنوان بنجاح');
+                        setTimeout(() => setMsg(''), 3000);
+                      } catch (err: any) {
+                        alert(err.message);
+                      }
+                    }}
+                    className="px-4 py-2 rounded-xl bg-[var(--gold)] text-black text-xs font-bold hover:opacity-95 transition"
+                  >
                     + إضافة عنوان جديد
                   </button>
                 </div>
@@ -629,17 +661,45 @@ export default function Account() {
                   {(c.addresses || []).map((addr: any) => (
                     <div key={addr.id} className="p-4 rounded-2xl bg-background border border-border/60 flex items-start justify-between gap-4">
                       <div className="space-y-1 text-sm">
-                        <span className="font-bold block text-foreground">{addr.title}</span>
-                        <p className="text-muted-foreground text-xs">{addr.details}</p>
-                        <span className="text-[var(--gold)] text-xs font-semibold block pt-1">الهاتف: {addr.phone}</span>
+                        <div className="flex items-center gap-2">
+                          <span className="font-bold text-foreground">{addr.label || 'عنوان'}</span>
+                          {addr.isDefault && (
+                            <span className="text-[10px] px-2 py-0.5 rounded-full bg-[var(--gold)]/15 text-[var(--gold)] font-bold">
+                              الأساسي
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-muted-foreground text-xs">
+                          {addr.governorate} - {addr.city} - {addr.address}
+                        </p>
+                        <span className="text-[var(--gold)] text-xs font-semibold block pt-1" dir="ltr">
+                          المستلم: {addr.name} | الهاتف: {addr.phone}
+                        </span>
                       </div>
-                      <button className="text-red-500 hover:text-red-600 transition p-1">
+                      <button 
+                        onClick={async () => {
+                          if (!confirm('هل أنت متأكد من حذف هذا العنوان؟')) return;
+                          try {
+                            const res = await fetch(`/api/customer/addresses/${addr.id}`, {
+                              method: 'DELETE',
+                            });
+                            if (!res.ok) throw new Error('فشل حذف العنوان');
+                            load();
+                          } catch (err: any) {
+                            alert(err.message);
+                          }
+                        }}
+                        className="text-red-500 hover:text-red-600 transition p-1"
+                        title="حذف العنوان"
+                      >
                         <Trash2 size={18} />
                       </button>
                     </div>
                   ))}
                   {(!c.addresses || c.addresses.length === 0) && (
-                    <p className="text-muted-foreground text-sm text-center py-8">لا توجد عناوين محفوظة حالياً.</p>
+                    <p className="text-muted-foreground text-sm text-center py-8">
+                      لا توجد عناوين محفوظة حالياً. أضف عنوانك لتسهيل عملية الطلب القادمة.
+                    </p>
                   )}
                 </div>
               </div>
