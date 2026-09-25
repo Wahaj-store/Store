@@ -633,7 +633,7 @@ export default function Account() {
                   </button>
                 </div>
 
-                {/* نموذج إضافة العنوان الجديد داخل الصفحة بدل الـ Pop-up القديم */}
+                {/* نموذج إضافة العنوان الجديد داخل الصفحة */}
                 {showAddressForm && (
                   <form 
                     onSubmit={async (e) => {
@@ -656,6 +656,7 @@ export default function Account() {
                         const res = await fetch('/api/customer/addresses', {
                           method: 'POST',
                           headers: { 'Content-Type': 'application/json' },
+                          credentials: 'include',
                           body: JSON.stringify(payload),
                         });
                         const data = await res.json();
@@ -756,6 +757,7 @@ export default function Account() {
                           try {
                             const res = await fetch(`/api/customer/addresses/${addr.id}`, {
                               method: 'DELETE',
+                              credentials: 'include',
                             });
                             if (!res.ok) throw new Error('فشل حذف العنوان');
                             load();
