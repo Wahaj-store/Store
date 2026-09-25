@@ -156,6 +156,7 @@ function CheckoutContent() {
       .catch(() => {});
   }, [sp]);
 
+  // دالة مطابقة وضبط المحافظة بناءً على المناطق المتاحة لمنع تضارب الأسماء
   const handleSelectAddress = (addr: Address | null) => {
     if (addr) {
       setSelectedAddressId(addr.id);
@@ -167,7 +168,15 @@ function CheckoutContent() {
         notes: addr.notes || '',
       });
       if (addr.governorate) {
-        setSelectedGovernorate(addr.governorate);
+        // البحث عن أقرب مطابقة في مناطق الشحن لتجنب اختلاف الصياغة
+        const matchedZone = shippingZones.find(
+          z => z.governorate.trim().toLowerCase() === addr.governorate.trim().toLowerCase()
+        );
+        if (matchedZone) {
+          setSelectedGovernorate(matchedZone.governorate);
+        } else if (shippingZones.length > 0) {
+          setSelectedGovernorate(addr.governorate);
+        }
       }
     } else {
       setSelectedAddressId(null);
@@ -180,7 +189,7 @@ function CheckoutContent() {
   };
 
   const selected = methods.find(x => x.method === pay);
-  const currentZone = shippingZones.find(z => z.governorate === selectedGovernorate);
+  const currentZone = shippingZones.find(z => z.governorate.trim().toLowerCase() === selectedGovernorate.trim().toLowerCase());
   const shippingCost = currentZone ? Number(currentZone.price) : 0;
   
   const subtotal = c.reduce((s, x) => s + Number(x.price) * x.quantity, 0);
