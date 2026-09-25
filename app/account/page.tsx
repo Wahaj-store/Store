@@ -23,6 +23,10 @@ export default function Account() {
   const [recentProducts, setRecentProducts] = useState<any[]>([]);
   const [passwords, setPasswords] = useState({ current: '', newPass: '', confirmPass: '' });
 
+  // حالة التحكم في إظهار وإخفاء نموذج إضافة العنوان داخل الصفحة
+  const [showAddressForm, setShowAddressForm] = useState(false);
+  const [addressFormMsg, setAddressFormMsg] = useState('');
+
   async function load() {
     try {
       const r = await fetch('/api/customer/me');
@@ -622,41 +626,111 @@ export default function Account() {
                 <div className="flex justify-between items-center border-b border-border/40 pb-4">
                   <h2 className="text-xl font-bold">عناوين الشحن المحفوظة</h2>
                   <button 
-                    onClick={async () => {
-                      const label = prompt('مسمى العنوان (مثال: المنزل، العمل):', 'المنزل');
-                      if (!label) return;
-                      const name = prompt('اسم المستلم:', c.name || '');
-                      if (!name) return;
-                      const phone = prompt('رقم الهاتف الأساسي:', c.phone || '');
-                      if (!phone) return;
-                      const governorate = prompt('المحافظة (مثال: القاهرة، الجيزة):');
-                      if (!governorate) return;
-                      const city = prompt('المدينة / المنطقة:');
-                      if (!city) return;
-                      const address = prompt('العنوان بالتفصيل (الشارع، رقم العمارة، الشقة):');
-                      if (!address) return;
+                    onClick={() => setShowAddressForm(!showAddressForm)}
+                    className="px-4 py-2 rounded-xl bg-[var(--gold)] text-black text-xs font-bold hover:opacity-95 transition"
+                  >
+                    {showAddressForm ? 'إلغاء' : '+ إضافة عنوان جديد'}
+                  </button>
+                </div>
+
+                {/* نموذج إضافة العنوان الجديد داخل الصفحة بدل الـ Pop-up القديم */}
+                {showAddressForm && (
+                  <form 
+                    onSubmit={async (e) => {
+                      e.preventDefault();
+                      setAddressFormMsg('');
+                      const formData = new FormData(e.currentTarget);
+                      const payload = {
+                        label: formData.get('label'),
+                        name: formData.get('name'),
+                        phone: formData.get('phone'),
+                        secondaryPhone: formData.get('secondaryPhone'),
+                        governorate: formData.get('governorate'),
+                        city: formData.get('city'),
+                        address: formData.get('address'),
+                        notes: formData.get('notes'),
+                        isDefault: formData.get('isDefault') === 'on'
+                      };
 
                       try {
                         const res = await fetch('/api/customer/addresses', {
                           method: 'POST',
                           headers: { 'Content-Type': 'application/json' },
-                          body: JSON.stringify({ label, name, phone, governorate, city, address }),
+                          body: JSON.stringify(payload),
                         });
                         const data = await res.json();
                         if (!res.ok) throw new Error(data.error || 'فشل حفظ العنوان');
                         
                         load();
+                        setShowAddressForm(false);
                         setMsg('تم إضافة العنوان بنجاح');
                         setTimeout(() => setMsg(''), 3000);
                       } catch (err: any) {
-                        alert(err.message);
+                        setAddressFormMsg(err.message);
                       }
                     }}
-                    className="px-4 py-2 rounded-xl bg-[var(--gold)] text-black text-xs font-bold hover:opacity-95 transition"
+                    className="p-5 rounded-2xl bg-background border border-[var(--gold)]/40 space-y-4 text-xs"
                   >
-                    + إضافة عنوان جديد
-                  </button>
-                </div>
+                    <h3 className="font-bold text-sm text-[var(--gold)]">تفاصيل عنوان الشحن الجديد</h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div>
+                        <label className="block mb-1 font-semibold text-muted-foreground">مسمى العنوان (مثال: المنزل، العمل)</label>
+                        <input name="label" defaultValue="المنزل" required className="w-full px-3 py-2.5 rounded-xl bg-card border border-border text-foreground text-xs" />
+                      </div>
+                      <div>
+                        <label className="block mb-1 font-semibold text-muted-foreground">اسم المستلم</label>
+                        <input name="name" defaultValue={c.name || ''} required className="w-full px-3 py-2.5 rounded-xl bg-card border border-border text-foreground text-xs" />
+                      </div>
+                      <div>
+                        <label className="block mb-1 font-semibold text-muted-foreground">رقم الهاتف الأساسي</label>
+                        <input name="phone" defaultValue={c.phone || ''} required dir="ltr" className="w-full px-3 py-2.5 rounded-xl bg-card border border-border text-foreground text-xs" />
+                      </div>
+                      <div>
+                        <label className="block mb-1 font-semibold text-muted-foreground">رقم هاتف إضافي (اختياري)</label>
+                        <input name="secondaryPhone" dir="ltr" className="w-full px-3 py-2.5 rounded-xl bg-card border border-border text-foreground text-xs" />
+                      </div>
+                      <div>
+                        <label className="block mb-1 font-semibold text-muted-foreground">المحافظة</label>
+                        <input name="governorate" placeholder="القاهرة، الجيزة..." required className="w-full px-3 py-2.5 rounded-xl bg-card border border-border text-foreground text-xs" />
+                      </div>
+                      <div>
+                        <label className="block mb-1 font-semibold text-muted-foreground">المدينة / المركز</label>
+                        <input name="city" placeholder="مدينة نصر، الهرم..." required className="w-full px-3 py-2.5 rounded-xl bg-card border border-border text-foreground text-xs" />
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block mb-1 font-semibold text-muted-foreground">العنوان بالتفصيل</label>
+                      <input name="address" placeholder="اسم الشارع، رقم العمارة، رقم الشقة" required className="w-full px-3 py-2.5 rounded-xl bg-card border border-border text-foreground text-xs" />
+                    </div>
+                    <div>
+                      <label className="block mb-1 font-semibold text-muted-foreground">ملاحظات للتوصيل (اختياري)</label>
+                      <input name="notes" placeholder="علامة مميزة بجوار المنزل" className="w-full px-3 py-2.5 rounded-xl bg-card border border-border text-foreground text-xs" />
+                    </div>
+                    <div className="flex items-center gap-2 pt-1">
+                      <input type="checkbox" name="isDefault" id="isDefault" className="w-4 h-4 accent-[var(--gold)]" />
+                      <label htmlFor="isDefault" className="cursor-pointer">تعيين كعنوان أساسي للشحن</label>
+                    </div>
+
+                    {addressFormMsg && <p className="text-red-500 font-medium">{addressFormMsg}</p>}
+
+                    <div className="flex justify-end gap-2 pt-2">
+                      <button 
+                        type="button" 
+                        onClick={() => setShowAddressForm(false)}
+                        className="px-4 py-2 rounded-xl bg-card border border-border text-muted-foreground"
+                      >
+                        إلغاء
+                      </button>
+                      <button 
+                        type="submit" 
+                        className="px-5 py-2 rounded-xl bg-[var(--gold)] text-black font-bold"
+                      >
+                        حفظ العنوان
+                      </button>
+                    </div>
+                  </form>
+                )}
+
                 <div className="grid gap-4">
                   {(c.addresses || []).map((addr: any) => (
                     <div key={addr.id} className="p-4 rounded-2xl bg-background border border-border/60 flex items-start justify-between gap-4">
@@ -696,7 +770,7 @@ export default function Account() {
                       </button>
                     </div>
                   ))}
-                  {(!c.addresses || c.addresses.length === 0) && (
+                  {(!c.addresses || c.addresses.length === 0) && !showAddressForm && (
                     <p className="text-muted-foreground text-sm text-center py-8">
                       لا توجد عناوين محفوظة حالياً. أضف عنوانك لتسهيل عملية الطلب القادمة.
                     </p>
