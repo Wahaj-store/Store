@@ -102,16 +102,19 @@ model Customer {
 }
 
 model Address {
-  id          String   @id @default(cuid())
-  customerId  String
-  customer    Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
-  label       String?
-  governorate String
-  city        String
-  address     String
-  notes       String?
-  isDefault   Boolean  @default(false)
-  createdAt   DateTime @default(now())
+  id             String   @id @default(cuid())
+  customerId     String
+  customer       Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  label          String?  @default("المنزل")
+  name           String?
+  phone          String?
+  secondaryPhone String?
+  governorate    String
+  city           String
+  address        String
+  notes          String?
+  isDefault      Boolean  @default(false)
+  createdAt      DateTime @default(now())
 
   @@index([customerId, isDefault])
 }
@@ -565,7 +568,7 @@ model FaqItem {
   id           String   @id @default(cuid())
   question     String
   answer       String
-  category     String   @default("general") // general, shipping, payment, returns, products
+  category     String   @default("general")
   displayOrder Int      @default(0)
   published    Boolean  @default(true)
   createdAt    DateTime @default(now())
