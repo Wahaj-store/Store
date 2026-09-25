@@ -162,7 +162,7 @@ function CheckoutContent() {
       .catch(() => {});
   }, [sp]);
 
-  // دالة التعامل مع اختيار العنوان المحفوظ
+  // دالة محدثة بالكامل لضمان تعبئة كافة حقول العنوان بدقة واختيار المحافظة المرتبطة به
   const handleSelectAddress = (addr: Address | null) => {
     if (addr) {
       setFormData({
