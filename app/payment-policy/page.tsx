@@ -2,24 +2,19 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import {
   Banknote,
-  CheckCircle2,
-  ChevronLeft,
-  CircleAlert,
-  CreditCard,
-  Info,
-  LockKeyhole,
-  MessageCircle,
   Smartphone,
   WalletCards,
+  ShieldCheck,
+  CheckCircle2,
+  Info,
+  ArrowLeft,
+  Headphones,
 } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "طرق الدفع | وَهَج",
+  title: "سياسة الدفع — وَهَج",
   description:
-    "تعرف على طرق الدفع المتاحة في متجر وَهَج، وخطوات الدفع والتعليمات المهمة لإتمام طلبك بسهولة وأمان.",
-  alternates: {
-    canonical: "/payment-policy",
-  },
+    "تعرف على طرق الدفع المتاحة في متجر وَهَج والتعليمات الخاصة بإتمام عملية الدفع بأمان وسهولة.",
 };
 
 const paymentMethods = [
@@ -28,188 +23,289 @@ const paymentMethods = [
     number: "01",
     icon: Banknote,
     title: "الدفع عند الاستلام",
-    subtitle: "استلم طلبك وادفع عند وصوله",
+    subtitle: "ادفع عند وصول طلبك",
     description:
-      "يمكنك إتمام طلبك واختيار الدفع عند الاستلام، ثم دفع قيمة الطلب نقدًا إلى مندوب الشحن عند استلام المنتجات.",
+      "يمكنك اختيار الدفع عند الاستلام وإتمام عملية الشراء دون الحاجة إلى الدفع مقدمًا.",
     steps: [
-      "أضف المنتجات التي ترغب بها إلى سلة التسوق.",
-      "انتقل إلى إتمام الطلب وأدخل بيانات الشحن بدقة.",
-      "اختر «الدفع عند الاستلام» ضمن طرق الدفع المتاحة.",
-      "راجع تفاصيل الطلب ثم أكد عملية الشراء.",
-      "ادفع قيمة الطلب للمندوب عند الاستلام.",
+      "أكمل بيانات الطلب وعنوان التوصيل.",
+      "اختر «الدفع عند الاستلام» أثناء إتمام الطلب.",
+      "راجع تفاصيل الطلب وقيمة الشحن.",
+      "أكد طلبك وانتظر وصول الشحنة.",
+      "ادفع القيمة المطلوبة إلى مندوب الشحن عند الاستلام.",
     ],
-    note:
-      "يرجى التأكد من صحة رقم الهاتف والعنوان لتسهيل التواصل والتوصيل.",
   },
   {
     id: "vodafone-cash",
     number: "02",
     icon: Smartphone,
     title: "Vodafone Cash",
-    subtitle: "دفع سريع من محفظتك الإلكترونية",
+    subtitle: "الدفع من محفظتك الإلكترونية",
     description:
-      "يمكنك دفع قيمة طلبك باستخدام محفظة Vodafone Cash. بعد اختيار طريقة الدفع، اتبع تعليمات الدفع التي تظهر لك أثناء إتمام الطلب.",
+      "يمكنك استخدام محفظة Vodafone Cash لتحويل قيمة الطلب إلكترونيًا وفق بيانات الدفع التي تظهر لك أثناء إتمام الطلب.",
     steps: [
       "أكمل بيانات الطلب وعنوان التوصيل.",
       "اختر «Vodafone Cash» كطريقة للدفع.",
-      "استخدم بيانات الدفع المعروضة لك أثناء إتمام الطلب.",
+      "استخدم بيانات التحويل الظاهرة أثناء إتمام الطلب.",
       "أتمم عملية التحويل من محفظتك.",
-      "احتفظ بتفاصيل العملية لحين تأكيد الدفع والطلب.",
+      "احتفظ بتفاصيل العملية حتى يتم تأكيد الدفع.",
     ],
-    note:
-      "لا تشارك الرقم السري للمحفظة أو أي رمز تحقق مع أي شخص، بما في ذلك خدمة العملاء.",
   },
   {
     id: "instapay",
     number: "03",
     icon: WalletCards,
     title: "InstaPay",
-    subtitle: "تحويل إلكتروني سريع وآمن",
+    subtitle: "تحويل إلكتروني سريع",
     description:
-      "يتيح لك InstaPay تحويل قيمة الطلب إلكترونيًا من خلال حسابك البنكي أو وسيلة الدفع المدعومة لديك، وفق البيانات والتعليمات التي تظهر أثناء إتمام الطلب.",
+      "يمكنك سداد قيمة طلبك من خلال InstaPay باستخدام الحساب البنكي أو وسيلة الدفع المدعومة لديك.",
     steps: [
       "أكمل بيانات الطلب واختر عنوان التوصيل.",
       "اختر «InstaPay» ضمن طرق الدفع.",
-      "استخدم بيانات التحويل المعروضة لك في صفحة الدفع.",
+      "راجع بيانات التحويل التي تظهر لك.",
       "أتمم التحويل من تطبيق InstaPay.",
-      "احتفظ بإثبات التحويل حتى يتم تأكيد العملية.",
+      "احتفظ بإثبات التحويل لحين تأكيد العملية.",
     ],
-    note:
-      "تأكد من مراجعة اسم المستفيد وقيمة التحويل قبل تأكيد العملية.",
   },
 ];
 
-const paymentFeatures = [
-  {
-    icon: LockKeyhole,
-    title: "دفع أكثر أمانًا",
-    description:
-      "نتعامل مع بيانات الدفع وفق آلية منظمة، ولا نطلب منك مشاركة كلمات المرور أو رموز التحقق السرية.",
-  },
-  {
-    icon: CheckCircle2,
-    title: "تأكيد واضح للطلب",
-    description:
-      "بعد إتمام الطلب، يمكنك مراجعة تفاصيله والاحتفاظ ببيانات العملية للرجوع إليها عند الحاجة.",
-  },
-  {
-    icon: MessageCircle,
-    title: "دعم عند الحاجة",
-    description:
-      "إذا واجهتك مشكلة أثناء الدفع، تواصل معنا قبل تكرار عملية التحويل لتجنب تنفيذ العملية أكثر من مرة.",
-  },
+const importantNotes = [
+  "راجع قيمة الطلب قبل تنفيذ أي عملية دفع.",
+  "تأكد من صحة بيانات المستفيد قبل تأكيد التحويل.",
+  "احتفظ بإثبات الدفع حتى يتم تأكيد الطلب.",
+  "لا تشارك الرقم السري أو رموز التحقق الخاصة بمحفظتك أو حسابك.",
+  "إذا واجهتك مشكلة أثناء الدفع، تواصل معنا قبل إعادة تنفيذ التحويل.",
 ];
-
-function SectionTitle({
-  eyebrow,
-  title,
-  description,
-}: {
-  eyebrow: string;
-  title: string;
-  description?: string;
-}) {
-  return (
-    <div className="max-w-2xl">
-      <span className="mb-3 inline-flex items-center gap-2 text-xs font-medium tracking-[0.16em] text-[#B88D87]">
-        <span className="h-px w-7 bg-[#C6A46A]" />
-        {eyebrow}
-      </span>
-
-      <h2 className="text-2xl font-semibold leading-[1.5] tracking-[-0.02em] text-[#201D1C] dark:text-[#F7F2EA] sm:text-3xl">
-        {title}
-      </h2>
-
-      {description ? (
-        <p className="mt-3 text-sm leading-8 text-[#201D1C]/65 dark:text-[#F7F2EA]/65 sm:text-base">
-          {description}
-        </p>
-      ) : null}
-    </div>
-  );
-}
 
 export default function PaymentPolicyPage() {
   return (
     <main
       dir="rtl"
-      className="min-h-screen bg-[#F7F2EA] text-[#201D1C] transition-colors dark:bg-[#241B1A] dark:text-[#F7F2EA]"
+      className="min-h-screen bg-background text-foreground transition-colors duration-300"
     >
-      {/* Hero */}
-      <section className="relative overflow-hidden border-b border-[#241B1A]/8 dark:border-[#F7F2EA]/10">
-        <div className="absolute -right-28 -top-28 h-72 w-72 rounded-full bg-[#B88D87]/10 blur-3xl" />
-        <div className="absolute -bottom-32 -left-20 h-80 w-80 rounded-full bg-[#C6A46A]/10 blur-3xl" />
+      <div className="container mx-auto max-w-4xl px-4 py-12 sm:px-6 sm:py-16">
 
-        <div className="relative mx-auto max-w-6xl px-5 pb-14 pt-8 sm:px-8 sm:pb-20 sm:pt-12 lg:px-10">
-          {/* Breadcrumb */}
-          <nav
-            aria-label="مسار الصفحة"
-            className="mb-12 flex items-center gap-2 text-xs text-[#201D1C]/55 dark:text-[#F7F2EA]/55"
-          >
-            <Link
-              href="/"
-              className="transition-colors hover:text-[#B88D87]"
-            >
-              الرئيسية
-            </Link>
-
-            <ChevronLeft
-              aria-hidden="true"
-              className="h-3.5 w-3.5"
-            />
-
-            <span className="text-[#201D1C]/75 dark:text-[#F7F2EA]/75">
-              طرق الدفع
-            </span>
-          </nav>
-
-          <div className="max-w-3xl">
-            <span className="mb-5 inline-flex items-center gap-2 text-xs font-medium tracking-[0.18em] text-[#B88D87]">
-              <span className="h-px w-8 bg-[#C6A46A]" />
-              وَهَج · PAYMENT
-            </span>
-
-            <h1 className="text-4xl font-semibold leading-[1.35] tracking-[-0.035em] text-[#241B1A] dark:text-[#F7F2EA] sm:text-5xl lg:text-6xl">
-              طرق الدفع
-            </h1>
-
-            <p className="mt-6 max-w-2xl text-base leading-8 text-[#201D1C]/70 dark:text-[#F7F2EA]/70 sm:text-lg sm:leading-9">
-              اختر الطريقة الأنسب لك لإتمام طلبك بسهولة ووضوح. نوفر في وَهَج
-              خيارات دفع متنوعة لتجعل تجربة الشراء أكثر مرونة وراحة.
-            </p>
+        {/* =====================================================
+            Page Header
+        ====================================================== */}
+        <header className="mb-10 border-b border-border/40 pb-7 text-center md:text-right">
+          <div className="mb-3 flex items-center justify-center gap-2 text-xs font-medium tracking-wider text-[var(--gold)] md:justify-start">
+            <span className="h-px w-7 bg-[var(--gold)]" />
+            وَهَج
+            <span className="h-px w-7 bg-[var(--gold)] md:hidden" />
           </div>
 
-          {/* Intro card */}
-          <div className="mt-10 flex flex-col gap-4 rounded-2xl border border-[#C6A46A]/25 bg-white/45 p-5 backdrop-blur-sm dark:bg-white/[0.04] sm:flex-row sm:items-start sm:p-6">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#C6A46A]/12 text-[#C6A46A]">
+          <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
+            سياسة الدفع
+          </h1>
+
+          <p className="mx-auto mt-3 max-w-2xl text-sm leading-7 text-muted-foreground sm:text-base md:mx-0">
+            نوفر لك مجموعة من طرق الدفع المرنة لتجعل تجربة الشراء من وَهَج
+            أكثر سهولة ووضوحًا وأمانًا.
+          </p>
+        </header>
+
+        {/* =====================================================
+            Intro Notice
+        ====================================================== */}
+        <section className="mb-8">
+          <div className="flex gap-4 rounded-2xl border border-[var(--gold)]/20 bg-card p-5 shadow-sm sm:p-6">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[var(--gold)]/10 text-[var(--gold)]">
               <Info className="h-5 w-5" />
             </div>
 
-            <div>
-              <h2 className="text-sm font-semibold text-[#241B1A] dark:text-[#F7F2EA]">
-                قبل إتمام الدفع
+            <div className="space-y-1">
+              <h2 className="font-semibold">
+                قبل إتمام عملية الدفع
               </h2>
 
-              <p className="mt-1.5 text-sm leading-7 text-[#201D1C]/65 dark:text-[#F7F2EA]/65">
-                راجع قيمة الطلب وبيانات التوصيل وطريقة الدفع المختارة بعناية.
-                بيانات التحويل الخاصة بوسائل الدفع الإلكتروني يتم عرضها لك
-                أثناء إتمام الطلب وفق إعدادات المتجر الحالية.
+              <p className="text-sm leading-7 text-muted-foreground">
+                يرجى مراجعة قيمة الطلب وبيانات التوصيل وطريقة الدفع المختارة
+                بعناية قبل تأكيد الطلب. بيانات التحويل الخاصة بوسائل الدفع
+                الإلكتروني تظهر لك أثناء إتمام الطلب وفق إعدادات المتجر الحالية.
               </p>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* Payment methods */}
-      <section className="mx-auto max-w-6xl px-5 py-14 sm:px-8 sm:py-20 lg:px-10">
-        <SectionTitle
-          eyebrow="PAYMENT METHODS"
-          title="طرق الدفع المتاحة"
-          description="تعرف على تفاصيل كل طريقة وخطوات استخدامها قبل إتمام طلبك."
-        />
+        {/* =====================================================
+            Payment Methods
+        ====================================================== */}
+        <section className="space-y-6">
 
-        <div className="mt-10 space-y-6">
+          <div className="space-y-2">
+            <h2 className="text-xl font-semibold sm:text-2xl">
+              طرق الدفع المتاحة
+            </h2>
+
+            <p className="text-sm leading-7 text-muted-foreground sm:text-base">
+              اختر الطريقة الأنسب لك من بين وسائل الدفع المتاحة أثناء إتمام
+              طلبك.
+            </p>
+          </div>
+
           {paymentMethods.map((method) => {
             const Icon = method.icon;
 
-           
+            return (
+              <article
+                key={method.id}
+                id={method.id}
+                className="overflow-hidden rounded-2xl border border-border/60 bg-card shadow-sm transition-all duration-300 hover:border-[var(--gold)]/30 hover:shadow-md"
+              >
+                {/* Card Header */}
+                <div className="border-b border-border/40 p-5 sm:p-7">
+                  <div className="flex items-start gap-4">
+
+                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[var(--gold)]/10 text-[var(--gold)]">
+                      <Icon
+                        className="h-6 w-6"
+                        strokeWidth={1.8}
+                      />
+                    </div>
+
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center justify-between gap-3">
+                        <h3 className="text-lg font-semibold sm:text-xl">
+                          {method.title}
+                        </h3>
+
+                        <span className="text-xs font-medium tracking-widest text-[var(--gold)]">
+                          {method.number}
+                        </span>
+                      </div>
+
+                      <p className="mt-1 text-sm font-medium text-[var(--gold)]">
+                        {method.subtitle}
+                      </p>
+
+                      <p className="mt-3 text-sm leading-7 text-muted-foreground sm:text-base">
+                        {method.description}
+                      </p>
+                    </div>
+
+                  </div>
+                </div>
+
+                {/* Steps */}
+                <div className="p-5 sm:p-7">
+                  <h4 className="mb-5 text-sm font-semibold">
+                    خطوات الدفع
+                  </h4>
+
+                  <ol className="space-y-4">
+                    {method.steps.map((step, index) => (
+                      <li
+                        key={step}
+                        className="flex items-start gap-3"
+                      >
+                        <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[var(--gold)]/10 text-xs font-semibold text-[var(--gold)]">
+                          {index + 1}
+                        </span>
+
+                        <span className="pt-0.5 text-sm leading-7 text-muted-foreground sm:text-base">
+                          {step}
+                        </span>
+                      </li>
+                    ))}
+                  </ol>
+                </div>
+              </article>
+            );
+          })}
+        </section>
+
+        {/* =====================================================
+            Security
+        ====================================================== */}
+        <section className="mt-10">
+          <div className="rounded-2xl border border-border/60 bg-card p-6 shadow-sm sm:p-8">
+
+            <div className="flex items-start gap-4">
+              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[var(--gold)]/10 text-[var(--gold)]">
+                <ShieldCheck className="h-5 w-5" />
+              </div>
+
+              <div>
+                <h2 className="text-lg font-semibold sm:text-xl">
+                  إرشادات مهمة للدفع
+                </h2>
+
+                <p className="mt-2 text-sm leading-7 text-muted-foreground">
+                  لضمان إتمام عملية الدفع بشكل صحيح، يرجى الالتزام بالإرشادات
+                  التالية:
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-6 space-y-4">
+              {importantNotes.map((note) => (
+                <div
+                  key={note}
+                  className="flex items-start gap-3 border-r-2 border-[var(--gold)]/20 pr-4"
+                >
+                  <CheckCircle2 className="mt-1 h-4 w-4 shrink-0 text-[var(--gold)]" />
+
+                  <p className="text-sm leading-7 text-muted-foreground sm:text-base">
+                    {note}
+                  </p>
+                </div>
+              ))}
+            </div>
+
+          </div>
+        </section>
+
+        {/* =====================================================
+            Customer Support
+        ====================================================== */}
+        <section className="mt-10">
+          <div className="rounded-2xl border border-[var(--gold)]/20 bg-[var(--gold)]/[0.04] p-6 text-center sm:p-8">
+
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-[var(--gold)]/10 text-[var(--gold)]">
+              <Headphones className="h-5 w-5" />
+            </div>
+
+            <h2 className="mt-4 text-xl font-semibold">
+              تحتاج إلى مساعدة؟
+            </h2>
+
+            <p className="mx-auto mt-2 max-w-xl text-sm leading-7 text-muted-foreground sm:text-base">
+              إذا واجهتك مشكلة أثناء الدفع أو لديك استفسار حول إحدى طرق الدفع،
+              يمكنك التواصل مع فريق خدمة العملاء.
+            </p>
+
+            <div className="mt-6 flex flex-col justify-center gap-3 sm:flex-row">
+
+              <Link
+                href="/contact"
+                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-foreground px-6 text-sm font-medium text-background transition-all duration-300 hover:opacity-90"
+              >
+                تواصل معنا
+                <ArrowLeft className="h-4 w-4" />
+              </Link>
+
+              <Link
+                href="/faq"
+                className="inline-flex min-h-11 items-center justify-center rounded-xl border border-border px-6 text-sm font-medium transition-all duration-300 hover:border-[var(--gold)] hover:text-[var(--gold)]"
+              >
+                الأسئلة الشائعة
+              </Link>
+
+            </div>
+          </div>
+        </section>
+
+        {/* =====================================================
+            Footer Note
+        ====================================================== */}
+        <div className="mt-10 border-t border-border/40 pt-6 text-center">
+          <p className="text-xs leading-6 text-muted-foreground">
+            قد تختلف طرق الدفع المتاحة حسب إعدادات المتجر، وسيتم عرض الطرق
+            المتاحة لك أثناء إتمام الطلب.
+          </p>
+        </div>
+
+      </div>
+    </main>
+  );
+}
