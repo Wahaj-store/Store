@@ -20,8 +20,8 @@ export default function Admin() {
     <main className="min-h-screen py-8 px-4 md:px-8 bg-[var(--bg)] text-foreground transition-colors duration-300" dir="rtl">
       <div className="container max-w-7xl mx-auto space-y-6">
         
-        {/* شريط هيدر علوي مستقل يضم زر "القائمة" وحدَه في أقصى اليمين */}
-        <div className="flex items-center justify-end pb-2">
+        {/* شريط هيدر علوي يضع زر "القائمة" في الجهة اليمنى تماماً */}
+        <div className="flex items-center justify-start pb-2">
           <button 
             onClick={() => setSidebarOpen(true)}
             className="flex items-center gap-2 px-5 h-11 rounded-2xl bg-muted/10 border border-border/60 text-xs md:text-sm font-bold text-foreground hover:border-[#D4AF37] transition shadow-xs cursor-pointer"
