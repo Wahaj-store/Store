@@ -75,9 +75,9 @@ export default function Admin() {
           </div>
         </header>
 
-        {/* مدير اللوحة المركزي */}
+        {/* مدير اللوحة المركزي مع تمرير الدالة الصحيحة */}
         <div className="bg-muted/10 border border-border/40 rounded-3xl p-6 md:p-8 shadow-sm">
-          <AdminManager sidebarOpen={sidebarOpen} setSidebarOpen={sidebarOpen} />
+          <AdminManager sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
         </div>
 
       </div>
