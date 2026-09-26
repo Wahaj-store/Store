@@ -180,23 +180,28 @@ export default function AdminManager() {
   }
 
   return (
-    <div className="space-y-4" dir="rtl">
+    <div className="space-y-6" dir="rtl">
       
-      {/* شريط التحكم العلوي الخاص بالموبايل لفتح وإغلاق القائمة */}
-      <div className="flex items-center justify-between lg:hidden bg-muted/10 border border-border/40 rounded-2xl p-3 shadow-xs">
-        <button 
-          onClick={() => setSidebarOpen(!sidebarOpen)}
-          className="px-4 py-2 rounded-xl bg-[#D4AF37] text-black font-serif font-bold text-xs flex items-center gap-2 shadow-xs cursor-pointer"
-        >
-          {sidebarOpen ? <X size={18} /> : <Menu size={18} />}
-          <span>{sidebarOpen ? 'إغلاق القائمة' : 'قسّام لوحة التحكم'}</span>
-        </button>
-        <span className="text-xs text-[#D4AF37] font-medium font-serif">{getCurrentTabLabel()}</span>
+      {/* شريط علوي يثبت زر القائمة في أقصى اليمين تماماً */}
+      <div className="flex items-center justify-between bg-muted/10 border border-border/40 rounded-2xl px-4 py-3 shadow-xs">
+        <div className="flex items-center gap-3">
+          <button 
+            onClick={() => setSidebarOpen(!sidebarOpen)}
+            className="px-4 py-2 rounded-xl bg-[#D4AF37] text-black font-serif font-bold text-xs flex items-center gap-2 shadow-sm hover:opacity-95 transition cursor-pointer"
+          >
+            {sidebarOpen ? <X size={16} /> : <Menu size={16} />}
+            <span>قسّام لوحة التحكم</span>
+          </button>
+        </div>
+        <div className="text-left">
+          <span className="text-[10px] text-muted-foreground block font-light">القسم الحالي</span>
+          <span className="text-xs text-[#D4AF37] font-bold font-serif">{getCurrentTabLabel()}</span>
+        </div>
       </div>
 
       <div className="grid gap-8 lg:grid-cols-[280px_1fr] items-start relative">
         
-        {/* الخلفية المعتمة عند فتح القائمة على الموبايل */}
+        {/* الخلفية المعتمة عند فتح القائمة */}
         {sidebarOpen && (
           <div 
             onClick={() => setSidebarOpen(false)}
@@ -204,7 +209,7 @@ export default function AdminManager() {
           />
         )}
 
-        {/* القائمة الجانبية (تكون متحركة Drawer على الموبايل وثابتة Sticky على الشاشات الكبيرة) */}
+        {/* القائمة الجانبية */}
         <aside className={`
           fixed lg:sticky top-0 lg:top-8 bottom-0 right-0 z-50 w-72 lg:w-auto
           bg-[var(--bg)] lg:bg-muted/10 border border-border/40 rounded-3xl p-4 
