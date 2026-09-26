@@ -38,28 +38,33 @@ export default async function Shop({
   });
 
   return (
-    <main className="container py-12" dir="rtl">
-      <div className="mt-2">
-        <span className="text-[#D4AF37] text-sm font-medium tracking-wide">Wahaj Store</span>
-        <h1 className="mt-1 text-3xl md:text-4xl font-semibold tracking-tight">المتجر</h1>
+    <main className="container py-16" dir="rtl">
+      <div className="mb-12">
+        <span className="inline-block text-[#D4AF37] text-xs font-semibold tracking-widest uppercase px-3 py-1 rounded-full bg-[#D4AF37]/10 mb-3">
+          Wahaj Store
+        </span>
+        <h1 className="text-3xl md:text-5xl font-serif font-bold tracking-tight">المتجر</h1>
+        <p className="text-muted-foreground text-sm md:text-base mt-2 font-light">
+          اكتشفي تشكيلتنا الواسعة المصممة خصيصاً لتمنحك إطلالة فريدة ومميزة.
+        </p>
         
-        <form className="mt-6 flex gap-2 max-w-xl">
+        <form className="mt-8 flex gap-3 max-w-xl">
           <input
             name="q"
             defaultValue={q}
-            className="flex-1 rounded-xl border border-border/60 bg-[var(--bg)] px-4 py-3 text-sm outline-none focus:border-[#D4AF37] transition-colors"
+            className="flex-1 rounded-2xl border border-border/60 bg-[var(--bg)] px-5 py-3.5 text-sm outline-none focus:border-[#D4AF37] transition-colors shadow-sm"
             placeholder="ابحثي عن منتج أو SKU..."
           />
-          <button className="rounded-xl bg-[#D4AF37] text-black font-bold px-6 py-3 text-sm hover:opacity-90 transition-opacity shadow-sm cursor-pointer">
+          <button className="rounded-2xl bg-[#D4AF37] text-black font-semibold px-7 py-3.5 text-sm hover:opacity-95 transition-opacity shadow-md cursor-pointer">
             بحث
           </button>
         </form>
       </div>
 
-      <div className="mt-6 flex flex-wrap gap-2">
+      <div className="mt-6 flex flex-wrap gap-2.5">
         <a
           href="/shop"
-          className={`rounded-full px-4 py-2 text-xs font-medium transition-all ${
+          className={`rounded-full px-5 py-2.5 text-xs font-medium transition-all ${
             !category
               ? 'bg-[#D4AF37] text-black font-bold shadow-sm'
               : 'border border-border/60 hover:border-[#D4AF37] text-foreground/80'
@@ -71,7 +76,7 @@ export default async function Shop({
           <a
             key={c.id}
             href={`/shop?category=${c.slug}`}
-            className={`rounded-full px-4 py-2 text-xs font-medium transition-all ${
+            className={`rounded-full px-5 py-2.5 text-xs font-medium transition-all ${
               category === c.slug
                 ? 'bg-[#D4AF37] text-black font-bold shadow-sm'
                 : 'border border-border/60 hover:border-[#D4AF37] text-foreground/80'
@@ -82,7 +87,7 @@ export default async function Shop({
         ))}
       </div>
 
-      <div className="mt-10 grid grid-cols-2 gap-x-3 gap-y-8 md:grid-cols-4 md:gap-6">
+      <div className="mt-12 grid grid-cols-2 gap-4 md:grid-cols-4 md:gap-6">
         {ps.map((p) => {
           const priceNum = Number(p.price);
           const compareNum = p.comparePrice ? Number(p.comparePrice) : 0;
@@ -94,34 +99,34 @@ export default async function Shop({
           return (
             <article
               key={p.id}
-              className="group flex flex-col justify-between rounded-2xl border border-border/40 bg-[var(--bg)] p-3 shadow-sm transition-all hover:shadow-md"
+              className="group flex flex-col justify-between rounded-3xl border border-border/30 bg-[var(--bg)] p-4 shadow-sm transition-all duration-300 hover:shadow-xl hover:border-[#D4AF37]/50"
             >
               <div>
-                <div className="relative overflow-hidden rounded-xl bg-muted/35 aspect-square">
+                <div className="relative overflow-hidden rounded-2xl bg-muted/30 aspect-square">
                   <a href={`/product/${p.slug}`} className="block w-full h-full">
                     <img
                       src={p.images[0]?.url || '/placeholder.svg'}
                       alt={p.name}
                       loading="lazy"
                       decoding="async"
-                      className="aspect-square w-full h-full object-cover transition duration-500 group-hover:scale-105"
+                      className="aspect-square w-full h-full object-cover transition duration-700 group-hover:scale-105"
                     />
                   </a>
                   {discount > 0 && (
-                    <span className="absolute top-2.5 end-2.5 z-10 rounded-full bg-[#171513] px-2 py-0.5 text-[10px] font-bold text-white shadow-sm">
+                    <span className="absolute top-3 end-3 z-10 rounded-full bg-foreground px-2.5 py-1 text-[11px] font-bold text-background shadow-md">
                       -{discount}%
                     </span>
                   )}
                 </div>
 
-                <div className="pt-3">
+                <div className="pt-4 px-1">
                   <a href={`/product/${p.slug}`}>
-                    <h2 className="font-medium text-sm line-clamp-1 hover:text-[#D4AF37] transition-colors">
+                    <h2 className="font-serif font-medium text-base line-clamp-1 hover:text-[#D4AF37] transition-colors">
                       {p.name}
                     </h2>
                   </a>
-                  <div className="mt-1.5 flex items-center gap-2">
-                    <span className="font-bold text-base text-[#D4AF37]">
+                  <div className="mt-2 flex items-center gap-3">
+                    <span className="font-bold text-lg text-[#D4AF37]">
                       {priceNum.toLocaleString('ar-EG')} ج.م
                     </span>
                     {compareNum > 0 && (
@@ -130,17 +135,17 @@ export default async function Shop({
                       </del>
                     )}
                   </div>
-                  <p className="mt-1 text-[11px] text-muted-foreground">
+                  <p className="mt-1.5 text-xs text-muted-foreground font-light">
                     {p.stock > 0
                       ? p.stock <= 5
-                        ? 'متبقي القليل'
-                        : 'متوفر'
-                      : 'غير متوفر'}
+                        ? 'متبقي عدد قليل'
+                        : 'متوفر في المخزن'
+                      : 'نفدت الكمية'}
                   </p>
                 </div>
               </div>
 
-              <div className="mt-4 pt-2 border-t border-border/20">
+              <div className="mt-5 pt-3 border-t border-border/20">
                 <AddToCart product={p} />
               </div>
             </article>
@@ -149,8 +154,8 @@ export default async function Shop({
       </div>
 
       {!ps.length && (
-        <div className="lux-card mt-12 p-10 text-center rounded-2xl border border-border/40">
-          <p className="text-muted-foreground">لا توجد منتجات مطابقة لبحثك.</p>
+        <div className="lux-card mt-16 p-12 text-center rounded-3xl border border-border/40 shadow-sm">
+          <p className="text-muted-foreground font-light">لا توجد منتجات مطابقة لبحثك.</p>
         </div>
       )}
     </main>
