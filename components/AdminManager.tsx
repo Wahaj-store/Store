@@ -100,8 +100,9 @@ export default function AdminManager({ sidebarOpen, setSidebarOpen }: { sidebarO
 
   async function load() {
     setLoading(true);
+    setMsg('');
     try {
-      const map: any = {
+      const map: Record<string, string> = {
         products: '/api/admin/products',
         categories: '/api/admin/categories',
         offers: '/api/admin/offers',
@@ -124,10 +125,18 @@ export default function AdminManager({ sidebarOpen, setSidebarOpen }: { sidebarO
         contact: '/api/admin/contact',
         settings: '/api/admin/config'
       };
-      const x = await api(map[tab] || '/api/admin/products');
+
+      const targetUrl = map[tab];
+      if (!targetUrl) {
+        setData([]);
+        return;
+      }
+
+      const x = await api(targetUrl);
       setData(Array.isArray(x) ? x : [x]);
     } catch (e: any) {
-      setMsg(e.message);
+      setMsg(e.message || 'حدث خطأ أثناء جلب البيانات');
+      setData([]);
     } finally {
       setLoading(false);
     }
@@ -642,18 +651,20 @@ function Content({ tab, data, onEdit, onDelete, onRefresh, onReorder }: any) {
           </button>
         </div>
       ))}
+      {!data.length && <div className="bg-muted/10 border border-border/40 rounded-3xl p-12 text-center text-muted-foreground text-sm font-light">لا توجد مزايا متاحة.</div>}
     </div>
   );
 
   if (tab === 'security') return (
     <div className="space-y-2.5">
-      {(data[0]?.logs || []).map((x: any) => (
-        <div className="bg-muted/10 border border-border/40 rounded-2xl p-4 shadow-xs" key={x.id}>
-          <b className="font-serif font-bold text-sm text-foreground">{x.action}</b>
-          <span className="text-muted-foreground text-xs mr-3 font-light">{x.entity}</span>
-          <div className="text-muted-foreground text-[11px] mt-1 font-light">{new Date(x.createdAt).toLocaleString('ar-EG')}</div>
+      {(data[0]?.logs || data || []).map((x: any) => (
+        <div className="bg-muted/10 border border-border/40 rounded-2xl p-4 shadow-xs" key={x.id || Math.random()}>
+          <b className="font-serif font-bold text-sm text-foreground">{x.action || 'سجل نشاط'}</b>
+          <span className="text-muted-foreground text-xs mr-3 font-light">{x.entity || ''}</span>
+          <div className="text-muted-foreground text-[11px] mt-1 font-light">{x.createdAt ? new Date(x.createdAt).toLocaleString('ar-EG') : ''}</div>
         </div>
       ))}
+      {!data.length && <div className="bg-muted/10 border border-border/40 rounded-3xl p-12 text-center text-muted-foreground text-sm font-light">لا توجد سجلات أمان متاحة.</div>}
     </div>
   );
 
@@ -676,6 +687,7 @@ function Content({ tab, data, onEdit, onDelete, onRefresh, onReorder }: any) {
           </button>
         </div>
       ))}
+      {!data.length && <div className="bg-muted/10 border border-border/40 rounded-3xl p-12 text-center text-muted-foreground text-sm font-light">لا توجد مستخدمون.</div>}
     </div>
   );
 
@@ -776,7 +788,7 @@ function Sortable({ data, onEdit, onDelete, onReorder }: any) {
             <p className="text-muted-foreground text-xs font-light mt-0.5">{x.visible ? 'ظاهر' : 'مخفي'} • ترتيب {i + 1}</p>
           </div>
           <button className="px-4 py-2 rounded-xl bg-muted/20 border border-border/60 text-xs font-medium hover:bg-muted/30 transition cursor-pointer" onClick={() => onEdit(x)}>تعديل</button>
-          <button className="p-2 rounded-xl border border-red-400 text-red-500 hover:bg-red-500/10 transition cursor-pointer" onClick={() => onDelete(x.id)}><Trash2 size={16} /></button>
+          <button className="p-2 rounded-xl border border-red-400 text-red-500 hover:bg-red-500/10 transition cursor-pointer" onClick={() => onDelete(x.id)}><Trash2 size/></button>
         </div>
       ))}
     </div>
@@ -835,6 +847,7 @@ function Reviews({ data, onRefresh }: any) {
           </button>
         </div>
       ))}
+      {!data.length && <div className="bg-muted/10 border border-border/40 rounded-3xl p-12 text-center text-muted-foreground text-sm font-light">لا توجد مراجعات.</div>}
     </div>
   );
 }
