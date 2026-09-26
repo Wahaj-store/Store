@@ -1,22 +1,26 @@
 // مسار الملف: app/admin/page.tsx
 
-import { getUser } from '@/lib/auth';
-import { redirect } from 'next/navigation';
+'use client';
+import { useState, useEffect } from 'react';
 import AdminManager from '@/components/AdminManager';
 import { Store, LogOut, ShieldCheck, Sparkles, Menu } from 'lucide-react';
 
-export default async function Admin() {
-  const u = await getUser();
-  
-  if (!u || !u.active) {
-    redirect('/admin/login');
-  }
+export default function Admin() {
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [user, setUser] = useState<any>(null);
+
+  useEffect(() => {
+    fetch('/api/auth/me')
+      .then(r => r.json())
+      .then(data => setUser(data))
+      .catch(() => {});
+  }, []);
 
   return (
     <main className="min-h-screen py-12 px-4 md:px-8 bg-[var(--bg)] text-foreground transition-colors duration-300" dir="rtl">
       <div className="container max-w-7xl mx-auto space-y-8">
         
-        {/* ترويسة لوحة التحكم الفاخرة */}
+        {/* ترويسة لوحة التحكم الفاخرة - زر قسّام لوحة التحكم في أقصى اليمين تماماً */}
         <header className="flex flex-wrap items-center justify-between gap-4 border-b border-border/30 pb-6">
           <div className="space-y-1.5">
             <div className="flex items-center gap-2">
@@ -24,24 +28,27 @@ export default async function Admin() {
                 <ShieldCheck size={14} />
                 لوحة الإدارة العليا
               </span>
-              <span className="text-xs text-muted-foreground font-light">• الصلاحية: {u.role}</span>
+              {user?.role && <span className="text-xs text-muted-foreground font-light">• الصلاحية: {user.role}</span>}
             </div>
             <h1 className="text-3xl md:text-4xl font-serif font-bold tracking-tight flex items-center gap-2">
-              <Sparkles size={22} className="text-[#D4AF37]" /> متجر وَهَج
+              <Sparkles size2={22} className="text-[#D4AF37]" /> متجر وَهَج
             </h1>
             <p className="text-muted-foreground text-sm font-light">
-              مرحبًا بك، <span className="text-foreground font-medium">{u.name || u.email}</span> — يمكنك إدارة كافة عمليات المتجر بدقة وسلاسة.
+              مرحبًا بك — يمكنك إدارة كافة عمليات المتجر بدقة وسلاسة.
             </p>
           </div>
 
-          {/* أزرار الإجراءات العلوية وزر القائمة في أقصى اليمين */}
+          {/* أزرار الإجراءات العلوية وزر القائمة في أقصى اليمين تماماً */}
           <div className="flex items-center gap-3 flex-wrap">
             
-            {/* زر قسّام لوحة التحكم في الأعلى بجانب الأزرار */}
-            <label htmlFor="admin-sidebar-toggle" className="inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl text-xs md:text-sm font-medium bg-[#D4AF37] text-black hover:opacity-95 transition shadow-sm cursor-pointer">
+            {/* زر قسّام لوحة التحكم في أعلى الصفحة على اليمين */}
+            <button 
+              onClick={() => setSidebarOpen(true)}
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl text-xs md:text-sm font-bold bg-[#D4AF37] text-black hover:opacity-95 transition shadow-sm cursor-pointer"
+            >
               <Menu size={16} />
               <span>قسّام لوحة التحكم</span>
-            </label>
+            </button>
 
             <a 
               href="/" 
@@ -67,7 +74,7 @@ export default async function Admin() {
 
         {/* مدير اللوحة المركزي */}
         <div className="bg-muted/10 border border-border/40 rounded-3xl p-6 md:p-8 shadow-sm">
-          <AdminManager />
+          <AdminManager sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
         </div>
 
       </div>
