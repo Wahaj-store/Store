@@ -31,7 +31,7 @@ export default function Admin() {
               {user?.role && <span className="text-xs text-muted-foreground font-light">• الصلاحية: {user.role}</span>}
             </div>
             <h1 className="text-3xl md:text-4xl font-serif font-bold tracking-tight flex items-center gap-2">
-              <Sparkles size2={22} className="text-[#D4AF37]" /> متجر وَهَج
+              <Sparkles size={22} className="text-[#D4AF37]" /> متجر وَهَج
             </h1>
             <p className="text-muted-foreground text-sm font-light">
               مرحبًا بك — يمكنك إدارة كافة عمليات المتجر بدقة وسلاسة.
