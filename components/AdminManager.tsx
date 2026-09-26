@@ -74,14 +74,13 @@ async function api(url: string, method = 'GET', body?: any) {
   return j;
 }
 
-export default function AdminManager() {
+export default function AdminManager({ sidebarOpen, setSidebarOpen }: { sidebarOpen: boolean, setSidebarOpen: (open: boolean) => void }) {
   const [tab, setTab] = useState('products');
   const [data, setData] = useState<any[]>([]);
   const [cats, setCats] = useState<any[]>([]);
   const [editing, setEditing] = useState<any>(null);
   const [msg, setMsg] = useState('');
   const [loading, setLoading] = useState(false);
-  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const getCurrentTabLabel = () => {
     for (const group of menuGroups) {
@@ -181,24 +180,6 @@ export default function AdminManager() {
 
   return (
     <div className="space-y-6" dir="rtl">
-      
-      {/* شريط علوي يثبت زر القائمة في أقصى اليمين تماماً */}
-      <div className="flex items-center justify-between bg-muted/10 border border-border/40 rounded-2xl px-4 py-3 shadow-xs">
-        <div className="flex items-center gap-3">
-          <button 
-            onClick={() => setSidebarOpen(!sidebarOpen)}
-            className="px-4 py-2 rounded-xl bg-[#D4AF37] text-black font-serif font-bold text-xs flex items-center gap-2 shadow-sm hover:opacity-95 transition cursor-pointer"
-          >
-            {sidebarOpen ? <X size={16} /> : <Menu size={16} />}
-            <span>قسّام لوحة التحكم</span>
-          </button>
-        </div>
-        <div className="text-left">
-          <span className="text-[10px] text-muted-foreground block font-light">القسم الحالي</span>
-          <span className="text-xs text-[#D4AF37] font-bold font-serif">{getCurrentTabLabel()}</span>
-        </div>
-      </div>
-
       <div className="grid gap-8 lg:grid-cols-[280px_1fr] items-start relative">
         
         {/* الخلفية المعتمة عند فتح القائمة */}
@@ -283,6 +264,7 @@ export default function AdminManager() {
   );
 }
 
+// (نفس دوال Editor و Content و باقي المساعدين بدون تغيير تماماً كما في الكود السابق)
 function Editor({ tab, value, cats, onCancel, onSave, upload }: any) {
   const [v, setV] = useState({ ...value, images: value.images || [], variants: value.variants || [] });
   const set = (k: string, x: any) => setV((p: any) => ({ ...p, [k]: x }));
