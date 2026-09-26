@@ -72,13 +72,22 @@ const emptyProduct: any = {
 };
 
 async function api(url: string, method = 'GET', body?: any) {
-  const r = await fetch(url, { 
-    method, 
-    headers: body instanceof FormData ? undefined : body ? { 'Content-Type': 'application/json' } : undefined, 
-    body: body instanceof FormData ? body : body ? JSON.stringify(body) : undefined 
+  const r = await fetch(url, {
+    method,
+    credentials: 'same-origin',
+    cache: 'no-store',
+    headers: body instanceof FormData ? undefined : body ? { 'Content-Type': 'application/json' } : undefined,
+    body: body instanceof FormData ? body : body ? JSON.stringify(body) : undefined,
   });
   const j = await r.json().catch(() => ({}));
-  if (!r.ok) throw new Error(j.error || 'حدث خطأ في النظام');
+  if (!r.ok) {
+    if (r.status === 401) {
+      if (typeof window !== 'undefined') window.location.assign('/admin/login');
+      throw new Error(j.error || 'انتهت جلسة الإدارة.');
+    }
+    if (r.status === 403) throw new Error(j.error || 'غير مصرح: لا تملك صلاحية الوصول إلى هذا القسم.');
+    throw new Error(j.error || 'حدث خطأ في النظام');
+  }
   return j;
 }
 
@@ -133,7 +142,12 @@ export default function AdminManager({ sidebarOpen, setSidebarOpen }: { sidebarO
       }
 
       const x = await api(targetUrl);
-      setData(Array.isArray(x) ? x : [x]);
+      if (tab === 'settings') {
+        const settings = x?.settings || {};
+        setData(Object.entries(settings).map(([key, value]) => ({ id: `setting:${key}`, key, value })));
+      } else {
+        setData(Array.isArray(x) ? x : [x]);
+      }
     } catch (e: any) {
       setMsg(e.message || 'حدث خطأ أثناء جلب البيانات');
       setData([]);
@@ -159,6 +173,8 @@ export default function AdminManager({ sidebarOpen, setSidebarOpen }: { sidebarO
       } else if (tab === 'settings') {
         endpoint = '/api/admin/config';
         method = 'PUT';
+        if (!String(v.key || '').trim()) throw new Error('مفتاح الإعداد مطلوب.');
+        v = { settings: { [String(v.key).trim()]: String(v.value ?? '') } };
       } else if (tab === 'categories') {
         endpoint = v.id ? `/api/admin/categories` : '/api/admin/categories';
       }
@@ -181,6 +197,10 @@ export default function AdminManager({ sidebarOpen, setSidebarOpen }: { sidebarO
         await api(`/api/admin/faq/${id}`, 'DELETE');
       } else if (tab === 'products') {
         await api(`/api/admin/products/${id}`, 'DELETE');
+      } else if (tab === 'settings') {
+        const item = data.find((x: any) => x.id === id);
+        if (!item?.key) throw new Error('تعذر تحديد مفتاح الإعداد.');
+        await api('/api/admin/config', 'DELETE', { key: item.key });
       } else {
         await api(`/api/admin/${tab}`, 'DELETE', { id });
       }
@@ -706,7 +726,7 @@ function Content({ tab, data, onEdit, onDelete, onRefresh, onReorder }: any) {
           </div>
           <div className="flex gap-2.5">
             <button className="px-4 py-2 rounded-xl bg-muted/20 border border-border/60 text-xs font-medium hover:bg-muted/30 transition cursor-pointer" onClick={() => onEdit(x)}>تعديل</button>
-            <button className="p-2 rounded-xl border border-red-400 text-red-500 hover:bg-red-500/10 transition cursor-pointer" onClick={() => onDelete(x.id)}><Trash2 size={16} /></button>
+            {tab !== 'settings' && <button className="p-2 rounded-xl border border-red-400 text-red-500 hover:bg-red-500/10 transition cursor-pointer" onClick={() => onDelete(x.id)}><Trash2 size={16} /></button>}
           </div>
         </div>
       ))}
