@@ -16,7 +16,6 @@ interface MenuGroup {
   items: [string, string, ComponentType<LucideProps>][];
 }
 
-// تقسيم القائمة إلى مجموعات احترافية ومنظمة
 const menuGroups: MenuGroup[] = [
   {
     title: 'إدارة المتجر',
@@ -83,7 +82,6 @@ export default function AdminManager() {
   const [msg, setMsg] = useState('');
   const [loading, setLoading] = useState(false);
 
-  // استخراج اسم القسم الحالي للترويسة
   const getCurrentTabLabel = () => {
     for (const group of menuGroups) {
       const found = group.items.find(item => item[0] === tab);
@@ -181,10 +179,10 @@ export default function AdminManager() {
   }
 
   return (
-    <div className="grid gap-6 lg:grid-cols-[280px_1fr]" dir="rtl">
+    <div className="grid gap-8 lg:grid-cols-[280px_1fr] items-start" dir="rtl">
       
-      {/* القائمة الجانبية الاحترافية الجديدة */}
-      <aside className="bg-muted/10 border border-border/40 rounded-3xl p-4 h-fit lg:sticky lg:top-5 space-y-6 shadow-xs">
+      {/* القائمة الجانبية الثابتة (Sticky Sidebar) */}
+      <aside className="bg-muted/10 border border-border/40 rounded-3xl p-4 lg:sticky lg:top-8 space-y-6 shadow-xs max-h-[calc(100vh-4rem)] overflow-y-auto custom-scrollbar">
         {menuGroups.map((group, groupIdx) => (
           <div key={groupIdx} className="space-y-1.5">
             <h3 className="px-3 text-[11px] font-serif font-bold uppercase tracking-wider text-[#D4AF37]/90">
@@ -217,7 +215,7 @@ export default function AdminManager() {
       </aside>
 
       {/* قسم المحتوى الرئيسي */}
-      <section className="space-y-6">
+      <section className="space-y-6 min-w-0">
         <div className="flex flex-wrap items-center justify-between gap-4 border-b border-border/30 pb-5">
           <div>
             <h2 className="text-2xl font-serif font-bold text-foreground">{getCurrentTabLabel()}</h2>
