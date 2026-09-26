@@ -1,21 +1,27 @@
-@import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  --bg: var(--brand-bg, #F8F5EF);
-  --fg: var(--brand-fg, #171513);
+  --font-wahaj: 'IBM Plex Sans Arabic', 'Noto Kufi Arabic', 'Tajawal', Arial, sans-serif;
+  --brand-primary: #241B1A;
+  --brand-bg: #F7F2EA;
+  --brand-rose: #B88D87;
+  --brand-accent: #C6A46A;
+  --brand-text: #201D1C;
+  --brand-success: #6D8068;
+  --bg: var(--brand-bg, #F7F2EA);
+  --fg: var(--brand-fg, #201D1C);
   --muted: #6e675f;
   --line: #e3dbcf;
-  --gold: var(--brand-gold, #C8A96B);
+  --gold: var(--brand-gold, #C6A46A);
   --gold-soft: #efe5d3;
   --card: #fffdf9;
   --card-hover: #ffffff;
   --surface: #f2ede5;
   --danger: #a94442;
-  --success: #3f7659;
+  --success: var(--brand-success, #6D8068);
   --warning: #9a7029;
   --radius-sm: 6px;
   --radius-md: 10px;
@@ -27,11 +33,11 @@
 }
 
 .dark {
-  --bg: #171513;
-  --fg: #F8F5EF;
+  --bg: #241B1A;
+  --fg: #F7F2EA;
   --muted: #b8afa4;
   --line: #403a34;
-  --gold: var(--brand-gold, #C8A96B);
+  --gold: var(--brand-gold, #C6A46A);
   --gold-soft: #30291f;
   --card: #211e1b;
   --card-hover: #27231f;
@@ -52,7 +58,7 @@ body {
   margin: 0;
   background: var(--bg);
   color: var(--fg);
-  font-family: 'Tajawal', Arial, sans-serif;
+  font-family: var(--font-wahaj);
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
 }
@@ -79,7 +85,7 @@ a {
 
 ::selection {
   background: var(--gold);
-  color: #171513;
+  color: #241B1A;
 }
 
 .container {
@@ -160,7 +166,7 @@ a:focus-visible {
 .btn-gold {
   background: var(--gold);
   border-color: var(--gold);
-  color: #171513;
+  color: #241B1A;
 }
 
 .btn-gold:hover {
@@ -170,15 +176,15 @@ a:focus-visible {
 }
 
 .btn-dark {
-  background: #171513;
-  border-color: #171513;
-  color: #F8F5EF;
+  background: #241B1A;
+  border-color: #241B1A;
+  color: #F7F2EA;
 }
 
 .dark .btn-dark {
-  background: #F8F5EF;
-  border-color: #F8F5EF;
-  color: #171513;
+  background: #F7F2EA;
+  border-color: #F7F2EA;
+  color: #241B1A;
 }
 
 .input {
@@ -475,7 +481,7 @@ a:focus-visible {
     linear-gradient(
       180deg,
       transparent 55%,
-      color-mix(in srgb, #171513 8%, transparent)
+      color-mix(in srgb, #241B1A 8%, transparent)
     );
 }
 
@@ -902,7 +908,7 @@ a:focus-visible {
   height:36px;
   place-items:center;
   background:rgba(255,255,255,.94);
-  color:#171513;
+  color:#241B1A;
   border:1px solid rgba(23,21,19,.1);
   transition:transform .2s ease,background .2s ease;
 }
@@ -914,7 +920,7 @@ a:focus-visible {
 
 .dark .wahaj-product-card__action{
   background:rgba(33,30,27,.94);
-  color:#F8F5EF;
+  color:#F7F2EA;
   border-color:rgba(248,245,239,.12);
 }
 
@@ -1143,8 +1149,8 @@ a:focus-visible {
 .wahaj-footer{
   margin-top:0;
   padding:72px 0 24px;
-  background:#171513;
-  color:#F8F5EF;
+  background:#241B1A;
+  color:#F7F2EA;
 }
 
 .wahaj-footer__main{
@@ -1174,13 +1180,13 @@ a:focus-visible {
 
 .wahaj-footer__tagline{
   margin-top:12px;
-  color:#C8A96B;
+  color:#C6A46A;
   font-size:12px;
 }
 
 .wahaj-footer__column h3{
   margin:0 0 18px;
-  color:#F8F5EF;
+  color:#F7F2EA;
   font-size:13px;
   font-weight:600;
 }
@@ -1200,7 +1206,7 @@ a:focus-visible {
 }
 
 .wahaj-footer__links a:hover{
-  color:#C8A96B;
+  color:#C6A46A;
 }
 
 .wahaj-footer__payment-text{
@@ -1416,7 +1422,7 @@ a:focus-visible {
   border:2px solid var(--bg);
   border-radius:999px;
   background:var(--gold);
-  color:#171513;
+  color:#241B1A;
   font-size:9px;
   font-weight:700;
   line-height:1;
@@ -1545,7 +1551,7 @@ a:focus-visible {
   height:17px;
   border:2px solid var(--bg);
   background:var(--gold);
-  color:#171513;
+  color:#241B1A;
   font-size:8px;
 }
 
@@ -1658,3 +1664,27 @@ a:focus-visible {
   }
 }
 
+
+
+/* وَهَج — Premium Arabic Editorial Typography */
+.heading-editorial, .section-title, h1, h2, h3 {
+  font-family: var(--font-wahaj);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+
+.price {
+  font-family: var(--font-wahaj);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+body {
+  font-weight: 400;
+  line-height: 1.75;
+}
+
+.font-medium { font-weight: 500; }
+.font-semibold { font-weight: 600; }
+.font-bold { font-weight: 700; }
