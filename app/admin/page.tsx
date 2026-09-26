@@ -3,7 +3,7 @@
 import { getUser } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 import AdminManager from '@/components/AdminManager';
-import { Store, LogOut, ShieldCheck, Sparkles } from 'lucide-react';
+import { Store, LogOut, ShieldCheck, Sparkles, Menu } from 'lucide-react';
 
 export default async function Admin() {
   const u = await getUser();
@@ -34,8 +34,15 @@ export default async function Admin() {
             </p>
           </div>
 
-          {/* أزرار الإجراءات العلوية */}
-          <div className="flex items-center gap-3">
+          {/* أزرار الإجراءات العلوية وزر القائمة في أقصى اليمين */}
+          <div className="flex items-center gap-3 flex-wrap">
+            
+            {/* زر قسّام لوحة التحكم في الأعلى بجانب الأزرار */}
+            <label htmlFor="admin-sidebar-toggle" className="inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl text-xs md:text-sm font-medium bg-[#D4AF37] text-black hover:opacity-95 transition shadow-sm cursor-pointer">
+              <Menu size={16} />
+              <span>قسّام لوحة التحكم</span>
+            </label>
+
             <a 
               href="/" 
               target="_blank"
