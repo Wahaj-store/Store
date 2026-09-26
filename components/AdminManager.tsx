@@ -65,12 +65,20 @@ const menuGroups: MenuGroup[] = [
   }
 ];
 
-const emptyProduct: any = { name: '', slug: '', description: '', price: '', comparePrice: '', stock: 0, sku: '', categoryId: '', status: 'DRAFT', material: '', careInstructions: '', seoTitle: '', seoDescription: '', images: [], variants: [] };
+const emptyProduct: any = { 
+  name: '', slug: '', description: '', price: '', comparePrice: '', 
+  stock: 0, sku: '', categoryId: '', status: 'DRAFT', material: '', 
+  careInstructions: '', seoTitle: '', seoDescription: '', images: [], variants: [] 
+};
 
 async function api(url: string, method = 'GET', body?: any) {
-  const r = await fetch(url, { method, headers: body instanceof FormData ? undefined : body ? { 'Content-Type': 'application/json' } : undefined, body: body instanceof FormData ? body : body ? JSON.stringify(body) : undefined });
+  const r = await fetch(url, { 
+    method, 
+    headers: body instanceof FormData ? undefined : body ? { 'Content-Type': 'application/json' } : undefined, 
+    body: body instanceof FormData ? body : body ? JSON.stringify(body) : undefined 
+  });
   const j = await r.json().catch(() => ({}));
-  if (!r.ok) throw new Error(j.error || 'حدث خطأ');
+  if (!r.ok) throw new Error(j.error || 'حدث خطأ في النظام');
   return j;
 }
 
@@ -116,7 +124,7 @@ export default function AdminManager({ sidebarOpen, setSidebarOpen }: { sidebarO
         contact: '/api/admin/contact',
         settings: '/api/admin/config'
       };
-      const x = await api(map[tab]);
+      const x = await api(map[tab] || '/api/admin/products');
       setData(Array.isArray(x) ? x : [x]);
     } catch (e: any) {
       setMsg(e.message);
@@ -133,13 +141,20 @@ export default function AdminManager({ sidebarOpen, setSidebarOpen }: { sidebarO
   async function save(v: any) {
     try {
       let endpoint = `/api/admin/${tab}`;
+      let method = v.id ? 'PUT' : 'POST';
+
       if (tab === 'products') {
         endpoint = v.id ? `/api/admin/products/${v.id}` : '/api/admin/products';
       } else if (tab === 'faq') {
         endpoint = v.id ? `/api/admin/faq/${v.id}` : '/api/admin/faq';
+      } else if (tab === 'settings') {
+        endpoint = '/api/admin/config';
+        method = 'PUT';
+      } else if (tab === 'categories') {
+        endpoint = v.id ? `/api/admin/categories` : '/api/admin/categories';
       }
-      
-      await api(endpoint, v.id ? 'PUT' : 'POST', v);
+
+      await api(endpoint, method, v);
       setMsg('تم الحفظ بنجاح');
       setEditing(null);
       load();
@@ -149,16 +164,18 @@ export default function AdminManager({ sidebarOpen, setSidebarOpen }: { sidebarO
   }
 
   async function del(id: string) {
-    if (!confirm('تأكيد الحذف؟')) return;
+    if (!confirm('هل أنت متأكد من الحذف؟')) return;
     try {
       if (tab === 'contact') {
         await api(`/api/admin/contact?id=${id}`, 'DELETE');
       } else if (tab === 'faq') {
         await api(`/api/admin/faq/${id}`, 'DELETE');
+      } else if (tab === 'products') {
+        await api(`/api/admin/products/${id}`, 'DELETE');
       } else {
-        await api(tab === 'products' ? `/api/admin/products/${id}` : `/api/admin/${tab}`, 'DELETE', { id });
+        await api(`/api/admin/${tab}`, 'DELETE', { id });
       }
-      setMsg('تم الحذف');
+      setMsg('تم الحذف بنجاح');
       load();
     } catch (e: any) {
       setMsg(e.message);
@@ -178,11 +195,27 @@ export default function AdminManager({ sidebarOpen, setSidebarOpen }: { sidebarO
     await api(endpoint, 'PUT', { reorder: true, items: ordered });
   }
 
+  const getNewItemTemplate = () => {
+    switch (tab) {
+      case 'products': return emptyProduct;
+      case 'categories': return { name: '', slug: '', description: '', image: '' };
+      case 'offers': return { name: '', type: 'FLASH_SALE', discountValue: 0, startsAt: '', endsAt: '' };
+      case 'coupons': return { code: '', value: 0, type: 'PERCENTAGE', minOrder: 0, maxUses: 100 };
+      case 'gift-cards': return { code: '', amount: 0, expiresAt: '' };
+      case 'shipping': return { governorate: '', city: '', price: 0, freeAbove: 0 };
+      case 'homepage': return { type: 'BANNER', title: '', subtitle: '', visible: true };
+      case 'relations': return { type: 'RELATED', fromProductId: '', toProductId: '', sortOrder: 0 };
+      case 'faq': return { question: '', answer: '', category: 'general', displayOrder: 0, published: true };
+      case 'redirects': return { fromPath: '', toPath: '', statusCode: 301 };
+      case 'settings': return { key: '', value: '' };
+      default: return {};
+    }
+  };
+
   return (
     <div className="space-y-6" dir="rtl">
       <div className="grid gap-8 lg:grid-cols-[280px_1fr] items-start relative">
         
-        {/* الخلفية المعتمة عند فتح القائمة */}
         {sidebarOpen && (
           <div 
             onClick={() => setSidebarOpen(false)}
@@ -190,7 +223,6 @@ export default function AdminManager({ sidebarOpen, setSidebarOpen }: { sidebarO
           />
         )}
 
-        {/* القائمة الجانبية */}
         <aside className={`
           fixed lg:sticky top-0 lg:top-8 bottom-0 right-0 z-50 w-72 lg:w-auto
           bg-[var(--bg)] lg:bg-muted/10 border border-border/40 rounded-3xl p-4 
@@ -237,20 +269,24 @@ export default function AdminManager({ sidebarOpen, setSidebarOpen }: { sidebarO
           ))}
         </aside>
 
-        {/* قسم المحتوى الرئيسي */}
         <section className="space-y-6 min-w-0">
           <div className="flex flex-wrap items-center justify-between gap-4 border-b border-border/30 pb-5">
             <div>
               <h2 className="text-2xl font-serif font-bold text-foreground">{getCurrentTabLabel()}</h2>
-              <p className="text-muted-foreground text-xs md:text-sm mt-0.5 font-light">تعديل مباشر لبيانات المتجر من قاعدة البيانات.</p>
+              <p className="text-muted-foreground text-xs md:text-sm mt-0.5 font-light">إدارة كاملة لبيانات المتجر والتحكم المباشر.</p>
             </div>
-            {!editing && ['products', 'categories', 'offers', 'coupons', 'shipping', 'homepage', 'gift-cards', 'relations', 'faq'].includes(tab) && (
-              <button className="px-5 py-2.5 rounded-2xl bg-[#D4AF37] text-black font-serif font-bold text-xs md:text-sm shadow-sm hover:opacity-95 transition inline-flex items-center gap-2 cursor-pointer" onClick={() => setEditing(tab === 'products' ? emptyProduct : tab === 'faq' ? { question: '', answer: '', category: 'general', displayOrder: 0, published: true } : {})}>
+            {!editing && ['products', 'categories', 'offers', 'coupons', 'shipping', 'homepage', 'gift-cards', 'relations', 'faq', 'redirects', 'settings'].includes(tab) && (
+              <button 
+                className="px-5 py-2.5 rounded-2xl bg-[#D4AF37] text-black font-serif font-bold text-xs md:text-sm shadow-sm hover:opacity-95 transition inline-flex items-center gap-2 cursor-pointer" 
+                onClick={() => setEditing(getNewItemTemplate())}
+              >
                 <Plus size={17} /> إضافة جديدة
               </button>
             )}
           </div>
+
           {msg && <div className="rounded-2xl border border-[#D4AF37]/40 bg-[#D4AF37]/10 p-4 text-xs md:text-sm font-medium text-[#D4AF37] shadow-xs">{msg}</div>}
+
           {loading ? (
             <div className="bg-muted/10 border border-border/40 rounded-3xl p-12 text-center text-muted-foreground text-sm font-light">جارٍ التحميل…</div>
           ) : editing ? (
@@ -264,12 +300,16 @@ export default function AdminManager({ sidebarOpen, setSidebarOpen }: { sidebarO
   );
 }
 
-// (نفس دوال Editor و Content و باقي المساعدين بدون تغيير تماماً كما في الكود السابق)
 function Editor({ tab, value, cats, onCancel, onSave, upload }: any) {
-  const [v, setV] = useState({ ...value, images: value.images || [], variants: value.variants || [] });
+  const [v, setV] = useState({ 
+    ...value, 
+    images: value.images || [], 
+    variants: value.variants || [] 
+  });
+
   const set = (k: string, x: any) => setV((p: any) => ({ ...p, [k]: x }));
   const addVar = () => set('variants', [...v.variants, { name: 'اللون', value: '', stock: 0, price: '' }]);
-  
+
   if (tab === 'settings') return (
     <div className="bg-muted/10 border border-border/40 rounded-3xl p-6 md:p-8 space-y-5 shadow-xs">
       <h3 className="font-serif font-bold text-lg text-[#D4AF37]">إعدادات المتجر العامة</h3>
@@ -278,7 +318,7 @@ function Editor({ tab, value, cats, onCancel, onSave, upload }: any) {
         <Field label="القيمة (Value)" value={v.value || ''} onChange={(x: any) => set('value', x)} />
       </div>
       <div className="flex gap-3 pt-3">
-        <button className="px-6 py-3 rounded-2xl bg-[#D4AF37] text-black font-serif font-bold text-sm shadow-sm hover:opacity-95 transition inline-flex items-center gap-2 cursor-pointer" onClick={() => onSave(v)}><Save size={17} /> حفظ الإعدادات</button>
+        <button className="px-6 py-3 rounded-2xl bg-[#D4AF37] text-black font-serif font-bold text-sm shadow-sm hover:opacity-95 transition inline-flex items-center gap-2 cursor-pointer" onClick={() => onSave(v)}><Save size={17} /> حفظ الإعداد</button>
         <button className="px-5 py-3 rounded-2xl bg-muted/20 border border-border/60 text-muted-foreground text-sm font-medium hover:bg-muted/30 transition cursor-pointer" onClick={onCancel}>إلغاء</button>
       </div>
     </div>
@@ -331,7 +371,7 @@ function Editor({ tab, value, cats, onCancel, onSave, upload }: any) {
       </div>
     </div>
   );
-  
+
   const common: any = { 
     relations: [['type', 'نوع العلاقة'], ['fromProductId', 'المنتج الأساسي'], ['toProductId', 'المنتج المقترح'], ['sortOrder', 'الترتيب']], 
     'gift-cards': [['code', 'كود البطاقة'], ['amount', 'القيمة'], ['expiresAt', 'تاريخ الانتهاء']], 
@@ -342,13 +382,13 @@ function Editor({ tab, value, cats, onCancel, onSave, upload }: any) {
     homepage: [['type', 'نوع القسم'], ['title', 'العنوان'], ['subtitle', 'الوصف'], ['ctaText', 'نص الزر'], ['ctaUrl', 'رابط الزر'], ['sortOrder', 'الترتيب']], 
     redirects: [['fromPath', 'المسار القديم'], ['toPath', 'المسار الجديد'], ['statusCode', 'كود التحويل']] 
   };
-  
+
   if (tab === 'offers') return (
     <div className="bg-muted/10 border border-border/40 rounded-3xl p-6 md:p-8 space-y-5 shadow-xs">
       <div className="grid gap-4 md:grid-cols-2">
         <Field label="اسم العرض" value={v.name || ''} onChange={(x: any) => set('name', x)} />
         <label className="text-xs md:text-sm font-medium text-muted-foreground">نوع العرض
-          <select className="w-full mt-1 px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[#D4AF37]" value={v.type || 'SEASONAL'} onChange={e => set('type', e.target.value)}>
+          <select className="w-full mt-1 px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[#D4AF37]" value={v.type || 'FLASH_SALE'} onChange={e => set('type', e.target.value)}>
             {['FLASH_SALE', 'BUY_X_GET_Y', 'FREE_SHIPPING', 'FIRST_ORDER', 'SEASONAL'].map((x: any) => <option key={x}>{x}</option>)}
           </select>
         </label>
@@ -376,7 +416,7 @@ function Editor({ tab, value, cats, onCancel, onSave, upload }: any) {
       </div>
     </div>
   );
-  
+
   return (
     <div className="bg-muted/10 border border-border/40 rounded-3xl p-6 md:p-8 space-y-6 shadow-xs">
       <div className="grid gap-4 md:grid-cols-2">
@@ -458,8 +498,6 @@ function Editor({ tab, value, cats, onCancel, onSave, upload }: any) {
         </div>
       )}
 
-      {tab === 'offers' && <Select label="النوع" value={v.type || 'FLASH_SALE'} options={['FLASH_SALE', 'BUY_X_GET_Y', 'FREE_SHIPPING', 'FIRST_ORDER', 'SEASONAL']} onChange={(x: any) => set('type', x)} />} 
-      {tab === 'coupons' && <Select label="النوع" value={v.type || 'PERCENTAGE'} options={['PERCENTAGE', 'FIXED']} onChange={(x: any) => set('type', x)} />} 
       {tab === 'homepage' && (
         <>
           <Select label="الظهور" value={String(v.visible !== false)} options={['true', 'false']} onChange={(x: any) => set('visible', x === 'true')} />
