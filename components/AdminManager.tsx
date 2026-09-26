@@ -11,18 +11,12 @@ import {
 } from 'lucide-react';
 import MediaPicker from './MediaPicker';
 
-interface MenuItem {
-  0: string;
-  1: string;
-  2: ComponentType<LucideProps>;
-}
-
 interface MenuGroup {
   title: string;
-  items: MenuItem[];
+  items: [string, string, ComponentType<LucideProps>][];
 }
 
-// تقسيم القائمة إلى مجموعات احترافية ومنظمة مع تحديد الأنواع بدقة
+// تقسيم القائمة إلى مجموعات احترافية ومنظمة
 const menuGroups: MenuGroup[] = [
   {
     title: 'إدارة المتجر',
@@ -197,21 +191,26 @@ export default function AdminManager() {
               {group.title}
             </h3>
             <div className="space-y-1 pt-1">
-              {group.items.map(([k, t, Icon]) => (
-                <button 
-                  key={k} 
-                  onClick={() => { setTab(k); setEditing(null); setMsg(''); }} 
-                  className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-xs md:text-sm transition-all cursor-pointer ${
-                    tab === k 
-                      ? 'bg-[#D4AF37] text-black font-bold shadow-sm' 
-                      : 'text-muted-foreground hover:text-foreground hover:bg-muted/20 font-light'
-                  }`}
-                >
-                  <Icon size={16} className={tab === k ? 'text-black' : 'text-[#D4AF37]'} />
-                  <span className="flex-1 text-start">{t}</span>
-                  {tab === k && <ChevronLeft size={14} className="text-black" />}
-                </button>
-              ))}
+              {group.items.map((item) => {
+                const k = item[0];
+                const t = item[1];
+                const Icon = item[2];
+                return (
+                  <button 
+                    key={k} 
+                    onClick={() => { setTab(k); setEditing(null); setMsg(''); }} 
+                    className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-xs md:text-sm transition-all cursor-pointer ${
+                      tab === k 
+                        ? 'bg-[#D4AF37] text-black font-bold shadow-sm' 
+                        : 'text-muted-foreground hover:text-foreground hover:bg-muted/20 font-light'
+                    }`}
+                  >
+                    <Icon size={16} className={tab === k ? 'text-black' : 'text-[#D4AF37]'} />
+                    <span className="flex-1 text-start">{t}</span>
+                    {tab === k && <ChevronLeft size={14} className="text-black" />}
+                  </button>
+                );
+              })}
             </div>
           </div>
         ))}
