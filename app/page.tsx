@@ -1,9 +1,10 @@
 import { prisma } from '@/lib/prisma';
 import Store from '@/components/Store';
 
-export const revalidate = 0;
+export const revalidate = 0; // ضمان تحديث البيانات بشكل فوري
 
 export default async function Page() {
+  // جلب كافة بيانات المتجر من قاعدة البيانات بشكل متزامن لتحسين الأداء
   const [sections, products, categories, settings, theme, payments, offers] = await Promise.all([
     prisma.homepageSection.findMany({
       where: { visible: true },
