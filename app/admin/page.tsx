@@ -31,7 +31,7 @@ export default function Admin() {
           </button>
         </div>
 
-        {/* ترويسة العنوان الرئيسية */}
+        {/* ترويسة العنوان الرئيسية مع عرض دور المستخدم الحقيقي */}
         <header className="flex flex-wrap items-center justify-between gap-4 border-b border-border/30 pb-6">
           <div className="space-y-1.5">
             <div className="flex items-center gap-2">
@@ -39,13 +39,15 @@ export default function Admin() {
                 <ShieldCheck size={14} />
                 لوحة الإدارة العليا
               </span>
-              {user?.role && <span className="text-xs text-muted-foreground font-light">• الصلاحية: {user.role}</span>}
+              <span className="text-xs text-muted-foreground font-light">
+                • الصلاحية: <strong className="text-foreground">{user?.role || 'OWNER'}</strong>
+              </span>
             </div>
             <h1 className="text-3xl md:text-4xl font-serif font-bold tracking-tight flex items-center gap-2">
               <Sparkles size={22} className="text-[#D4AF37]" /> متجر وَهَج
             </h1>
             <p className="text-muted-foreground text-sm font-light">
-              مرحبًا بك — يمكنك إدارة كافة عمليات المتجر بدقة وسلاسة.
+              مرحبًا بك، <span className="text-foreground font-medium">{user?.name || user?.email || 'المالك'}</span> — يمكنك إدارة كافة عمليات المتجر بدقة وسلاسة.
             </p>
           </div>
 
@@ -75,7 +77,7 @@ export default function Admin() {
 
         {/* مدير اللوحة المركزي */}
         <div className="bg-muted/10 border border-border/40 rounded-3xl p-6 md:p-8 shadow-sm">
-          <AdminManager sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
+          <AdminManager sidebarOpen={sidebarOpen} setSidebarOpen={sidebarOpen} />
         </div>
 
       </div>
