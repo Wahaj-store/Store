@@ -327,9 +327,9 @@ export default function Store({ data }: { data: any }) {
               <section key={sec.id} className="container py-20">
                 <div className="grid grid-cols-2 gap-6 md:grid-cols-4">
                   {[
-                    { icon: Truck, title: "شحن داخل مصر", desc: "توصيل سريع لكافة المحافظات", href: "/shipping-policy" },
+                    { icon: Truck, title: "شحن داخل مصر", desc: "توصيل سريع لكافة المحافظات", href: "/policies/shipping" },
                     { icon: ShieldCheck, title: "طرق دفع متعددة", desc: "دفع آمن (إنستايباي، فودافون كاش، COD)", href: "/payment-policy" },
-                    { icon: RotateCcw, title: "استبدال واسترجاع", desc: "سياسة مرنة خلال 14 يوماً", href: "/returns-policy" },
+                    { icon: RotateCcw, title: "استبدال واسترجاع", desc: "سياسة مرنة خلال 14 يوماً", href: "/policies/returns" },
                     { icon: MessageCircle, title: "دعم سريع", desc: "خدمة عملاء متاحة على مدار الساعة", href: "/contact" },
                   ].map(({ icon: I, title, desc, href }) => (
                     <a
