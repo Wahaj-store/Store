@@ -1,3 +1,5 @@
+// مسار الملف: app/account/page.tsx
+
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -123,20 +125,20 @@ export default function Account() {
 
   if (!c) {
     return (
-      <main className="min-h-screen py-12 px-4 md:px-8 bg-background text-foreground transition-colors duration-300 flex items-center justify-center" dir="rtl">
+      <main className="min-h-screen py-16 px-4 md:px-8 bg-[var(--bg)] text-foreground transition-colors duration-300 flex items-center justify-center" dir="rtl">
         <div className="container max-w-md mx-auto space-y-8">
           
           <div className="text-center space-y-3">
-            <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-[var(--gold)]/10 text-[var(--gold)] border border-[var(--gold)]/30 shadow-sm">
-              <Sparkles size={28} />
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-3xl bg-[#D4AF37]/10 text-[#D4AF37] border border-[#D4AF37]/30 shadow-xs">
+              <Sparkles size={30} />
             </div>
-            <a href="/" className="inline-block text-2xl font-bold tracking-wider text-[var(--gold)]">
+            <a href="/" className="inline-block text-3xl font-serif font-bold tracking-wider text-[#D4AF37]">
               وَهَج
             </a>
-            <h1 className="text-2xl md:text-3xl font-bold tracking-tight">
+            <h1 className="text-2xl md:text-3xl font-serif font-bold tracking-tight">
               {isForgotMode ? 'استعادة كلمة المرور' : (mode === 'login' ? 'أهلاً بكِ مجدداً' : 'انضمي إلى عائلة وَهَج')}
             </h1>
-            <p className="text-muted-foreground text-sm">
+            <p className="text-muted-foreground text-sm font-light">
               {isForgotMode 
                 ? 'أدخلي بريدك الإلكتروني المسجل لاستلام رمز التحقق.' 
                 : (mode === 'login' ? 'سجلي دخولك لمتابعة طلبياتك وإدارتها بكل سهولة.' : 'أنشئي حسابك الجديد واستمتعي بتجربة تسوق فريدة.')}
@@ -144,12 +146,12 @@ export default function Account() {
           </div>
 
           {!isForgotMode && (
-            <div className="flex p-1.5 rounded-2xl bg-card border border-border/60 shadow-sm">
+            <div className="flex p-1.5 rounded-2xl bg-muted/10 border border-border/40 shadow-xs">
               <button
                 type="button"
                 onClick={() => { setMode('login'); setMsg(''); }}
-                className={`flex-1 py-3 text-sm font-bold rounded-xl transition-all ${
-                  mode === 'login' ? 'bg-[var(--gold)] text-black shadow-md' : 'text-muted-foreground hover:text-foreground'
+                className={`flex-1 py-3 text-sm font-medium rounded-xl transition-all ${
+                  mode === 'login' ? 'bg-[#D4AF37] text-black font-bold shadow-md' : 'text-muted-foreground hover:text-foreground'
                 }`}
               >
                 تسجيل الدخول
@@ -157,8 +159,8 @@ export default function Account() {
               <button
                 type="button"
                 onClick={() => { setMode('register'); setMsg(''); }}
-                className={`flex-1 py-3 text-sm font-bold rounded-xl transition-all ${
-                  mode === 'register' ? 'bg-[var(--gold)] text-black shadow-md' : 'text-muted-foreground hover:text-foreground'
+                className={`flex-1 py-3 text-sm font-medium rounded-xl transition-all ${
+                  mode === 'register' ? 'bg-[#D4AF37] text-black font-bold shadow-md' : 'text-muted-foreground hover:text-foreground'
                 }`}
               >
                 إنشاء حساب
@@ -166,19 +168,19 @@ export default function Account() {
             </div>
           )}
 
-          <div className="bg-card border border-border/60 rounded-3xl p-6 md:p-8 shadow-xl relative overflow-hidden space-y-5">
-            <div className="absolute top-0 right-0 w-28 h-28 bg-[var(--gold)]/5 rounded-bl-full pointer-events-none" />
+          <div className="bg-muted/10 border border-border/40 rounded-3xl p-6 md:p-8 shadow-md relative overflow-hidden space-y-5">
+            <div className="absolute top-0 right-0 w-28 h-28 bg-[#D4AF37]/5 rounded-bl-full pointer-events-none" />
 
             {isForgotMode ? (
               <div className="space-y-4">
                 {forgotStep === 'email' ? (
                   <form onSubmit={handleSendOtp} className="space-y-4">
                     <div className="space-y-2">
-                      <label className="text-xs md:text-sm font-semibold text-foreground">البريد الإلكتروني المسجل</label>
+                      <label className="text-xs md:text-sm font-medium text-foreground">البريد الإلكتروني المسجل</label>
                       <input
                         type="email"
                         required
-                        className="w-full px-4 py-3 rounded-xl bg-background border border-border/80 text-foreground text-sm focus:outline-none focus:border-[var(--gold)] transition"
+                        className="w-full px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[#D4AF37] transition shadow-xs"
                         placeholder="name@example.com"
                         dir="ltr"
                         value={resetData.email}
@@ -188,7 +190,7 @@ export default function Account() {
                     <button
                       type="submit"
                       disabled={loading}
-                      className="w-full py-3.5 rounded-xl bg-[var(--gold)] text-black font-bold text-sm shadow-lg hover:opacity-95 transition flex items-center justify-center gap-2"
+                      className="w-full py-3.5 rounded-2xl bg-[#D4AF37] text-black font-serif font-bold text-sm shadow-lg hover:opacity-95 transition flex items-center justify-center gap-2"
                     >
                       <span>{loading ? 'جاري الإرسال...' : 'إرسال رمز التحقق'}</span>
                       <ArrowLeft size={18} />
@@ -197,12 +199,12 @@ export default function Account() {
                 ) : (
                   <form onSubmit={handleResetPassword} className="space-y-4">
                     <div className="space-y-2">
-                      <label className="text-xs md:text-sm font-semibold text-foreground">رمز التحقق (6 أرقام)</label>
+                      <label className="text-xs md:text-sm font-medium text-foreground">رمز التحقق (6 أرقام)</label>
                       <input
                         type="text"
                         required
                         maxLength={6}
-                        className="w-full px-4 py-3 rounded-xl bg-background border border-border/80 text-foreground text-sm tracking-widest text-center font-bold focus:outline-none focus:border-[var(--gold)] transition"
+                        className="w-full px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm tracking-widest text-center font-bold focus:outline-none focus:border-[#D4AF37] transition shadow-xs"
                         placeholder="123456"
                         dir="ltr"
                         value={resetData.otp}
@@ -211,11 +213,11 @@ export default function Account() {
                     </div>
 
                     <div className="space-y-2">
-                      <label className="text-xs md:text-sm font-semibold text-foreground">كلمة المرور الجديدة</label>
+                      <label className="text-xs md:text-sm font-medium text-foreground">كلمة المرور الجديدة</label>
                       <input
                         type="password"
                         required
-                        className="w-full px-4 py-3 rounded-xl bg-background border border-border/80 text-foreground text-sm focus:outline-none focus:border-[var(--gold)] transition"
+                        className="w-full px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[#D4AF37] transition shadow-xs"
                         placeholder="••••••••"
                         dir="ltr"
                         value={resetData.newPassword}
@@ -226,7 +228,7 @@ export default function Account() {
                     <button
                       type="submit"
                       disabled={loading}
-                      className="w-full py-3.5 rounded-xl bg-[var(--gold)] text-black font-bold text-sm shadow-lg hover:opacity-95 transition flex items-center justify-center gap-2"
+                      className="w-full py-3.5 rounded-2xl bg-[#D4AF37] text-black font-serif font-bold text-sm shadow-lg hover:opacity-95 transition flex items-center justify-center gap-2"
                     >
                       <span>{loading ? 'جاري التحديث...' : 'تحديث كلمة المرور'}</span>
                       <CheckCircle2 size={18} />
@@ -237,7 +239,7 @@ export default function Account() {
                 <div className="text-center pt-2">
                   <button
                     type="button"
-                    className="text-xs text-muted-foreground hover:text-[var(--gold)] transition font-medium"
+                    className="text-xs text-muted-foreground hover:text-[#D4AF37] transition font-medium"
                     onClick={() => { setIsForgotMode(false); setForgotStep('email'); setMsg(''); }}
                   >
                     العودة لتسجيل الدخول
@@ -248,11 +250,11 @@ export default function Account() {
               <>
                 {mode === 'register' && (
                   <div className="space-y-2">
-                    <label className="text-xs md:text-sm font-semibold text-foreground">الاسم الكامل</label>
+                    <label className="text-xs md:text-sm font-medium text-foreground">الاسم الكامل</label>
                     <div className="relative">
                       <span className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground"><User size={18} /></span>
                       <input
-                        className="w-full pr-11 pl-4 py-3 rounded-xl bg-background border border-border/80 text-foreground text-sm focus:outline-none focus:border-[var(--gold)] transition"
+                        className="w-full pr-11 pl-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[#D4AF37] transition shadow-xs"
                         placeholder="أدخلي اسمكِ"
                         onChange={e => setForm({ ...form, name: e.target.value })}
                       />
@@ -261,13 +263,13 @@ export default function Account() {
                 )}
 
                 <div className="space-y-2">
-                  <label className="text-xs md:text-sm font-semibold text-foreground">
+                  <label className="text-xs md:text-sm font-medium text-foreground">
                     {mode === 'login' ? 'رقم الهاتف أو البريد الإلكتروني' : 'رقم الهاتف'}
                   </label>
                   <div className="relative">
                     <span className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground"><Phone size={18} /></span>
                     <input
-                      className="w-full pr-11 pl-4 py-3 rounded-xl bg-background border border-border/80 text-foreground text-sm focus:outline-none focus:border-[var(--gold)] transition"
+                      className="w-full pr-11 pl-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[#D4AF37] transition shadow-xs"
                       placeholder={mode === 'login' ? 'رقم الهاتف أو الإيميل' : '01xxxxxxxxx'}
                       dir="ltr"
                       onChange={e => setForm({ ...form, phone: e.target.value, email: e.target.value })}
@@ -277,9 +279,9 @@ export default function Account() {
 
                 {mode === 'register' && (
                   <div className="space-y-2">
-                    <label className="text-xs md:text-sm font-semibold text-foreground">البريد الإلكتروني</label>
+                    <label className="text-xs md:text-sm font-medium text-foreground">البريد الإلكتروني</label>
                     <input
-                      className="w-full px-4 py-3 rounded-xl bg-background border border-border/80 text-foreground text-sm focus:outline-none focus:border-[var(--gold)] transition"
+                      className="w-full px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[#D4AF37] transition shadow-xs"
                       placeholder="name@example.com"
                       dir="ltr"
                       onChange={e => setForm({ ...form, email: e.target.value })}
@@ -289,12 +291,12 @@ export default function Account() {
 
                 <div className="space-y-2">
                   <div className="flex justify-between items-center">
-                    <label className="text-xs md:text-sm font-semibold text-foreground">كلمة المرور</label>
+                    <label className="text-xs md:text-sm font-medium text-foreground">كلمة المرور</label>
                     {mode === 'login' && (
                       <button
                         type="button"
                         onClick={() => { setIsForgotMode(true); setMsg(''); }}
-                        className="text-xs text-[var(--gold)] hover:underline font-medium"
+                        className="text-xs text-[#D4AF37] hover:underline font-medium"
                       >
                         نسيت كلمة المرور؟
                       </button>
@@ -303,7 +305,7 @@ export default function Account() {
                   <div className="relative">
                     <span className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground"><Lock size={18} /></span>
                     <input
-                      className="w-full pr-11 pl-4 py-3 rounded-xl bg-background border border-border/80 text-foreground text-sm focus:outline-none focus:border-[var(--gold)] transition"
+                      className="w-full pr-11 pl-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[#D4AF37] transition shadow-xs"
                       type="password"
                       placeholder="••••••••"
                       onChange={e => setForm({ ...form, password: e.target.value })}
@@ -312,7 +314,7 @@ export default function Account() {
                 </div>
 
                 <button
-                  className="w-full mt-2 py-3.5 rounded-xl bg-[var(--gold)] text-black font-bold text-sm md:text-base shadow-lg hover:opacity-95 transition flex items-center justify-center gap-2"
+                  className="w-full mt-2 py-3.5 rounded-2xl bg-[#D4AF37] text-black font-serif font-bold text-sm md:text-base shadow-lg hover:opacity-95 transition flex items-center justify-center gap-2"
                   onClick={auth}
                 >
                   <span>{mode === 'login' ? 'دخول' : 'إنشاء الحساب'}</span>
@@ -322,7 +324,7 @@ export default function Account() {
                 <div className="text-center pt-2">
                   <button
                     type="button"
-                    className="text-xs md:text-sm text-[var(--gold)] hover:underline font-medium"
+                    className="text-xs md:text-sm text-[#D4AF37] hover:underline font-medium"
                     onClick={() => setMode(mode === 'login' ? 'register' : 'login')}
                   >
                     {mode === 'login' ? 'ليس لديك حساب؟ إنشاء حساب جديد' : 'لديك حساب بالفعل؟ تسجيل الدخول'}
@@ -333,7 +335,7 @@ export default function Account() {
 
             {msg && (
               <div className={`p-3 rounded-xl text-center text-xs md:text-sm ${
-                msg.includes('نجاح') || msg.includes('تم إرسال') ? 'bg-[var(--gold)]/10 border border-[var(--gold)]/30 text-[var(--gold)]' : 'bg-red-500/10 border border-red-500/20 text-red-500'
+                msg.includes('نجاح') || msg.includes('تم إرسال') ? 'bg-[#D4AF37]/10 border border-[#D4AF37]/30 text-[#D4AF37]' : 'bg-red-500/10 border border-red-500/20 text-red-500'
               }`}>
                 {msg}
               </div>
@@ -347,19 +349,19 @@ export default function Account() {
   }
 
   return (
-    <main className="min-h-screen py-10 px-4 md:px-8 bg-background text-foreground transition-colors duration-300" dir="rtl">
+    <main className="min-h-screen py-12 px-4 md:px-8 bg-[var(--bg)] text-foreground transition-colors duration-300" dir="rtl">
       <div className="container max-w-6xl mx-auto space-y-8">
         
         {/* الترويسة العلوية */}
         <div className="flex flex-wrap items-center justify-between gap-4 border-b border-border/40 pb-6">
           <div className="space-y-1">
-            <span className="text-[var(--gold)] font-medium text-sm flex items-center gap-1.5">
+            <span className="text-[#D4AF37] font-medium text-xs uppercase tracking-widest flex items-center gap-1.5">
               <Sparkles size={16} /> لوحة التحكم 
             </span>
-            <h1 className="text-2xl md:text-3xl font-bold">مرحبًا بكِ، {c.name}</h1>
+            <h1 className="text-2xl md:text-3xl font-serif font-bold">مرحبًا بكِ، {c.name}</h1>
           </div>
           <button
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-card border border-border/80 text-foreground hover:border-red-500/50 hover:text-red-500 transition text-sm font-semibold shadow-sm"
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-muted/10 border border-border/60 text-foreground hover:border-red-500/50 hover:text-red-500 transition text-sm font-medium shadow-xs"
             onClick={logout}
           >
             <LogOut size={16} />
@@ -371,7 +373,7 @@ export default function Account() {
         <div className="flex flex-col lg:grid lg:grid-cols-[280px_1fr] gap-8 items-start">
           
           {/* القائمة الجانبية */}
-          <aside className="w-full bg-card border border-border/60 rounded-3xl p-3 shadow-sm space-y-1.5">
+          <aside className="w-full bg-muted/10 border border-border/40 rounded-3xl p-3 shadow-xs space-y-1.5">
             {[
               ['profile', 'حسابي والبيانات', UserRound],
               ['orders', 'الطلبات ومتابعتها', Package],
@@ -383,10 +385,10 @@ export default function Account() {
               <button
                 key={k}
                 onClick={() => { setTab(k); setSelectedOrder(null); }}
-                className={`w-full flex items-center gap-3 p-3.5 text-start rounded-2xl text-sm font-semibold transition-all ${
+                className={`w-full flex items-center gap-3 p-3.5 text-start rounded-2xl text-sm font-medium transition-all ${
                   tab === k
-                    ? 'bg-[var(--gold)] text-black shadow-md'
-                    : 'text-muted-foreground hover:text-foreground hover:bg-background/60'
+                    ? 'bg-[#D4AF37] text-black font-bold shadow-md'
+                    : 'text-muted-foreground hover:text-foreground hover:bg-[var(--bg)]/60'
                 }`}
               >
                 <I size={18} className="shrink-0" />
@@ -395,10 +397,10 @@ export default function Account() {
               </button>
             ))}
 
-            <div className="pt-3 border-t border-border/40">
+            <div className="pt-3 border-t border-border/30">
               <button
                 onClick={logout}
-                className="w-full flex items-center gap-3 p-3.5 text-start rounded-2xl text-sm font-semibold text-red-500 hover:bg-red-500/10 transition"
+                className="w-full flex items-center gap-3 p-3.5 text-start rounded-2xl text-sm font-medium text-red-500 hover:bg-red-500/10 transition"
               >
                 <LogOut size={18} className="shrink-0" />
                 <span>تسجيل الخروج</span>
@@ -410,23 +412,23 @@ export default function Account() {
           <section className="w-full space-y-6">
             
             {tab === 'profile' && (
-              <div className="bg-card border border-border/60 rounded-3xl p-6 md:p-8 shadow-sm space-y-6">
-                <h2 className="text-xl font-bold border-b border-border/40 pb-4">البيانات الشخصية</h2>
+              <div className="bg-muted/10 border border-border/40 rounded-3xl p-6 md:p-8 shadow-xs space-y-6">
+                <h2 className="text-xl font-serif font-bold border-b border-border/30 pb-4">البيانات الشخصية</h2>
                 
                 <div className="space-y-4 max-w-xl">
                   <div className="space-y-1.5">
-                    <label className="text-xs font-semibold text-muted-foreground">الاسم الكامل</label>
+                    <label className="text-xs font-medium text-muted-foreground">الاسم الكامل</label>
                     <input
-                      className="w-full px-4 py-3 rounded-xl bg-background border border-border/80 text-foreground text-sm focus:outline-none focus:border-[var(--gold)] transition"
+                      className="w-full px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[#D4AF37] transition shadow-xs"
                       value={c.name || ''}
                       onChange={e => setC({ ...c, name: e.target.value })}
                     />
                   </div>
 
                   <div className="space-y-1.5">
-                    <label className="text-xs font-semibold text-muted-foreground">رقم الهاتف</label>
+                    <label className="text-xs font-medium text-muted-foreground">رقم الهاتف</label>
                     <input
-                      className="w-full px-4 py-3 rounded-xl bg-background border border-border/80 text-foreground text-sm focus:outline-none focus:border-[var(--gold)] transition"
+                      className="w-full px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[#D4AF37] transition shadow-xs"
                       value={c.phone || ''}
                       dir="ltr"
                       onChange={e => setC({ ...c, phone: e.target.value })}
@@ -434,9 +436,9 @@ export default function Account() {
                   </div>
 
                   <div className="space-y-1.5">
-                    <label className="text-xs font-semibold text-muted-foreground">البريد الإلكتروني</label>
+                    <label className="text-xs font-medium text-muted-foreground">البريد الإلكتروني</label>
                     <input
-                      className="w-full px-4 py-3 rounded-xl bg-background border border-border/80 text-foreground text-sm focus:outline-none focus:border-[var(--gold)] transition"
+                      className="w-full px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[#D4AF37] transition shadow-xs"
                       value={c.email || ''}
                       dir="ltr"
                       onChange={e => setC({ ...c, email: e.target.value })}
@@ -445,7 +447,7 @@ export default function Account() {
                 </div>
 
                 <button
-                  className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-[var(--gold)] text-black font-bold text-sm shadow-md hover:opacity-95 transition"
+                  className="inline-flex items-center gap-2 px-6 py-3.5 rounded-2xl bg-[#D4AF37] text-black font-serif font-bold text-sm shadow-md hover:opacity-95 transition"
                   onClick={async () => {
                     await fetch('/api/customer/me', {
                       method: 'PUT',
@@ -460,98 +462,98 @@ export default function Account() {
                   <span>حفظ التغييرات</span>
                 </button>
 
-                {msg && <p className="text-sm text-[var(--gold)] font-medium pt-2">{msg}</p>}
+                {msg && <p className="text-sm text-[#D4AF37] font-medium pt-2">{msg}</p>}
               </div>
             )}
 
             {tab === 'orders' && (
-              <div className="bg-card border border-border/60 rounded-3xl p-6 md:p-8 shadow-sm space-y-6">
+              <div className="bg-muted/10 border border-border/40 rounded-3xl p-6 md:p-8 shadow-xs space-y-6">
                 {selectedOrder ? (
                   <div className="space-y-6">
-                    <div className="flex items-center justify-between border-b border-border/40 pb-4">
+                    <div className="flex items-center justify-between border-b border-border/30 pb-4">
                       <div>
-                        <h2 className="text-xl font-bold">تفاصيل الطلب: #{selectedOrder.number}</h2>
-                        <span className="text-xs text-muted-foreground">حالة الطلب الحالية: <b className="text-[var(--gold)]">{selectedOrder.status}</b></span>
+                        <h2 className="text-xl font-serif font-bold">تفاصيل الطلب: #{selectedOrder.number}</h2>
+                        <span className="text-xs text-muted-foreground font-light">حالة الطلب الحالية: <b className="text-[#D4AF37]">{selectedOrder.status}</b></span>
                       </div>
                       <button 
                         onClick={() => setSelectedOrder(null)}
-                        className="px-4 py-2 rounded-xl bg-background border border-border text-xs font-semibold hover:border-[var(--gold)] transition"
+                        className="px-4 py-2 rounded-xl bg-[var(--bg)] border border-border/60 text-xs font-medium hover:border-[#D4AF37] transition shadow-xs"
                       >
                         العودة للطلبات
                       </button>
                     </div>
 
                     {selectedOrder.notes && (
-                      <div className="p-4 rounded-2xl bg-[var(--gold)]/10 border border-[var(--gold)]/30 space-y-1.5">
-                        <span className="font-bold text-xs text-[var(--gold)] flex items-center gap-1.5">
+                      <div className="p-4 rounded-2xl bg-[#D4AF37]/10 border border-[#D4AF37]/30 space-y-1.5 shadow-xs">
+                        <span className="font-serif font-bold text-xs text-[#D4AF37] flex items-center gap-1.5">
                           <MessageSquareText size={16} /> ملاحظة من الإدارة على الطلب:
                         </span>
-                        <p className="text-xs md:text-sm text-foreground/90 leading-relaxed">{selectedOrder.notes}</p>
+                        <p className="text-xs md:text-sm text-foreground/90 leading-relaxed font-light">{selectedOrder.notes}</p>
                       </div>
                     )}
 
-                    <div className="p-5 rounded-2xl bg-background border border-border/60 space-y-4">
-                      <h3 className="font-bold text-sm flex items-center gap-2">
-                        <Clock size={16} className="text-[var(--gold)]" /> خط سير ومتابعة الطلب
+                    <div className="p-5 rounded-2xl bg-[var(--bg)] border border-border/60 space-y-4 shadow-xs">
+                      <h3 className="font-serif font-bold text-sm flex items-center gap-2 text-[#D4AF37]">
+                        <Clock size={16} /> خط سير ومتابعة الطلب
                       </h3>
 
                       {selectedOrder.status === 'CANCELLED' ? (
-                        <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-center space-y-2">
+                        <div className="p-4 rounded-2xl bg-red-500/10 border border-red-500/20 text-center space-y-2">
                           <XCircle size={28} className="mx-auto text-red-500" />
-                          <h4 className="font-bold text-sm text-red-500">تم إلغاء هذا الطلب</h4>
-                          <p className="text-xs text-muted-foreground">عذراً، تم إلغاء الطلب من قبل الإدارة أو بناءً على رغبتك.</p>
+                          <h4 className="font-serif font-bold text-sm text-red-500">تم إلغاء هذا الطلب</h4>
+                          <p className="text-xs text-muted-foreground font-light">عذراً، تم إلغاء الطلب من قبل الإدارة أو بناءً على رغبتك.</p>
                         </div>
                       ) : (
-                        <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 text-center text-xs font-semibold">
+                        <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 text-center text-xs font-medium">
                           
-                          <div className={`p-3 rounded-xl border flex flex-col items-center justify-center gap-1 ${
+                          <div className={`p-3.5 rounded-2xl border flex flex-col items-center justify-center gap-1 shadow-xs ${
                             ['NEW', 'PROCESSING', 'SHIPPED', 'DELIVERED'].includes(selectedOrder.status)
-                              ? 'bg-[var(--gold)]/15 border-[var(--gold)] text-[var(--gold)] font-bold'
-                              : 'border-border text-muted-foreground'
+                              ? 'bg-[#D4AF37]/15 border-[#D4AF37] text-[#D4AF37] font-bold'
+                              : 'border-border/60 text-muted-foreground'
                           }`}>
                             <div className="flex items-center gap-1">
                               <CheckCircle2 size={14} /> تم استلام الطلب
                             </div>
-                            <span className="text-[10px] opacity-75 font-normal" dir="ltr">
+                            <span className="text-[10px] opacity-75 font-light" dir="ltr">
                               {getTimelineDate('NEW') || getTimelineDate('PENDING') || '-'}
                             </span>
                           </div>
 
-                          <div className={`p-3 rounded-xl border flex flex-col items-center justify-center gap-1 ${
+                          <div className={`p-3.5 rounded-2xl border flex flex-col items-center justify-center gap-1 shadow-xs ${
                             ['PROCESSING', 'SHIPPED', 'DELIVERED'].includes(selectedOrder.status)
-                              ? 'bg-[var(--gold)]/15 border-[var(--gold)] text-[var(--gold)] font-bold'
-                              : 'border-border text-muted-foreground'
+                              ? 'bg-[#D4AF37]/15 border-[#D4AF37] text-[#D4AF37] font-bold'
+                              : 'border-border/60 text-muted-foreground'
                           }`}>
                             <div className="flex items-center gap-1">
                               <Package size={14} /> قيد التجهيز
                             </div>
-                            <span className="text-[10px] opacity-75 font-normal" dir="ltr">
+                            <span className="text-[10px] opacity-75 font-light" dir="ltr">
                               {getTimelineDate('PROCESSING') || '-'}
                             </span>
                           </div>
 
-                          <div className={`p-3 rounded-xl border flex flex-col items-center justify-center gap-1 ${
+                          <div className={`p-3.5 rounded-2xl border flex flex-col items-center justify-center gap-1 shadow-xs ${
                             ['SHIPPED', 'DELIVERED'].includes(selectedOrder.status)
-                              ? 'bg-[var(--gold)]/15 border-[var(--gold)] text-[var(--gold)] font-bold'
-                              : 'border-border text-muted-foreground'
+                              ? 'bg-[#D4AF37]/15 border-[#D4AF37] text-[#D4AF37] font-bold'
+                              : 'border-border/60 text-muted-foreground'
                           }`}>
                             <div className="flex items-center gap-1">
                               <Truck size={14} /> تم الشحن
                             </div>
-                            <span className="text-[10px] opacity-75 font-normal" dir="ltr">
+                            <span className="text-[10px] opacity-75 font-light" dir="ltr">
                               {getTimelineDate('SHIPPED') || '-'}
                             </span>
                           </div>
 
-                          <div className={`p-3 rounded-xl border flex flex-col items-center justify-center gap-1 ${
+                          <div className={`p-3.5 rounded-2xl border flex flex-col items-center justify-center gap-1 shadow-xs ${
                             selectedOrder.status === 'DELIVERED'
-                              ? 'bg-[var(--gold)] text-black border-[var(--gold)] font-bold'
-                              : 'border-border text-muted-foreground'
+                              ? 'bg-[#D4AF37] text-black border-[#D4AF37] font-bold'
+                              : 'border-border/60 text-muted-foreground'
                           }`}>
                             <div className="flex items-center gap-1">
                               <PackageCheck size={14} /> تم التسليم
                             </div>
-                            <span className="text-[10px] opacity-75 font-normal" dir="ltr">
+                            <span className="text-[10px] opacity-75 font-light" dir="ltr">
                               {getTimelineDate('DELIVERED') || '-'}
                             </span>
                           </div>
@@ -560,7 +562,7 @@ export default function Account() {
                       )}
 
                       {(selectedOrder.shippingProvider || selectedOrder.trackingNumber) && (
-                        <div className="p-3 rounded-xl bg-muted/20 border border-border/50 text-xs flex flex-wrap justify-between gap-2 mt-3">
+                        <div className="p-3.5 rounded-2xl bg-muted/20 border border-border/50 text-xs flex flex-wrap justify-between gap-2 mt-3 shadow-xs">
                           {selectedOrder.shippingProvider && <span><b>شركة الشحن:</b> {selectedOrder.shippingProvider}</span>}
                           {selectedOrder.trackingNumber && <span dir="ltr"><b>رقم التتبع:</b> {selectedOrder.trackingNumber}</span>}
                         </div>
@@ -568,44 +570,44 @@ export default function Account() {
                     </div>
 
                     <div className="space-y-3">
-                      <h3 className="font-bold text-sm">المنتجات في هذا الطلب</h3>
+                      <h3 className="font-serif font-bold text-sm">المنتجات في هذا الطلب</h3>
                       {(selectedOrder.items || []).map((item: any, idx: number) => (
-                        <div key={idx} className="flex justify-between items-center p-3 rounded-xl bg-background border border-border/60 text-sm">
+                        <div key={idx} className="flex justify-between items-center p-3.5 rounded-2xl bg-[var(--bg)] border border-border/60 text-sm shadow-xs">
                           <span>{item.name || item.product?.name || 'منتج'} × {item.quantity}</span>
-                          <span className="text-[var(--gold)] font-bold">{Number(item.price).toLocaleString('ar-EG')} ج.م</span>
+                          <span className="text-[#D4AF37] font-bold">{Number(item.price).toLocaleString('ar-EG')} ج.م</span>
                         </div>
                       ))}
                     </div>
 
-                    <div className="flex justify-between items-center border-t border-border/40 pt-4 font-bold text-base">
+                    <div className="flex justify-between items-center border-t border-border/30 pt-4 font-serif font-bold text-base">
                       <span>الإجمالي الكلي</span>
-                      <span className="text-[var(--gold)] text-lg">{Number(selectedOrder.total).toLocaleString('ar-EG')} ج.م</span>
+                      <span className="text-[#D4AF37] text-lg">{Number(selectedOrder.total).toLocaleString('ar-EG')} ج.م</span>
                     </div>
                   </div>
                 ) : (
                   <div className="space-y-6">
-                    <h2 className="text-xl font-bold border-b border-border/40 pb-4">سجل الطلبات ومتابعتها</h2>
+                    <h2 className="text-xl font-serif font-bold border-b border-border/30 pb-4">سجل الطلبات ومتابعتها</h2>
                     <div className="grid gap-3">
                       {(c.orders || []).map((o: any) => (
                         <div
                           key={o.id}
-                          className="flex flex-wrap items-center justify-between gap-4 p-4 rounded-2xl bg-background border border-border/60 hover:border-[var(--gold)]/50 transition"
+                          className="flex flex-wrap items-center justify-between gap-4 p-4.5 rounded-2xl bg-[var(--bg)] border border-border/65 hover:border-[#D4AF37]/50 transition shadow-xs"
                         >
                           <div className="space-y-1">
-                            <b className="text-foreground">طلب #{o.number}</b>
+                            <b className="text-foreground font-serif">طلب #{o.number}</b>
                             <div className="flex items-center gap-2">
-                              <span className="text-xs px-2.5 py-0.5 rounded-full bg-[var(--gold)]/10 text-[var(--gold)] font-medium">
+                              <span className="text-xs px-2.5 py-0.5 rounded-full bg-[#D4AF37]/10 text-[#D4AF37] font-medium">
                                 {o.status}
                               </span>
                             </div>
                           </div>
                           <div className="flex items-center gap-4">
-                            <strong className="text-[var(--gold)] text-base">
+                            <strong className="text-[#D4AF37] text-base font-serif">
                               {Number(o.total).toLocaleString('ar-EG')} ج.م
                             </strong>
                             <button
                               onClick={() => setSelectedOrder(o)}
-                              className="px-4 py-2 rounded-xl bg-[var(--gold)] text-black text-xs font-bold hover:opacity-95 transition"
+                              className="px-4 py-2 rounded-xl bg-[#D4AF37] text-black text-xs font-serif font-bold hover:opacity-95 transition shadow-xs"
                             >
                               التفاصيل والمتابعة
                             </button>
@@ -613,7 +615,7 @@ export default function Account() {
                         </div>
                       ))}
                       {!c.orders?.length && (
-                        <p className="text-muted-foreground text-sm py-12 text-center">لا توجد طلبات سابقة حتى الآن.</p>
+                        <p className="text-muted-foreground text-sm py-12 text-center font-light">لا توجد طلبات سابقة حتى الآن.</p>
                       )}
                     </div>
                   </div>
@@ -622,12 +624,12 @@ export default function Account() {
             )}
 
             {tab === 'addresses' && (
-              <div className="bg-card border border-border/60 rounded-3xl p-6 md:p-8 shadow-sm space-y-6">
-                <div className="flex justify-between items-center border-b border-border/40 pb-4">
-                  <h2 className="text-xl font-bold">عناوين الشحن المحفوظة</h2>
+              <div className="bg-muted/10 border border-border/40 rounded-3xl p-6 md:p-8 shadow-xs space-y-6">
+                <div className="flex justify-between items-center border-b border-border/30 pb-4">
+                  <h2 className="text-xl font-serif font-bold">عناوين الشحن المحفوظة</h2>
                   <button 
                     onClick={() => setShowAddressForm(!showAddressForm)}
-                    className="px-4 py-2 rounded-xl bg-[var(--gold)] text-black text-xs font-bold hover:opacity-95 transition"
+                    className="px-4 py-2.5 rounded-2xl bg-[#D4AF37] text-black text-xs font-serif font-bold hover:opacity-95 transition shadow-xs"
                   >
                     {showAddressForm ? 'إلغاء' : '+ إضافة عنوان جديد'}
                   </button>
@@ -670,46 +672,46 @@ export default function Account() {
                         setAddressFormMsg(err.message);
                       }
                     }}
-                    className="p-5 rounded-2xl bg-background border border-[var(--gold)]/40 space-y-4 text-xs"
+                    className="p-6 rounded-2xl bg-[var(--bg)] border border-[#D4AF37]/40 space-y-4 text-xs shadow-sm"
                   >
-                    <h3 className="font-bold text-sm text-[var(--gold)]">تفاصيل عنوان الشحن الجديد</h3>
+                    <h3 className="font-serif font-bold text-sm text-[#D4AF37]">تفاصيل عنوان الشحن الجديد</h3>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <div>
-                        <label className="block mb-1 font-semibold text-muted-foreground">مسمى العنوان (مثال: المنزل، العمل)</label>
-                        <input name="label" defaultValue="المنزل" required className="w-full px-3 py-2.5 rounded-xl bg-card border border-border text-foreground text-xs" />
+                        <label className="block mb-1 font-medium text-muted-foreground">مسمى العنوان (مثال: المنزل، العمل)</label>
+                        <input name="label" defaultValue="المنزل" required className="w-full px-3.5 py-3 rounded-xl bg-muted/10 border border-border/60 text-foreground text-xs shadow-xs" />
                       </div>
                       <div>
-                        <label className="block mb-1 font-semibold text-muted-foreground">اسم المستلم</label>
-                        <input name="name" defaultValue={c.name || ''} required className="w-full px-3 py-2.5 rounded-xl bg-card border border-border text-foreground text-xs" />
+                        <label className="block mb-1 font-medium text-muted-foreground">اسم المستلم</label>
+                        <input name="name" defaultValue={c.name || ''} required className="w-full px-3.5 py-3 rounded-xl bg-muted/10 border border-border/60 text-foreground text-xs shadow-xs" />
                       </div>
                       <div>
-                        <label className="block mb-1 font-semibold text-muted-foreground">رقم الهاتف الأساسي</label>
-                        <input name="phone" defaultValue={c.phone || ''} required dir="ltr" className="w-full px-3 py-2.5 rounded-xl bg-card border border-border text-foreground text-xs" />
+                        <label className="block mb-1 font-medium text-muted-foreground">رقم الهاتف الأساسي</label>
+                        <input name="phone" defaultValue={c.phone || ''} required dir="ltr" className="w-full px-3.5 py-3 rounded-xl bg-muted/10 border border-border/60 text-foreground text-xs shadow-xs" />
                       </div>
                       <div>
-                        <label className="block mb-1 font-semibold text-muted-foreground">رقم هاتف إضافي (اختياري)</label>
-                        <input name="secondaryPhone" dir="ltr" className="w-full px-3 py-2.5 rounded-xl bg-card border border-border text-foreground text-xs" />
+                        <label className="block mb-1 font-medium text-muted-foreground">رقم هاتف إضافي (اختياري)</label>
+                        <input name="secondaryPhone" dir="ltr" className="w-full px-3.5 py-3 rounded-xl bg-muted/10 border border-border/60 text-foreground text-xs shadow-xs" />
                       </div>
                       <div>
-                        <label className="block mb-1 font-semibold text-muted-foreground">المحافظة</label>
-                        <input name="governorate" placeholder="القاهرة، الجيزة..." required className="w-full px-3 py-2.5 rounded-xl bg-card border border-border text-foreground text-xs" />
+                        <label className="block mb-1 font-medium text-muted-foreground">المحافظة</label>
+                        <input name="governorate" placeholder="القاهرة، الجيزة..." required className="w-full px-3.5 py-3 rounded-xl bg-muted/10 border border-border/60 text-foreground text-xs shadow-xs" />
                       </div>
                       <div>
-                        <label className="block mb-1 font-semibold text-muted-foreground">المدينة / المركز</label>
-                        <input name="city" placeholder="مدينة نصر، الهرم..." required className="w-full px-3 py-2.5 rounded-xl bg-card border border-border text-foreground text-xs" />
+                        <label className="block mb-1 font-medium text-muted-foreground">المدينة / المركز</label>
+                        <input name="city" placeholder="مدينة نصر، الهرم..." required className="w-full px-3.5 py-3 rounded-xl bg-muted/10 border border-border/60 text-foreground text-xs shadow-xs" />
                       </div>
                     </div>
                     <div>
-                      <label className="block mb-1 font-semibold text-muted-foreground">العنوان بالتفصيل</label>
-                      <input name="address" placeholder="اسم الشارع، رقم العمارة، رقم الشقة" required className="w-full px-3 py-2.5 rounded-xl bg-card border border-border text-foreground text-xs" />
+                      <label className="block mb-1 font-medium text-muted-foreground">العنوان بالتفصيل</label>
+                      <input name="address" placeholder="اسم الشارع، رقم العمارة، رقم الشقة" required className="w-full px-3.5 py-3 rounded-xl bg-muted/10 border border-border/60 text-foreground text-xs shadow-xs" />
                     </div>
                     <div>
-                      <label className="block mb-1 font-semibold text-muted-foreground">ملاحظات للتوصيل (اختياري)</label>
-                      <input name="notes" placeholder="علامة مميزة بجوار المنزل" className="w-full px-3 py-2.5 rounded-xl bg-card border border-border text-foreground text-xs" />
+                      <label className="block mb-1 font-medium text-muted-foreground">ملاحظات للتوصيل (اختياري)</label>
+                      <input name="notes" placeholder="علامة مميزة بجوار المنزل" className="w-full px-3.5 py-3 rounded-xl bg-muted/10 border border-border/60 text-foreground text-xs shadow-xs" />
                     </div>
                     <div className="flex items-center gap-2 pt-1">
-                      <input type="checkbox" name="isDefault" id="isDefault" className="w-4 h-4 accent-[var(--gold)]" />
-                      <label htmlFor="isDefault" className="cursor-pointer">تعيين كعنوان أساسي للشحن</label>
+                      <input type="checkbox" name="isDefault" id="isDefault" className="w-4 h-4 accent-[#D4AF37]" />
+                      <label htmlFor="isDefault" className="cursor-pointer font-light">تعيين كعنوان أساسي للشحن</label>
                     </div>
 
                     {addressFormMsg && <p className="text-red-500 font-medium">{addressFormMsg}</p>}
@@ -718,13 +720,13 @@ export default function Account() {
                       <button 
                         type="button" 
                         onClick={() => setShowAddressForm(false)}
-                        className="px-4 py-2 rounded-xl bg-card border border-border text-muted-foreground"
+                        className="px-4 py-2.5 rounded-xl bg-muted/20 border border-border/60 text-muted-foreground font-medium"
                       >
                         إلغاء
                       </button>
                       <button 
                         type="submit" 
-                        className="px-5 py-2 rounded-xl bg-[var(--gold)] text-black font-bold"
+                        className="px-5 py-2.5 rounded-xl bg-[#D4AF37] text-black font-serif font-bold shadow-sm"
                       >
                         حفظ العنوان
                       </button>
@@ -734,20 +736,20 @@ export default function Account() {
 
                 <div className="grid gap-4">
                   {(c.addresses || []).map((addr: any) => (
-                    <div key={addr.id} className="p-4 rounded-2xl bg-background border border-border/60 flex items-start justify-between gap-4">
+                    <div key={addr.id} className="p-4.5 rounded-2xl bg-[var(--bg)] border border-border/60 flex items-start justify-between gap-4 shadow-xs">
                       <div className="space-y-1 text-sm">
                         <div className="flex items-center gap-2">
-                          <span className="font-bold text-foreground">{addr.label || 'عنوان'}</span>
+                          <span className="font-serif font-bold text-foreground">{addr.label || 'عنوان'}</span>
                           {addr.isDefault && (
-                            <span className="text-[10px] px-2 py-0.5 rounded-full bg-[var(--gold)]/15 text-[var(--gold)] font-bold">
+                            <span className="text-[10px] px-2 py-0.5 rounded-full bg-[#D4AF37]/15 text-[#D4AF37] font-bold">
                               الأساسي
                             </span>
                           )}
                         </div>
-                        <p className="text-muted-foreground text-xs">
+                        <p className="text-muted-foreground text-xs font-light">
                           {addr.governorate} - {addr.city} - {addr.address}
                         </p>
-                        <span className="text-[var(--gold)] text-xs font-semibold block pt-1" dir="ltr">
+                        <span className="text-[#D4AF37] text-xs font-medium block pt-1" dir="ltr">
                           المستلم: {addr.name} | الهاتف: {addr.phone}
                         </span>
                       </div>
@@ -773,7 +775,7 @@ export default function Account() {
                     </div>
                   ))}
                   {(!c.addresses || c.addresses.length === 0) && !showAddressForm && (
-                    <p className="text-muted-foreground text-sm text-center py-8">
+                    <p className="text-muted-foreground text-sm text-center py-8 font-light">
                       لا توجد عناوين محفوظة حالياً. أضف عنوانك لتسهيل عملية الطلب القادمة.
                     </p>
                   )}
@@ -782,14 +784,14 @@ export default function Account() {
             )}
 
             {tab === 'wishlist' && (
-              <div className="bg-card border border-border/60 rounded-3xl p-6 md:p-8 shadow-sm space-y-6">
-                <h2 className="text-xl font-bold border-b border-border/40 pb-4">قائمة المفضلة</h2>
+              <div className="bg-muted/10 border border-border/40 rounded-3xl p-6 md:p-8 shadow-xs space-y-6">
+                <h2 className="text-xl font-serif font-bold border-b border-border/30 pb-4">قائمة المفضلة</h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                   {(c.wishlist || []).map((w: any) => (
                     <a
                       href={`/product/${w.product.slug}`}
                       key={w.id}
-                      className="group p-3 rounded-2xl bg-background border border-border/60 hover:border-[var(--gold)]/50 transition space-y-2 block"
+                      className="group p-3 rounded-2xl bg-[var(--bg)] border border-border/60 hover:border-[#D4AF37]/50 transition space-y-2 block shadow-xs"
                     >
                       <img
                         className="aspect-square w-full object-cover rounded-xl"
@@ -798,13 +800,13 @@ export default function Account() {
                         loading="lazy"
                         decoding="async"
                       />
-                      <p className="text-sm font-medium group-hover:text-[var(--gold)] transition line-clamp-1">
+                      <p className="text-sm font-medium group-hover:text-[#D4AF37] transition line-clamp-1">
                         {w.product.name}
                       </p>
                     </a>
                   ))}
                   {!c.wishlist?.length && (
-                    <div className="col-span-full py-12 text-center text-muted-foreground text-sm">
+                    <div className="col-span-full py-12 text-center text-muted-foreground text-sm font-light">
                       قائمة المفضلة فارغة حالياً. أضيفي قطعك المفضلة لتظهر هنا.
                     </div>
                   )}
@@ -813,14 +815,14 @@ export default function Account() {
             )}
 
             {tab === 'recent' && (
-              <div className="bg-card border border-border/60 rounded-3xl p-6 md:p-8 shadow-sm space-y-6">
-                <h2 className="text-xl font-bold border-b border-border/40 pb-4">المنتجات التي شاهدتها مؤخراً</h2>
+              <div className="bg-muted/10 border border-border/40 rounded-3xl p-6 md:p-8 shadow-xs space-y-6">
+                <h2 className="text-xl font-serif font-bold border-b border-border/30 pb-4">المنتجات التي شاهدتها مؤخراً</h2>
                 {recentProducts.length === 0 ? (
-                  <p className="text-muted-foreground text-sm text-center py-12">لم تقومي بمشاهدة أي منتجات مؤخراً.</p>
+                  <p className="text-muted-foreground text-sm text-center py-12 font-light">لم تقومي بمشاهدة أي منتجات مؤخراً.</p>
                 ) : (
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                     {recentProducts.map((prod: any, idx: number) => (
-                      <a href={`/product/${prod.slug}`} key={idx} className="p-3 rounded-2xl bg-background border border-border/60 space-y-2 block">
+                      <a href={`/product/${prod.slug}`} key={idx} className="p-3 rounded-2xl bg-[var(--bg)] border border-border/60 space-y-2 block shadow-xs">
                         <img 
                           src={prod.image || '/placeholder.svg'} 
                           alt={prod.name} 
@@ -829,7 +831,7 @@ export default function Account() {
                           className="aspect-square w-full object-cover rounded-xl" 
                         />
                         <h3 className="text-sm font-medium line-clamp-1">{prod.name}</h3>
-                        <span className="text-[var(--gold)] font-bold text-xs">{prod.price} ج.م</span>
+                        <span className="text-[#D4AF37] font-bold text-xs">{prod.price} ج.م</span>
                       </a>
                     ))}
                   </div>
@@ -838,8 +840,8 @@ export default function Account() {
             )}
 
             {tab === 'security' && (
-              <div className="bg-card border border-border/60 rounded-3xl p-6 md:p-8 shadow-sm space-y-6">
-                <h2 className="text-xl font-bold border-b border-border/40 pb-4">تغيير كلمة المرور</h2>
+              <div className="bg-muted/10 border border-border/40 rounded-3xl p-6 md:p-8 shadow-xs space-y-6">
+                <h2 className="text-xl font-serif font-bold border-b border-border/30 pb-4">تغيير كلمة المرور</h2>
                 <form onSubmit={(e) => { 
                   e.preventDefault(); 
                   if (passwords.newPass !== passwords.confirmPass) {
@@ -850,42 +852,42 @@ export default function Account() {
                   setTimeout(() => setMsg(''), 3000); 
                 }} className="space-y-4 max-w-xl">
                   <div className="space-y-1.5">
-                    <label className="text-xs font-semibold text-muted-foreground">كلمة المرور الحالية</label>
+                    <label className="text-xs font-medium text-muted-foreground">كلمة المرور الحالية</label>
                     <input 
                       type="password" 
                       required
                       value={passwords.current} 
                       onChange={e => setPasswords({ ...passwords, current: e.target.value })} 
-                      className="w-full px-4 py-3 rounded-xl bg-background border border-border/80 text-foreground text-sm focus:outline-none focus:border-[var(--gold)]" 
+                      className="w-full px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[#D4AF37] shadow-xs" 
                       dir="ltr"
                     />
                   </div>
                   <div className="space-y-1.5">
-                    <label className="text-xs font-semibold text-muted-foreground">كلمة المرور الجديدة</label>
+                    <label className="text-xs font-medium text-muted-foreground">كلمة المرور الجديدة</label>
                     <input 
                       type="password" 
                       required
                       value={passwords.newPass} 
                       onChange={e => setPasswords({ ...passwords, newPass: e.target.value })} 
-                      className="w-full px-4 py-3 rounded-xl bg-background border border-border/80 text-foreground text-sm focus:outline-none focus:border-[var(--gold)]" 
+                      className="w-full px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[#D4AF37] shadow-xs" 
                       dir="ltr"
                     />
                   </div>
                   <div className="space-y-1.5">
-                    <label className="text-xs font-semibold text-muted-foreground">تأكيد كلمة المرور الجديدة</label>
+                    <label className="text-xs font-medium text-muted-foreground">تأكيد كلمة المرور الجديدة</label>
                     <input 
                       type="password" 
                       required
                       value={passwords.confirmPass} 
                       onChange={e => setPasswords({ ...passwords, confirmPass: e.target.value })} 
-                      className="w-full px-4 py-3 rounded-xl bg-background border border-border/80 text-foreground text-sm focus:outline-none focus:border-[var(--gold)]" 
+                      className="w-full px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[#D4AF37] shadow-xs" 
                       dir="ltr"
                     />
                   </div>
-                  <button type="submit" className="px-6 py-3 rounded-xl bg-[var(--gold)] text-black font-bold text-sm shadow-md hover:opacity-95 transition">
+                  <button type="submit" className="px-6 py-3.5 rounded-2xl bg-[#D4AF37] text-black font-serif font-bold text-sm shadow-md hover:opacity-95 transition">
                     تحديث كلمة المرور
                   </button>
-                  {msg && <p className="text-sm text-[var(--gold)] font-medium pt-2">{msg}</p>}
+                  {msg && <p className="text-sm text-[#D4AF37] font-medium pt-2">{msg}</p>}
                 </form>
               </div>
             )}
