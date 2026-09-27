@@ -1,113 +1,154 @@
+@import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+/* =========================================================
+   وَهَج — Central Design Tokens
+   Luxury Arabic Editorial / Warm Dark Luxury
+   ========================================================= */
 :root {
-  --font-wahaj: 'IBM Plex Sans Arabic', 'Noto Kufi Arabic', 'Tajawal', Arial, sans-serif;
-  --brand-primary: #241B1A;
-  --brand-bg: #F7F2EA;
-  --brand-rose: #B88D87;
-  --brand-accent: #C6A46A;
-  --brand-text: #201D1C;
-  --brand-success: #6D8068;
-  --bg: var(--brand-bg, #F7F2EA);
-  --fg: var(--brand-fg, #201D1C);
-  --muted: #6e675f;
-  --line: #e3dbcf;
-  --gold: var(--brand-gold, #C6A46A);
-  --gold-soft: #efe5d3;
-  --card: #fffdf9;
-  --card-hover: #ffffff;
-  --surface: #f2ede5;
-  --danger: #a94442;
-  --success: var(--brand-success, #6D8068);
-  --warning: #9a7029;
+  color-scheme: light;
+
+  /* Light — official brand palette */
+  --background: #F7F2EA;
+  --background-secondary: #F2ECE3;
+  --foreground: #201D1C;
+  --foreground-secondary: #3A3330;
+  --muted: #6E655F;
+  --muted-foreground: #766D67;
+  --border: #E1D8CD;
+  --border-strong: #D5C9BC;
+
+  --bg: var(--background);
+  --fg: var(--foreground);
+  --line: var(--border);
+  --card: #FFFDF9;
+  --card-hover: #FFFFFF;
+  --surface: var(--background-secondary);
+
+  --gold: #C6A46A;
+  --gold-muted: #A98752;
+  --gold-soft: #F0E5D2;
+  --gold-contrast: #241B1A;
+
+  --rose: #B88D87;
+  --rose-muted: #986F69;
+  --success: #6D8068;
+  --warning: #9A762F;
+  --danger: #A75D56;
+  --info: #8C7770;
+
   --radius-sm: 6px;
   --radius-md: 10px;
   --radius-lg: 16px;
-  --shadow-soft: 0 8px 30px rgba(23, 21, 19, 0.06);
-  --shadow-luxury: 0 18px 55px rgba(23, 21, 19, 0.10);
+  --shadow-soft: 0 8px 30px rgba(36, 27, 26, 0.06);
+  --shadow-luxury: 0 18px 55px rgba(36, 27, 26, 0.10);
   --container: 1180px;
   --transition: 220ms ease;
 }
 
 .dark {
-  --bg: #241B1A;
-  --fg: #F7F2EA;
-  --muted: #b8afa4;
-  --line: #403a34;
-  --gold: var(--brand-gold, #C6A46A);
-  --gold-soft: #30291f;
-  --card: #211e1b;
-  --card-hover: #27231f;
-  --surface: #211e1b;
-  --shadow-soft: 0 8px 30px rgba(0, 0, 0, 0.20);
-  --shadow-luxury: 0 18px 55px rgba(0, 0, 0, 0.32);
+  color-scheme: dark;
+
+  /* Dark — Warm Espresso / Luxury Night */
+  --background: #181211;
+  --background-secondary: #211918;
+  --foreground: #F7F2EA;
+  --foreground-secondary: #E7DCD5;
+  --muted: #CFC3BC;
+  --muted-foreground: #B8AAA3;
+  --border: rgba(247, 242, 234, 0.10);
+  --border-strong: rgba(247, 242, 234, 0.16);
+
+  --bg: var(--background);
+  --fg: var(--foreground);
+  --line: var(--border);
+  --card: #271F1D;
+  --card-hover: #2D2422;
+  --surface: #211918;
+
+  --gold: #D5B878;
+  --gold-muted: #B99A63;
+  --gold-soft: rgba(213, 184, 120, 0.12);
+  --gold-contrast: #241B1A;
+
+  --rose: #C69A94;
+  --rose-muted: #9F7772;
+  --success: #8A9A83;
+  --warning: #D5B878;
+  --danger: #C9847D;
+  --info: #C69A94;
+
+  --shadow-soft: 0 8px 30px rgba(0, 0, 0, 0.14);
+  --shadow-luxury: 0 18px 55px rgba(0, 0, 0, 0.18);
 }
 
-* {
-  box-sizing: border-box;
-}
+* { box-sizing: border-box; }
 
 html {
   scroll-behavior: smooth;
+  background: var(--background);
 }
 
 body {
   margin: 0;
-  background: var(--bg);
-  color: var(--fg);
-  font-family: var(--font-wahaj);
+  background: var(--background);
+  color: var(--foreground);
+  font-family: 'Tajawal', Arial, sans-serif;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
+  transition: background-color 300ms ease, color 300ms ease;
 }
 
 button,
 input,
 textarea,
-select {
-  font: inherit;
-}
+select { font: inherit; }
 
-button {
-  cursor: pointer;
-}
+button { cursor: pointer; }
 
-img {
-  max-width: 100%;
-}
+img { max-width: 100%; }
 
-a {
-  color: inherit;
-  text-decoration: none;
-}
+a { color: inherit; text-decoration: none; }
 
 ::selection {
   background: var(--gold);
-  color: #241B1A;
+  color: var(--gold-contrast);
 }
+
+/* Native form controls follow the active theme. */
+input,
+textarea,
+select {
+  color-scheme: inherit;
+}
+
+/* Premium scrollbar */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #3A2F2C var(--background);
+}
+
+::-webkit-scrollbar { width: 9px; height: 9px; }
+::-webkit-scrollbar-track { background: var(--background); }
+::-webkit-scrollbar-thumb {
+  background: #3A2F2C;
+  border-radius: 999px;
+  border: 2px solid var(--background);
+}
+::-webkit-scrollbar-thumb:hover { background: #4A3B37; }
 
 .container {
   width: min(var(--container), calc(100% - 32px));
   margin-inline: auto;
 }
 
-.hairline {
-  border-color: var(--line);
-}
-
-.muted {
-  color: var(--muted);
-}
-
-.gold {
-  color: var(--gold);
-}
-
-.surface {
-  background: var(--surface);
-}
+.hairline { border-color: var(--line); }
+.muted { color: var(--muted); }
+.gold { color: var(--gold); }
+.surface { background: var(--surface); }
 
 .lux-card {
   background: var(--card);
@@ -151,9 +192,7 @@ a {
   border-color: var(--gold);
 }
 
-.btn:active {
-  transform: translateY(0);
-}
+.btn:active { transform: translateY(0); }
 
 .btn:focus-visible,
 .input:focus-visible,
@@ -166,7 +205,7 @@ a:focus-visible {
 .btn-gold {
   background: var(--gold);
   border-color: var(--gold);
-  color: #241B1A;
+  color: var(--gold-contrast);
 }
 
 .btn-gold:hover {
@@ -201,22 +240,15 @@ a:focus-visible {
     background-color var(--transition);
 }
 
-.input::placeholder {
-  color: var(--muted);
-}
+.input::placeholder { color: var(--muted-foreground); }
 
 .input:focus {
   border-color: var(--gold);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--gold) 14%, transparent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--gold) 15%, transparent);
 }
 
-.section {
-  padding-block: 72px;
-}
-
-.section-sm {
-  padding-block: 42px;
-}
+.section { padding-block: 72px; }
+.section-sm { padding-block: 42px; }
 
 .section-title {
   margin: 0;
@@ -272,95 +304,33 @@ a:focus-visible {
   letter-spacing: 0.2px;
 }
 
-.payment-icon svg {
-  width: 16px;
-  height: 16px;
-}
-
-.divider {
-  width: 100%;
-  height: 1px;
-  background: var(--line);
-}
-
-.luxury-image {
-  display: block;
-  width: 100%;
-  object-fit: cover;
-  transition: transform 500ms ease;
-}
-
-.image-wrap {
-  overflow: hidden;
-}
-
-.image-wrap:hover .luxury-image {
-  transform: scale(1.025);
-}
-
-.text-balance {
-  text-wrap: balance;
-}
-
-.admin-nav {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-}
+.payment-icon svg { width: 16px; height: 16px; }
+.divider { width: 100%; height: 1px; background: var(--line); }
+.luxury-image { display: block; width: 100%; object-fit: cover; transition: transform 500ms ease; }
+.image-wrap { overflow: hidden; }
+.image-wrap:hover .luxury-image { transform: scale(1.025); }
+.text-balance { text-wrap: balance; }
+.admin-nav { display: flex; flex-wrap: wrap; gap: 6px; }
 
 @media (max-width: 700px) {
-  .container {
-    width: calc(100% - 24px);
-  }
-
-  .section {
-    padding-block: 52px;
-  }
-
-  .section-sm {
-    padding-block: 32px;
-  }
-
-  .btn {
-    min-height: 42px;
-    padding: 10px 14px;
-  }
-
-  .lux-card {
-    border-radius: 8px;
-  }
-
-  .input {
-    padding: 11px 12px;
-  }
-
-  .admin-nav {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 6px;
-  }
-
-  .admin-nav button {
-    width: 100%;
-    font-size: 0.82rem;
-    padding: 10px;
-  }
+  .container { width: calc(100% - 24px); }
+  .section { padding-block: 52px; }
+  .section-sm { padding-block: 32px; }
+  .btn { min-height: 42px; padding: 10px 14px; }
+  .lux-card { border-radius: 8px; }
+  .input { padding: 11px 12px; }
+  .admin-nav { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
+  .admin-nav button { width: 100%; font-size: 0.82rem; padding: 10px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  html {
-    scroll-behavior: auto;
-  }
-
-  *,
-  *::before,
-  *::after {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
 }
-
 /* ===== وَهَج — Luxury Hero System ===== */
 
 .wahaj-hero {
@@ -1180,7 +1150,7 @@ a:focus-visible {
 
 .wahaj-footer__tagline{
   margin-top:12px;
-  color:#C6A46A;
+  color:var(--gold);
   font-size:12px;
 }
 
@@ -1206,7 +1176,7 @@ a:focus-visible {
 }
 
 .wahaj-footer__links a:hover{
-  color:#C6A46A;
+  color:var(--gold);
 }
 
 .wahaj-footer__payment-text{
@@ -1664,27 +1634,3 @@ a:focus-visible {
   }
 }
 
-
-
-/* وَهَج — Premium Arabic Editorial Typography */
-.heading-editorial, .section-title, h1, h2, h3 {
-  font-family: var(--font-wahaj);
-  font-weight: 600;
-  letter-spacing: -0.02em;
-  text-wrap: balance;
-}
-
-.price {
-  font-family: var(--font-wahaj);
-  font-weight: 600;
-  font-variant-numeric: tabular-nums;
-}
-
-body {
-  font-weight: 400;
-  line-height: 1.75;
-}
-
-.font-medium { font-weight: 500; }
-.font-semibold { font-weight: 600; }
-.font-bold { font-weight: 700; }
