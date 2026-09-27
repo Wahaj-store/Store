@@ -1,5 +1,5 @@
 import { rateLimit, getClientKey } from '@/lib/rate-limit';
- { NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { customerLogin, customerRegister, getCustomer } from '@/lib/customer-auth';
 import { cookies } from 'next/headers';
 
