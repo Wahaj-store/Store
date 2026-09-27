@@ -1,5 +1,4 @@
 "use client";
-import { useState } from "react";
 import {
   ChevronLeft,
   ShieldCheck,
@@ -7,126 +6,7 @@ import {
   RotateCcw,
   MessageCircle,
 } from "lucide-react";
-import AddToCart from "./AddToCart";
-import WishlistButton from "./WishlistButton";
-
-function QuickView({ p, onClose }: { p: any; onClose: () => void }) {
-  return (
-    <div
-      className="fixed inset-0 z-[70] grid place-items-center bg-black/60 p-4 backdrop-blur-md transition-all"
-      role="dialog"
-      aria-modal="true"
-      onClick={onClose}
-    >
-      <div
-        className="lux-card max-w-2xl w-full overflow-hidden p-6 md:p-8 bg-[var(--bg)] text-foreground border border-[var(--gold)]/30 shadow-2xl rounded-3xl"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="grid gap-6 md:grid-cols-2 items-center">
-          <div className="relative overflow-hidden rounded-2xl bg-muted/20 aspect-square">
-            <img
-              src={p.images?.[0]?.url || "/placeholder.svg"}
-              alt={p.name}
-              className="h-full w-full object-cover"
-            />
-          </div>
-          <div>
-            <span className="text-xs tracking-widest uppercase text-[var(--gold)] font-semibold">عرض سريع</span>
-            <h2 className="text-2xl font-serif font-bold mt-1 tracking-tight">{p.name}</h2>
-            <p className="text-[var(--gold)] mt-3 text-xl font-bold">
-              {Number(p.price).toLocaleString("ar-EG")} ج.م
-            </p>
-            <p className="text-muted-foreground mt-4 leading-relaxed text-sm">
-              {p.description || "قطعة مختارة بعناية من وَهَج لتضفي طابعاً فريداً على إطلالتك."}
-            </p>
-            <div className="mt-6 flex flex-col gap-3">
-              <a 
-                href={`/product/${p.slug}`} 
-                className="w-full text-center py-3.5 rounded-xl bg-[var(--gold)] text-[var(--gold-contrast)] font-semibold tracking-wide hover:opacity-95 transition-opacity shadow-lg"
-              >
-                التفاصيل الكاملة
-              </a>
-              <button 
-                type="button" 
-                onClick={onClose}
-                className="w-full py-2.5 rounded-xl border border-border/60 text-sm text-muted-foreground hover:text-foreground transition-colors"
-              >
-                إغلاق
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function Card({ p }: { p: any }) {
-  const [quick, setQuick] = useState(false);
-  const discount =
-    p.comparePrice && p.comparePrice > p.price
-      ? Math.round((1 - p.price / p.comparePrice) * 100)
-      : 0;
-
-  return (
-    <article className="group flex flex-col justify-between rounded-3xl border border-border/30 bg-[var(--bg)] p-4 shadow-sm transition-all duration-300 hover:shadow-xl hover:border-[var(--gold)]/50">
-      <div>
-        <div className="relative overflow-hidden rounded-2xl bg-muted/30 aspect-square">
-          <a href={`/product/${p.slug}`}>
-            <img
-              src={p.images?.[0]?.url || "/placeholder.svg"}
-              alt={p.images?.[0]?.alt || p.name}
-              loading="lazy"
-              className="h-full w-full object-cover transition duration-700 group-hover:scale-105"
-            />
-          </a>
-          <div className="absolute top-3 start-3 z-10">
-            <WishlistButton productId={p.id} />
-          </div>
-          <button
-            type="button"
-            onClick={() => setQuick(true)}
-            className="absolute bottom-3 end-3 rounded-full border border-border/60 bg-[var(--bg)]/90 backdrop-blur-md px-3.5 py-1.5 text-xs font-medium tracking-wide transition-colors hover:border-[var(--gold)] hover:text-[var(--gold)]"
-          >
-            نظرة سريعة
-          </button>
-          {discount > 0 && (
-            <span className="absolute top-3 end-3 rounded-full bg-foreground px-2.5 py-1 text-[11px] font-bold text-background shadow-md">
-              -{discount}%
-            </span>
-          )}
-        </div>
-        
-        <div className="pt-4 px-1">
-          <a href={`/product/${p.slug}`}>
-            <h3 className="font-serif font-medium text-base line-clamp-1 hover:text-[var(--gold)] transition-colors">{p.name}</h3>
-          </a>
-          <div className="mt-2 flex items-center gap-3">
-            <span className="font-bold text-lg text-[var(--gold)]">{Number(p.price).toLocaleString("ar-EG")} ج.م</span>
-            {p.comparePrice && (
-              <del className="text-xs text-muted-foreground">
-                {Number(p.comparePrice).toLocaleString("ar-EG")} ج.م
-              </del>
-            )}
-          </div>
-          <p className="mt-1.5 text-xs text-muted-foreground font-light">
-            {p.stock > 0
-              ? p.stock <= 5
-                ? "متبقي عدد قليل"
-                : "متوفر في المخزن"
-              : "نفدت الكمية"}
-          </p>
-        </div>
-      </div>
-
-      <div className="mt-5 pt-3 border-t border-border/20">
-        <AddToCart product={p} />
-      </div>
-
-      {quick && <QuickView p={p} onClose={() => setQuick(false)} />}
-    </article>
-  );
-}
+import ProductCard from "./ProductCard";
 
 function ProductsSection({
   data,
@@ -138,16 +18,16 @@ function ProductsSection({
   subtitle?: string;
 }) {
   return (
-    <section className="container py-20">
-      <div className="mb-12 text-center md:text-right">
+    <section className="container section wahaj-products-section">
+      <div className="wahaj-products-section__head">
         <span className="inline-block text-[var(--gold)] text-xs font-semibold tracking-widest uppercase px-3 py-1 rounded-full bg-[var(--gold)]/10 mb-2">
           {subtitle}
         </span>
         <h2 className="text-3xl md:text-4xl font-serif font-bold tracking-tight">{title}</h2>
       </div>
-      <div className="grid grid-cols-2 gap-4 md:grid-cols-4 md:gap-6">
+      <div className="wahaj-product-grid">
         {data.products.map((p: any) => (
-          <Card key={p.id} p={p} />
+          <ProductCard key={p.id} product={p} />
         ))}
       </div>
     </section>
@@ -289,7 +169,7 @@ export default function Store({ data }: { data: any }) {
             );
           if (sec.type === "offers")
             return (
-              <section id="offers" key={sec.id} className="container py-20">
+              <section id="offers" key={sec.id} className="container section wahaj-products-section">
                 <div className="lux-card p-8 md:p-14 rounded-3xl border border-[var(--gold)]/30 bg-muted/20 shadow-lg">
                   <span className="inline-block text-[var(--gold)] text-xs font-semibold tracking-widest uppercase px-3 py-1 rounded-full bg-[var(--gold)]/10 mb-3">
                     عروض مختارة
@@ -314,7 +194,7 @@ export default function Store({ data }: { data: any }) {
             );
           if (sec.type === "trust")
             return (
-              <section key={sec.id} className="container py-20">
+              <section key={sec.id} className="container section wahaj-products-section">
                 <div className="grid grid-cols-2 gap-6 md:grid-cols-4">
                   {[
                     { icon: Truck, title: "شحن داخل مصر", desc: "توصيل سريع لكافة المحافظات", href: "/policies/shipping" },
