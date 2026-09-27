@@ -1,3 +1,5 @@
+// app/api/customer/auth/route.ts
+
 import { rateLimit, getClientKey } from '@/lib/rate-limit';
 import { NextResponse } from 'next/server';
 import { customerLogin, customerRegister, getCustomer } from '@/lib/customer-auth';
@@ -28,9 +30,7 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ id: c.id, name: c.name, phone: c.phone, email: c.email });
   } catch (e: any) {
-    // طباعة الخطأ الحقيقي بالتفصيل في لوجز Vercel لنتمكن من رؤيته
     console.error("CUSTOMER_AUTH_ERROR_DETAILS:", e);
-    
     return NextResponse.json({ error: e.message || 'تعذر تنفيذ العملية' }, { status: 400 });
   }
 }
