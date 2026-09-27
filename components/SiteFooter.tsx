@@ -50,7 +50,7 @@ export default function SiteFooter() {
           <div className="wahaj-footer__brand">
             <div className="wahaj-footer__logo" aria-label="وَهَج">
               <Image
-                src="/images/wahaj-logo.svg"
+                src="/images/wahaj.logo.png"
                 alt="وَهَج"
                 width={180}
                 height={58}
