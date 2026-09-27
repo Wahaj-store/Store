@@ -117,7 +117,7 @@ export default function AboutPage() {
         <div className="text-center pt-4">
           <Link
             href="/shop"
-            className="inline-flex items-center gap-3 px-8 py-4 rounded-2xl bg-[var(--gold)] text-black font-bold text-base shadow-lg hover:opacity-90 transition transform hover:-translate-y-0.5"
+            className="inline-flex items-center gap-3 px-8 py-4 rounded-2xl bg-[var(--gold)] text-[var(--gold-contrast)] font-bold text-base shadow-lg hover:opacity-90 transition transform hover:-translate-y-0.5"
           >
             <span>تسوقي الآن</span>
             <ArrowLeft size={20} />
