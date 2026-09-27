@@ -39,7 +39,7 @@ export default function FAQPage() {
           <button
             key={tab.key}
             onClick={() => setActiveTab(tab.key)}
-            className={`px-4 py-2 rounded-xl text-xs font-medium transition border ${activeTab === tab.key ? 'bg-[var(--gold)] text-white border-[var(--gold)]' : 'bg-background border hairline muted hover:text-foreground'}`}
+            className={`px-4 py-2 rounded-xl text-xs font-medium transition border ${activeTab === tab.key ? 'bg-[var(--gold)] text-[var(--gold-contrast)] border-[var(--gold)]' : 'bg-background border hairline muted hover:text-foreground'}`}
           >
             {tab.label}
           </button>
