@@ -48,9 +48,16 @@ export default function SiteFooter() {
         <div className="wahaj-footer__main">
 
           <div className="wahaj-footer__brand">
-            <span className="wahaj-footer__logo">
-              {settings.brand_name || 'وَهَج'}
-            </span>
+            <div className="wahaj-footer__logo" aria-label="وَهَج">
+              <Image
+                src="/images/wahaj-logo.svg"
+                alt="وَهَج"
+                width={180}
+                height={58}
+                className="wahaj-footer__logo-image"
+                priority
+              />
+            </div>
 
             <p className="wahaj-footer__bio">
               {settings.brand_story || 'تفاصيل صغيرة تصنع وهجًا كبيرًا.'}
@@ -98,16 +105,14 @@ export default function SiteFooter() {
             </p>
 
             {/* صورة طرق الدفع المرفقة */}
-            <div className="wahaj-footer__payments pt-2">
-              <div className="overflow-hidden rounded-2xl border border-border/60 bg-card/50 p-2 shadow-xs inline-block w-full">
-                <Image 
-                  src="/images/payment-methods.png" 
-                  alt="طرق الدفع المتاحة" 
-                  width={300} 
-                  height={100} 
-                  className="w-full h-auto object-contain rounded-xl"
-                />
-              </div>
+            <div className="wahaj-footer__payments">
+              <Image
+                src="/images/payment-methods.png"
+                alt="طرق الدفع المتاحة"
+                width={300}
+                height={100}
+                className="wahaj-footer__payments-image"
+              />
             </div>
           </div>
 
