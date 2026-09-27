@@ -1,5 +1,5 @@
 import { prisma } from '@/lib/prisma';
-import AddToCart from '@/components/AddToCart';
+import ProductCard from '@/components/ProductCard';
 
 export const revalidate = 0;
 
@@ -38,8 +38,8 @@ export default async function Shop({
   });
 
   return (
-    <main className="container py-16" dir="rtl">
-      <div className="mb-12">
+    <main className="wahaj-shop-page container section" dir="rtl">
+      <div className="wahaj-shop-page__hero">
         <span className="inline-block text-[var(--gold)] text-xs font-semibold tracking-widest uppercase px-3 py-1 rounded-full bg-[var(--gold)]/10 mb-3">
           Wahaj Store
         </span>
@@ -61,7 +61,7 @@ export default async function Shop({
         </form>
       </div>
 
-      <div className="mt-6 flex flex-wrap gap-2.5">
+      <div className="wahaj-shop-page__filters">
         <a
           href="/shop"
           className={`rounded-full px-5 py-2.5 text-xs font-medium transition-all ${
@@ -87,70 +87,10 @@ export default async function Shop({
         ))}
       </div>
 
-      <div className="mt-12 grid grid-cols-2 gap-4 md:grid-cols-4 md:gap-6">
-        {ps.map((p) => {
-          const priceNum = Number(p.price);
-          const compareNum = p.comparePrice ? Number(p.comparePrice) : 0;
-          const discount =
-            compareNum > priceNum
-              ? Math.round((1 - priceNum / compareNum) * 100)
-              : 0;
-
-          return (
-            <article
-              key={p.id}
-              className="group flex flex-col justify-between rounded-3xl border border-border/30 bg-[var(--bg)] p-4 shadow-sm transition-all duration-300 hover:shadow-xl hover:border-[var(--gold)]/50"
-            >
-              <div>
-                <div className="relative overflow-hidden rounded-2xl bg-muted/30 aspect-square">
-                  <a href={`/product/${p.slug}`} className="block w-full h-full">
-                    <img
-                      src={p.images[0]?.url || '/placeholder.svg'}
-                      alt={p.name}
-                      loading="lazy"
-                      decoding="async"
-                      className="aspect-square w-full h-full object-cover transition duration-700 group-hover:scale-105"
-                    />
-                  </a>
-                  {discount > 0 && (
-                    <span className="absolute top-3 end-3 z-10 rounded-full bg-foreground px-2.5 py-1 text-[11px] font-bold text-background shadow-md">
-                      -{discount}%
-                    </span>
-                  )}
-                </div>
-
-                <div className="pt-4 px-1">
-                  <a href={`/product/${p.slug}`}>
-                    <h2 className="font-serif font-medium text-base line-clamp-1 hover:text-[var(--gold)] transition-colors">
-                      {p.name}
-                    </h2>
-                  </a>
-                  <div className="mt-2 flex items-center gap-3">
-                    <span className="font-bold text-lg text-[var(--gold)]">
-                      {priceNum.toLocaleString('ar-EG')} ج.م
-                    </span>
-                    {compareNum > 0 && (
-                      <del className="text-xs text-muted-foreground">
-                        {compareNum.toLocaleString('ar-EG')} ج.م
-                      </del>
-                    )}
-                  </div>
-                  <p className="mt-1.5 text-xs text-muted-foreground font-light">
-                    {p.stock > 0
-                      ? p.stock <= 5
-                        ? 'متبقي عدد قليل'
-                        : 'متوفر في المخزن'
-                      : 'نفدت الكمية'}
-                  </p>
-                </div>
-              </div>
-
-              <div className="mt-5 pt-3 border-t border-border/20">
-                <AddToCart product={p} />
-              </div>
-            </article>
-          );
-        })}
+      <div className="wahaj-product-grid mt-10">
+        {ps.map((p) => (
+          <ProductCard key={p.id} product={p} />
+        ))}
       </div>
 
       {!ps.length && (
