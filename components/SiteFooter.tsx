@@ -1,13 +1,14 @@
+// مسار الملف: components/SiteFooter.tsx
+
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Banknote, Smartphone, QrCode, CreditCard } from 'lucide-react';
+import Image from 'next/image';
 
 type SettingMap = Record<string, any>;
 
 export default function SiteFooter() {
   const [settings, setSettings] = useState<SettingMap>({});
-  const [payments, setPayments] = useState<any[]>([]);
 
   useEffect(() => {
     let mounted = true;
@@ -17,11 +18,6 @@ export default function SiteFooter() {
       .then(data => {
         if (!mounted || !data) return;
         setSettings(data.settings || {});
-        
-        // فلترة طرق الدفع لجلب المفعلة فقط (enabled === true)
-        const allPayments = Array.isArray(data.payments) ? data.payments : [];
-        const activePayments = allPayments.filter((p: any) => p.enabled !== false && p.enabled !== 0);
-        setPayments(activePayments);
       })
       .catch(() => {});
 
@@ -45,20 +41,6 @@ export default function SiteFooter() {
       { label: 'الأسئلة الشائعة', href: '/faq' }
     ]
   );
-
-  // دالة لتحديد الأيقونة الاحترافية المناسبة لكل طريقة دفع
-  const getPaymentIcon = (methodName: string) => {
-    const name = methodName?.toLowerCase() || '';
-    if (name.includes('cash') || name.includes('استلام')) {
-      return <Banknote size={18} className="text-[var(--gold)] shrink-0" />;
-    } else if (name.includes('vodafone') || name.includes('فودافون') || name.includes('محفظة') || name.includes('wallet')) {
-      return <Smartphone size={18} className="text-red-500 shrink-0" />;
-    } else if (name.includes('insta') || name.includes('انستاباي')) {
-      return <QrCode size={18} className="text-purple-400 shrink-0" />;
-    } else {
-      return <CreditCard size={18} className="text-[var(--gold)] shrink-0" />;
-    }
-  };
 
   return (
     <footer className="wahaj-footer border-t border-[var(--gold)]/20 shadow-[0_-4px_20px_rgba(0,0,0,0.2)]">
@@ -115,29 +97,17 @@ export default function SiteFooter() {
               خيارات دفع متاحة لتجربة شراء أكثر راحة.
             </p>
 
-            {/* عرض طرق الدفع بأيقونات SVG احترافية بجانبها */}
-            <div className="wahaj-footer__payments flex flex-col gap-2.5 pt-1">
-              {payments.length > 0 ? (
-                payments.map((payment: any) => {
-                  const label = payment.label || payment.name || payment.method;
-                  return (
-                    <div
-                      key={payment.method || payment.id}
-                      className="flex items-center gap-3 px-3.5 py-2.5 rounded-xl bg-card border border-border/60 shadow-sm transition hover:border-[var(--gold)]/50 text-foreground"
-                    >
-                      {getPaymentIcon(label)}
-                      <span className="text-xs md:text-sm font-medium">
-                        {label}
-                      </span>
-                    </div>
-                  );
-                })
-              ) : (
-                <div className="flex items-center gap-3 px-3.5 py-2.5 rounded-xl bg-card border border-border/60 text-foreground">
-                  <Banknote size={18} className="text-[var(--gold)] shrink-0" />
-                  <span className="text-xs md:text-sm font-medium">الدفع عند الاستلام</span>
-                </div>
-              )}
+            {/* صورة طرق الدفع المرفقة */}
+            <div className="wahaj-footer__payments pt-2">
+              <div className="overflow-hidden rounded-2xl border border-border/60 bg-card/50 p-2 shadow-xs inline-block w-full">
+                <Image 
+                  src="/images/payment-methods.png" 
+                  alt="طرق الدفع المتاحة" 
+                  width={300} 
+                  height={100} 
+                  className="w-full h-auto object-contain rounded-xl"
+                />
+              </div>
             </div>
           </div>
 
