@@ -72,22 +72,13 @@ const emptyProduct: any = {
 };
 
 async function api(url: string, method = 'GET', body?: any) {
-  const r = await fetch(url, {
-    method,
-    credentials: 'same-origin',
-    cache: 'no-store',
-    headers: body instanceof FormData ? undefined : body ? { 'Content-Type': 'application/json' } : undefined,
-    body: body instanceof FormData ? body : body ? JSON.stringify(body) : undefined,
+  const r = await fetch(url, { 
+    method, 
+    headers: body instanceof FormData ? undefined : body ? { 'Content-Type': 'application/json' } : undefined, 
+    body: body instanceof FormData ? body : body ? JSON.stringify(body) : undefined 
   });
   const j = await r.json().catch(() => ({}));
-  if (!r.ok) {
-    if (r.status === 401) {
-      if (typeof window !== 'undefined') window.location.assign('/admin/login');
-      throw new Error(j.error || 'انتهت جلسة الإدارة.');
-    }
-    if (r.status === 403) throw new Error(j.error || 'غير مصرح: لا تملك صلاحية الوصول إلى هذا القسم.');
-    throw new Error(j.error || 'حدث خطأ في النظام');
-  }
+  if (!r.ok) throw new Error(j.error || 'حدث خطأ في النظام');
   return j;
 }
 
@@ -142,12 +133,7 @@ export default function AdminManager({ sidebarOpen, setSidebarOpen }: { sidebarO
       }
 
       const x = await api(targetUrl);
-      if (tab === 'settings') {
-        const settings = x?.settings || {};
-        setData(Object.entries(settings).map(([key, value]) => ({ id: `setting:${key}`, key, value })));
-      } else {
-        setData(Array.isArray(x) ? x : [x]);
-      }
+      setData(Array.isArray(x) ? x : [x]);
     } catch (e: any) {
       setMsg(e.message || 'حدث خطأ أثناء جلب البيانات');
       setData([]);
@@ -173,8 +159,6 @@ export default function AdminManager({ sidebarOpen, setSidebarOpen }: { sidebarO
       } else if (tab === 'settings') {
         endpoint = '/api/admin/config';
         method = 'PUT';
-        if (!String(v.key || '').trim()) throw new Error('مفتاح الإعداد مطلوب.');
-        v = { settings: { [String(v.key).trim()]: String(v.value ?? '') } };
       } else if (tab === 'categories') {
         endpoint = v.id ? `/api/admin/categories` : '/api/admin/categories';
       }
@@ -197,10 +181,6 @@ export default function AdminManager({ sidebarOpen, setSidebarOpen }: { sidebarO
         await api(`/api/admin/faq/${id}`, 'DELETE');
       } else if (tab === 'products') {
         await api(`/api/admin/products/${id}`, 'DELETE');
-      } else if (tab === 'settings') {
-        const item = data.find((x: any) => x.id === id);
-        if (!item?.key) throw new Error('تعذر تحديد مفتاح الإعداد.');
-        await api('/api/admin/config', 'DELETE', { key: item.key });
       } else {
         await api(`/api/admin/${tab}`, 'DELETE', { id });
       }
@@ -261,7 +241,7 @@ export default function AdminManager({ sidebarOpen, setSidebarOpen }: { sidebarO
         `}>
           
           <div className="flex items-center justify-between lg:hidden pb-3 border-b border-border/30">
-            <span className="font-serif font-bold text-sm text-[#D4AF37]">قائمة التحكم</span>
+            <span className="font-serif font-bold text-sm text-[var(--gold)]">قائمة التحكم</span>
             <button onClick={() => setSidebarOpen(false)} className="p-1.5 rounded-xl bg-muted/20 text-muted-foreground hover:text-foreground cursor-pointer">
               <X size={18} />
             </button>
@@ -269,7 +249,7 @@ export default function AdminManager({ sidebarOpen, setSidebarOpen }: { sidebarO
 
           {menuGroups.map((group, groupIdx) => (
             <div key={groupIdx} className="space-y-1.5">
-              <h3 className="px-3 text-[11px] font-serif font-bold uppercase tracking-wider text-[#D4AF37]/90">
+              <h3 className="px-3 text-[11px] font-serif font-bold uppercase tracking-wider text-[var(--gold)]/90">
                 {group.title}
               </h3>
               <div className="space-y-1 pt-1">
@@ -283,13 +263,13 @@ export default function AdminManager({ sidebarOpen, setSidebarOpen }: { sidebarO
                       onClick={() => { setTab(k); setEditing(null); setMsg(''); setSidebarOpen(false); }} 
                       className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-xs md:text-sm transition-all cursor-pointer ${
                         tab === k 
-                          ? 'bg-[#D4AF37] text-black font-bold shadow-sm' 
+                          ? 'bg-[var(--gold)] text-[var(--gold-contrast)] font-bold shadow-sm' 
                           : 'text-muted-foreground hover:text-foreground hover:bg-muted/20 font-light'
                       }`}
                     >
-                      <Icon size={16} className={tab === k ? 'text-black' : 'text-[#D4AF37]'} />
+                      <Icon size={16} className={tab === k ? 'text-[var(--gold-contrast)]' : 'text-[var(--gold)]'} />
                       <span className="flex-1 text-start">{t}</span>
-                      {tab === k && <ChevronLeft size={14} className="text-black" />}
+                      {tab === k && <ChevronLeft size={14} className="text-[var(--gold-contrast)]" />}
                     </button>
                   );
                 })}
@@ -306,7 +286,7 @@ export default function AdminManager({ sidebarOpen, setSidebarOpen }: { sidebarO
             </div>
             {!editing && ['products', 'categories', 'offers', 'coupons', 'shipping', 'homepage', 'gift-cards', 'relations', 'faq', 'redirects', 'settings'].includes(tab) && (
               <button 
-                className="px-5 py-2.5 rounded-2xl bg-[#D4AF37] text-black font-serif font-bold text-xs md:text-sm shadow-sm hover:opacity-95 transition inline-flex items-center gap-2 cursor-pointer" 
+                className="px-5 py-2.5 rounded-2xl bg-[var(--gold)] text-[var(--gold-contrast)] font-serif font-bold text-xs md:text-sm shadow-sm hover:opacity-95 transition inline-flex items-center gap-2 cursor-pointer" 
                 onClick={() => setEditing(getNewItemTemplate())}
               >
                 <Plus size={17} /> إضافة جديدة
@@ -314,7 +294,7 @@ export default function AdminManager({ sidebarOpen, setSidebarOpen }: { sidebarO
             )}
           </div>
 
-          {msg && <div className="rounded-2xl border border-[#D4AF37]/40 bg-[#D4AF37]/10 p-4 text-xs md:text-sm font-medium text-[#D4AF37] shadow-xs">{msg}</div>}
+          {msg && <div className="rounded-2xl border border-[var(--gold)]/40 bg-[var(--gold)]/10 p-4 text-xs md:text-sm font-medium text-[var(--gold)] shadow-xs">{msg}</div>}
 
           {loading ? (
             <div className="bg-muted/10 border border-border/40 rounded-3xl p-12 text-center text-muted-foreground text-sm font-light">جارٍ التحميل…</div>
@@ -341,13 +321,13 @@ function Editor({ tab, value, cats, onCancel, onSave, upload }: any) {
 
   if (tab === 'settings') return (
     <div className="bg-muted/10 border border-border/40 rounded-3xl p-6 md:p-8 space-y-5 shadow-xs">
-      <h3 className="font-serif font-bold text-lg text-[#D4AF37]">إعدادات المتجر العامة</h3>
+      <h3 className="font-serif font-bold text-lg text-[var(--gold)]">إعدادات المتجر العامة</h3>
       <div className="grid gap-4 md:grid-cols-2">
         <Field label="المفتاح (Key)" value={v.key || ''} onChange={(x: any) => set('key', x)} />
         <Field label="القيمة (Value)" value={v.value || ''} onChange={(x: any) => set('value', x)} />
       </div>
       <div className="flex gap-3 pt-3">
-        <button className="px-6 py-3 rounded-2xl bg-[#D4AF37] text-black font-serif font-bold text-sm shadow-sm hover:opacity-95 transition inline-flex items-center gap-2 cursor-pointer" onClick={() => onSave(v)}><Save size={17} /> حفظ الإعداد</button>
+        <button className="px-6 py-3 rounded-2xl bg-[var(--gold)] text-[var(--gold-contrast)] font-serif font-bold text-sm shadow-sm hover:opacity-95 transition inline-flex items-center gap-2 cursor-pointer" onClick={() => onSave(v)}><Save size={17} /> حفظ الإعداد</button>
         <button className="px-5 py-3 rounded-2xl bg-muted/20 border border-border/60 text-muted-foreground text-sm font-medium hover:bg-muted/30 transition cursor-pointer" onClick={onCancel}>إلغاء</button>
       </div>
     </div>
@@ -355,11 +335,11 @@ function Editor({ tab, value, cats, onCancel, onSave, upload }: any) {
 
   if (tab === 'faq') return (
     <div className="bg-muted/10 border border-border/40 rounded-3xl p-6 md:p-8 space-y-5 shadow-xs">
-      <h3 className="font-serif font-bold text-lg text-[#D4AF37]">{v.id ? 'تعديل السؤال' : 'إضافة سؤال جديد'}</h3>
+      <h3 className="font-serif font-bold text-lg text-[var(--gold)]">{v.id ? 'تعديل السؤال' : 'إضافة سؤال جديد'}</h3>
       <div className="grid gap-4 md:grid-cols-2">
         <Field label="السؤال" value={v.question || ''} onChange={(x: any) => set('question', x)} />
         <label className="text-xs md:text-sm font-medium text-muted-foreground">القسم
-          <select className="w-full mt-1 px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[#D4AF37]" value={v.category || 'general'} onChange={e => set('category', e.target.value)}>
+          <select className="w-full mt-1 px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[var(--gold)]" value={v.category || 'general'} onChange={e => set('category', e.target.value)}>
             <option value="general">عام</option>
             <option value="shipping">الشحن والتوصيل</option>
             <option value="payment">الدفع</option>
@@ -369,14 +349,14 @@ function Editor({ tab, value, cats, onCancel, onSave, upload }: any) {
         </label>
         <Field label="ترتيب الظهور" type="number" value={v.displayOrder ?? 0} onChange={(x: any) => set('displayOrder', Number(x))} />
         <label className="flex items-center gap-2.5 pt-6 text-sm font-light cursor-pointer">
-          <input type="checkbox" className="w-4 h-4 accent-[#D4AF37]" checked={!!v.published} onChange={e => set('published', e.target.checked)} /> منشور في المتجر
+          <input type="checkbox" className="w-4 h-4 accent-[var(--gold)]" checked={!!v.published} onChange={e => set('published', e.target.checked)} /> منشور في المتجر
         </label>
         <label className="md:col-span-2 text-xs md:text-sm font-medium text-muted-foreground">الإجابة
-          <textarea className="w-full mt-1 px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[#D4AF37] min-h-28" value={v.answer || ''} onChange={e => set('answer', e.target.value)} />
+          <textarea className="w-full mt-1 px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[var(--gold)] min-h-28" value={v.answer || ''} onChange={e => set('answer', e.target.value)} />
         </label>
       </div>
       <div className="flex gap-3 pt-3">
-        <button className="px-6 py-3 rounded-2xl bg-[#D4AF37] text-black font-serif font-bold text-sm shadow-sm hover:opacity-95 transition inline-flex items-center gap-2 cursor-pointer" onClick={() => onSave(v)}><Save size={17} /> حفظ</button>
+        <button className="px-6 py-3 rounded-2xl bg-[var(--gold)] text-[var(--gold-contrast)] font-serif font-bold text-sm shadow-sm hover:opacity-95 transition inline-flex items-center gap-2 cursor-pointer" onClick={() => onSave(v)}><Save size={17} /> حفظ</button>
         <button className="px-5 py-3 rounded-2xl bg-muted/20 border border-border/60 text-muted-foreground text-sm font-medium hover:bg-muted/30 transition cursor-pointer" onClick={onCancel}>إلغاء</button>
       </div>
     </div>
@@ -389,13 +369,13 @@ function Editor({ tab, value, cats, onCancel, onSave, upload }: any) {
         <Field label="ترتيب الظهور" value={v.displayOrder || 0} onChange={(x: any) => set('displayOrder', x)} type="number" />
         <Field label="اسم الحساب" value={v.accountName || ''} onChange={(x: any) => set('accountName', x)} />
         <Field label="رقم/معرف الحساب" value={v.accountNumber || ''} onChange={(x: any) => set('accountNumber', x)} />
-        <label className="md:col-span-2 text-xs md:text-sm font-medium text-muted-foreground">الوصف<textarea className="w-full mt-1 px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[#D4AF37]" value={v.description || ''} onChange={e => set('description', e.target.value)} /></label>
-        <label className="md:col-span-2 text-xs md:text-sm font-medium text-muted-foreground">تعليمات الدفع<textarea className="w-full mt-1 px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[#D4AF37] min-h-28" value={v.instructions || ''} onChange={e => set('instructions', e.target.value)} /></label>
-        <label className="flex items-center gap-2.5 text-sm font-light cursor-pointer"><input type="checkbox" className="w-4 h-4 accent-[#D4AF37]" checked={!!v.enabled} onChange={e => set('enabled', e.target.checked)} /> مفعلة</label>
-        <label className="flex items-center gap-2.5 text-sm font-light cursor-pointer"><input type="checkbox" className="w-4 h-4 accent-[#D4AF37]" checked={!!v.proofRequired} onChange={e => set('proofRequired', e.target.checked)} /> طلب إثبات دفع</label>
+        <label className="md:col-span-2 text-xs md:text-sm font-medium text-muted-foreground">الوصف<textarea className="w-full mt-1 px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[var(--gold)]" value={v.description || ''} onChange={e => set('description', e.target.value)} /></label>
+        <label className="md:col-span-2 text-xs md:text-sm font-medium text-muted-foreground">تعليمات الدفع<textarea className="w-full mt-1 px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[var(--gold)] min-h-28" value={v.instructions || ''} onChange={e => set('instructions', e.target.value)} /></label>
+        <label className="flex items-center gap-2.5 text-sm font-light cursor-pointer"><input type="checkbox" className="w-4 h-4 accent-[var(--gold)]" checked={!!v.enabled} onChange={e => set('enabled', e.target.checked)} /> مفعلة</label>
+        <label className="flex items-center gap-2.5 text-sm font-light cursor-pointer"><input type="checkbox" className="w-4 h-4 accent-[var(--gold)]" checked={!!v.proofRequired} onChange={e => set('proofRequired', e.target.checked)} /> طلب إثبات دفع</label>
       </div>
       <div className="mt-5 flex gap-3">
-        <button className="px-6 py-3 rounded-2xl bg-[#D4AF37] text-black font-serif font-bold text-sm shadow-sm hover:opacity-95 transition inline-flex items-center gap-2 cursor-pointer" onClick={() => onSave(v)}><Save size={17} /> حفظ</button>
+        <button className="px-6 py-3 rounded-2xl bg-[var(--gold)] text-[var(--gold-contrast)] font-serif font-bold text-sm shadow-sm hover:opacity-95 transition inline-flex items-center gap-2 cursor-pointer" onClick={() => onSave(v)}><Save size={17} /> حفظ</button>
         <button className="px-5 py-3 rounded-2xl bg-muted/20 border border-border/60 text-muted-foreground text-sm font-medium hover:bg-muted/30 transition cursor-pointer" onClick={onCancel}>إلغاء</button>
       </div>
     </div>
@@ -417,7 +397,7 @@ function Editor({ tab, value, cats, onCancel, onSave, upload }: any) {
       <div className="grid gap-4 md:grid-cols-2">
         <Field label="اسم العرض" value={v.name || ''} onChange={(x: any) => set('name', x)} />
         <label className="text-xs md:text-sm font-medium text-muted-foreground">نوع العرض
-          <select className="w-full mt-1 px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[#D4AF37]" value={v.type || 'FLASH_SALE'} onChange={e => set('type', e.target.value)}>
+          <select className="w-full mt-1 px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[var(--gold)]" value={v.type || 'FLASH_SALE'} onChange={e => set('type', e.target.value)}>
             {['FLASH_SALE', 'BUY_X_GET_Y', 'FREE_SHIPPING', 'FIRST_ORDER', 'SEASONAL'].map((x: any) => <option key={x}>{x}</option>)}
           </select>
         </label>
@@ -426,7 +406,7 @@ function Editor({ tab, value, cats, onCancel, onSave, upload }: any) {
         <Field label="ينتهي" value={v.endsAt || ''} onChange={(x: any) => set('endsAt', x)} />
       </div>
       <div className="mt-5 flex gap-3">
-        <button className="px-6 py-3 rounded-2xl bg-[#D4AF37] text-black font-serif font-bold text-sm shadow-sm hover:opacity-95 transition inline-flex items-center gap-2 cursor-pointer" onClick={() => onSave(v)}><Save size={17} /> حفظ</button>
+        <button className="px-6 py-3 rounded-2xl bg-[var(--gold)] text-[var(--gold-contrast)] font-serif font-bold text-sm shadow-sm hover:opacity-95 transition inline-flex items-center gap-2 cursor-pointer" onClick={() => onSave(v)}><Save size={17} /> حفظ</button>
         <button className="px-5 py-3 rounded-2xl bg-muted/20 border border-border/60 text-muted-foreground text-sm font-medium hover:bg-muted/30 transition cursor-pointer" onClick={onCancel}>إلغاء</button>
       </div>
     </div>
@@ -440,7 +420,7 @@ function Editor({ tab, value, cats, onCancel, onSave, upload }: any) {
         <Field label="كود التحويل" value={v.statusCode || 301} onChange={(x: any) => set('statusCode', x)} type="number" />
       </div>
       <div className="mt-5 flex gap-3">
-        <button className="px-6 py-3 rounded-2xl bg-[#D4AF37] text-black font-serif font-bold text-sm shadow-sm hover:opacity-95 transition inline-flex items-center gap-2 cursor-pointer" onClick={() => onSave(v)}><Save size={17} /> حفظ</button>
+        <button className="px-6 py-3 rounded-2xl bg-[var(--gold)] text-[var(--gold-contrast)] font-serif font-bold text-sm shadow-sm hover:opacity-95 transition inline-flex items-center gap-2 cursor-pointer" onClick={() => onSave(v)}><Save size={17} /> حفظ</button>
         <button className="px-5 py-3 rounded-2xl bg-muted/20 border border-border/60 text-muted-foreground text-sm font-medium hover:bg-muted/30 transition cursor-pointer" onClick={onCancel}>إلغاء</button>
       </div>
     </div>
@@ -458,13 +438,13 @@ function Editor({ tab, value, cats, onCancel, onSave, upload }: any) {
             <Field label="السعر قبل الخصم" value={v.comparePrice} onChange={(x: any) => set('comparePrice', x)} type="number" />
             <Field label="المخزون" value={v.stock} onChange={(x: any) => set('stock', x)} type="number" />
             <label className="text-xs md:text-sm font-medium text-muted-foreground">التصنيف
-              <select className="w-full mt-1 px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[#D4AF37]" value={v.categoryId} onChange={e => set('categoryId', e.target.value)}>
+              <select className="w-full mt-1 px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[var(--gold)]" value={v.categoryId} onChange={e => set('categoryId', e.target.value)}>
                 <option value="">اختر التصنيف</option>
                 {cats.map((c: any) => <option key={c.id} value={c.id}>{c.name}</option>)}
               </select>
             </label>
             <label className="text-xs md:text-sm font-medium text-muted-foreground">الحالة
-              <select className="w-full mt-1 px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[#D4AF37]" value={v.status} onChange={e => set('status', e.target.value)}>
+              <select className="w-full mt-1 px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[var(--gold)]" value={v.status} onChange={e => set('status', e.target.value)}>
                 {['DRAFT', 'PUBLISHED', 'HIDDEN', 'ARCHIVED'].map((x: any) => <option key={x}>{x}</option>)}
               </select>
             </label>
@@ -475,15 +455,15 @@ function Editor({ tab, value, cats, onCancel, onSave, upload }: any) {
             <div className="md:col-span-2 grid grid-cols-2 md:grid-cols-3 gap-3 pt-2">
               {[['featured', 'مميز'], ['newArrival', 'وصل حديثًا'], ['bestSeller', 'الأكثر مبيعًا']].map(([k, l]) => (
                 <label key={k} className="flex items-center gap-2.5 text-sm font-light cursor-pointer">
-                  <input type="checkbox" className="w-4 h-4 accent-[#D4AF37]" checked={!!v[k]} onChange={e => set(k, e.target.checked)} />{l}
+                  <input type="checkbox" className="w-4 h-4 accent-[var(--gold)]" checked={!!v[k]} onChange={e => set(k, e.target.checked)} />{l}
                 </label>
               ))}
             </div>
             <label className="md:col-span-2 text-xs md:text-sm font-medium text-muted-foreground">الوصف
-              <textarea className="w-full mt-1 px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[#D4AF37] min-h-28" value={v.description || ''} onChange={e => set('description', e.target.value)} />
+              <textarea className="w-full mt-1 px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[var(--gold)] min-h-28" value={v.description || ''} onChange={e => set('description', e.target.value)} />
             </label>
             <div className="md:col-span-2 space-y-2">
-              <p className="text-sm font-serif font-bold text-[#D4AF37]">صور المنتج</p>
+              <p className="text-sm font-serif font-bold text-[var(--gold)]">صور المنتج</p>
               <div className="flex flex-wrap gap-3">
                 {v.images.map((im: any, i: number) => (
                   <div key={i} className="relative">
@@ -498,17 +478,17 @@ function Editor({ tab, value, cats, onCancel, onSave, upload }: any) {
             </div>
             <div className="md:col-span-2 space-y-3 pt-2 border-t border-border/30">
               <div className="flex items-center justify-between">
-                <b className="font-serif font-bold text-sm text-[#D4AF37]">Variants / الخيارات</b>
+                <b className="font-serif font-bold text-sm text-[var(--gold)]">Variants / الخيارات</b>
                 <button className="px-4 py-2 rounded-xl bg-muted/20 border border-border/60 text-xs font-medium hover:bg-muted/30 transition cursor-pointer" onClick={addVar}>+ إضافة خيار</button>
               </div>
               {v.variants.map((x: any, i: number) => (
                 <div className="grid gap-2.5 md:grid-cols-5 items-center p-3 rounded-2xl bg-[var(--bg)] border border-border/60 shadow-xs" key={i}>
-                  <input className="w-full px-3 py-2 rounded-xl bg-muted/10 border border-border/60 text-xs text-foreground focus:outline-none focus:border-[#D4AF37]" placeholder="النوع" value={x.name} onChange={e => { const a = [...v.variants]; a[i].name = e.target.value; set('variants', a); }} />
-                  <input className="w-full px-3 py-2 rounded-xl bg-muted/10 border border-border/60 text-xs text-foreground focus:outline-none focus:border-[#D4AF37]" placeholder="القيمة" value={x.value} onChange={e => { const a = [...v.variants]; a[i].value = e.target.value; set('variants', a); }} />
-                  <input className="w-full px-3 py-2 rounded-xl bg-muted/10 border border-border/60 text-xs text-foreground focus:outline-none focus:border-[#D4AF37]" type="number" placeholder="المخزون" value={x.stock} onChange={e => { const a = [...v.variants]; a[i].stock = Number(e.target.value); set('variants', a); }} />
-                  <input className="w-full px-3 py-2 rounded-xl bg-muted/10 border border-border/60 text-xs text-foreground focus:outline-none focus:border-[#D4AF37]" type="number" placeholder="سعر خاص" value={x.price ?? ""} onChange={e => { const a = [...v.variants]; a[i].price = e.target.value === '' ? null : Number(e.target.value); set('variants', a); }} />
+                  <input className="w-full px-3 py-2 rounded-xl bg-muted/10 border border-border/60 text-xs text-foreground focus:outline-none focus:border-[var(--gold)]" placeholder="النوع" value={x.name} onChange={e => { const a = [...v.variants]; a[i].name = e.target.value; set('variants', a); }} />
+                  <input className="w-full px-3 py-2 rounded-xl bg-muted/10 border border-border/60 text-xs text-foreground focus:outline-none focus:border-[var(--gold)]" placeholder="القيمة" value={x.value} onChange={e => { const a = [...v.variants]; a[i].value = e.target.value; set('variants', a); }} />
+                  <input className="w-full px-3 py-2 rounded-xl bg-muted/10 border border-border/60 text-xs text-foreground focus:outline-none focus:border-[var(--gold)]" type="number" placeholder="المخزون" value={x.stock} onChange={e => { const a = [...v.variants]; a[i].stock = Number(e.target.value); set('variants', a); }} />
+                  <input className="w-full px-3 py-2 rounded-xl bg-muted/10 border border-border/60 text-xs text-foreground focus:outline-none focus:border-[var(--gold)]" type="number" placeholder="سعر خاص" value={x.price ?? ""} onChange={e => { const a = [...v.variants]; a[i].price = e.target.value === '' ? null : Number(e.target.value); set('variants', a); }} />
                   <div className="flex gap-2">
-                    <input className="w-full px-3 py-2 rounded-xl bg-muted/10 border border-border/60 text-xs text-foreground focus:outline-none focus:border-[#D4AF37]" placeholder="SKU" value={x.sku || ""} onChange={e => { const a = [...v.variants]; a[i].sku = e.target.value; set('variants', a); }} />
+                    <input className="w-full px-3 py-2 rounded-xl bg-muted/10 border border-border/60 text-xs text-foreground focus:outline-none focus:border-[var(--gold)]" placeholder="SKU" value={x.sku || ""} onChange={e => { const a = [...v.variants]; a[i].sku = e.target.value; set('variants', a); }} />
                     <button className="p-2 rounded-xl border border-red-400 text-red-500 hover:bg-red-500/10 transition cursor-pointer" onClick={() => set('variants', v.variants.filter((_: any, j: number) => j !== i))}><Trash2 size={16} /></button>
                   </div>
                 </div>
@@ -538,7 +518,7 @@ function Editor({ tab, value, cats, onCancel, onSave, upload }: any) {
       )}
 
       <div className="mt-6 flex gap-3 pt-4 border-t border-border/30">
-        <button className="px-6 py-3 rounded-2xl bg-[#D4AF37] text-black font-serif font-bold text-sm shadow-sm hover:opacity-95 transition inline-flex items-center gap-2 cursor-pointer" onClick={() => onSave(v)}><Save size={17} /> حفظ</button>
+        <button className="px-6 py-3 rounded-2xl bg-[var(--gold)] text-[var(--gold-contrast)] font-serif font-bold text-sm shadow-sm hover:opacity-95 transition inline-flex items-center gap-2 cursor-pointer" onClick={() => onSave(v)}><Save size={17} /> حفظ</button>
         <button className="px-5 py-3 rounded-2xl bg-muted/20 border border-border/60 text-muted-foreground text-sm font-medium hover:bg-muted/30 transition cursor-pointer" onClick={onCancel}>إلغاء</button>
       </div>
     </div>
@@ -549,7 +529,7 @@ function Field({ label, value, onChange, type = 'text' }: any) {
   return (
     <label className="text-xs md:text-sm font-medium text-muted-foreground space-y-1 block">
       {label}
-      <input className="w-full mt-1 px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[#D4AF37] transition shadow-xs" type={type} value={value ?? ''} onChange={e => onChange(e.target.value)} />
+      <input className="w-full mt-1 px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[var(--gold)] transition shadow-xs" type={type} value={value ?? ''} onChange={e => onChange(e.target.value)} />
     </label>
   );
 }
@@ -558,7 +538,7 @@ function Select({ label, value, options, onChange }: any) {
   return (
     <label className="mt-4 block text-xs md:text-sm font-medium text-muted-foreground space-y-1">
       {label}
-      <select className="w-full mt-1 px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[#D4AF37] transition shadow-xs" value={value} onChange={e => onChange(e.target.value)}>
+      <select className="w-full mt-1 px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[var(--gold)] transition shadow-xs" value={value} onChange={e => onChange(e.target.value)}>
         {options.map((x: string) => <option key={x}>{x}</option>)}
       </select>
     </label>
@@ -614,7 +594,7 @@ function Content({ tab, data, onEdit, onDelete, onRefresh, onReorder }: any) {
               </div>
             </div>
             <div className="flex items-center gap-3">
-              <span className="px-3 py-1 rounded-full text-xs bg-[#D4AF37]/10 text-[#D4AF37] font-medium border border-[#D4AF37]/20">
+              <span className="px-3 py-1 rounded-full text-xs bg-[var(--gold)]/10 text-[var(--gold)] font-medium border border-[var(--gold)]/20">
                 {msg.subject || 'استفسار عام'}
               </span>
               <button className="p-2 rounded-xl border border-red-400 text-red-500 hover:bg-red-500/10 transition cursor-pointer" onClick={() => onDelete(msg.id)} title="حذف الرسالة"><Trash2 size={16} /></button>
@@ -624,7 +604,7 @@ function Content({ tab, data, onEdit, onDelete, onRefresh, onReorder }: any) {
             {msg.message}
           </p>
           <div className="flex justify-end">
-            <a href={`https://wa.me/${msg.phone}`} target="_blank" rel="noopener noreferrer" className="px-5 py-2.5 rounded-xl bg-[#D4AF37] text-black text-xs font-serif font-bold shadow-sm hover:opacity-95 transition inline-flex items-center gap-1.5 cursor-pointer">
+            <a href={`https://wa.me/${msg.phone}`} target="_blank" rel="noopener noreferrer" className="px-5 py-2.5 rounded-xl bg-[var(--gold)] text-[var(--gold-contrast)] text-xs font-serif font-bold shadow-sm hover:opacity-95 transition inline-flex items-center gap-1.5 cursor-pointer">
               الرد عبر واتساب مباشرة
             </a>
           </div>
@@ -644,7 +624,7 @@ function Content({ tab, data, onEdit, onDelete, onRefresh, onReorder }: any) {
               <p className="text-muted-foreground text-xs font-light mt-0.5">{x.description}</p>
             </div>
             <div className="flex gap-2.5">
-              <button className={`px-4 py-2 rounded-xl text-xs font-medium transition cursor-pointer ${x.enabled ? 'bg-[#D4AF37] text-black font-bold shadow-xs' : 'bg-muted/20 border border-border/60 text-muted-foreground'}`} onClick={async () => { await api('/api/admin/payments', 'PUT', { ...x, enabled: !x.enabled }); onRefresh(); }}>
+              <button className={`px-4 py-2 rounded-xl text-xs font-medium transition cursor-pointer ${x.enabled ? 'bg-[var(--gold)] text-[var(--gold-contrast)] font-bold shadow-xs' : 'bg-muted/20 border border-border/60 text-muted-foreground'}`} onClick={async () => { await api('/api/admin/payments', 'PUT', { ...x, enabled: !x.enabled }); onRefresh(); }}>
                 {x.enabled ? 'مفعل' : 'متوقف'}
               </button>
               <button className="px-4 py-2 rounded-xl bg-muted/20 border border-border/60 text-xs font-medium hover:bg-muted/30 transition cursor-pointer" onClick={() => onEdit(x)}>إدارة</button>
@@ -666,7 +646,7 @@ function Content({ tab, data, onEdit, onDelete, onRefresh, onReorder }: any) {
             <b className="font-serif font-bold text-foreground">{x.key}</b>
             <p className="text-muted-foreground text-xs font-light mt-0.5">{x.description || 'ميزة قابلة للتفعيل'}</p>
           </div>
-          <button className={`px-5 py-2.5 rounded-2xl text-xs font-medium transition cursor-pointer ${x.enabled ? 'bg-[#D4AF37] text-black font-bold shadow-xs' : 'bg-muted/20 border border-border/60 text-muted-foreground'}`} onClick={async () => { await api('/api/admin/features', 'PUT', { key: x.key, enabled: !x.enabled }); onRefresh(); }}>
+          <button className={`px-5 py-2.5 rounded-2xl text-xs font-medium transition cursor-pointer ${x.enabled ? 'bg-[var(--gold)] text-[var(--gold-contrast)] font-bold shadow-xs' : 'bg-muted/20 border border-border/60 text-muted-foreground'}`} onClick={async () => { await api('/api/admin/features', 'PUT', { key: x.key, enabled: !x.enabled }); onRefresh(); }}>
             {x.enabled ? 'مفعل' : 'متوقف'}
           </button>
         </div>
@@ -699,10 +679,10 @@ function Content({ tab, data, onEdit, onDelete, onRefresh, onReorder }: any) {
             <b className="font-serif font-bold text-foreground">{x.name || x.email}</b>
             <p className="text-muted-foreground text-xs font-light mt-0.5">{x.email}</p>
           </div>
-          <select className="px-3 py-2 rounded-xl bg-[var(--bg)] border border-border/60 text-xs text-foreground focus:outline-none focus:border-[#D4AF37]" value={x.role} onChange={async e => { await api('/api/admin/users', 'PUT', { id: x.id, role: e.target.value, active: x.active }); onRefresh(); }}>
+          <select className="px-3 py-2 rounded-xl bg-[var(--bg)] border border-border/60 text-xs text-foreground focus:outline-none focus:border-[var(--gold)]" value={x.role} onChange={async e => { await api('/api/admin/users', 'PUT', { id: x.id, role: e.target.value, active: x.active }); onRefresh(); }}>
             {['OWNER', 'ADMIN', 'MANAGER', 'EDITOR', 'ORDER_MANAGER', 'VIEWER'].map(r => <option key={r}>{r}</option>)}
           </select>
-          <button className={`px-4 py-2 rounded-xl text-xs font-medium transition cursor-pointer ${x.active ? 'bg-[#D4AF37] text-black font-bold shadow-xs' : 'bg-muted/20 border border-border/60 text-muted-foreground'}`} onClick={async () => { await api('/api/admin/users', 'PUT', { id: x.id, role: x.role, active: !x.active }); onRefresh(); }}>
+          <button className={`px-4 py-2 rounded-xl text-xs font-medium transition cursor-pointer ${x.active ? 'bg-[var(--gold)] text-[var(--gold-contrast)] font-bold shadow-xs' : 'bg-muted/20 border border-border/60 text-muted-foreground'}`} onClick={async () => { await api('/api/admin/users', 'PUT', { id: x.id, role: x.role, active: !x.active }); onRefresh(); }}>
             {x.active ? 'نشط' : 'موقوف'}
           </button>
         </div>
@@ -726,7 +706,7 @@ function Content({ tab, data, onEdit, onDelete, onRefresh, onReorder }: any) {
           </div>
           <div className="flex gap-2.5">
             <button className="px-4 py-2 rounded-xl bg-muted/20 border border-border/60 text-xs font-medium hover:bg-muted/30 transition cursor-pointer" onClick={() => onEdit(x)}>تعديل</button>
-            {tab !== 'settings' && <button className="p-2 rounded-xl border border-red-400 text-red-500 hover:bg-red-500/10 transition cursor-pointer" onClick={() => onDelete(x.id)}><Trash2 size={16} /></button>}
+            <button className="p-2 rounded-xl border border-red-400 text-red-500 hover:bg-red-500/10 transition cursor-pointer" onClick={() => onDelete(x.id)}><Trash2 size={16} /></button>
           </div>
         </div>
       ))}
@@ -740,7 +720,7 @@ function Analytics({ data }: any) {
     <div className="grid gap-4 md:grid-cols-3">
       <div className="bg-muted/10 border border-border/40 rounded-3xl p-6 shadow-xs space-y-1">
         <p className="text-muted-foreground text-xs font-light">إجمالي المبيعات</p>
-        <h3 className="text-2xl font-serif font-bold text-[#D4AF37]">{data.totalSales || 0} ج.م</h3>
+        <h3 className="text-2xl font-serif font-bold text-[var(--gold)]">{data.totalSales || 0} ج.م</h3>
       </div>
       <div className="bg-muted/10 border border-border/40 rounded-3xl p-6 shadow-xs space-y-1">
         <p className="text-muted-foreground text-xs font-light">إجمالي الطلبات</p>
@@ -776,14 +756,14 @@ function Orders({ data, onRefresh }: any) {
       {data.map((o: any) => (
         <div className="bg-muted/10 border border-border/40 rounded-2xl p-4 flex justify-between items-center shadow-xs" key={o.id}>
           <div>
-            <Link href={`/admin/orders/${o.id}`} className="text-[#D4AF37] font-serif font-bold hover:underline inline-block text-base cursor-pointer">
+            <Link href={`/admin/orders/${o.id}`} className="text-[var(--gold)] font-serif font-bold hover:underline inline-block text-base cursor-pointer">
               طلب #{o.number} 🔗
             </Link>
             <p className="text-muted-foreground text-xs font-light mt-1">
-              {o.customerNameSnapshot || 'عميل'} • {o.total} ج.م • <span className="text-[#D4AF37] font-medium">{o.status}</span>
+              {o.customerNameSnapshot || 'عميل'} • {o.total} ج.م • <span className="text-[var(--gold)] font-medium">{o.status}</span>
             </p>
           </div>
-          <Link href={`/admin/orders/${o.id}`} className="px-4 py-2 rounded-xl bg-[#D4AF37] text-black text-xs font-serif font-bold hover:opacity-95 transition shadow-xs cursor-pointer">
+          <Link href={`/admin/orders/${o.id}`} className="px-4 py-2 rounded-xl bg-[var(--gold)] text-[var(--gold-contrast)] text-xs font-serif font-bold hover:opacity-95 transition shadow-xs cursor-pointer">
             إدارة الطلب ←
           </Link>
         </div>
@@ -833,7 +813,7 @@ function Media({ data, onDelete, onRefresh }: any) {
 
   return (
     <div className="space-y-4">
-      <label className="px-5 py-3 rounded-2xl bg-[#D4AF37] text-black font-serif font-bold text-xs shadow-sm hover:opacity-95 transition inline-flex items-center gap-2 cursor-pointer">
+      <label className="px-5 py-3 rounded-2xl bg-[var(--gold)] text-[var(--gold-contrast)] font-serif font-bold text-xs shadow-sm hover:opacity-95 transition inline-flex items-center gap-2 cursor-pointer">
         <Upload size={17} /> {busy ? 'جارٍ الرفع…' : 'رفع صورة'}
         <input hidden type="file" accept="image/*" onChange={e => { const f = e.target.files?.[0]; if (f) upload(f); }} />
       </label>
@@ -862,7 +842,7 @@ function Reviews({ data, onRefresh }: any) {
             <b className="font-serif font-bold text-foreground text-sm">{x.customer?.name || 'عميل'} — {x.product?.name}</b>
             <p className="text-xs text-foreground font-light">{'★'.repeat(x.rating)} <span className="text-muted-foreground">{x.text || ''}</span></p>
           </div>
-          <button className={`px-4 py-2 rounded-xl text-xs font-medium transition cursor-pointer ${x.approved ? 'bg-[#D4AF37] text-black font-bold shadow-xs' : 'bg-muted/20 border border-border/60 text-muted-foreground'}`} onClick={async () => { await api('/api/admin/reviews', 'PUT', { id: x.id, approved: !x.approved }); onRefresh(); }}>
+          <button className={`px-4 py-2 rounded-xl text-xs font-medium transition cursor-pointer ${x.approved ? 'bg-[var(--gold)] text-[var(--gold-contrast)] font-bold shadow-xs' : 'bg-muted/20 border border-border/60 text-muted-foreground'}`} onClick={async () => { await api('/api/admin/reviews', 'PUT', { id: x.id, approved: !x.approved }); onRefresh(); }}>
             {x.approved ? 'معتمد' : 'معلق'}
           </button>
         </div>
