@@ -88,7 +88,11 @@ export default function ProductPurchase({ product }: { product: any }) {
       <div className="mt-6 flex flex-row items-center gap-3 w-full">
         {/* زر الإضافة للسلة في الجهة اليمنى تماماً */}
         <div className="flex-1 w-full">
-          <AddToCart product={{ ...product, selectedQuantity: quantity }} variantId={id} />
+          <AddToCart
+            product={{ ...product, selectedQuantity: quantity }}
+            variantId={id}
+            variant="detail"
+          />
         </div>
 
         {/* عداد الكمية في الجهة اليسرى */}
