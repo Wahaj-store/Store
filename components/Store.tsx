@@ -1,6 +1,5 @@
 "use client";
 import { useState } from "react";
-import type { CSSProperties } from "react";
 import {
   ChevronLeft,
   ShieldCheck,
@@ -20,7 +19,7 @@ function QuickView({ p, onClose }: { p: any; onClose: () => void }) {
       onClick={onClose}
     >
       <div
-        className="lux-card max-w-2xl w-full overflow-hidden p-6 md:p-8 bg-[var(--bg)] text-foreground border border-[var(--brand-gold)]/30 shadow-2xl rounded-3xl"
+        className="lux-card max-w-2xl w-full overflow-hidden p-6 md:p-8 bg-[var(--bg)] text-foreground border border-[var(--gold)]/30 shadow-2xl rounded-3xl"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="grid gap-6 md:grid-cols-2 items-center">
@@ -32,9 +31,9 @@ function QuickView({ p, onClose }: { p: any; onClose: () => void }) {
             />
           </div>
           <div>
-            <span className="text-xs tracking-widest uppercase text-[#D4AF37] font-semibold">عرض سريع</span>
+            <span className="text-xs tracking-widest uppercase text-[var(--gold)] font-semibold">عرض سريع</span>
             <h2 className="text-2xl font-serif font-bold mt-1 tracking-tight">{p.name}</h2>
-            <p className="text-[#D4AF37] mt-3 text-xl font-bold">
+            <p className="text-[var(--gold)] mt-3 text-xl font-bold">
               {Number(p.price).toLocaleString("ar-EG")} ج.م
             </p>
             <p className="text-muted-foreground mt-4 leading-relaxed text-sm">
@@ -43,7 +42,7 @@ function QuickView({ p, onClose }: { p: any; onClose: () => void }) {
             <div className="mt-6 flex flex-col gap-3">
               <a 
                 href={`/product/${p.slug}`} 
-                className="w-full text-center py-3.5 rounded-xl bg-[#D4AF37] text-black font-semibold tracking-wide hover:opacity-95 transition-opacity shadow-lg"
+                className="w-full text-center py-3.5 rounded-xl bg-[var(--gold)] text-[var(--gold-contrast)] font-semibold tracking-wide hover:opacity-95 transition-opacity shadow-lg"
               >
                 التفاصيل الكاملة
               </a>
@@ -70,7 +69,7 @@ function Card({ p }: { p: any }) {
       : 0;
 
   return (
-    <article className="group flex flex-col justify-between rounded-3xl border border-border/30 bg-[var(--bg)] p-4 shadow-sm transition-all duration-300 hover:shadow-xl hover:border-[#D4AF37]/50">
+    <article className="group flex flex-col justify-between rounded-3xl border border-border/30 bg-[var(--bg)] p-4 shadow-sm transition-all duration-300 hover:shadow-xl hover:border-[var(--gold)]/50">
       <div>
         <div className="relative overflow-hidden rounded-2xl bg-muted/30 aspect-square">
           <a href={`/product/${p.slug}`}>
@@ -87,7 +86,7 @@ function Card({ p }: { p: any }) {
           <button
             type="button"
             onClick={() => setQuick(true)}
-            className="absolute bottom-3 end-3 rounded-full border border-border/60 bg-[var(--bg)]/90 backdrop-blur-md px-3.5 py-1.5 text-xs font-medium tracking-wide transition-colors hover:border-[#D4AF37] hover:text-[#D4AF37]"
+            className="absolute bottom-3 end-3 rounded-full border border-border/60 bg-[var(--bg)]/90 backdrop-blur-md px-3.5 py-1.5 text-xs font-medium tracking-wide transition-colors hover:border-[var(--gold)] hover:text-[var(--gold)]"
           >
             نظرة سريعة
           </button>
@@ -100,10 +99,10 @@ function Card({ p }: { p: any }) {
         
         <div className="pt-4 px-1">
           <a href={`/product/${p.slug}`}>
-            <h3 className="font-serif font-medium text-base line-clamp-1 hover:text-[#D4AF37] transition-colors">{p.name}</h3>
+            <h3 className="font-serif font-medium text-base line-clamp-1 hover:text-[var(--gold)] transition-colors">{p.name}</h3>
           </a>
           <div className="mt-2 flex items-center gap-3">
-            <span className="font-bold text-lg text-[#D4AF37]">{Number(p.price).toLocaleString("ar-EG")} ج.م</span>
+            <span className="font-bold text-lg text-[var(--gold)]">{Number(p.price).toLocaleString("ar-EG")} ج.م</span>
             {p.comparePrice && (
               <del className="text-xs text-muted-foreground">
                 {Number(p.comparePrice).toLocaleString("ar-EG")} ج.م
@@ -141,7 +140,7 @@ function ProductsSection({
   return (
     <section className="container py-20">
       <div className="mb-12 text-center md:text-right">
-        <span className="inline-block text-[#D4AF37] text-xs font-semibold tracking-widest uppercase px-3 py-1 rounded-full bg-[#D4AF37]/10 mb-2">
+        <span className="inline-block text-[var(--gold)] text-xs font-semibold tracking-widest uppercase px-3 py-1 rounded-full bg-[var(--gold)]/10 mb-2">
           {subtitle}
         </span>
         <h2 className="text-3xl md:text-4xl font-serif font-bold tracking-tight">{title}</h2>
@@ -168,16 +167,7 @@ export default function Store({ data }: { data: any }) {
     .sort((a: any, b: any) => a.sortOrder - b.sortOrder);
 
   return (
-    <div
-      style={
-        {
-          "--brand-bg": data.theme?.background || "#F8F5EF",
-          "--brand-fg": data.theme?.textColor || "#171513",
-          "--brand-gold": data.theme?.accentColor || "#D4AF37",
-        } as CSSProperties
-      }
-      className="bg-[var(--brand-bg)] text-[var(--brand-fg)] min-h-screen transition-colors duration-300"
-    >
+    <div className="bg-background text-foreground min-h-screen transition-colors duration-300">
       <main>
         {sections.map((sec: any) => {
           if (sec.type === "hero")
@@ -187,7 +177,7 @@ export default function Store({ data }: { data: any }) {
                 className="container grid min-h-[620px] items-center gap-12 py-16 md:grid-cols-2"
               >
                 <div className="order-2 md:order-1 text-right">
-                  <span className="inline-block text-[#D4AF37] text-xs font-semibold tracking-widest uppercase px-3 py-1 rounded-full bg-[#D4AF37]/10 mb-4">
+                  <span className="inline-block text-[var(--gold)] text-xs font-semibold tracking-widest uppercase px-3 py-1 rounded-full bg-[var(--gold)]/10 mb-4">
                     وَهَج — تفاصيل تصنع الفرق
                   </span>
                   <h1 className="text-4xl font-serif font-bold leading-[1.25] md:text-6xl tracking-tight">
@@ -198,11 +188,11 @@ export default function Store({ data }: { data: any }) {
                       "قطع مختارة بعناية لتضيف لمسة من الوهج والفخامة إلى كل إطلالة."}
                   </p>
                   <div className="mt-8 flex flex-wrap gap-4">
-                    <a href={sec.ctaUrl || "/shop"} className="btn btn-gold bg-[#D4AF37] text-black font-semibold px-7 py-4 rounded-2xl shadow-lg hover:opacity-90 flex items-center gap-2.5 transition-all">
+                    <a href={sec.ctaUrl || "/shop"} className="btn btn-gold bg-[var(--gold)] text-[var(--gold-contrast)] font-semibold px-7 py-4 rounded-2xl shadow-lg hover:opacity-90 flex items-center gap-2.5 transition-all">
                       {sec.ctaText || "اكتشفي المجموعة"}{" "}
                       <ChevronLeft size={18} />
                     </a>
-                    <a href="/shop" className="btn border border-border/80 px-7 py-4 rounded-2xl font-medium hover:border-[#D4AF37] hover:text-[#D4AF37] transition-all">
+                    <a href="/shop" className="btn border border-border/80 px-7 py-4 rounded-2xl font-medium hover:border-[var(--gold)] hover:text-[var(--gold)] transition-all">
                       تسوقي الآن
                     </a>
                   </div>
@@ -224,7 +214,7 @@ export default function Store({ data }: { data: any }) {
             return (
               <section key={sec.id} className="border-y border-border/30 py-24 bg-muted/10">
                 <div className="container max-w-3xl text-center">
-                  <span className="inline-block text-[#D4AF37] text-xs font-semibold tracking-widest uppercase px-3 py-1 rounded-full bg-[#D4AF37]/10 mb-4">
+                  <span className="inline-block text-[var(--gold)] text-xs font-semibold tracking-widest uppercase px-3 py-1 rounded-full bg-[var(--gold)]/10 mb-4">
                     قصة وَهَج
                   </span>
                   <h2 className="text-3xl md:text-4xl font-serif font-bold tracking-tight">
@@ -245,7 +235,7 @@ export default function Store({ data }: { data: any }) {
               >
                 <div className="container">
                   <div className="wahaj-collections__head mb-14 text-right">
-                    <span className="inline-block text-[#D4AF37] text-xs font-semibold tracking-widest uppercase px-3 py-1 rounded-full bg-[#D4AF37]/10 mb-3">
+                    <span className="inline-block text-[var(--gold)] text-xs font-semibold tracking-widest uppercase px-3 py-1 rounded-full bg-[var(--gold)]/10 mb-3">
                       اكتشفي عالم وَهَج
                     </span>
                     <h2 className="text-3xl md:text-4xl font-serif font-bold tracking-tight text-foreground">
@@ -261,7 +251,7 @@ export default function Store({ data }: { data: any }) {
                       <a
                         key={c.id}
                         href={`/shop?category=${c.slug}`}
-                        className="group relative overflow-hidden rounded-3xl aspect-[3/4] block shadow-md border border-border/40 transition-all duration-500 hover:shadow-2xl hover:border-[#D4AF37]"
+                        className="group relative overflow-hidden rounded-3xl aspect-[3/4] block shadow-md border border-border/40 transition-all duration-500 hover:shadow-2xl hover:border-[var(--gold)]"
                       >
                         <img
                           src={
@@ -274,10 +264,10 @@ export default function Store({ data }: { data: any }) {
                           className="h-full w-full object-cover transition duration-700 group-hover:scale-110"
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent flex flex-col justify-end p-6 text-white text-right">
-                          <h3 className="font-serif font-bold text-lg md:text-xl tracking-wide group-hover:text-[#D4AF37] transition-colors">
+                          <h3 className="font-serif font-bold text-lg md:text-xl tracking-wide group-hover:text-[var(--gold)] transition-colors">
                             {c.name}
                           </h3>
-                          <span className="text-xs text-[#D4AF37] mt-2.5 flex items-center justify-end gap-1.5 font-semibold opacity-90 group-hover:opacity-100 transition-opacity">
+                          <span className="text-xs text-[var(--gold)] mt-2.5 flex items-center justify-end gap-1.5 font-semibold opacity-90 group-hover:opacity-100 transition-opacity">
                             <span>اكتشفي المجموعة</span>
                             <ChevronLeft size={15} className="rotate-180 transition-transform duration-300 group-hover:-translate-x-1" />
                           </span>
@@ -300,8 +290,8 @@ export default function Store({ data }: { data: any }) {
           if (sec.type === "offers")
             return (
               <section id="offers" key={sec.id} className="container py-20">
-                <div className="lux-card p-8 md:p-14 rounded-3xl border border-[#D4AF37]/30 bg-muted/20 shadow-lg">
-                  <span className="inline-block text-[#D4AF37] text-xs font-semibold tracking-widest uppercase px-3 py-1 rounded-full bg-[#D4AF37]/10 mb-3">
+                <div className="lux-card p-8 md:p-14 rounded-3xl border border-[var(--gold)]/30 bg-muted/20 shadow-lg">
+                  <span className="inline-block text-[var(--gold)] text-xs font-semibold tracking-widest uppercase px-3 py-1 rounded-full bg-[var(--gold)]/10 mb-3">
                     عروض مختارة
                   </span>
                   <h2 className="text-3xl font-serif font-bold">
@@ -309,7 +299,7 @@ export default function Store({ data }: { data: any }) {
                   </h2>
                   <div className="mt-8 grid gap-6 md:grid-cols-3">
                     {data.offers.slice(0, 3).map((o: any) => (
-                      <div key={o.id} className="border border-border/60 p-6 rounded-2xl bg-[var(--bg)] shadow-sm hover:border-[#D4AF37] transition-colors">
+                      <div key={o.id} className="border border-border/60 p-6 rounded-2xl bg-[var(--bg)] shadow-sm hover:border-[var(--gold)] transition-colors">
                         <b className="font-serif text-lg block mb-2">{o.name}</b>
                         <p className="text-muted-foreground text-sm font-light">
                           {o.discountValue
@@ -335,9 +325,9 @@ export default function Store({ data }: { data: any }) {
                     <a
                       href={href}
                       key={title}
-                      className="group flex flex-col items-center text-center p-8 rounded-3xl border border-border/40 bg-[var(--bg)] shadow-sm transition-all hover:border-[#D4AF37] hover:shadow-lg"
+                      className="group flex flex-col items-center text-center p-8 rounded-3xl border border-border/40 bg-[var(--bg)] shadow-sm transition-all hover:border-[var(--gold)] hover:shadow-lg"
                     >
-                      <div className="p-4 rounded-2xl bg-[#D4AF37]/10 text-[#D4AF37] mb-4 group-hover:scale-110 transition-transform">
+                      <div className="p-4 rounded-2xl bg-[var(--gold)]/10 text-[var(--gold)] mb-4 group-hover:scale-110 transition-transform">
                         <I size={26} />
                       </div>
                       <h3 className="font-serif font-semibold text-base mb-2">{title}</h3>
