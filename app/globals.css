@@ -1634,3 +1634,458 @@ a:focus-visible {
   }
 }
 
+
+
+/* =========================================================
+   وَهَج — Unified Product Presentation
+   Shared by homepage product sections + shop
+   ========================================================= */
+
+.wahaj-product-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 24px;
+}
+
+.wahaj-product-card {
+  position: relative;
+  min-width: 0;
+  overflow: hidden;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  box-shadow: var(--shadow-soft);
+  transition:
+    transform 360ms cubic-bezier(.2,.65,.2,1),
+    box-shadow 360ms ease,
+    border-color 360ms ease,
+    background-color 360ms ease;
+}
+
+.wahaj-product-card:hover {
+  transform: translateY(-6px);
+  border-color: color-mix(in srgb, var(--gold) 42%, var(--line));
+  box-shadow: var(--shadow-luxury);
+}
+
+.wahaj-product-card__media {
+  position: relative;
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  background: var(--surface);
+}
+
+.wahaj-product-card__image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 750ms cubic-bezier(.2,.65,.2,1), filter 500ms ease;
+}
+
+.wahaj-product-card:hover .wahaj-product-card__image {
+  transform: scale(1.055);
+}
+
+.wahaj-product-card__media::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    to bottom,
+    rgba(0,0,0,.20),
+    transparent 22%,
+    transparent 58%,
+    rgba(0,0,0,.34)
+  );
+  opacity: .72;
+}
+
+.wahaj-product-card__top {
+  position: absolute;
+  z-index: 3;
+  top: 12px;
+  inset-inline: 12px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+  direction: ltr;
+}
+
+.wahaj-product-card__top > * {
+  direction: rtl;
+}
+
+.wahaj-product-card__discount {
+  display: inline-flex;
+  align-items: center;
+  min-height: 30px;
+  padding: 0 10px;
+  border: 1px solid rgba(255,255,255,.24);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--foreground) 88%, transparent);
+  color: var(--background);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .02em;
+  backdrop-filter: blur(10px);
+}
+
+.wahaj-product-card__actions {
+  position: absolute;
+  z-index: 4;
+  inset-inline: 12px;
+  bottom: 12px;
+  display: flex;
+  gap: 8px;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 300ms ease, transform 300ms ease;
+}
+
+.wahaj-product-card:hover .wahaj-product-card__actions,
+.wahaj-product-card:focus-within .wahaj-product-card__actions {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.wahaj-product-card__action {
+  display: inline-flex;
+  flex: 1;
+  min-height: 38px;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  border: 1px solid rgba(255,255,255,.24);
+  border-radius: 12px;
+  background: rgba(20,16,14,.76);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  backdrop-filter: blur(12px);
+  transition: background-color 200ms ease, color 200ms ease, border-color 200ms ease;
+}
+
+.wahaj-product-card__action:hover {
+  background: var(--gold);
+  border-color: var(--gold);
+  color: var(--gold-contrast);
+}
+
+.wahaj-product-card__soldout {
+  position: absolute;
+  z-index: 4;
+  inset: 50% auto auto 50%;
+  transform: translate(-50%, -50%);
+  padding: 8px 14px;
+  border: 1px solid rgba(255,255,255,.28);
+  border-radius: 999px;
+  background: rgba(20,16,14,.78);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  backdrop-filter: blur(12px);
+}
+
+.wahaj-product-card__body {
+  padding: 17px 17px 18px;
+  text-align: right;
+}
+
+.wahaj-product-card__category {
+  margin-bottom: 7px;
+  color: var(--gold-muted);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .11em;
+  text-transform: uppercase;
+}
+
+.wahaj-product-card__title {
+  margin: 0;
+  min-height: 1.7em;
+  overflow: hidden;
+  color: var(--foreground);
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.7;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  transition: color 200ms ease;
+}
+
+.wahaj-product-card:hover .wahaj-product-card__title {
+  color: var(--gold);
+}
+
+.wahaj-product-card__price-row {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 9px;
+  margin-top: 9px;
+}
+
+.wahaj-product-card__price {
+  color: var(--gold);
+  font-size: 17px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+.wahaj-product-card__old-price {
+  color: var(--muted-foreground);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+
+.wahaj-product-card__availability {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+  color: var(--muted-foreground);
+  font-size: 10px;
+  font-weight: 500;
+}
+
+.wahaj-product-card__dot {
+  width: 6px;
+  height: 6px;
+  flex: 0 0 6px;
+  border-radius: 50%;
+  background: var(--success);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--success) 13%, transparent);
+}
+
+.wahaj-product-card__dot.is-low {
+  background: var(--warning);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--warning) 13%, transparent);
+}
+
+.wahaj-product-card__dot.is-out {
+  background: var(--danger);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--danger) 13%, transparent);
+}
+
+.wahaj-product-card__cart {
+  margin-top: 14px;
+  padding-top: 13px;
+  border-top: 1px solid var(--line);
+}
+
+.wahaj-product-card__cart button {
+  min-height: 43px;
+  border-radius: 12px;
+  box-shadow: none;
+}
+
+.wahaj-products-section {
+  padding-block: clamp(58px, 7vw, 92px);
+}
+
+.wahaj-products-section__head {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 30px;
+  text-align: right;
+}
+
+.wahaj-shop-page {
+  min-height: 70vh;
+}
+
+.wahaj-shop-page__hero {
+  position: relative;
+  margin-bottom: 28px;
+  padding: clamp(26px, 4vw, 42px);
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 26px;
+  background:
+    radial-gradient(circle at 10% 10%, color-mix(in srgb, var(--gold) 10%, transparent), transparent 35%),
+    var(--surface);
+}
+
+.wahaj-shop-page__hero::after {
+  content: '';
+  position: absolute;
+  width: 210px;
+  height: 210px;
+  inset-inline-start: -70px;
+  bottom: -120px;
+  border: 1px solid color-mix(in srgb, var(--gold) 24%, transparent);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.wahaj-shop-page__filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px;
+  margin-top: 20px;
+  padding-bottom: 4px;
+}
+
+.wahaj-shop-page__filters a {
+  border-radius: 999px;
+  transition: transform 200ms ease, background-color 200ms ease, border-color 200ms ease;
+}
+
+.wahaj-shop-page__filters a:hover {
+  transform: translateY(-1px);
+}
+
+.wahaj-product-modal {
+  background: rgba(14, 11, 10, .68);
+  backdrop-filter: blur(12px);
+}
+
+.wahaj-product-modal__panel {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--gold) 32%, var(--line));
+  border-radius: 24px;
+  background: var(--card);
+  color: var(--foreground);
+  box-shadow: 0 30px 100px rgba(0,0,0,.28);
+}
+
+.wahaj-product-modal__image {
+  min-height: 420px;
+  background: var(--surface);
+}
+
+.wahaj-product-modal__image img {
+  width: 100%;
+  height: 100%;
+  min-height: 420px;
+  display: block;
+  object-fit: cover;
+}
+
+.wahaj-product-modal__close {
+  position: absolute;
+  z-index: 5;
+  top: 14px;
+  inset-inline-end: 14px;
+  display: grid;
+  width: 38px;
+  height: 38px;
+  place-items: center;
+  border: 1px solid rgba(255,255,255,.24);
+  border-radius: 50%;
+  background: rgba(20,16,14,.68);
+  color: #fff;
+  backdrop-filter: blur(10px);
+}
+
+.wahaj-product-modal__details {
+  display: flex;
+  min-height: 48px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 13px;
+  background: var(--gold);
+  color: var(--gold-contrast);
+  font-size: 13px;
+  font-weight: 800;
+  transition: transform 200ms ease, opacity 200ms ease;
+}
+
+.wahaj-product-modal__details:hover {
+  transform: translateY(-1px);
+  opacity: .92;
+}
+
+@media (max-width: 1024px) {
+  .wahaj-product-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 700px) {
+  .wahaj-product-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  .wahaj-product-card {
+    border-radius: 16px;
+  }
+
+  .wahaj-product-card__media {
+    aspect-ratio: 4 / 5;
+  }
+
+  .wahaj-product-card__body {
+    padding: 13px 12px 14px;
+  }
+
+  .wahaj-product-card__title {
+    font-size: 13px;
+  }
+
+  .wahaj-product-card__price {
+    font-size: 15px;
+  }
+
+  .wahaj-product-card__availability {
+    font-size: 9px;
+  }
+
+  .wahaj-product-card__actions {
+    opacity: 1;
+    transform: none;
+  }
+
+  .wahaj-product-card__action {
+    min-height: 34px;
+    font-size: 9px;
+    border-radius: 10px;
+  }
+
+  .wahaj-product-card__action span {
+    display: none;
+  }
+
+  .wahaj-product-card__cart {
+    margin-top: 11px;
+    padding-top: 10px;
+  }
+
+  .wahaj-product-card__cart button {
+    min-height: 39px;
+    padding-inline: 8px;
+    font-size: 11px;
+  }
+
+  .wahaj-products-section__head {
+    display: block;
+    margin-bottom: 24px;
+  }
+
+  .wahaj-shop-page__hero {
+    padding: 22px 18px;
+    border-radius: 20px;
+  }
+
+  .wahaj-product-modal__image,
+  .wahaj-product-modal__image img {
+    min-height: 300px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wahaj-product-card,
+  .wahaj-product-card__image,
+  .wahaj-product-card__actions,
+  .wahaj-product-card__action {
+    transition: none !important;
+  }
+}
