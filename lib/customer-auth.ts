@@ -1,3 +1,5 @@
+// lib/customer-auth.ts
+
 import { cookies } from 'next/headers';
 import { SignJWT, jwtVerify } from 'jose';
 import { prisma } from './prisma';
@@ -38,7 +40,7 @@ export async function getCustomer() {
   }
 }
 
-export async function customerRegister(data: { name: string; phone: string; email?: string; password: string }) {
+export async function customerRegister(data: { name: string; phone: string; email?: string; password: string; rememberMe?: boolean }) {
   const phone = normalizePhone(data.phone);
   const exists = await prisma.customer.findUnique({ where: { phone } });
   if (exists) throw new Error('رقم الهاتف مسجل بالفعل');
@@ -52,7 +54,7 @@ export async function customerRegister(data: { name: string; phone: string; emai
     },
   });
   
-  await createCustomerSession(c.id, rememberMe);
+  await createCustomerSession(c.id, Boolean(data.rememberMe));
   return c;
 }
 
