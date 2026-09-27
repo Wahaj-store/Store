@@ -59,14 +59,14 @@ function AddressSelector({ selectedId, onSelectAddress }: { selectedId: string |
             onClick={() => onSelectAddress(addr)}
             className={`cursor-pointer rounded-2xl border p-4 transition-all text-xs ${
               selectedId === addr.id
-                ? 'border-[#D4AF37] bg-[#D4AF37]/10 ring-1 ring-[#D4AF37]'
-                : 'border-border/40 bg-[var(--bg)] hover:border-[#D4AF37]/40 shadow-xs'
+                ? 'border-[var(--gold)] bg-[var(--gold)]/10 ring-1 ring-[var(--gold)]'
+                : 'border-border/40 bg-[var(--bg)] hover:border-[var(--gold)]/40 shadow-xs'
             }`}
           >
             <div className="flex items-center justify-between mb-1.5">
               <span className="font-serif font-bold text-foreground">{addr.label || 'عنوان'}</span>
               {addr.isDefault && (
-                <span className="rounded-full bg-[#D4AF37] px-2 py-0.5 text-[10px] text-black font-bold">أساسي</span>
+                <span className="rounded-full bg-[var(--gold)] px-2 py-0.5 text-[10px] text-[var(--gold-contrast)] font-bold">أساسي</span>
               )}
             </div>
             <p className="text-muted-foreground font-light">{addr.name} - {addr.phone}</p>
@@ -77,7 +77,7 @@ function AddressSelector({ selectedId, onSelectAddress }: { selectedId: string |
       <button
         type="button"
         onClick={() => onSelectAddress(null)}
-        className="text-xs text-[#D4AF37] underline hover:opacity-80 mt-2 block font-medium"
+        className="text-xs text-[var(--gold)] underline hover:opacity-80 mt-2 block font-medium"
       >
         أو إدخال عنوان جديد لهذا الطلب
       </button>
@@ -286,14 +286,14 @@ function CheckoutContent() {
     switch (methodKey.toLowerCase()) {
       case 'cod':
       case 'cash':
-        return <Truck size={20} className="text-[#D4AF37]" />;
+        return <Truck size={20} className="text-[var(--gold)]" />;
       case 'vodafone':
       case 'vodafone_cash':
         return <span className="text-red-500 font-bold text-xs">V-CASH</span>;
       case 'instapay':
         return <span className="text-purple-600 font-bold text-xs">InstaPay</span>;
       default:
-        return <CreditCard size={20} className="text-[#D4AF37]" />;
+        return <CreditCard size={20} className="text-[var(--gold)]" />;
     }
   };
 
@@ -303,7 +303,7 @@ function CheckoutContent() {
       {/* رأس الصفحة الفاخر */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-10 border-b border-border/30 pb-6">
         <div className="space-y-1">
-          <span className="text-[#D4AF37] font-medium text-xs tracking-widest flex items-center gap-1.5 uppercase">
+          <span className="text-[var(--gold)] font-medium text-xs tracking-widest flex items-center gap-1.5 uppercase">
             <Sparkles size={14} /> متجر وَهَج للأناقة
           </span>
           <h1 className="text-3xl md:text-4xl font-serif font-bold tracking-tight">إتمام الطلب</h1>
@@ -311,7 +311,7 @@ function CheckoutContent() {
         </div>
         <Link 
           href="/cart" 
-          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-muted/20 border border-border/60 text-foreground hover:bg-[#D4AF37]/10 transition text-xs font-semibold shadow-xs"
+          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-muted/20 border border-border/60 text-foreground hover:bg-[var(--gold)]/10 transition text-xs font-semibold shadow-xs"
         >
           <ArrowRight size={16} /> العودة إلى السلة
         </Link>
@@ -323,7 +323,7 @@ function CheckoutContent() {
           <span className="w-5 h-5 rounded-full bg-muted/40 flex items-center justify-center text-xs">1</span>
           <span>مراجعة السلة</span>
         </div>
-        <div className="flex items-center justify-center gap-2 py-3 rounded-2xl text-xs md:text-sm font-bold bg-[#D4AF37] text-black shadow-md">
+        <div className="flex items-center justify-center gap-2 py-3 rounded-2xl text-xs md:text-sm font-bold bg-[var(--gold)] text-[var(--gold-contrast)] shadow-md">
           <span className="w-5 h-5 rounded-full bg-black/10 flex items-center justify-center text-xs">2</span>
           <span>الشحن والدفع</span>
         </div>
@@ -338,8 +338,8 @@ function CheckoutContent() {
           
           {/* قسم بيانات الشحن */}
           <div className="bg-muted/10 border border-border/40 rounded-3xl p-6 md:p-8 shadow-xs space-y-6">
-            <h2 className="text-xl font-serif font-bold flex items-center gap-3 pb-4 border-b border-border/30 text-[#D4AF37]">
-              <div className="p-2.5 rounded-2xl bg-[#D4AF37]/10 text-[#D4AF37]">
+            <h2 className="text-xl font-serif font-bold flex items-center gap-3 pb-4 border-b border-border/30 text-[var(--gold)]">
+              <div className="p-2.5 rounded-2xl bg-[var(--gold)]/10 text-[var(--gold)]">
                 <Truck size={20} />
               </div> 
               بيانات الشحن والتوصيل
@@ -349,10 +349,10 @@ function CheckoutContent() {
 
             <div className="grid gap-5 md:grid-cols-2">
               <label className="text-xs font-semibold text-muted-foreground space-y-1.5">الاسم بالكامل
-                <input name="name" required value={formData.name} onChange={handleInputChange} className="w-full mt-1 px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[#D4AF37] transition shadow-xs" placeholder="أدخلي اسمكِ الثلاثي" />
+                <input name="name" required value={formData.name} onChange={handleInputChange} className="w-full mt-1 px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[var(--gold)] transition shadow-xs" placeholder="أدخلي اسمكِ الثلاثي" />
               </label>
               <label className="text-xs font-semibold text-muted-foreground space-y-1.5">رقم الهاتف
-                <input name="phone" required value={formData.phone} onChange={handleInputChange} dir="ltr" className="w-full mt-1 px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[#D4AF37] transition shadow-xs text-right" placeholder="01xxxxxxxx" />
+                <input name="phone" required value={formData.phone} onChange={handleInputChange} dir="ltr" className="w-full mt-1 px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[var(--gold)] transition shadow-xs text-right" placeholder="01xxxxxxxx" />
               </label>
               
               <label className="text-xs font-semibold text-muted-foreground space-y-1.5">المحافظة
@@ -361,7 +361,7 @@ function CheckoutContent() {
                   required 
                   value={selectedGovernorate}
                   onChange={e => setSelectedGovernorate(e.target.value)}
-                  className="w-full mt-1 px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[#D4AF37] transition shadow-xs"
+                  className="w-full mt-1 px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[var(--gold)] transition shadow-xs"
                 >
                   {shippingZones.map(zone => (
                     <option key={zone.id} value={zone.governorate}>
@@ -372,27 +372,27 @@ function CheckoutContent() {
               </label>
 
               <label className="text-xs font-semibold text-muted-foreground space-y-1.5">المدينة / المركز
-                <input name="city" required value={formData.city} onChange={handleInputChange} className="w-full mt-1 px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[#D4AF37] transition shadow-xs" placeholder="اسم المدينة أو الحي" />
+                <input name="city" required value={formData.city} onChange={handleInputChange} className="w-full mt-1 px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[var(--gold)] transition shadow-xs" placeholder="اسم المدينة أو الحي" />
               </label>
             </div>
 
             <label className="block text-xs font-semibold text-muted-foreground space-y-1.5">العنوان بالتفصيل
-              <textarea name="address" required rows={2} value={formData.address} onChange={handleInputChange} className="w-full mt-1 px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[#D4AF37] transition shadow-xs" placeholder="اسم الشارع، رقم العمارة، رقم الشقة..." />
+              <textarea name="address" required rows={2} value={formData.address} onChange={handleInputChange} className="w-full mt-1 px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[var(--gold)] transition shadow-xs" placeholder="اسم الشارع، رقم العمارة، رقم الشقة..." />
             </label>
             
             <label className="block text-xs font-semibold text-muted-foreground space-y-1.5">ملاحظات (اختياري)
-              <input name="notes" value={formData.notes} onChange={handleInputChange} className="w-full mt-1 px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[#D4AF37] transition shadow-xs" placeholder="أي ملاحظات خاصة بالتوصيل..." />
+              <input name="notes" value={formData.notes} onChange={handleInputChange} className="w-full mt-1 px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[var(--gold)] transition shadow-xs" placeholder="أي ملاحظات خاصة بالتوصيل..." />
             </label>
             
             <label className="block text-xs font-semibold text-muted-foreground space-y-1.5">كود الخصم
-              <input value={coupon} onChange={e => setCoupon(e.target.value.toUpperCase())} className="w-full mt-1 px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[#D4AF37] transition shadow-xs" placeholder="اختياري" dir="ltr" />
+              <input value={coupon} onChange={e => setCoupon(e.target.value.toUpperCase())} className="w-full mt-1 px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[var(--gold)] transition shadow-xs" placeholder="اختياري" dir="ltr" />
             </label>
           </div>
 
           {/* قسم طريقة الدفع */}
           <div className="bg-muted/10 border border-border/40 rounded-3xl p-6 md:p-8 shadow-xs space-y-6">
-            <h2 className="text-xl font-serif font-bold flex items-center gap-3 pb-4 border-b border-border/30 text-[#D4AF37]">
-              <div className="p-2.5 rounded-2xl bg-[#D4AF37]/10 text-[#D4AF37]">
+            <h2 className="text-xl font-serif font-bold flex items-center gap-3 pb-4 border-b border-border/30 text-[var(--gold)]">
+              <div className="p-2.5 rounded-2xl bg-[var(--gold)]/10 text-[var(--gold)]">
                 <CreditCard size={20} />
               </div>
               طريقة الدفع
@@ -404,7 +404,7 @@ function CheckoutContent() {
                   <label 
                     key={m.method} 
                     className={`flex items-center justify-between p-4.5 rounded-2xl border cursor-pointer transition-all ${
-                      pay === m.method ? 'border-[#D4AF37] bg-[#D4AF37]/5 shadow-sm' : 'border-border/40 bg-[var(--bg)] hover:border-[#D4AF37]/40'
+                      pay === m.method ? 'border-[var(--gold)] bg-[var(--gold)]/5 shadow-sm' : 'border-border/40 bg-[var(--bg)] hover:border-[var(--gold)]/40'
                     }`}
                   >
                     <div className="flex items-center gap-3.5">
@@ -421,7 +421,7 @@ function CheckoutContent() {
                       name="payment" 
                       checked={pay === m.method} 
                       onChange={() => setPay(m.method)} 
-                      className="accent-[#D4AF37] w-4 h-4 cursor-pointer"
+                      className="accent-[var(--gold)] w-4 h-4 cursor-pointer"
                     />
                   </label>
                 ))}
@@ -429,23 +429,23 @@ function CheckoutContent() {
             </fieldset>
 
             {selected && (selected.instructions || selected.accountNumber) && (
-              <div className="mt-4 rounded-2xl border border-[#D4AF37]/40 bg-[#D4AF37]/10 p-5 text-sm space-y-3 shadow-xs">
-                <b className="block text-[#D4AF37] font-serif font-bold">تعليمات الدفع الإلكتروني</b>
+              <div className="mt-4 rounded-2xl border border-[var(--gold)]/40 bg-[var(--gold)]/10 p-5 text-sm space-y-3 shadow-xs">
+                <b className="block text-[var(--gold)] font-serif font-bold">تعليمات الدفع الإلكتروني</b>
                 {selected.accountName && <p className="text-xs font-light">اسم الحساب: {selected.accountName}</p>}
                 {selected.accountNumber && <p dir="ltr" className="font-bold text-sm">{selected.accountNumber}</p>}
                 {selected.instructions && <p className="leading-relaxed text-xs text-muted-foreground font-light">{selected.instructions}</p>}
                 
                 {selected.proofRequired && (
-                  <div className="space-y-4 pt-4 border-t border-[#D4AF37]/20">
+                  <div className="space-y-4 pt-4 border-t border-[var(--gold)]/20">
                     <label className="block text-xs font-semibold">رقم عملية التحويل (مرجع التحويل)
-                      <input name="paymentReference" required className="w-full mt-1.5 px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[#D4AF37] transition shadow-xs" dir="ltr" placeholder="أدخل رقم العملية أو مرجع التحويل" />
+                      <input name="paymentReference" required className="w-full mt-1.5 px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[var(--gold)] transition shadow-xs" dir="ltr" placeholder="أدخل رقم العملية أو مرجع التحويل" />
                     </label>
 
                     <div className="space-y-2">
                       <span className="block text-xs font-semibold">صورة إيصال التحويل (مطلوبة)</span>
                       
-                      <label className="flex flex-col items-center justify-center border-2 border-dashed border-[#D4AF37]/40 rounded-2xl p-5 bg-[var(--bg)] cursor-pointer hover:bg-[#D4AF37]/5 transition text-center shadow-xs">
-                        <div className="flex items-center gap-2 text-xs font-bold text-[#D4AF37]">
+                      <label className="flex flex-col items-center justify-center border-2 border-dashed border-[var(--gold)]/40 rounded-2xl p-5 bg-[var(--bg)] cursor-pointer hover:bg-[var(--gold)]/5 transition text-center shadow-xs">
+                        <div className="flex items-center gap-2 text-xs font-bold text-[var(--gold)]">
                           {proofFile ? <CheckCircle2 size={18} /> : <Upload size={18} />}
                           <span>{proofFile ? proofFile.name : 'اضغط هنا لرفع صورة الإيصال مباشرة'}</span>
                         </div>
@@ -456,7 +456,7 @@ function CheckoutContent() {
                       {uploadError && <p className="text-xs text-red-500 font-medium">{uploadError}</p>}
 
                       {proofPreview && (
-                        <div className="mt-3 relative w-24 h-24 rounded-2xl overflow-hidden border border-[#D4AF37]/40 bg-black/5 shadow-xs">
+                        <div className="mt-3 relative w-24 h-24 rounded-2xl overflow-hidden border border-[var(--gold)]/40 bg-black/5 shadow-xs">
                           <img src={proofPreview} alt="إيصال التحويل" className="w-full h-full object-cover" />
                         </div>
                       )}
@@ -472,7 +472,7 @@ function CheckoutContent() {
 
         {/* ملخص الطلب الجانبي */}
         <aside className="bg-muted/10 border border-border/40 rounded-3xl p-6 md:p-8 shadow-md sticky top-24 space-y-6">
-          <h2 className="text-xl font-serif font-bold pb-4 border-b border-border/30 text-[#D4AF37]">ملخص الطلب</h2>
+          <h2 className="text-xl font-serif font-bold pb-4 border-b border-border/30 text-[var(--gold)]">ملخص الطلب</h2>
           
           <div className="space-y-3 max-h-56 overflow-y-auto text-xs pr-1">
             {c.map((x: any, i: number) => (
@@ -496,19 +496,19 @@ function CheckoutContent() {
 
           <div className="border-t border-border/30 pt-4 flex justify-between items-center">
             <span className="text-muted-foreground text-xs font-medium">الإجمالي النهائي</span>
-            <span className="text-[#D4AF37] text-xl font-serif font-bold">{finalTotal.toLocaleString('ar-EG')} ج.م</span>
+            <span className="text-[var(--gold)] text-xl font-serif font-bold">{finalTotal.toLocaleString('ar-EG')} ج.م</span>
           </div>
 
           <button 
             disabled={busy || !c.length || !methods.length} 
-            className="w-full py-4 rounded-2xl bg-[#D4AF37] text-black font-serif font-bold text-base shadow-lg hover:opacity-95 transition disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer"
+            className="w-full py-4 rounded-2xl bg-[var(--gold)] text-[var(--gold-contrast)] font-serif font-bold text-base shadow-lg hover:opacity-95 transition disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer"
           >
             <span>{busy ? 'جارٍ إرسال الطلب...' : 'تأكيد وإتمام الطلب'}</span>
             <CheckCircle2 size={18} />
           </button>
 
           <div className="flex items-center justify-center gap-1.5 text-xs text-muted-foreground pt-1 font-light">
-            <ShieldCheck size={14} className="text-[#D4AF37]" /> تسوق آمن ومحمي 100%
+            <ShieldCheck size={14} className="text-[var(--gold)]" /> تسوق آمن ومحمي 100%
           </div>
         </aside>
       </form>
