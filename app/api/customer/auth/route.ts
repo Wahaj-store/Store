@@ -24,7 +24,7 @@ export async function POST(req: Request) {
 
     const c = b.action === 'register' 
       ? await customerRegister(b) 
-      : await customerLogin(b.phone, b.password);
+      : await customerLogin(b.phone, b.password, Boolean(b.rememberMe));
 
     return NextResponse.json({ id: c.id, name: c.name, phone: c.phone, email: c.email });
   } catch (e: any) {
