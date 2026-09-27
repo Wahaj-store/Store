@@ -148,7 +148,7 @@ export default function TrackOrderPage() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full py-3.5 rounded-2xl bg-[var(--gold)] text-black font-bold text-sm hover:opacity-95 transition disabled:opacity-50 cursor-pointer flex items-center justify-center gap-2 shadow-md shadow-[var(--gold)]/10"
+          className="w-full py-3.5 rounded-2xl bg-[var(--gold)] text-[var(--gold-contrast)] font-bold text-sm hover:opacity-95 transition disabled:opacity-50 cursor-pointer flex items-center justify-center gap-2 shadow-md shadow-[var(--gold)]/10"
         >
           <Search size={18} />
           {loading ? 'جارٍ البحث في قاعدة البيانات...' : 'بحث وتتبع الطلب'}
@@ -188,7 +188,7 @@ export default function TrackOrderPage() {
                             : 'bg-background/40 border-border/30 text-muted-foreground opacity-50'
                         }`}
                       >
-                        <div className={`p-2 rounded-xl mb-2 ${isCurrent ? 'bg-[var(--gold)] text-black' : isCompleted ? 'bg-[var(--gold)]/20 text-[var(--gold)]' : 'bg-muted text-muted-foreground'}`}>
+                        <div className={`p-2 rounded-xl mb-2 ${isCurrent ? 'bg-[var(--gold)] text-[var(--gold-contrast)]' : isCompleted ? 'bg-[var(--gold)]/20 text-[var(--gold)]' : 'bg-muted text-muted-foreground'}`}>
                           <IconComponent size={18} />
                         </div>
                         <span className="text-xs font-bold">{step.label}</span>
