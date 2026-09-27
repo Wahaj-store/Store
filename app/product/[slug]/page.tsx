@@ -90,7 +90,7 @@ export default async function ProductPage({ params }: { params: { slug: string }
       {/* زر العودة العلوي الفاخر */}
       <a 
         href="/shop" 
-        className="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl border border-border/60 bg-muted/20 text-xs font-semibold text-[#D4AF37] hover:bg-[#D4AF37]/10 transition-all shadow-xs"
+        className="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl border border-border/60 bg-muted/20 text-xs font-semibold text-[var(--gold)] hover:bg-[var(--gold)]/10 transition-all shadow-xs"
       >
         <ChevronRight size={16} /> 
         <span>العودة للمتجر</span>
@@ -116,7 +116,7 @@ export default async function ProductPage({ params }: { params: { slug: string }
               {p.images.map((im, i) => (
                 <div
                   key={im.id || i}
-                  className="relative aspect-square w-20 flex-shrink-0 overflow-hidden rounded-2xl border-2 border-border/40 hover:border-[#D4AF37] transition-all cursor-pointer shadow-xs"
+                  className="relative aspect-square w-20 flex-shrink-0 overflow-hidden rounded-2xl border-2 border-border/40 hover:border-[var(--gold)] transition-all cursor-pointer shadow-xs"
                 >
                   <img 
                     src={im.url} 
@@ -134,7 +134,7 @@ export default async function ProductPage({ params }: { params: { slug: string }
         {/* 2. تفاصيل المنتج وعمليات الشراء */}
         <div className="flex flex-col justify-between">
           <div>
-            <span className="inline-block text-xs uppercase tracking-widest text-[#D4AF37] font-semibold px-3 py-1 rounded-full bg-[#D4AF37]/10 mb-3">
+            <span className="inline-block text-xs uppercase tracking-widest text-[var(--gold)] font-semibold px-3 py-1 rounded-full bg-[var(--gold)]/10 mb-3">
               {p.category?.name || 'وَهَج فخامة'}
             </span>
             
@@ -165,19 +165,19 @@ export default async function ProductPage({ params }: { params: { slug: string }
               <div className="grid grid-cols-3 gap-3 text-xs font-medium">
                 {payments.some((m) => m.method === 'COD') && (
                   <div className="flex flex-col items-center justify-center gap-2 bg-[var(--bg)] px-3 py-3.5 rounded-2xl border border-border/40 shadow-xs text-center">
-                    <Truck size={18} className="text-[#D4AF37]" />
+                    <Truck size={18} className="text-[var(--gold)]" />
                     <span className="text-[11px]">الدفع عند الاستلام</span>
                   </div>
                 )}
                 {payments.some((m) => m.method === 'VODAFONE_CASH') && (
                   <div className="flex flex-col items-center justify-center gap-2 bg-[var(--bg)] px-3 py-3.5 rounded-2xl border border-border/40 shadow-xs text-center">
-                    <ShieldCheck size={18} className="text-[#D4AF37]" />
+                    <ShieldCheck size={18} className="text-[var(--gold)]" />
                     <span className="text-[11px]">Vodafone Cash</span>
                   </div>
                 )}
                 {payments.some((m) => m.method === 'INSTAPAY') && (
                   <div className="flex flex-col items-center justify-center gap-2 bg-[var(--bg)] px-3 py-3.5 rounded-2xl border border-border/40 shadow-xs text-center">
-                    <RotateCcw size={18} className="text-[#D4AF37]" />
+                    <RotateCcw size={18} className="text-[var(--gold)]" />
                     <span className="text-[11px]">InstaPay</span>
                   </div>
                 )}
@@ -190,7 +190,7 @@ export default async function ProductPage({ params }: { params: { slug: string }
       {/* قسم التفاصيل والخامة والعناية */}
       <div className="mt-20 grid gap-8 md:grid-cols-2 border-t border-border/30 pt-12">
         <div className="rounded-3xl border border-border/40 p-8 bg-muted/10 shadow-xs">
-          <h2 className="text-xl font-serif font-semibold mb-6 text-[#D4AF37]">التفاصيل والخامة</h2>
+          <h2 className="text-xl font-serif font-semibold mb-6 text-[var(--gold)]">التفاصيل والخامة</h2>
           <ul className="space-y-4 text-sm text-muted-foreground font-light">
             <li className="flex justify-between border-b border-border/30 pb-3">
               <span className="font-medium text-foreground">الخامة:</span>
@@ -209,14 +209,14 @@ export default async function ProductPage({ params }: { params: { slug: string }
 
         {/* قسم تقييمات العميلات */}
         <div className="rounded-3xl border border-border/40 p-8 bg-muted/10 shadow-xs">
-          <h2 className="text-xl font-serif font-semibold mb-6 text-[#D4AF37]">تقييمات العميلات</h2>
+          <h2 className="text-xl font-serif font-semibold mb-6 text-[var(--gold)]">تقييمات العميلات</h2>
           {p.reviews.length > 0 ? (
             <div className="space-y-4 max-h-60 overflow-y-auto pr-2">
               {p.reviews.map((r: any) => (
                 <div key={r.id} className="border-b border-border/30 pb-3">
                   <div className="flex justify-between items-center">
                     <b className="text-sm font-serif">{r.customer.name}</b>
-                    <span className="text-[#D4AF37] text-xs">{'★'.repeat(r.rating)}</span>
+                    <span className="text-[var(--gold)] text-xs">{'★'.repeat(r.rating)}</span>
                   </div>
                   <p className="mt-1 text-xs text-muted-foreground font-light">{r.text}</p>
                 </div>
@@ -240,7 +240,7 @@ export default async function ProductPage({ params }: { params: { slug: string }
               <a
                 key={r.id}
                 href={`/product/${r.toProduct.slug}`}
-                className="group rounded-3xl border border-border/30 bg-[var(--bg)] p-4 shadow-sm transition-all duration-300 hover:shadow-xl hover:border-[#D4AF37]/50"
+                className="group rounded-3xl border border-border/30 bg-[var(--bg)] p-4 shadow-sm transition-all duration-300 hover:shadow-xl hover:border-[var(--gold)]/50"
               >
                 <div className="overflow-hidden rounded-2xl bg-muted/30 aspect-square">
                   <img
@@ -253,7 +253,7 @@ export default async function ProductPage({ params }: { params: { slug: string }
                 </div>
                 <div className="pt-4 px-1">
                   <h3 className="font-serif font-medium text-base line-clamp-1">{r.toProduct.name}</h3>
-                  <div className="mt-2 font-bold text-base text-[#D4AF37]">
+                  <div className="mt-2 font-bold text-base text-[var(--gold)]">
                     {Number(r.toProduct.price).toLocaleString('ar-EG')} ج.م
                   </div>
                 </div>
