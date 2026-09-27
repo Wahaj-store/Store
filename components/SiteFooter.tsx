@@ -52,8 +52,8 @@ export default function SiteFooter() {
               <Image
                 src="/images/wahaj.logo.png"
                 alt="وَهَج"
-                width={180}
-                height={58}
+                width={90}
+                height={50}
                 className="wahaj-footer__logo-image"
                 priority
               />
