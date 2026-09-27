@@ -37,7 +37,7 @@ export default function ProductPurchase({ product }: { product: any }) {
     <div className="flex flex-col items-end text-right w-full">
       {/* السعر والسعر القديم في الجهة اليمنى تماماً */}
       <div className="mt-2 flex items-center justify-end gap-2 w-full flex-row-reverse">
-        <span className="text-2xl md:text-3xl font-extrabold text-[#D4AF37]">
+        <span className="text-2xl md:text-3xl font-extrabold text-[var(--gold)]">
           {price.toLocaleString('ar-EG')} ج.م
         </span>
         {product.comparePrice && Number(product.comparePrice) > price && (
@@ -60,8 +60,8 @@ export default function ProductPurchase({ product }: { product: any }) {
                 onClick={() => setId(x.id)}
                 className={`rounded-xl border px-4 py-2 text-xs font-medium transition-all ${
                   id === x.id
-                    ? 'border-[#D4AF37] bg-[#D4AF37]/15 text-[#D4AF37] shadow-sm'
-                    : 'border-border/60 bg-[var(--bg)] text-foreground/80 hover:border-[#D4AF37]/50'
+                    ? 'border-[var(--gold)] bg-[var(--gold)]/15 text-[var(--gold)] shadow-sm'
+                    : 'border-border/60 bg-[var(--bg)] text-foreground/80 hover:border-[var(--gold)]/50'
                 }`}
               >
                 {x.name}: {x.value}
@@ -97,7 +97,7 @@ export default function ProductPurchase({ product }: { product: any }) {
             <button
               type="button"
               onClick={handleIncrease}
-              className="flex h-7 w-7 items-center justify-center rounded-lg bg-muted/30 text-xs font-bold transition-colors hover:bg-[#D4AF37] hover:text-black"
+              className="flex h-7 w-7 items-center justify-center rounded-lg bg-muted/30 text-xs font-bold transition-colors hover:bg-[var(--gold)] hover:text-[var(--gold-contrast)]"
             >
               +
             </button>
@@ -105,7 +105,7 @@ export default function ProductPurchase({ product }: { product: any }) {
             <button
               type="button"
               onClick={handleDecrease}
-              className="flex h-7 w-7 items-center justify-center rounded-lg bg-muted/30 text-xs font-bold transition-colors hover:bg-[#D4AF37] hover:text-black"
+              className="flex h-7 w-7 items-center justify-center rounded-lg bg-muted/30 text-xs font-bold transition-colors hover:bg-[var(--gold)] hover:text-[var(--gold-contrast)]"
             >
               -
             </button>
@@ -119,7 +119,7 @@ export default function ProductPurchase({ product }: { product: any }) {
           type="button"
           onClick={handleBuyNow}
           disabled={stock <= 0 || isBuyingNow}
-          className="w-full py-3.5 px-6 rounded-2xl bg-gradient-to-r from-[#D4AF37] to-[#aa8c2c] text-black font-bold text-sm shadow-md hover:opacity-95 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+          className="w-full py-3.5 px-6 rounded-2xl bg-gradient-to-r from-[var(--gold)] to-[var(--gold-muted)] text-[var(--gold-contrast)] font-bold text-sm shadow-md hover:opacity-95 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
         >
           <Zap size={18} className="fill-black" />
           <span>{isBuyingNow ? "جاري التحويل..." : "اشتري الآن (دفع سريع)"}</span>
