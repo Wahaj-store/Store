@@ -10,7 +10,7 @@ function secret() {
   return new TextEncoder().encode(s);
 }
 
-export async function createCustomerSession(id: string) {
+export async function createCustomerSession(id: string, rememberMe = false) {
   const token = await new SignJWT({ sub: id, aud: 'customer', typ: 'customer-session' })
     .setProtectedHeader({ alg: 'HS256' })
     .setIssuedAt()
@@ -22,7 +22,7 @@ export async function createCustomerSession(id: string) {
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'lax',
     path: '/',
-    maxAge: 60 * 60 * 24 * 30,
+    ...(rememberMe ? { maxAge: 60 * 60 * 24 * 30 } : {}),
   });
 }
 
@@ -38,7 +38,7 @@ export async function getCustomer() {
   }
 }
 
-export async function customerRegister(data: { name: string; phone: string; email?: string; password: string }) {
+export async function customerRegister(data: { name: string; phone: string; email?: string; password: string; rememberMe?: boolean }) {
   const phone = normalizePhone(data.phone);
   const exists = await prisma.customer.findUnique({ where: { phone } });
   if (exists) throw new Error('رقم الهاتف مسجل بالفعل');
@@ -52,11 +52,11 @@ export async function customerRegister(data: { name: string; phone: string; emai
     },
   });
   
-  await createCustomerSession(c.id);
+  await createCustomerSession(c.id, Boolean(data.rememberMe));
   return c;
 }
 
-export async function customerLogin(identifier: string, password: string) {
+export async function customerLogin(identifier: string, password: string, rememberMe = false) {
   const cleanIdentifier = identifier.trim();
   
   // التحقق مما إذا كان المدخل بريداً إلكترونياً أم رقم هاتف
@@ -90,6 +90,6 @@ export async function customerLogin(identifier: string, password: string) {
     data: { lastLoginAt: new Date() },
   });
 
-  await createCustomerSession(c.id);
+  await createCustomerSession(c.id, rememberMe);
   return c;
 }
