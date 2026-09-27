@@ -40,7 +40,7 @@ export default async function Shop({
   return (
     <main className="container py-16" dir="rtl">
       <div className="mb-12">
-        <span className="inline-block text-[#D4AF37] text-xs font-semibold tracking-widest uppercase px-3 py-1 rounded-full bg-[#D4AF37]/10 mb-3">
+        <span className="inline-block text-[var(--gold)] text-xs font-semibold tracking-widest uppercase px-3 py-1 rounded-full bg-[var(--gold)]/10 mb-3">
           Wahaj Store
         </span>
         <h1 className="text-3xl md:text-5xl font-serif font-bold tracking-tight">المتجر</h1>
@@ -52,10 +52,10 @@ export default async function Shop({
           <input
             name="q"
             defaultValue={q}
-            className="flex-1 rounded-2xl border border-border/60 bg-[var(--bg)] px-5 py-3.5 text-sm outline-none focus:border-[#D4AF37] transition-colors shadow-sm"
+            className="flex-1 rounded-2xl border border-border/60 bg-[var(--bg)] px-5 py-3.5 text-sm outline-none focus:border-[var(--gold)] transition-colors shadow-sm"
             placeholder="ابحثي عن منتج أو SKU..."
           />
-          <button className="rounded-2xl bg-[#D4AF37] text-black font-semibold px-7 py-3.5 text-sm hover:opacity-95 transition-opacity shadow-md cursor-pointer">
+          <button className="rounded-2xl bg-[var(--gold)] text-[var(--gold-contrast)] font-semibold px-7 py-3.5 text-sm hover:opacity-95 transition-opacity shadow-md cursor-pointer">
             بحث
           </button>
         </form>
@@ -66,8 +66,8 @@ export default async function Shop({
           href="/shop"
           className={`rounded-full px-5 py-2.5 text-xs font-medium transition-all ${
             !category
-              ? 'bg-[#D4AF37] text-black font-bold shadow-sm'
-              : 'border border-border/60 hover:border-[#D4AF37] text-foreground/80'
+              ? 'bg-[var(--gold)] text-[var(--gold-contrast)] font-bold shadow-sm'
+              : 'border border-border/60 hover:border-[var(--gold)] text-foreground/80'
           }`}
         >
           الكل
@@ -78,8 +78,8 @@ export default async function Shop({
             href={`/shop?category=${c.slug}`}
             className={`rounded-full px-5 py-2.5 text-xs font-medium transition-all ${
               category === c.slug
-                ? 'bg-[#D4AF37] text-black font-bold shadow-sm'
-                : 'border border-border/60 hover:border-[#D4AF37] text-foreground/80'
+                ? 'bg-[var(--gold)] text-[var(--gold-contrast)] font-bold shadow-sm'
+                : 'border border-border/60 hover:border-[var(--gold)] text-foreground/80'
             }`}
           >
             {c.name}
@@ -99,7 +99,7 @@ export default async function Shop({
           return (
             <article
               key={p.id}
-              className="group flex flex-col justify-between rounded-3xl border border-border/30 bg-[var(--bg)] p-4 shadow-sm transition-all duration-300 hover:shadow-xl hover:border-[#D4AF37]/50"
+              className="group flex flex-col justify-between rounded-3xl border border-border/30 bg-[var(--bg)] p-4 shadow-sm transition-all duration-300 hover:shadow-xl hover:border-[var(--gold)]/50"
             >
               <div>
                 <div className="relative overflow-hidden rounded-2xl bg-muted/30 aspect-square">
@@ -121,12 +121,12 @@ export default async function Shop({
 
                 <div className="pt-4 px-1">
                   <a href={`/product/${p.slug}`}>
-                    <h2 className="font-serif font-medium text-base line-clamp-1 hover:text-[#D4AF37] transition-colors">
+                    <h2 className="font-serif font-medium text-base line-clamp-1 hover:text-[var(--gold)] transition-colors">
                       {p.name}
                     </h2>
                   </a>
                   <div className="mt-2 flex items-center gap-3">
-                    <span className="font-bold text-lg text-[#D4AF37]">
+                    <span className="font-bold text-lg text-[var(--gold)]">
                       {priceNum.toLocaleString('ar-EG')} ج.م
                     </span>
                     {compareNum > 0 && (
