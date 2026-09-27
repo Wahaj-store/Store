@@ -38,7 +38,7 @@ export async function getCustomer() {
   }
 }
 
-export async function customerRegister(data: { name: string; phone: string; email?: string; password: string; rememberMe?: boolean }) {
+export async function customerRegister(data: { name: string; phone: string; email?: string; password: string }) {
   const phone = normalizePhone(data.phone);
   const exists = await prisma.customer.findUnique({ where: { phone } });
   if (exists) throw new Error('رقم الهاتف مسجل بالفعل');
@@ -52,7 +52,7 @@ export async function customerRegister(data: { name: string; phone: string; emai
     },
   });
   
-  await createCustomerSession(c.id, Boolean(data.rememberMe));
+  await createCustomerSession(c.id, rememberMe);
   return c;
 }
 
