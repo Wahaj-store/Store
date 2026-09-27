@@ -43,7 +43,7 @@ export default function Cart() {
             <h2 className="text-2xl font-bold">سلة المشتريات فارغة</h2>
             <p className="text-muted-foreground text-sm">لم تقمي بإضافة أي منتجات إلى سلتك حتى الآن.</p>
           </div>
-          <Link href="/shop" className="w-full py-3.5 rounded-xl bg-[var(--gold)] text-black font-bold text-sm shadow-md hover:opacity-95 transition inline-flex items-center justify-center gap-2">
+          <Link href="/shop" className="w-full py-3.5 rounded-xl bg-[var(--gold)] text-[var(--gold-contrast)] font-bold text-sm shadow-md hover:opacity-95 transition inline-flex items-center justify-center gap-2">
             <ArrowRight size={18} /> اكتشفي المنتجات الآن
           </Link>
         </div>
@@ -73,7 +73,7 @@ export default function Cart() {
 
         {/* مؤشر خطوات الطلب التفاعلي */}
         <div className="grid grid-cols-3 gap-2 p-3 bg-card border border-border/60 rounded-2xl shadow-sm">
-          <div className="flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs md:text-sm font-bold bg-[var(--gold)] text-black shadow-md">
+          <div className="flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs md:text-sm font-bold bg-[var(--gold)] text-[var(--gold-contrast)] shadow-md">
             <span className="w-5 h-5 rounded-full bg-black/10 flex items-center justify-center text-xs">1</span>
             <span>مراجعة السلة</span>
           </div>
@@ -180,7 +180,7 @@ export default function Cart() {
 
             <Link 
               href={coupon ? `/checkout?coupon=${encodeURIComponent(coupon)}` : '/checkout'} 
-              className="w-full py-4 rounded-2xl bg-[var(--gold)] text-black font-bold text-base shadow-lg hover:opacity-95 transition text-center block"
+              className="w-full py-4 rounded-2xl bg-[var(--gold)] text-[var(--gold-contrast)] font-bold text-base shadow-lg hover:opacity-95 transition text-center block"
             >
               متابعة لتحديد عنوان الشحن
             </Link>
