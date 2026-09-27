@@ -96,12 +96,12 @@ export default function SiteChrome() {
       )}
 
       {/* الهيدر العلوي الاحترافي */}
-      <header className="wahaj-header wahaj-header--luxury sticky top-0 z-40 border-b border-[var(--brand-gold)]/20 bg-[var(--bg)]/95 backdrop-blur-md">
+      <header className="wahaj-header wahaj-header--luxury sticky top-0 z-40 border-b border-[var(--gold)]/20 bg-[var(--bg)]/95 backdrop-blur-md">
         <div className="container wahaj-header__inner flex items-center justify-between py-3.5 px-4">
           <div className="flex items-center gap-3">
             <button
               type="button"
-              className="wahaj-header__menu md:hidden text-foreground hover:text-[var(--brand-gold)] transition-colors"
+              className="wahaj-header__menu md:hidden text-foreground hover:text-[var(--gold)] transition-colors"
               onClick={() => setMenu(true)}
               aria-label="فتح القائمة"
             >
@@ -114,7 +114,7 @@ export default function SiteChrome() {
               aria-label="وَهَج - الصفحة الرئيسية"
             >
               <span className="font-bold text-lg tracking-wider text-foreground">{settings.brand_name || 'وَهَج'}</span>
-              <small className="text-[9px] tracking-widest text-[#C6A46A]">Wahaj Store</small>
+              <small className="text-[9px] tracking-widest text-[var(--gold)]">Wahaj Store</small>
             </a>
           </div>
 
@@ -128,7 +128,7 @@ export default function SiteChrome() {
                 <a
                   key={`${x.href}-${x.label}`}
                   href={x.href}
-                  className={`transition-colors hover:text-[#C6A46A] ${pathname === x.href ? 'text-[#C6A46A] font-bold border-b-2 border-[#C6A46A] pb-0.5' : 'text-foreground/80'}`}
+                  className={`transition-colors hover:text-[var(--gold)] ${pathname === x.href ? 'text-[var(--gold)] font-bold border-b-2 border-[var(--gold)] pb-0.5' : 'text-foreground/80'}`}
                 >
                   {x.label}
                 </a>
@@ -139,7 +139,7 @@ export default function SiteChrome() {
           <div className="wahaj-header__actions flex items-center gap-4">
             <a
               href="/shop"
-              className="wahaj-header__action text-foreground/80 hover:text-[#C6A46A] transition-colors p-1"
+              className="wahaj-header__action text-foreground/80 hover:text-[var(--gold)] transition-colors p-1"
               aria-label="البحث"
               title="البحث"
             >
@@ -148,7 +148,7 @@ export default function SiteChrome() {
 
             <a
               href="/account"
-              className="wahaj-header__action text-foreground/80 hover:text-[#C6A46A] transition-colors p-1"
+              className="wahaj-header__action text-foreground/80 hover:text-[var(--gold)] transition-colors p-1"
               aria-label="حسابي"
               title="حسابي"
             >
@@ -158,7 +158,7 @@ export default function SiteChrome() {
             <button
               type="button"
               onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-              className="wahaj-header__action text-foreground/80 hover:text-[#C6A46A] transition-colors p-1"
+              className="wahaj-header__action text-foreground/80 hover:text-[var(--gold)] transition-colors p-1"
               aria-label="تبديل الوضع"
               title={theme === 'dark' ? 'الوضع النهاري' : 'الوضع الليلي'}
             >
@@ -167,20 +167,20 @@ export default function SiteChrome() {
 
             <a
               href="/cart"
-              className="wahaj-header__action wahaj-header__cart relative text-foreground/80 hover:text-[#C6A46A] transition-colors p-1"
+              className="wahaj-header__action wahaj-header__cart relative text-foreground/80 hover:text-[var(--gold)] transition-colors p-1"
               aria-label="السلة"
               title="السلة"
             >
               <ShoppingBag size={20} />
               {cartCount > 0 && (
-                <span className="absolute -top-1.5 -end-2 flex h-4 w-4 items-center justify-center rounded-full bg-[#C6A46A] text-[9px] font-bold text-black shadow-sm">
+                <span className="absolute -top-1.5 -end-2 flex h-4 w-4 items-center justify-center rounded-full bg-[var(--gold)] text-[9px] font-bold text-[var(--gold-contrast)] shadow-sm">
                   {cartCount}
                 </span>
               )}
             </a>
           </div>
         </div>
-        <div className="wahaj-header__accent h-[1px] bg-gradient-to-r from-transparent via-[#C6A46A]/40 to-transparent" />
+        <div className="wahaj-header__accent h-[1px] bg-gradient-to-r from-transparent via-[var(--gold)]/40 to-transparent" />
       </header>
 
       {/* القائمة الجانبية للموبايل */}
@@ -190,14 +190,14 @@ export default function SiteChrome() {
           onClick={() => setMenu(false)}
         >
           <aside
-            className="h-full w-[82%] bg-[var(--bg)] p-6 shadow-2xl border-e border-[#C6A46A]/20 flex flex-col justify-between"
+            className="h-full w-[82%] bg-[var(--bg)] p-6 shadow-2xl border-e border-[var(--gold)]/20 flex flex-col justify-between"
             onClick={e => e.stopPropagation()}
           >
             <div>
               <div className="flex items-center justify-between pb-6 border-b border-border/40">
                 <div className="flex flex-col">
                   <span className="text-xl font-bold tracking-wider">وَهَج</span>
-                  <span className="text-[10px] text-[#C6A46A] tracking-widest">Wahaj Store</span>
+                  <span className="text-[10px] text-[var(--gold)] tracking-widest">Wahaj Store</span>
                 </div>
                 <button
                   type="button"
@@ -217,7 +217,7 @@ export default function SiteChrome() {
                       key={`${x.href}-${x.label}`}
                       href={x.href}
                       onClick={() => setMenu(false)}
-                      className={`py-2.5 px-3 rounded-xl transition-all flex items-center gap-3 ${pathname === x.href ? 'bg-[#C6A46A]/15 text-[#C6A46A] font-bold border-s-4 border-[#C6A46A]' : 'hover:bg-muted/50 text-foreground/90'}`}
+                      className={`py-2.5 px-3 rounded-xl transition-all flex items-center gap-3 ${pathname === x.href ? 'bg-[var(--gold)]/15 text-[var(--gold)] font-bold border-s-4 border-[var(--gold)]' : 'hover:bg-muted/50 text-foreground/90'}`}
                     >
                       {getMenuIcon(x.href)}
                       <span>{x.label}</span>
@@ -227,7 +227,7 @@ export default function SiteChrome() {
                 <a 
                   href="/track-order" 
                   onClick={() => setMenu(false)} 
-                  className={`py-2.5 px-3 rounded-xl transition-all flex items-center gap-3 ${pathname === '/track-order' ? 'bg-[#C6A46A]/15 text-[#C6A46A] font-bold border-s-4 border-[#C6A46A]' : 'hover:bg-muted/50 text-foreground/90'}`}
+                  className={`py-2.5 px-3 rounded-xl transition-all flex items-center gap-3 ${pathname === '/track-order' ? 'bg-[var(--gold)]/15 text-[var(--gold)] font-bold border-s-4 border-[var(--gold)]' : 'hover:bg-muted/50 text-foreground/90'}`}
                 >
                   <Truck size={18} />
                   <span>تتبع الطلب</span>
@@ -236,7 +236,7 @@ export default function SiteChrome() {
                 <a 
                   href="/account" 
                   onClick={() => setMenu(false)} 
-                  className={`py-2.5 px-3 rounded-xl transition-all flex items-center gap-3 ${pathname === '/account' ? 'bg-[#C6A46A]/15 text-[#C6A46A] font-bold border-s-4 border-[#C6A46A]' : 'hover:bg-muted/50 text-foreground/90'}`}
+                  className={`py-2.5 px-3 rounded-xl transition-all flex items-center gap-3 ${pathname === '/account' ? 'bg-[var(--gold)]/15 text-[var(--gold)] font-bold border-s-4 border-[var(--gold)]' : 'hover:bg-muted/50 text-foreground/90'}`}
                 >
                   <User size={18} />
                   <span>حسابي</span>
@@ -245,14 +245,14 @@ export default function SiteChrome() {
                 <a 
                   href="/cart" 
                   onClick={() => setMenu(false)} 
-                  className={`py-2.5 px-3 rounded-xl transition-all flex items-center justify-between ${pathname === '/cart' ? 'bg-[#C6A46A]/15 text-[#C6A46A] font-bold border-s-4 border-[#C6A46A]' : 'hover:bg-muted/50 text-foreground/90'}`}
+                  className={`py-2.5 px-3 rounded-xl transition-all flex items-center justify-between ${pathname === '/cart' ? 'bg-[var(--gold)]/15 text-[var(--gold)] font-bold border-s-4 border-[var(--gold)]' : 'hover:bg-muted/50 text-foreground/90'}`}
                 >
                   <div className="flex items-center gap-3">
                     <ShoppingBag size={18} />
                     <span>السلة</span>
                   </div>
                   {cartCount > 0 && (
-                    <span className="px-2 py-0.5 rounded-full bg-[#C6A46A] text-[10px] font-bold text-black">
+                    <span className="px-2 py-0.5 rounded-full bg-[var(--gold)] text-[10px] font-bold text-[var(--gold-contrast)]">
                       {cartCount}
                     </span>
                   )}
@@ -268,11 +268,11 @@ export default function SiteChrome() {
       )}
 
       {/* شريط التنقل السفلي للموبايل */}
-      <nav className="fixed inset-x-4 bottom-4 z-50 flex items-center justify-around rounded-2xl border border-[#C6A46A]/30 bg-[#241B1A] px-4 py-3 md:hidden shadow-[0_10px_30px_rgba(0,0,0,0.9)]">
+      <nav className="fixed inset-x-4 bottom-4 z-50 flex items-center justify-around rounded-2xl border border-[var(--gold)]/30 bg-[#121110] px-4 py-3 md:hidden shadow-[0_10px_30px_rgba(0,0,0,0.9)]">
         <a 
           href="/" 
           className="flex flex-col items-center gap-1 transition-colors"
-          style={{ color: pathname === '/' ? '#C6A46A' : '#9ca3af' }}
+          style={{ color: pathname === '/' ? 'var(--gold)' : '#9ca3af' }}
         >
           <Home size={20} />
           <span className={`text-[10px] ${pathname === '/' ? 'font-bold' : ''}`}>الرئيسية</span>
@@ -281,7 +281,7 @@ export default function SiteChrome() {
         <a 
           href="/shop" 
           className="flex flex-col items-center gap-1 transition-colors"
-          style={{ color: pathname === '/shop' ? '#C6A46A' : '#9ca3af' }}
+          style={{ color: pathname === '/shop' ? 'var(--gold)' : '#9ca3af' }}
         >
           <Store size={20} />
           <span className={`text-[10px] ${pathname === '/shop' ? 'font-bold' : ''}`}>المتجر</span>
@@ -290,7 +290,7 @@ export default function SiteChrome() {
         <a 
           href="/account" 
           className="flex flex-col items-center gap-1 transition-colors"
-          style={{ color: pathname === '/account' ? '#C6A46A' : '#9ca3af' }}
+          style={{ color: pathname === '/account' ? 'var(--gold)' : '#9ca3af' }}
         >
           <User size={20} />
           <span className={`text-[10px] ${pathname === '/account' ? 'font-bold' : ''}`}>حسابي</span>
@@ -299,12 +299,12 @@ export default function SiteChrome() {
         <a 
           href="/cart" 
           className="relative flex flex-col items-center gap-1 transition-colors"
-          style={{ color: pathname === '/cart' ? '#C6A46A' : '#9ca3af' }}
+          style={{ color: pathname === '/cart' ? 'var(--gold)' : '#9ca3af' }}
         >
           <div className="relative">
             <ShoppingBag size={20} />
             {cartCount > 0 && (
-              <span className="absolute -top-2 -end-2.5 flex h-4 w-4 items-center justify-center rounded-full bg-[#C6A46A] text-[9px] font-bold text-black shadow-sm">
+              <span className="absolute -top-2 -end-2.5 flex h-4 w-4 items-center justify-center rounded-full bg-[var(--gold)] text-[9px] font-bold text-[var(--gold-contrast)] shadow-sm">
                 {cartCount}
               </span>
             )}
