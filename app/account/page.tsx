@@ -129,10 +129,10 @@ export default function Account() {
         <div className="container max-w-md mx-auto space-y-8">
           
           <div className="text-center space-y-3">
-            <div className="inline-flex items-center justify-center w-16 h-16 rounded-3xl bg-[#D4AF37]/10 text-[#D4AF37] border border-[#D4AF37]/30 shadow-xs">
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-3xl bg-[var(--gold)]/10 text-[var(--gold)] border border-[var(--gold)]/30 shadow-xs">
               <Sparkles size={30} />
             </div>
-            <a href="/" className="inline-block text-3xl font-serif font-bold tracking-wider text-[#D4AF37]">
+            <a href="/" className="inline-block text-3xl font-serif font-bold tracking-wider text-[var(--gold)]">
               وَهَج
             </a>
             <h1 className="text-2xl md:text-3xl font-serif font-bold tracking-tight">
@@ -151,7 +151,7 @@ export default function Account() {
                 type="button"
                 onClick={() => { setMode('login'); setMsg(''); }}
                 className={`flex-1 py-3 text-sm font-medium rounded-xl transition-all ${
-                  mode === 'login' ? 'bg-[#D4AF37] text-black font-bold shadow-md' : 'text-muted-foreground hover:text-foreground'
+                  mode === 'login' ? 'bg-[var(--gold)] text-[var(--gold-contrast)] font-bold shadow-md' : 'text-muted-foreground hover:text-foreground'
                 }`}
               >
                 تسجيل الدخول
@@ -160,7 +160,7 @@ export default function Account() {
                 type="button"
                 onClick={() => { setMode('register'); setMsg(''); }}
                 className={`flex-1 py-3 text-sm font-medium rounded-xl transition-all ${
-                  mode === 'register' ? 'bg-[#D4AF37] text-black font-bold shadow-md' : 'text-muted-foreground hover:text-foreground'
+                  mode === 'register' ? 'bg-[var(--gold)] text-[var(--gold-contrast)] font-bold shadow-md' : 'text-muted-foreground hover:text-foreground'
                 }`}
               >
                 إنشاء حساب
@@ -169,7 +169,7 @@ export default function Account() {
           )}
 
           <div className="bg-muted/10 border border-border/40 rounded-3xl p-6 md:p-8 shadow-md relative overflow-hidden space-y-5">
-            <div className="absolute top-0 right-0 w-28 h-28 bg-[#D4AF37]/5 rounded-bl-full pointer-events-none" />
+            <div className="absolute top-0 right-0 w-28 h-28 bg-[var(--gold)]/5 rounded-bl-full pointer-events-none" />
 
             {isForgotMode ? (
               <div className="space-y-4">
@@ -180,7 +180,7 @@ export default function Account() {
                       <input
                         type="email"
                         required
-                        className="w-full px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[#D4AF37] transition shadow-xs"
+                        className="w-full px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[var(--gold)] transition shadow-xs"
                         placeholder="name@example.com"
                         dir="ltr"
                         value={resetData.email}
@@ -190,7 +190,7 @@ export default function Account() {
                     <button
                       type="submit"
                       disabled={loading}
-                      className="w-full py-3.5 rounded-2xl bg-[#D4AF37] text-black font-serif font-bold text-sm shadow-lg hover:opacity-95 transition flex items-center justify-center gap-2"
+                      className="w-full py-3.5 rounded-2xl bg-[var(--gold)] text-[var(--gold-contrast)] font-serif font-bold text-sm shadow-lg hover:opacity-95 transition flex items-center justify-center gap-2"
                     >
                       <span>{loading ? 'جاري الإرسال...' : 'إرسال رمز التحقق'}</span>
                       <ArrowLeft size={18} />
@@ -204,7 +204,7 @@ export default function Account() {
                         type="text"
                         required
                         maxLength={6}
-                        className="w-full px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm tracking-widest text-center font-bold focus:outline-none focus:border-[#D4AF37] transition shadow-xs"
+                        className="w-full px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm tracking-widest text-center font-bold focus:outline-none focus:border-[var(--gold)] transition shadow-xs"
                         placeholder="123456"
                         dir="ltr"
                         value={resetData.otp}
@@ -217,7 +217,7 @@ export default function Account() {
                       <input
                         type="password"
                         required
-                        className="w-full px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[#D4AF37] transition shadow-xs"
+                        className="w-full px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[var(--gold)] transition shadow-xs"
                         placeholder="••••••••"
                         dir="ltr"
                         value={resetData.newPassword}
@@ -228,7 +228,7 @@ export default function Account() {
                     <button
                       type="submit"
                       disabled={loading}
-                      className="w-full py-3.5 rounded-2xl bg-[#D4AF37] text-black font-serif font-bold text-sm shadow-lg hover:opacity-95 transition flex items-center justify-center gap-2"
+                      className="w-full py-3.5 rounded-2xl bg-[var(--gold)] text-[var(--gold-contrast)] font-serif font-bold text-sm shadow-lg hover:opacity-95 transition flex items-center justify-center gap-2"
                     >
                       <span>{loading ? 'جاري التحديث...' : 'تحديث كلمة المرور'}</span>
                       <CheckCircle2 size={18} />
@@ -239,7 +239,7 @@ export default function Account() {
                 <div className="text-center pt-2">
                   <button
                     type="button"
-                    className="text-xs text-muted-foreground hover:text-[#D4AF37] transition font-medium"
+                    className="text-xs text-muted-foreground hover:text-[var(--gold)] transition font-medium"
                     onClick={() => { setIsForgotMode(false); setForgotStep('email'); setMsg(''); }}
                   >
                     العودة لتسجيل الدخول
@@ -254,7 +254,7 @@ export default function Account() {
                     <div className="relative">
                       <span className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground"><User size={18} /></span>
                       <input
-                        className="w-full pr-11 pl-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[#D4AF37] transition shadow-xs"
+                        className="w-full pr-11 pl-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[var(--gold)] transition shadow-xs"
                         placeholder="أدخلي اسمكِ"
                         onChange={e => setForm({ ...form, name: e.target.value })}
                       />
@@ -269,7 +269,7 @@ export default function Account() {
                   <div className="relative">
                     <span className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground"><Phone size={18} /></span>
                     <input
-                      className="w-full pr-11 pl-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[#D4AF37] transition shadow-xs"
+                      className="w-full pr-11 pl-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[var(--gold)] transition shadow-xs"
                       placeholder={mode === 'login' ? 'رقم الهاتف أو الإيميل' : '01xxxxxxxxx'}
                       dir="ltr"
                       onChange={e => setForm({ ...form, phone: e.target.value, email: e.target.value })}
@@ -281,7 +281,7 @@ export default function Account() {
                   <div className="space-y-2">
                     <label className="text-xs md:text-sm font-medium text-foreground">البريد الإلكتروني</label>
                     <input
-                      className="w-full px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[#D4AF37] transition shadow-xs"
+                      className="w-full px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[var(--gold)] transition shadow-xs"
                       placeholder="name@example.com"
                       dir="ltr"
                       onChange={e => setForm({ ...form, email: e.target.value })}
@@ -296,7 +296,7 @@ export default function Account() {
                       <button
                         type="button"
                         onClick={() => { setIsForgotMode(true); setMsg(''); }}
-                        className="text-xs text-[#D4AF37] hover:underline font-medium"
+                        className="text-xs text-[var(--gold)] hover:underline font-medium"
                       >
                         نسيت كلمة المرور؟
                       </button>
@@ -305,7 +305,7 @@ export default function Account() {
                   <div className="relative">
                     <span className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground"><Lock size={18} /></span>
                     <input
-                      className="w-full pr-11 pl-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[#D4AF37] transition shadow-xs"
+                      className="w-full pr-11 pl-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[var(--gold)] transition shadow-xs"
                       type="password"
                       placeholder="••••••••"
                       onChange={e => setForm({ ...form, password: e.target.value })}
@@ -314,7 +314,7 @@ export default function Account() {
                 </div>
 
                 <button
-                  className="w-full mt-2 py-3.5 rounded-2xl bg-[#D4AF37] text-black font-serif font-bold text-sm md:text-base shadow-lg hover:opacity-95 transition flex items-center justify-center gap-2"
+                  className="w-full mt-2 py-3.5 rounded-2xl bg-[var(--gold)] text-[var(--gold-contrast)] font-serif font-bold text-sm md:text-base shadow-lg hover:opacity-95 transition flex items-center justify-center gap-2"
                   onClick={auth}
                 >
                   <span>{mode === 'login' ? 'دخول' : 'إنشاء الحساب'}</span>
@@ -324,7 +324,7 @@ export default function Account() {
                 <div className="text-center pt-2">
                   <button
                     type="button"
-                    className="text-xs md:text-sm text-[#D4AF37] hover:underline font-medium"
+                    className="text-xs md:text-sm text-[var(--gold)] hover:underline font-medium"
                     onClick={() => setMode(mode === 'login' ? 'register' : 'login')}
                   >
                     {mode === 'login' ? 'ليس لديك حساب؟ إنشاء حساب جديد' : 'لديك حساب بالفعل؟ تسجيل الدخول'}
@@ -335,7 +335,7 @@ export default function Account() {
 
             {msg && (
               <div className={`p-3 rounded-xl text-center text-xs md:text-sm ${
-                msg.includes('نجاح') || msg.includes('تم إرسال') ? 'bg-[#D4AF37]/10 border border-[#D4AF37]/30 text-[#D4AF37]' : 'bg-red-500/10 border border-red-500/20 text-red-500'
+                msg.includes('نجاح') || msg.includes('تم إرسال') ? 'bg-[var(--gold)]/10 border border-[var(--gold)]/30 text-[var(--gold)]' : 'bg-red-500/10 border border-red-500/20 text-red-500'
               }`}>
                 {msg}
               </div>
@@ -355,7 +355,7 @@ export default function Account() {
         {/* الترويسة العلوية */}
         <div className="flex flex-wrap items-center justify-between gap-4 border-b border-border/40 pb-6">
           <div className="space-y-1">
-            <span className="text-[#D4AF37] font-medium text-xs uppercase tracking-widest flex items-center gap-1.5">
+            <span className="text-[var(--gold)] font-medium text-xs uppercase tracking-widest flex items-center gap-1.5">
               <Sparkles size={16} /> لوحة التحكم 
             </span>
             <h1 className="text-2xl md:text-3xl font-serif font-bold">مرحبًا بكِ، {c.name}</h1>
@@ -387,13 +387,13 @@ export default function Account() {
                 onClick={() => { setTab(k); setSelectedOrder(null); }}
                 className={`w-full flex items-center gap-3 p-3.5 text-start rounded-2xl text-sm font-medium transition-all ${
                   tab === k
-                    ? 'bg-[#D4AF37] text-black font-bold shadow-md'
+                    ? 'bg-[var(--gold)] text-[var(--gold-contrast)] font-bold shadow-md'
                     : 'text-muted-foreground hover:text-foreground hover:bg-[var(--bg)]/60'
                 }`}
               >
                 <I size={18} className="shrink-0" />
                 <span className="flex-1">{t}</span>
-                <ChevronLeft size={16} className={tab === k ? 'text-black' : 'text-muted-foreground'} />
+                <ChevronLeft size={16} className={tab === k ? 'text-[var(--gold-contrast)]' : 'text-muted-foreground'} />
               </button>
             ))}
 
@@ -419,7 +419,7 @@ export default function Account() {
                   <div className="space-y-1.5">
                     <label className="text-xs font-medium text-muted-foreground">الاسم الكامل</label>
                     <input
-                      className="w-full px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[#D4AF37] transition shadow-xs"
+                      className="w-full px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[var(--gold)] transition shadow-xs"
                       value={c.name || ''}
                       onChange={e => setC({ ...c, name: e.target.value })}
                     />
@@ -428,7 +428,7 @@ export default function Account() {
                   <div className="space-y-1.5">
                     <label className="text-xs font-medium text-muted-foreground">رقم الهاتف</label>
                     <input
-                      className="w-full px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[#D4AF37] transition shadow-xs"
+                      className="w-full px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[var(--gold)] transition shadow-xs"
                       value={c.phone || ''}
                       dir="ltr"
                       onChange={e => setC({ ...c, phone: e.target.value })}
@@ -438,7 +438,7 @@ export default function Account() {
                   <div className="space-y-1.5">
                     <label className="text-xs font-medium text-muted-foreground">البريد الإلكتروني</label>
                     <input
-                      className="w-full px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[#D4AF37] transition shadow-xs"
+                      className="w-full px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[var(--gold)] transition shadow-xs"
                       value={c.email || ''}
                       dir="ltr"
                       onChange={e => setC({ ...c, email: e.target.value })}
@@ -447,7 +447,7 @@ export default function Account() {
                 </div>
 
                 <button
-                  className="inline-flex items-center gap-2 px-6 py-3.5 rounded-2xl bg-[#D4AF37] text-black font-serif font-bold text-sm shadow-md hover:opacity-95 transition"
+                  className="inline-flex items-center gap-2 px-6 py-3.5 rounded-2xl bg-[var(--gold)] text-[var(--gold-contrast)] font-serif font-bold text-sm shadow-md hover:opacity-95 transition"
                   onClick={async () => {
                     await fetch('/api/customer/me', {
                       method: 'PUT',
@@ -462,7 +462,7 @@ export default function Account() {
                   <span>حفظ التغييرات</span>
                 </button>
 
-                {msg && <p className="text-sm text-[#D4AF37] font-medium pt-2">{msg}</p>}
+                {msg && <p className="text-sm text-[var(--gold)] font-medium pt-2">{msg}</p>}
               </div>
             )}
 
@@ -473,19 +473,19 @@ export default function Account() {
                     <div className="flex items-center justify-between border-b border-border/30 pb-4">
                       <div>
                         <h2 className="text-xl font-serif font-bold">تفاصيل الطلب: #{selectedOrder.number}</h2>
-                        <span className="text-xs text-muted-foreground font-light">حالة الطلب الحالية: <b className="text-[#D4AF37]">{selectedOrder.status}</b></span>
+                        <span className="text-xs text-muted-foreground font-light">حالة الطلب الحالية: <b className="text-[var(--gold)]">{selectedOrder.status}</b></span>
                       </div>
                       <button 
                         onClick={() => setSelectedOrder(null)}
-                        className="px-4 py-2 rounded-xl bg-[var(--bg)] border border-border/60 text-xs font-medium hover:border-[#D4AF37] transition shadow-xs"
+                        className="px-4 py-2 rounded-xl bg-[var(--bg)] border border-border/60 text-xs font-medium hover:border-[var(--gold)] transition shadow-xs"
                       >
                         العودة للطلبات
                       </button>
                     </div>
 
                     {selectedOrder.notes && (
-                      <div className="p-4 rounded-2xl bg-[#D4AF37]/10 border border-[#D4AF37]/30 space-y-1.5 shadow-xs">
-                        <span className="font-serif font-bold text-xs text-[#D4AF37] flex items-center gap-1.5">
+                      <div className="p-4 rounded-2xl bg-[var(--gold)]/10 border border-[var(--gold)]/30 space-y-1.5 shadow-xs">
+                        <span className="font-serif font-bold text-xs text-[var(--gold)] flex items-center gap-1.5">
                           <MessageSquareText size={16} /> ملاحظة من الإدارة على الطلب:
                         </span>
                         <p className="text-xs md:text-sm text-foreground/90 leading-relaxed font-light">{selectedOrder.notes}</p>
@@ -493,7 +493,7 @@ export default function Account() {
                     )}
 
                     <div className="p-5 rounded-2xl bg-[var(--bg)] border border-border/60 space-y-4 shadow-xs">
-                      <h3 className="font-serif font-bold text-sm flex items-center gap-2 text-[#D4AF37]">
+                      <h3 className="font-serif font-bold text-sm flex items-center gap-2 text-[var(--gold)]">
                         <Clock size={16} /> خط سير ومتابعة الطلب
                       </h3>
 
@@ -508,7 +508,7 @@ export default function Account() {
                           
                           <div className={`p-3.5 rounded-2xl border flex flex-col items-center justify-center gap-1 shadow-xs ${
                             ['NEW', 'PROCESSING', 'SHIPPED', 'DELIVERED'].includes(selectedOrder.status)
-                              ? 'bg-[#D4AF37]/15 border-[#D4AF37] text-[#D4AF37] font-bold'
+                              ? 'bg-[var(--gold)]/15 border-[var(--gold)] text-[var(--gold)] font-bold'
                               : 'border-border/60 text-muted-foreground'
                           }`}>
                             <div className="flex items-center gap-1">
@@ -521,7 +521,7 @@ export default function Account() {
 
                           <div className={`p-3.5 rounded-2xl border flex flex-col items-center justify-center gap-1 shadow-xs ${
                             ['PROCESSING', 'SHIPPED', 'DELIVERED'].includes(selectedOrder.status)
-                              ? 'bg-[#D4AF37]/15 border-[#D4AF37] text-[#D4AF37] font-bold'
+                              ? 'bg-[var(--gold)]/15 border-[var(--gold)] text-[var(--gold)] font-bold'
                               : 'border-border/60 text-muted-foreground'
                           }`}>
                             <div className="flex items-center gap-1">
@@ -534,7 +534,7 @@ export default function Account() {
 
                           <div className={`p-3.5 rounded-2xl border flex flex-col items-center justify-center gap-1 shadow-xs ${
                             ['SHIPPED', 'DELIVERED'].includes(selectedOrder.status)
-                              ? 'bg-[#D4AF37]/15 border-[#D4AF37] text-[#D4AF37] font-bold'
+                              ? 'bg-[var(--gold)]/15 border-[var(--gold)] text-[var(--gold)] font-bold'
                               : 'border-border/60 text-muted-foreground'
                           }`}>
                             <div className="flex items-center gap-1">
@@ -547,7 +547,7 @@ export default function Account() {
 
                           <div className={`p-3.5 rounded-2xl border flex flex-col items-center justify-center gap-1 shadow-xs ${
                             selectedOrder.status === 'DELIVERED'
-                              ? 'bg-[#D4AF37] text-black border-[#D4AF37] font-bold'
+                              ? 'bg-[var(--gold)] text-[var(--gold-contrast)] border-[var(--gold)] font-bold'
                               : 'border-border/60 text-muted-foreground'
                           }`}>
                             <div className="flex items-center gap-1">
@@ -574,14 +574,14 @@ export default function Account() {
                       {(selectedOrder.items || []).map((item: any, idx: number) => (
                         <div key={idx} className="flex justify-between items-center p-3.5 rounded-2xl bg-[var(--bg)] border border-border/60 text-sm shadow-xs">
                           <span>{item.name || item.product?.name || 'منتج'} × {item.quantity}</span>
-                          <span className="text-[#D4AF37] font-bold">{Number(item.price).toLocaleString('ar-EG')} ج.م</span>
+                          <span className="text-[var(--gold)] font-bold">{Number(item.price).toLocaleString('ar-EG')} ج.م</span>
                         </div>
                       ))}
                     </div>
 
                     <div className="flex justify-between items-center border-t border-border/30 pt-4 font-serif font-bold text-base">
                       <span>الإجمالي الكلي</span>
-                      <span className="text-[#D4AF37] text-lg">{Number(selectedOrder.total).toLocaleString('ar-EG')} ج.م</span>
+                      <span className="text-[var(--gold)] text-lg">{Number(selectedOrder.total).toLocaleString('ar-EG')} ج.م</span>
                     </div>
                   </div>
                 ) : (
@@ -591,23 +591,23 @@ export default function Account() {
                       {(c.orders || []).map((o: any) => (
                         <div
                           key={o.id}
-                          className="flex flex-wrap items-center justify-between gap-4 p-4.5 rounded-2xl bg-[var(--bg)] border border-border/65 hover:border-[#D4AF37]/50 transition shadow-xs"
+                          className="flex flex-wrap items-center justify-between gap-4 p-4.5 rounded-2xl bg-[var(--bg)] border border-border/65 hover:border-[var(--gold)]/50 transition shadow-xs"
                         >
                           <div className="space-y-1">
                             <b className="text-foreground font-serif">طلب #{o.number}</b>
                             <div className="flex items-center gap-2">
-                              <span className="text-xs px-2.5 py-0.5 rounded-full bg-[#D4AF37]/10 text-[#D4AF37] font-medium">
+                              <span className="text-xs px-2.5 py-0.5 rounded-full bg-[var(--gold)]/10 text-[var(--gold)] font-medium">
                                 {o.status}
                               </span>
                             </div>
                           </div>
                           <div className="flex items-center gap-4">
-                            <strong className="text-[#D4AF37] text-base font-serif">
+                            <strong className="text-[var(--gold)] text-base font-serif">
                               {Number(o.total).toLocaleString('ar-EG')} ج.م
                             </strong>
                             <button
                               onClick={() => setSelectedOrder(o)}
-                              className="px-4 py-2 rounded-xl bg-[#D4AF37] text-black text-xs font-serif font-bold hover:opacity-95 transition shadow-xs"
+                              className="px-4 py-2 rounded-xl bg-[var(--gold)] text-[var(--gold-contrast)] text-xs font-serif font-bold hover:opacity-95 transition shadow-xs"
                             >
                               التفاصيل والمتابعة
                             </button>
@@ -629,7 +629,7 @@ export default function Account() {
                   <h2 className="text-xl font-serif font-bold">عناوين الشحن المحفوظة</h2>
                   <button 
                     onClick={() => setShowAddressForm(!showAddressForm)}
-                    className="px-4 py-2.5 rounded-2xl bg-[#D4AF37] text-black text-xs font-serif font-bold hover:opacity-95 transition shadow-xs"
+                    className="px-4 py-2.5 rounded-2xl bg-[var(--gold)] text-[var(--gold-contrast)] text-xs font-serif font-bold hover:opacity-95 transition shadow-xs"
                   >
                     {showAddressForm ? 'إلغاء' : '+ إضافة عنوان جديد'}
                   </button>
@@ -672,9 +672,9 @@ export default function Account() {
                         setAddressFormMsg(err.message);
                       }
                     }}
-                    className="p-6 rounded-2xl bg-[var(--bg)] border border-[#D4AF37]/40 space-y-4 text-xs shadow-sm"
+                    className="p-6 rounded-2xl bg-[var(--bg)] border border-[var(--gold)]/40 space-y-4 text-xs shadow-sm"
                   >
-                    <h3 className="font-serif font-bold text-sm text-[#D4AF37]">تفاصيل عنوان الشحن الجديد</h3>
+                    <h3 className="font-serif font-bold text-sm text-[var(--gold)]">تفاصيل عنوان الشحن الجديد</h3>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <div>
                         <label className="block mb-1 font-medium text-muted-foreground">مسمى العنوان (مثال: المنزل، العمل)</label>
@@ -710,7 +710,7 @@ export default function Account() {
                       <input name="notes" placeholder="علامة مميزة بجوار المنزل" className="w-full px-3.5 py-3 rounded-xl bg-muted/10 border border-border/60 text-foreground text-xs shadow-xs" />
                     </div>
                     <div className="flex items-center gap-2 pt-1">
-                      <input type="checkbox" name="isDefault" id="isDefault" className="w-4 h-4 accent-[#D4AF37]" />
+                      <input type="checkbox" name="isDefault" id="isDefault" className="w-4 h-4 accent-[var(--gold)]" />
                       <label htmlFor="isDefault" className="cursor-pointer font-light">تعيين كعنوان أساسي للشحن</label>
                     </div>
 
@@ -726,7 +726,7 @@ export default function Account() {
                       </button>
                       <button 
                         type="submit" 
-                        className="px-5 py-2.5 rounded-xl bg-[#D4AF37] text-black font-serif font-bold shadow-sm"
+                        className="px-5 py-2.5 rounded-xl bg-[var(--gold)] text-[var(--gold-contrast)] font-serif font-bold shadow-sm"
                       >
                         حفظ العنوان
                       </button>
@@ -741,7 +741,7 @@ export default function Account() {
                         <div className="flex items-center gap-2">
                           <span className="font-serif font-bold text-foreground">{addr.label || 'عنوان'}</span>
                           {addr.isDefault && (
-                            <span className="text-[10px] px-2 py-0.5 rounded-full bg-[#D4AF37]/15 text-[#D4AF37] font-bold">
+                            <span className="text-[10px] px-2 py-0.5 rounded-full bg-[var(--gold)]/15 text-[var(--gold)] font-bold">
                               الأساسي
                             </span>
                           )}
@@ -749,7 +749,7 @@ export default function Account() {
                         <p className="text-muted-foreground text-xs font-light">
                           {addr.governorate} - {addr.city} - {addr.address}
                         </p>
-                        <span className="text-[#D4AF37] text-xs font-medium block pt-1" dir="ltr">
+                        <span className="text-[var(--gold)] text-xs font-medium block pt-1" dir="ltr">
                           المستلم: {addr.name} | الهاتف: {addr.phone}
                         </span>
                       </div>
@@ -791,7 +791,7 @@ export default function Account() {
                     <a
                       href={`/product/${w.product.slug}`}
                       key={w.id}
-                      className="group p-3 rounded-2xl bg-[var(--bg)] border border-border/60 hover:border-[#D4AF37]/50 transition space-y-2 block shadow-xs"
+                      className="group p-3 rounded-2xl bg-[var(--bg)] border border-border/60 hover:border-[var(--gold)]/50 transition space-y-2 block shadow-xs"
                     >
                       <img
                         className="aspect-square w-full object-cover rounded-xl"
@@ -800,7 +800,7 @@ export default function Account() {
                         loading="lazy"
                         decoding="async"
                       />
-                      <p className="text-sm font-medium group-hover:text-[#D4AF37] transition line-clamp-1">
+                      <p className="text-sm font-medium group-hover:text-[var(--gold)] transition line-clamp-1">
                         {w.product.name}
                       </p>
                     </a>
@@ -831,7 +831,7 @@ export default function Account() {
                           className="aspect-square w-full object-cover rounded-xl" 
                         />
                         <h3 className="text-sm font-medium line-clamp-1">{prod.name}</h3>
-                        <span className="text-[#D4AF37] font-bold text-xs">{prod.price} ج.م</span>
+                        <span className="text-[var(--gold)] font-bold text-xs">{prod.price} ج.م</span>
                       </a>
                     ))}
                   </div>
@@ -858,7 +858,7 @@ export default function Account() {
                       required
                       value={passwords.current} 
                       onChange={e => setPasswords({ ...passwords, current: e.target.value })} 
-                      className="w-full px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[#D4AF37] shadow-xs" 
+                      className="w-full px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[var(--gold)] shadow-xs" 
                       dir="ltr"
                     />
                   </div>
@@ -869,7 +869,7 @@ export default function Account() {
                       required
                       value={passwords.newPass} 
                       onChange={e => setPasswords({ ...passwords, newPass: e.target.value })} 
-                      className="w-full px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[#D4AF37] shadow-xs" 
+                      className="w-full px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[var(--gold)] shadow-xs" 
                       dir="ltr"
                     />
                   </div>
@@ -880,14 +880,14 @@ export default function Account() {
                       required
                       value={passwords.confirmPass} 
                       onChange={e => setPasswords({ ...passwords, confirmPass: e.target.value })} 
-                      className="w-full px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[#D4AF37] shadow-xs" 
+                      className="w-full px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[var(--gold)] shadow-xs" 
                       dir="ltr"
                     />
                   </div>
-                  <button type="submit" className="px-6 py-3.5 rounded-2xl bg-[#D4AF37] text-black font-serif font-bold text-sm shadow-md hover:opacity-95 transition">
+                  <button type="submit" className="px-6 py-3.5 rounded-2xl bg-[var(--gold)] text-[var(--gold-contrast)] font-serif font-bold text-sm shadow-md hover:opacity-95 transition">
                     تحديث كلمة المرور
                   </button>
-                  {msg && <p className="text-sm text-[#D4AF37] font-medium pt-2">{msg}</p>}
+                  {msg && <p className="text-sm text-[var(--gold)] font-medium pt-2">{msg}</p>}
                 </form>
               </div>
             )}
