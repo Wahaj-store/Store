@@ -2078,3 +2078,231 @@ a:focus-visible {
   .wahaj-story__link,
   .wahaj-offers__all { transition: none !important; }
 }
+
+/* =========================================================
+   وَهَج — Mobile collections / trust / story cleanup 4.0
+   Final responsive polish — keeps desktop layout intact.
+   ========================================================= */
+
+/* Collection cards: keep the title and discovery link as two
+   clearly separated rows, especially on narrow two-column screens. */
+.wahaj-storefront .wahaj-collection__content {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-end;
+  gap: 0;
+  right: 14px;
+  left: 14px;
+  bottom: 14px;
+  z-index: 3;
+}
+
+.wahaj-storefront .wahaj-collection__name {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+  overflow-wrap: anywhere;
+  font-size: 16px;
+  line-height: 1.35;
+  white-space: normal;
+}
+
+.wahaj-storefront .wahaj-collection__link {
+  display: inline-flex;
+  width: auto;
+  max-width: 100%;
+  align-items: center;
+  gap: 5px;
+  margin-top: 7px;
+  padding-top: 5px;
+  border-top: 1px solid rgba(255,255,255,.28);
+  color: rgba(255,255,255,.88);
+  font-size: 9px;
+  line-height: 1.5;
+  white-space: nowrap;
+}
+
+/* A slightly deeper bottom gradient gives the text a clean visual field. */
+.wahaj-storefront .wahaj-collection__shade {
+  background: linear-gradient(
+    180deg,
+    rgba(20,16,14,.02) 20%,
+    rgba(20,16,14,.12) 43%,
+    rgba(20,16,14,.94) 100%
+  );
+}
+
+/* Trust cards: never allow the title/subtitle to collide with the icon
+   or with the neighboring card on mobile. */
+.wahaj-storefront .wahaj-trust__item {
+  min-width: 0;
+  align-items: center;
+}
+
+.wahaj-storefront .wahaj-trust__copy {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.wahaj-storefront .wahaj-trust__title,
+.wahaj-storefront .wahaj-trust__text {
+  display: block;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+/* The decorative Arabic "و" looked like an unexplained number 9 on
+   small screens. Replace it with an explicit luxury sparkle mark. */
+.wahaj-storefront .wahaj-story__mark {
+  font-size: 0;
+}
+
+.wahaj-storefront .wahaj-story__mark::before {
+  content: '✦';
+  display: block;
+  color: var(--gold);
+  font-size: 18px;
+  line-height: 1;
+}
+
+@media (max-width: 700px) {
+  .wahaj-storefront .wahaj-collections {
+    padding: 56px 0 62px;
+  }
+
+  .wahaj-storefront .wahaj-collections .wahaj-section-heading {
+    margin-bottom: 30px;
+    padding-inline: 10px;
+  }
+
+  .wahaj-storefront .wahaj-collections__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 9px;
+  }
+
+  .wahaj-storefront .wahaj-collection {
+    min-height: 252px;
+    border-radius: 2px 18px 2px 18px;
+  }
+
+  .wahaj-storefront .wahaj-collection__content {
+    right: 11px;
+    left: 11px;
+    bottom: 11px;
+  }
+
+  .wahaj-storefront .wahaj-collection__name {
+    font-size: 14px;
+    line-height: 1.4;
+  }
+
+  .wahaj-storefront .wahaj-collection__link {
+    margin-top: 6px;
+    padding-top: 4px;
+    font-size: 8px;
+  }
+
+  .wahaj-storefront .wahaj-collection__number {
+    top: 10px;
+    inset-inline-end: 10px;
+    font-size: 8px;
+  }
+
+  .wahaj-storefront .wahaj-trust {
+    padding: 24px 0 28px;
+  }
+
+  .wahaj-storefront .wahaj-trust__intro {
+    margin-bottom: 12px;
+    padding-bottom: 12px;
+  }
+
+  .wahaj-storefront .wahaj-trust__intro span {
+    font-size: 10px;
+  }
+
+  .wahaj-storefront .wahaj-trust__intro p {
+    max-width: 270px;
+    font-size: 10px;
+    line-height: 1.8;
+  }
+
+  .wahaj-storefront .wahaj-trust__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0;
+  }
+
+  .wahaj-storefront .wahaj-trust__item {
+    min-height: 82px;
+    padding: 11px 8px;
+    gap: 8px;
+  }
+
+  .wahaj-storefront .wahaj-trust__icon {
+    width: 34px;
+    height: 34px;
+    flex: 0 0 34px;
+  }
+
+  .wahaj-storefront .wahaj-trust__title {
+    font-size: 11px;
+    line-height: 1.45;
+  }
+
+  .wahaj-storefront .wahaj-trust__text {
+    font-size: 9px;
+    line-height: 1.55;
+  }
+
+  .wahaj-storefront .wahaj-story {
+    padding: 64px 0 72px;
+  }
+
+  .wahaj-storefront .wahaj-story__mark {
+    width: 46px;
+    height: 46px;
+    margin-bottom: 18px;
+  }
+
+  .wahaj-storefront .wahaj-story__mark::before {
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 380px) {
+  .wahaj-storefront .wahaj-collection {
+    min-height: 238px;
+  }
+
+  .wahaj-storefront .wahaj-collection__name {
+    font-size: 13px;
+  }
+
+  .wahaj-storefront .wahaj-collection__link {
+    font-size: 7.5px;
+  }
+
+  .wahaj-storefront .wahaj-trust__item {
+    padding-inline: 6px;
+    gap: 6px;
+  }
+
+  .wahaj-storefront .wahaj-trust__icon {
+    width: 32px;
+    height: 32px;
+    flex-basis: 32px;
+  }
+
+  .wahaj-storefront .wahaj-trust__title {
+    font-size: 10.5px;
+  }
+
+  .wahaj-storefront .wahaj-trust__text {
+    font-size: 8.5px;
+  }
+}
+
