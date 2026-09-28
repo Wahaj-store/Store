@@ -267,50 +267,53 @@ export default function SiteChrome() {
         </div>
       )}
 
-      {/* شريط التنقل السفلي للموبايل */}
-      <nav className="fixed inset-x-4 bottom-4 z-50 flex items-center justify-around rounded-2xl border border-[var(--gold)]/30 bg-[#121110] px-4 py-3 md:hidden shadow-[0_10px_30px_rgba(0,0,0,0.9)]">
-        <a 
-          href="/" 
-          className="flex flex-col items-center gap-1 transition-colors"
-          style={{ color: pathname === '/' ? 'var(--gold)' : '#9ca3af' }}
-        >
-          <Home size={20} />
-          <span className={`text-[10px] ${pathname === '/' ? 'font-bold' : ''}`}>الرئيسية</span>
-        </a>
+      {/* شريط التنقل السفلي — Mobile Luxury Navigation */}
+      <nav
+        className="wahaj-mobile-bottom-nav md:hidden"
+        aria-label="التنقل الرئيسي للموبايل"
+      >
+        <div className="wahaj-mobile-bottom-nav__inner">
+          <a
+            href="/"
+            className={`wahaj-mobile-bottom-nav__item ${pathname === '/' ? 'is-active' : ''}`}
+            aria-current={pathname === '/' ? 'page' : undefined}
+          >
+            <span className="wahaj-mobile-bottom-nav__icon"><Home size={19} strokeWidth={pathname === '/' ? 2.3 : 1.8} /></span>
+            <span className="wahaj-mobile-bottom-nav__label">الرئيسية</span>
+          </a>
 
-        <a 
-          href="/shop" 
-          className="flex flex-col items-center gap-1 transition-colors"
-          style={{ color: pathname === '/shop' ? 'var(--gold)' : '#9ca3af' }}
-        >
-          <Store size={20} />
-          <span className={`text-[10px] ${pathname === '/shop' ? 'font-bold' : ''}`}>المتجر</span>
-        </a>
+          <a
+            href="/shop"
+            className={`wahaj-mobile-bottom-nav__item ${pathname === '/shop' ? 'is-active' : ''}`}
+            aria-current={pathname === '/shop' ? 'page' : undefined}
+          >
+            <span className="wahaj-mobile-bottom-nav__icon"><Store size={19} strokeWidth={pathname === '/shop' ? 2.3 : 1.8} /></span>
+            <span className="wahaj-mobile-bottom-nav__label">المتجر</span>
+          </a>
 
-        <a 
-          href="/account" 
-          className="flex flex-col items-center gap-1 transition-colors"
-          style={{ color: pathname === '/account' ? 'var(--gold)' : '#9ca3af' }}
-        >
-          <User size={20} />
-          <span className={`text-[10px] ${pathname === '/account' ? 'font-bold' : ''}`}>حسابي</span>
-        </a>
+          <a
+            href="/cart"
+            className={`wahaj-mobile-bottom-nav__item wahaj-mobile-bottom-nav__item--cart ${pathname === '/cart' ? 'is-active' : ''}`}
+            aria-current={pathname === '/cart' ? 'page' : undefined}
+          >
+            <span className="wahaj-mobile-bottom-nav__cart-orb">
+              <ShoppingBag size={20} strokeWidth={pathname === '/cart' ? 2.4 : 1.9} />
+              {cartCount > 0 && (
+                <span className="wahaj-mobile-bottom-nav__badge">{cartCount > 99 ? '99+' : cartCount}</span>
+              )}
+            </span>
+            <span className="wahaj-mobile-bottom-nav__label">السلة</span>
+          </a>
 
-        <a 
-          href="/cart" 
-          className="relative flex flex-col items-center gap-1 transition-colors"
-          style={{ color: pathname === '/cart' ? 'var(--gold)' : '#9ca3af' }}
-        >
-          <div className="relative">
-            <ShoppingBag size={20} />
-            {cartCount > 0 && (
-              <span className="absolute -top-2 -end-2.5 flex h-4 w-4 items-center justify-center rounded-full bg-[var(--gold)] text-[9px] font-bold text-[var(--gold-contrast)] shadow-sm">
-                {cartCount}
-              </span>
-            )}
-          </div>
-          <span className={`text-[10px] ${pathname === '/cart' ? 'font-bold' : ''}`}>السلة</span>
-        </a>
+          <a
+            href="/account"
+            className={`wahaj-mobile-bottom-nav__item ${pathname === '/account' ? 'is-active' : ''}`}
+            aria-current={pathname === '/account' ? 'page' : undefined}
+          >
+            <span className="wahaj-mobile-bottom-nav__icon"><User size={19} strokeWidth={pathname === '/account' ? 2.3 : 1.8} /></span>
+            <span className="wahaj-mobile-bottom-nav__label">حسابي</span>
+          </a>
+        </div>
       </nav>
 
       {/* زر واتساب العائم (مفعل ودائم الظهور) */}
@@ -320,7 +323,7 @@ export default function SiteChrome() {
         rel="noopener noreferrer"
         aria-label="واتساب"
         title="تواصل معنا عبر واتساب"
-        className="fixed bottom-20 end-5 z-30 rounded-full bg-[#25D366] p-3.5 text-white shadow-xl hover:scale-105 transition-transform flex items-center justify-center"
+        className="wahaj-mobile-whatsapp fixed end-5 z-30 rounded-full bg-[#25D366] p-3.5 text-white shadow-xl hover:scale-105 transition-transform flex items-center justify-center"
       >
         <MessageCircle size={24} />
       </a>
