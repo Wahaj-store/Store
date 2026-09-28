@@ -1,2251 +1,3 @@
-
-بالضبط 👍 الملف الذي أرسلته هو الملف الذي كنا نبحث عنه.
-
-واضح أن قسم المجموعات مدمج داخل Store وليس في components/sections/CategoriesGrid.tsx.
-
-والجزء المسؤول تحديدًا هو:
-
-if (sec.type === "collections")
-إذن لا نحتاج إنشاء CategoriesGrid.tsx جديد، وهذا أفضل حتى لا نكرر المكونات أو نسبب تعارضًا.
-
-ما أقترحه على بطاقات المجموعات
-سأعدل نفس Store بحيث تصبح البطاقات:
-
-فخمة ومتناسقة مع هوية وَهَج.
-
-صور بنسبة 3:4 مع معالجة أفضل للصورة.
-
-تدرج داكن احترافي فوق الصورة.
-
-اسم المجموعة واضح بدون مبالغة في حجم الخط.
-
-زر/رابط «اكتشفي المجموعة» بشكل أكثر فخامة.
-
-إطار ذهبي يظهر بشكل ناعم عند Hover.
-
-حركة Zoom هادئة وليست مبالغًا فيها.
-
-تأثير إضاءة ذهبي خفيف عند المرور.
-
-متوافقة مع الوضع الليلي؛ بدون ألوان ثابتة تفسد الـ Dark Mode.
-
-Responsive على الهاتف، مع الحفاظ على بطاقتين في الصف.
-
-استخدام Tajawal الموجود أصلًا في المشروع بدل إدخال خط جديد.
-
-الحفاظ على روابط التصنيفات الحالية:
-
-/shop?category=${c.slug}
-عدم لمس قاعدة البيانات أو الـ Prisma أو الـ API أو الـ routes.
-
-والأهم: سنعدل هذا الملف الموجود فعليًا بدل إنشاء ملف جديد.
-
-لكن هناك نقطة مهمة: الكود الذي أرسلته يحتوي أيضًا على ProductsSection وHero وStory وOffers وTrust وغيرها، لذلك لا أريد أن أرسل لك نسخة ناقصة أو أغيّر أجزاء لا علاقة لها بالمطلوب.
-
-الملف الذي أرسلته هو الملف المطلوب تعديله، وسأتعامل معه كآخر نسخة حالية.
-وبالنسبة لـ globals.css، سنبني على النسخة الأخيرة التي أرسلتها أنت وليس أي نسخة CSS قديمة.
-
-إذا كان هدفنا الآن هو تصميم بطاقات المجموعات فقط، فالملف المعدل سيكون:
-
-components/Store.tsx
-ولن ننشئ:
-
-components/sections/CategoriesGrid.tsx
-كما لن نرجع لنسخة قديمة من globals.css.
-
-
-قم بعمل بتصميم احترافي برضوا ل
-Hero وStory وOffers وTrust وغيرها
-متوافق مع الهويه البصريه والوضع الليلي وحجم الخط ونوعه 
-علشان يكون التعديل مره واحده
-وأرسل لي الملفات المعدله فقط 
-
-نعم، نعملها دفعة واحدة بدل ما نعدل كل قسم منفصلًا.
-
-لكن حتى أرسل لك الملفات المعدلة فقط وبنسخ كاملة متوافقة مع آخر نسخة فعلية، أحتاج ملف globals.css الحالي نفسه مع Store.tsx الذي أرسلته؛ لأن التصميم سيعتمد على CSS الموجود عندك ولا أريد أن أستبدل نسخة أحدث بنسخة قديمة.
-
-ارفع ملف globals.css الحالي هنا، وبعدها سأرجع لك مباشرة:
-
-components/Store.tsx — إعادة تصميم Hero + Story + Collections + Products + Offers + Trust + الأقسام الاحتياطية.
-
-app/globals.css — تحديثات التصميم اللازمة فقط، مع الحفاظ على كل التعديلات الموجودة حاليًا.
-
-وسيكون التصميم موحدًا في:
-
-الهوية الفاخرة لـ وَهَج.
-
-Tajawal وأحجام الخطوط الحالية.
-
-Light / Dark Mode.
-
-Desktop + Mobile.
-
-الحركات والـ Hover بشكل راقٍ وغير مبالغ.
-
-الألوان الذهبية والـ neutral الموجودة عندك.
-
-المسافات والـ borders والـ shadows.
-
-عدم تغيير قاعدة البيانات أو Prisma أو الـ API أو الروابط الحالية.
-
-لن أنشئ CategoriesGrid.tsx جديدًا؛ سنبقي كل شيء داخل البنية الحالية لتجنب أي تعارض.
-
-
-@import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;600;700&display=swap');
-
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-/* =========================================================
-   وَهَج — Central Design Tokens
-   Luxury Arabic Editorial / Warm Dark Luxury
-   ========================================================= */
-:root {
-  color-scheme: light;
-
-  /* Light — official brand palette */
-  --background: #F7F2EA;
-  --background-secondary: #F2ECE3;
-  --foreground: #201D1C;
-  --foreground-secondary: #3A3330;
-  --muted: #6E655F;
-  --muted-foreground: #766D67;
-  --border: #E1D8CD;
-  --border-strong: #D5C9BC;
-
-  --bg: var(--background);
-  --fg: var(--foreground);
-  --line: var(--border);
-  --card: #FFFDF9;
-  --card-hover: #FFFFFF;
-  --surface: var(--background-secondary);
-
-  --gold: #C6A46A;
-  --gold-muted: #A98752;
-  --gold-soft: #F0E5D2;
-  --gold-contrast: #241B1A;
-
-  --rose: #B88D87;
-  --rose-muted: #986F69;
-  --success: #6D8068;
-  --warning: #9A762F;
-  --danger: #A75D56;
-  --info: #8C7770;
-
-  --radius-sm: 6px;
-  --radius-md: 10px;
-  --radius-lg: 16px;
-  --shadow-soft: 0 8px 30px rgba(36, 27, 26, 0.06);
-  --shadow-luxury: 0 18px 55px rgba(36, 27, 26, 0.10);
-  --container: 1180px;
-  --transition: 220ms ease;
-}
-
-.dark {
-  color-scheme: dark;
-
-  /* Dark — Warm Espresso / Luxury Night */
-  --background: #181211;
-  --background-secondary: #211918;
-  --foreground: #F7F2EA;
-  --foreground-secondary: #E7DCD5;
-  --muted: #CFC3BC;
-  --muted-foreground: #B8AAA3;
-  --border: rgba(247, 242, 234, 0.10);
-  --border-strong: rgba(247, 242, 234, 0.16);
-
-  --bg: var(--background);
-  --fg: var(--foreground);
-  --line: var(--border);
-  --card: #271F1D;
-  --card-hover: #2D2422;
-  --surface: #211918;
-
-  --gold: #D5B878;
-  --gold-muted: #B99A63;
-  --gold-soft: rgba(213, 184, 120, 0.12);
-  --gold-contrast: #241B1A;
-
-  --rose: #C69A94;
-  --rose-muted: #9F7772;
-  --success: #8A9A83;
-  --warning: #D5B878;
-  --danger: #C9847D;
-  --info: #C69A94;
-
-  --shadow-soft: 0 8px 30px rgba(0, 0, 0, 0.14);
-  --shadow-luxury: 0 18px 55px rgba(0, 0, 0, 0.18);
-}
-
-* { box-sizing: border-box; }
-
-html {
-  scroll-behavior: smooth;
-  background: var(--background);
-}
-
-body {
-  margin: 0;
-  background: var(--background);
-  color: var(--foreground);
-  font-family: 'Tajawal', Arial, sans-serif;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  transition: background-color 300ms ease, color 300ms ease;
-}
-
-button,
-input,
-textarea,
-select { font: inherit; }
-
-button { cursor: pointer; }
-
-img { max-width: 100%; }
-
-a { color: inherit; text-decoration: none; }
-
-::selection {
-  background: var(--gold);
-  color: var(--gold-contrast);
-}
-
-/* Native form controls follow the active theme. */
-input,
-textarea,
-select {
-  color-scheme: inherit;
-}
-
-/* Premium scrollbar */
-* {
-  scrollbar-width: thin;
-  scrollbar-color: #3A2F2C var(--background);
-}
-
-::-webkit-scrollbar { width: 9px; height: 9px; }
-::-webkit-scrollbar-track { background: var(--background); }
-::-webkit-scrollbar-thumb {
-  background: #3A2F2C;
-  border-radius: 999px;
-  border: 2px solid var(--background);
-}
-::-webkit-scrollbar-thumb:hover { background: #4A3B37; }
-
-.container {
-  width: min(var(--container), calc(100% - 32px));
-  margin-inline: auto;
-}
-
-.hairline { border-color: var(--line); }
-.muted { color: var(--muted); }
-.gold { color: var(--gold); }
-.surface { background: var(--surface); }
-
-.lux-card {
-  background: var(--card);
-  border: 1px solid var(--line);
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-soft);
-  transition:
-    transform var(--transition),
-    box-shadow var(--transition),
-    border-color var(--transition),
-    background-color var(--transition);
-}
-
-.lux-card:hover {
-  background: var(--card-hover);
-  border-color: color-mix(in srgb, var(--gold) 38%, var(--line));
-  box-shadow: var(--shadow-luxury);
-}
-
-.btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  min-height: 44px;
-  padding: 11px 20px;
-  border: 1px solid var(--fg);
-  border-radius: var(--radius-sm);
-  background: transparent;
-  color: var(--fg);
-  transition:
-    transform var(--transition),
-    background-color var(--transition),
-    color var(--transition),
-    border-color var(--transition),
-    box-shadow var(--transition);
-}
-
-.btn:hover {
-  transform: translateY(-1px);
-  border-color: var(--gold);
-}
-
-.btn:active { transform: translateY(0); }
-
-.btn:focus-visible,
-.input:focus-visible,
-button:focus-visible,
-a:focus-visible {
-  outline: 2px solid var(--gold);
-  outline-offset: 3px;
-}
-
-.btn-gold {
-  background: var(--gold);
-  border-color: var(--gold);
-  color: var(--gold-contrast);
-}
-
-.btn-gold:hover {
-  background: color-mix(in srgb, var(--gold) 88%, white);
-  border-color: var(--gold);
-  box-shadow: 0 8px 24px color-mix(in srgb, var(--gold) 24%, transparent);
-}
-
-.btn-dark {
-  background: #241B1A;
-  border-color: #241B1A;
-  color: #F7F2EA;
-}
-
-.dark .btn-dark {
-  background: #F7F2EA;
-  border-color: #F7F2EA;
-  color: #241B1A;
-}
-
-.input {
-  width: 100%;
-  border: 1px solid var(--line);
-  background: var(--card);
-  color: var(--fg);
-  padding: 12px 14px;
-  border-radius: var(--radius-sm);
-  outline: none;
-  transition:
-    border-color var(--transition),
-    box-shadow var(--transition),
-    background-color var(--transition);
-}
-
-.input::placeholder { color: var(--muted-foreground); }
-
-.input:focus {
-  border-color: var(--gold);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--gold) 15%, transparent);
-}
-
-.section { padding-block: 72px; }
-.section-sm { padding-block: 42px; }
-
-.section-title {
-  margin: 0;
-  font-size: clamp(1.65rem, 3vw, 2.35rem);
-  line-height: 1.25;
-  font-weight: 600;
-  letter-spacing: -0.02em;
-}
-
-.section-subtitle {
-  margin-top: 10px;
-  color: var(--muted);
-  font-size: 1rem;
-  line-height: 1.9;
-}
-
-.eyebrow {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  color: var(--gold);
-  font-size: 0.78rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-}
-
-.eyebrow::before,
-.eyebrow::after {
-  content: '';
-  width: 24px;
-  height: 1px;
-  background: currentColor;
-  opacity: 0.7;
-}
-
-.price {
-  font-variant-numeric: tabular-nums;
-  white-space: nowrap;
-}
-
-.payment-icon {
-  display: inline-flex;
-  width: 34px;
-  height: 24px;
-  padding-inline: 6px;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid var(--line);
-  border-radius: 5px;
-  background: color-mix(in srgb, var(--gold) 9%, transparent);
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: 0.2px;
-}
-
-.payment-icon svg { width: 16px; height: 16px; }
-.divider { width: 100%; height: 1px; background: var(--line); }
-.luxury-image { display: block; width: 100%; object-fit: cover; transition: transform 500ms ease; }
-.image-wrap { overflow: hidden; }
-.image-wrap:hover .luxury-image { transform: scale(1.025); }
-.text-balance { text-wrap: balance; }
-.admin-nav { display: flex; flex-wrap: wrap; gap: 6px; }
-
-@media (max-width: 700px) {
-  .container { width: calc(100% - 24px); }
-  .section { padding-block: 52px; }
-  .section-sm { padding-block: 32px; }
-  .btn { min-height: 42px; padding: 10px 14px; }
-  .lux-card { border-radius: 8px; }
-  .input { padding: 11px 12px; }
-  .admin-nav { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
-  .admin-nav button { width: 100%; font-size: 0.82rem; padding: 10px; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  html { scroll-behavior: auto; }
-  *, *::before, *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-  }
-}
-/* ===== وَهَج — Luxury Hero System ===== */
-
-.wahaj-hero {
-  position: relative;
-  isolation: isolate;
-  min-height: min(720px, 82vh);
-  overflow: hidden;
-  border-bottom: 1px solid var(--line);
-  background: var(--bg);
-}
-
-.wahaj-hero::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  z-index: -2;
-  background:
-    radial-gradient(
-      circle at 15% 25%,
-      color-mix(in srgb, var(--gold) 12%, transparent),
-      transparent 34%
-    ),
-    radial-gradient(
-      circle at 85% 75%,
-      color-mix(in srgb, var(--gold) 8%, transparent),
-      transparent 30%
-    );
-}
-
-.wahaj-hero__inner {
-  position: relative;
-  z-index: 1;
-  display: grid;
-  grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);
-  align-items: stretch;
-  gap: clamp(32px, 6vw, 88px);
-  width: min(var(--container), calc(100% - 32px));
-  min-height: min(720px, 82vh);
-  margin-inline: auto;
-  padding-block: clamp(34px, 6vw, 72px);
-}
-
-.wahaj-hero__content {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  max-width: 570px;
-}
-
-.wahaj-hero__eyebrow {
-  display: inline-flex;
-  align-items: center;
-  gap: 12px;
-  width: fit-content;
-  margin-bottom: 20px;
-  color: var(--gold);
-  font-size: 0.8rem;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-}
-
-.wahaj-hero__eyebrow::before {
-  content: '';
-  width: 34px;
-  height: 1px;
-  background: currentColor;
-}
-
-.wahaj-hero__title {
-  margin: 0;
-  max-width: 680px;
-  font-size: clamp(2.65rem, 5.4vw, 5.25rem);
-  font-weight: 600;
-  line-height: 1.16;
-  letter-spacing: -0.045em;
-  text-wrap: balance;
-}
-
-.wahaj-hero__description {
-  max-width: 540px;
-  margin-top: 24px;
-  color: var(--muted);
-  font-size: clamp(1rem, 1.5vw, 1.2rem);
-  line-height: 2;
-}
-
-.wahaj-hero__actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-top: 34px;
-}
-
-.wahaj-hero__meta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 22px;
-  margin-top: 42px;
-  padding-top: 20px;
-  border-top: 1px solid var(--line);
-  color: var(--muted);
-  font-size: 0.82rem;
-}
-
-.wahaj-hero__visual {
-  position: relative;
-  min-height: 560px;
-  overflow: hidden;
-  background: var(--surface);
-}
-
-.wahaj-hero__visual::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background:
-    linear-gradient(
-      180deg,
-      transparent 55%,
-      color-mix(in srgb, #241B1A 8%, transparent)
-    );
-}
-
-.wahaj-hero__image {
-  width: 100%;
-  height: 100%;
-  min-height: 560px;
-  display: block;
-  object-fit: cover;
-  object-position: center;
-  transition: transform 900ms cubic-bezier(.2,.65,.2,1);
-}
-
-.wahaj-hero__visual:hover .wahaj-hero__image {
-  transform: scale(1.025);
-}
-
-.wahaj-hero__frame {
-  position: absolute;
-  inset: 18px;
-  z-index: 2;
-  pointer-events: none;
-  border: 1px solid rgba(248, 245, 239, 0.48);
-}
-
-.wahaj-hero__badge {
-  position: absolute;
-  z-index: 3;
-  bottom: 28px;
-  inset-inline-start: 28px;
-  padding: 10px 14px;
-  background: rgba(23, 21, 19, 0.78);
-  color: #f8f5ef;
-  border: 1px solid rgba(200, 169, 107, 0.55);
-  backdrop-filter: blur(10px);
-  font-size: 0.78rem;
-}
-
-.dark .wahaj-hero__badge {
-  background: rgba(0, 0, 0, 0.55);
-}
-
-@media (max-width: 800px) {
-  .wahaj-hero {
-    min-height: auto;
-  }
-
-  .wahaj-hero__inner {
-    grid-template-columns: 1fr;
-    gap: 28px;
-    min-height: auto;
-    padding-block: 30px 42px;
-  }
-
-  .wahaj-hero__content {
-    max-width: none;
-    order: 1;
-  }
-
-  .wahaj-hero__visual {
-    min-height: 440px;
-    order: 2;
-  }
-
-  .wahaj-hero__image {
-    min-height: 440px;
-  }
-
-  .wahaj-hero__title {
-    font-size: clamp(2.35rem, 12vw, 3.7rem);
-  }
-
-  .wahaj-hero__description {
-    margin-top: 18px;
-    line-height: 1.9;
-  }
-
-  .wahaj-hero__actions {
-    margin-top: 26px;
-  }
-
-  .wahaj-hero__meta {
-    margin-top: 30px;
-  }
-}
-
-@media (max-width: 480px) {
-  .wahaj-hero__inner {
-    width: calc(100% - 24px);
-  }
-
-  .wahaj-hero__visual,
-  .wahaj-hero__image {
-    min-height: 390px;
-  }
-
-  .wahaj-hero__frame {
-    inset: 12px;
-  }
-
-  .wahaj-hero__badge {
-    bottom: 20px;
-    inset-inline-start: 20px;
-  }
-}
-
-/* WAHaj COLLECTIONS */
-
-/* WAHaj COLLECTIONS */
-
-.wahaj-collections{
-  padding:clamp(64px,8vw,110px) 0;
-  background:var(--bg);
-}
-
-.wahaj-collections__head{
-  max-width:760px;
-  margin:0 auto 42px;
-  text-align:center;
-}
-
-.wahaj-collections__eyebrow{
-  display:inline-flex;
-  align-items:center;
-  gap:10px;
-  margin-bottom:14px;
-  color:var(--gold);
-  font-size:12px;
-  letter-spacing:.12em;
-  font-weight:600;
-}
-
-.wahaj-collections__eyebrow::before,
-.wahaj-collections__eyebrow::after{
-  content:"";
-  width:24px;
-  height:1px;
-  background:var(--gold);
-  opacity:.65;
-}
-
-.wahaj-collections__title{
-  margin:0;
-  color:var(--fg);
-  font-size:clamp(28px,4vw,46px);
-  line-height:1.25;
-  font-weight:600;
-  letter-spacing:-.025em;
-}
-
-.wahaj-collections__subtitle{
-  max-width:620px;
-  margin:16px auto 0;
-  color:var(--muted);
-  font-size:15px;
-  line-height:1.9;
-}
-
-.wahaj-collections__grid{
-  display:grid;
-  grid-template-columns:repeat(4,minmax(0,1fr));
-  gap:16px;
-}
-
-.wahaj-collection{
-  position:relative;
-  display:block;
-  min-height:360px;
-  overflow:hidden;
-  background:var(--card);
-  border:1px solid var(--line);
-  isolation:isolate;
-}
-
-.wahaj-collection::after{
-  content:"";
-  position:absolute;
-  inset:0;
-  z-index:1;
-  background:linear-gradient(
-    to top,
-    rgba(23,21,19,.78) 0%,
-    rgba(23,21,19,.22) 42%,
-    rgba(23,21,19,0) 72%
-  );
-  pointer-events:none;
-}
-
-.wahaj-collection__image{
-  position:absolute;
-  inset:0;
-  width:100%;
-  height:100%;
-  object-fit:cover;
-  transition:transform .7s cubic-bezier(.2,.65,.2,1);
-}
-
-.wahaj-collection:hover .wahaj-collection__image{
-  transform:scale(1.045);
-}
-
-.wahaj-collection__content{
-  position:absolute;
-  right:24px;
-  left:24px;
-  bottom:22px;
-  z-index:2;
-  color:#fff;
-}
-
-.wahaj-collection__name{
-  margin:0;
-  font-size:21px;
-  font-weight:600;
-  line-height:1.4;
-}
-
-.wahaj-collection__link{
-  display:inline-flex;
-  align-items:center;
-  gap:7px;
-  margin-top:9px;
-  color:#fff;
-  font-size:12px;
-  opacity:.9;
-}
-
-.wahaj-collection__link svg{
-  transition:transform .25s ease;
-}
-
-.wahaj-collection:hover .wahaj-collection__link svg{
-  transform:translateX(-4px);
-}
-
-@media (max-width:900px){
-  .wahaj-collections__grid{
-    grid-template-columns:repeat(2,minmax(0,1fr));
-  }
-
-  .wahaj-collection{
-    min-height:330px;
-  }
-}
-
-@media (max-width:520px){
-  .wahaj-collections{
-    padding:58px 0;
-  }
-
-  .wahaj-collections__head{
-    margin-bottom:30px;
-  }
-
-  .wahaj-collections__grid{
-    grid-template-columns:repeat(2,minmax(0,1fr));
-    gap:10px;
-  }
-
-  .wahaj-collection{
-    min-height:245px;
-  }
-
-  .wahaj-collection__content{
-    right:14px;
-    left:14px;
-    bottom:14px;
-  }
-
-  .wahaj-collection__name{
-    font-size:16px;
-  }
-
-  .wahaj-collection__link{
-    font-size:11px;
-  }
-}
-
-/* WAHaj PRODUCT CARDS */
-
-/* WAHaj PRODUCT CARDS */
-
-.wahaj-products{
-  padding:clamp(64px,8vw,110px) 0;
-}
-
-.wahaj-products__head{
-  display:flex;
-  align-items:end;
-  justify-content:space-between;
-  gap:24px;
-  margin-bottom:34px;
-}
-
-.wahaj-products__eyebrow{
-  display:block;
-  margin-bottom:10px;
-  color:var(--gold);
-  font-size:12px;
-  letter-spacing:.12em;
-  font-weight:600;
-}
-
-.wahaj-products__title{
-  margin:0;
-  color:var(--fg);
-  font-size:clamp(28px,4vw,42px);
-  line-height:1.25;
-  font-weight:600;
-}
-
-.wahaj-products__subtitle{
-  max-width:520px;
-  margin:10px 0 0;
-  color:var(--muted);
-  font-size:14px;
-  line-height:1.8;
-}
-
-.wahaj-products__link{
-  display:inline-flex;
-  align-items:center;
-  gap:7px;
-  flex-shrink:0;
-  color:var(--fg);
-  border-bottom:1px solid var(--gold);
-  padding-bottom:5px;
-  font-size:13px;
-}
-
-.wahaj-product-card{
-  position:relative;
-  min-width:0;
-}
-
-.wahaj-product-card__media{
-  position:relative;
-  aspect-ratio:4/5;
-  overflow:hidden;
-  background:var(--card);
-  border:1px solid var(--line);
-}
-
-.wahaj-product-card__image{
-  width:100%;
-  height:100%;
-  object-fit:cover;
-  transition:transform .65s cubic-bezier(.2,.65,.2,1);
-}
-
-.wahaj-product-card:hover .wahaj-product-card__image{
-  transform:scale(1.035);
-}
-
-.wahaj-product-card__body{
-  padding:15px 2px 4px;
-}
-
-.wahaj-product-card__category{
-  display:block;
-  margin-bottom:5px;
-  color:var(--muted);
-  font-size:11px;
-}
-
-.wahaj-product-card__name{
-  margin:0;
-  color:var(--fg);
-  font-size:15px;
-  line-height:1.6;
-  font-weight:500;
-}
-
-.wahaj-product-card__price{
-  display:flex;
-  align-items:center;
-  flex-wrap:wrap;
-  gap:8px;
-  margin-top:8px;
-}
-
-.wahaj-product-card__current{
-  color:var(--fg);
-  font-size:14px;
-  font-weight:600;
-}
-
-.wahaj-product-card__compare{
-  color:var(--muted);
-  font-size:12px;
-  text-decoration:line-through;
-}
-
-.wahaj-product-card__badge{
-  position:absolute;
-  top:12px;
-  right:12px;
-  z-index:2;
-  padding:5px 9px;
-  background:rgba(248,245,239,.94);
-  color:var(--fg);
-  border:1px solid rgba(200,169,107,.55);
-  font-size:10px;
-  font-weight:600;
-}
-
-.dark .wahaj-product-card__badge{
-  background:rgba(23,21,19,.92);
-  color:var(--fg);
-}
-
-.wahaj-product-card__actions{
-  position:absolute;
-  left:12px;
-  bottom:12px;
-  z-index:3;
-  display:flex;
-  gap:7px;
-}
-
-.wahaj-product-card__action{
-  display:grid;
-  width:36px;
-  height:36px;
-  place-items:center;
-  background:rgba(255,255,255,.94);
-  color:#241B1A;
-  border:1px solid rgba(23,21,19,.1);
-  transition:transform .2s ease,background .2s ease;
-}
-
-.wahaj-product-card__action:hover{
-  transform:translateY(-2px);
-  background:#fff;
-}
-
-.dark .wahaj-product-card__action{
-  background:rgba(33,30,27,.94);
-  color:#F7F2EA;
-  border-color:rgba(248,245,239,.12);
-}
-
-@media (max-width:700px){
-  .wahaj-products{
-    padding:58px 0;
-  }
-
-  .wahaj-products__head{
-    align-items:start;
-    margin-bottom:26px;
-  }
-
-  .wahaj-products__link{
-    font-size:12px;
-  }
-
-  .wahaj-product-card__body{
-    padding-top:11px;
-  }
-
-  .wahaj-product-card__name{
-    font-size:14px;
-  }
-
-  .wahaj-product-card__actions{
-    left:8px;
-    bottom:8px;
-  }
-
-  .wahaj-product-card__action{
-    width:32px;
-    height:32px;
-  }
-}
-
-/* WAHaj TRUST BAR */
-
-/* WAHaj TRUST BAR */
-
-.wahaj-trust{
-  margin:0 auto;
-  padding:26px 0;
-  border-top:1px solid var(--line);
-  border-bottom:1px solid var(--line);
-}
-
-.wahaj-trust__grid{
-  display:grid;
-  grid-template-columns:repeat(4,minmax(0,1fr));
-}
-
-.wahaj-trust__item{
-  position:relative;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  gap:13px;
-  min-height:72px;
-  padding:12px 20px;
-  text-align:right;
-}
-
-.wahaj-trust__item:not(:last-child)::after{
-  content:"";
-  position:absolute;
-  inset-inline-end:0;
-  top:15%;
-  width:1px;
-  height:70%;
-  background:var(--line);
-}
-
-.wahaj-trust__icon{
-  display:grid;
-  width:42px;
-  height:42px;
-  flex:0 0 42px;
-  place-items:center;
-  border:1px solid rgba(200,169,107,.55);
-  border-radius:50%;
-  color:var(--gold);
-}
-
-.wahaj-trust__title{
-  margin:0;
-  color:var(--fg);
-  font-size:13px;
-  font-weight:600;
-  line-height:1.5;
-}
-
-.wahaj-trust__text{
-  margin:3px 0 0;
-  color:var(--muted);
-  font-size:11px;
-  line-height:1.6;
-}
-
-@media (max-width:700px){
-  .wahaj-trust{
-    padding:10px 0;
-  }
-
-  .wahaj-trust__grid{
-    grid-template-columns:repeat(2,minmax(0,1fr));
-  }
-
-  .wahaj-trust__item{
-    justify-content:flex-start;
-    min-height:76px;
-    padding:12px 8px;
-  }
-
-  .wahaj-trust__item:nth-child(2)::after{
-    display:none;
-  }
-
-  .wahaj-trust__item:nth-child(-n+2){
-    border-bottom:1px solid var(--line);
-  }
-
-  .wahaj-trust__icon{
-    width:36px;
-    height:36px;
-    flex-basis:36px;
-  }
-}
-
-@media (max-width:420px){
-  .wahaj-trust__item{
-    gap:9px;
-  }
-
-  .wahaj-trust__title{
-    font-size:12px;
-  }
-
-  .wahaj-trust__text{
-    font-size:10px;
-  }
-}
-
-/* WAHaj PRODUCTS SECTION */
-
-.wahaj-products{
-  padding:72px 0;
-}
-
-.wahaj-products__head{
-  display:flex;
-  align-items:flex-end;
-  justify-content:space-between;
-  gap:24px;
-  margin-bottom:32px;
-}
-
-.wahaj-products__eyebrow{
-  display:block;
-  margin-bottom:8px;
-  color:var(--gold);
-  font-size:11px;
-  font-weight:600;
-  letter-spacing:.08em;
-}
-
-.wahaj-products__title{
-  margin:0;
-  color:var(--fg);
-  font-size:clamp(26px,3vw,38px);
-  font-weight:600;
-  line-height:1.25;
-}
-
-.wahaj-products__subtitle{
-  max-width:520px;
-  margin:10px 0 0;
-  color:var(--muted);
-  font-size:14px;
-  line-height:1.9;
-}
-
-.wahaj-products__link{
-  display:inline-flex;
-  align-items:center;
-  gap:6px;
-  flex-shrink:0;
-  padding-bottom:6px;
-  border-bottom:1px solid var(--gold);
-  color:var(--fg);
-  font-size:13px;
-  transition:all .25s ease;
-}
-
-.wahaj-products__link:hover{
-  color:var(--gold);
-  border-color:var(--fg);
-}
-
-@media (max-width:700px){
-  .wahaj-products{
-    padding:52px 0;
-  }
-
-  .wahaj-products__head{
-    align-items:flex-start;
-    margin-bottom:24px;
-  }
-
-  .wahaj-products__title{
-    font-size:25px;
-  }
-
-  .wahaj-products__subtitle{
-    font-size:12px;
-  }
-
-  .wahaj-products__link{
-    margin-top:3px;
-    font-size:11px;
-  }
-}
-
-/* WAHaj FOOTER */
-
-.wahaj-footer{
-  margin-top:0;
-  padding:72px 0 24px;
-  background:#241B1A;
-  color:#F7F2EA;
-}
-
-.wahaj-footer__main{
-  display:grid;
-  grid-template-columns:1.5fr 1fr 1fr 1.15fr;
-  gap:48px;
-  padding-bottom:52px;
-}
-
-.wahaj-footer__brand{
-  max-width:330px;
-}
-
-.wahaj-footer__logo{
-  display:block;
-  font-size:30px;
-  font-weight:600;
-  letter-spacing:.02em;
-}
-
-.wahaj-footer__bio{
-  margin-top:18px;
-  color:rgba(248,245,239,.65);
-  font-size:13px;
-  line-height:2;
-}
-
-.wahaj-footer__tagline{
-  margin-top:12px;
-  color:var(--gold);
-  font-size:12px;
-}
-
-.wahaj-footer__column h3{
-  margin:0 0 18px;
-  color:#F7F2EA;
-  font-size:13px;
-  font-weight:600;
-}
-
-.wahaj-footer__links{
-  display:grid;
-  gap:11px;
-}
-
-.wahaj-footer__links a{
-  width:max-content;
-  max-width:100%;
-  color:rgba(248,245,239,.62);
-  font-size:12px;
-  line-height:1.7;
-  transition:color .2s ease;
-}
-
-.wahaj-footer__links a:hover{
-  color:var(--gold);
-}
-
-.wahaj-footer__payment-text{
-  margin:0;
-  max-width:220px;
-  color:rgba(248,245,239,.55);
-  font-size:11px;
-  line-height:1.8;
-}
-
-.wahaj-footer__payments{
-  display:flex;
-  flex-wrap:wrap;
-  gap:7px;
-  margin-top:18px;
-}
-
-.wahaj-footer__payments .payment-icon{
-  min-height:30px;
-  padding:6px 8px;
-  border:1px solid rgba(248,245,239,.18);
-  border-radius:3px;
-  color:rgba(248,245,239,.75);
-  font-size:8px;
-  letter-spacing:.03em;
-}
-
-.wahaj-footer__bottom{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:20px;
-  padding-top:22px;
-  border-top:1px solid rgba(248,245,239,.12);
-  color:rgba(248,245,239,.42);
-  font-size:10px;
-  line-height:1.7;
-}
-
-@media (max-width:800px){
-  .wahaj-footer{
-    padding:54px 0 80px;
-  }
-
-  .wahaj-footer__main{
-    grid-template-columns:repeat(2,minmax(0,1fr));
-    gap:36px 24px;
-    padding-bottom:36px;
-  }
-
-  .wahaj-footer__brand{
-    grid-column:1/-1;
-    max-width:100%;
-  }
-}
-
-@media (max-width:480px){
-  .wahaj-footer{
-    padding-top:46px;
-  }
-
-  .wahaj-footer__main{
-    grid-template-columns:1fr 1fr;
-    gap:30px 18px;
-  }
-
-  .wahaj-footer__logo{
-    font-size:27px;
-  }
-
-  .wahaj-footer__links a{
-    font-size:11px;
-  }
-
-  .wahaj-footer__bottom{
-    align-items:flex-start;
-    flex-direction:column;
-    gap:7px;
-  }
-}
-
-/* WAHaj HEADER */
-
-.wahaj-header{
-  position:sticky;
-  top:0;
-  z-index:40;
-  border-bottom:1px solid var(--line);
-  background:color-mix(in srgb,var(--bg) 94%,transparent);
-  backdrop-filter:blur(18px);
-  -webkit-backdrop-filter:blur(18px);
-}
-
-.wahaj-header__inner{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  min-height:76px;
-  gap:24px;
-}
-
-.wahaj-header__brand{
-  display:flex;
-  align-items:center;
-  gap:12px;
-  flex-shrink:0;
-}
-
-.wahaj-header__menu{
-  display:grid;
-  width:38px;
-  height:38px;
-  place-items:center;
-  border:1px solid var(--line);
-  border-radius:50%;
-  color:var(--fg);
-}
-
-.wahaj-header__logo{
-  display:flex;
-  align-items:baseline;
-  gap:7px;
-  color:var(--fg);
-  text-decoration:none;
-}
-
-.wahaj-header__logo span{
-  font-size:25px;
-  font-weight:600;
-  letter-spacing:.02em;
-}
-
-.wahaj-header__logo small{
-  color:var(--gold);
-  font-size:10px;
-  letter-spacing:.08em;
-}
-
-.wahaj-header__nav{
-  align-items:center;
-  justify-content:center;
-  gap:28px;
-  margin-inline:auto;
-}
-
-.wahaj-header__nav a{
-  position:relative;
-  padding:8px 0;
-  color:var(--fg);
-  font-size:12px;
-  white-space:nowrap;
-  transition:color .2s ease;
-}
-
-.wahaj-header__nav a::after{
-  content:"";
-  position:absolute;
-  right:0;
-  bottom:0;
-  left:0;
-  height:1px;
-  background:var(--gold);
-  transform:scaleX(0);
-  transform-origin:right;
-  transition:transform .25s ease;
-}
-
-.wahaj-header__nav a:hover{
-  color:var(--gold);
-}
-
-.wahaj-header__nav a:hover::after{
-  transform:scaleX(1);
-}
-
-.wahaj-header__actions{
-  display:flex;
-  align-items:center;
-  gap:6px;
-  flex-shrink:0;
-}
-
-.wahaj-header__action{
-  position:relative;
-  display:grid;
-  width:38px;
-  height:38px;
-  place-items:center;
-  border:1px solid transparent;
-  border-radius:50%;
-  color:var(--fg);
-  transition:
-    color .2s ease,
-    background .2s ease,
-    border-color .2s ease;
-}
-
-.wahaj-header__action:hover{
-  border-color:var(--line);
-  background:color-mix(in srgb,var(--card) 70%,transparent);
-  color:var(--gold);
-}
-
-.wahaj-header__cart-count{
-  position:absolute;
-  top:-2px;
-  inset-inline-end:-2px;
-  display:grid;
-  min-width:17px;
-  height:17px;
-  padding:0 4px;
-  place-items:center;
-  border:2px solid var(--bg);
-  border-radius:999px;
-  background:var(--gold);
-  color:#241B1A;
-  font-size:9px;
-  font-weight:700;
-  line-height:1;
-}
-
-@media (max-width:800px){
-  .wahaj-header__inner{
-    min-height:68px;
-    gap:10px;
-  }
-
-  .wahaj-header__logo span{
-    font-size:22px;
-  }
-
-  .wahaj-header__logo small{
-    font-size:9px;
-  }
-
-  .wahaj-header__actions{
-    gap:2px;
-  }
-
-  .wahaj-header__action{
-    width:36px;
-    height:36px;
-  }
-}
-
-@media (max-width:420px){
-  .wahaj-header__logo small{
-    display:none;
-  }
-
-  .wahaj-header__action{
-    width:34px;
-    height:34px;
-  }
-
-  .wahaj-header__actions{
-    gap:0;
-  }
-}
-
-/* =========================================
-   WAHaj Luxury Header 2.0
-   ========================================= */
-
-.wahaj-header--luxury{
-  background:color-mix(in srgb,var(--bg) 96%,transparent);
-  border-bottom:0;
-  box-shadow:0 1px 0 rgba(23,21,19,.05);
-}
-
-.wahaj-header--luxury .wahaj-header__inner{
-  min-height:82px;
-  gap:30px;
-}
-
-.wahaj-header--luxury .wahaj-header__brand{
-  min-width:145px;
-}
-
-.wahaj-header--luxury .wahaj-header__logo{
-  flex-direction:column;
-  align-items:flex-start;
-  gap:1px;
-  line-height:1;
-}
-
-.wahaj-header--luxury .wahaj-header__logo span{
-  font-size:29px;
-  font-weight:600;
-  letter-spacing:.01em;
-  line-height:1.1;
-}
-
-.wahaj-header--luxury .wahaj-header__logo small{
-  margin-top:3px;
-  color:var(--gold);
-  font-size:9px;
-  font-weight:500;
-  letter-spacing:.22em;
-  text-transform:uppercase;
-}
-
-.wahaj-header--luxury .wahaj-header__nav{
-  flex:1;
-  gap:32px;
-}
-
-.wahaj-header--luxury .wahaj-header__nav a{
-  padding:10px 0;
-  color:var(--fg);
-  font-size:12px;
-  font-weight:500;
-  letter-spacing:.01em;
-}
-
-.wahaj-header--luxury .wahaj-header__actions{
-  gap:3px;
-}
-
-.wahaj-header--luxury .wahaj-header__action{
-  width:40px;
-  height:40px;
-  border:1px solid transparent;
-  transition:
-    color .25s ease,
-    background .25s ease,
-    border-color .25s ease,
-    transform .25s ease;
-}
-
-.wahaj-header--luxury .wahaj-header__action:hover{
-  transform:translateY(-1px);
-  border-color:rgba(200,169,107,.28);
-  background:rgba(200,169,107,.07);
-  color:var(--gold);
-}
-
-.wahaj-header--luxury .wahaj-header__cart-count{
-  top:-1px;
-  inset-inline-end:-1px;
-  min-width:17px;
-  height:17px;
-  border:2px solid var(--bg);
-  background:var(--gold);
-  color:#241B1A;
-  font-size:8px;
-}
-
-.wahaj-header--luxury .wahaj-header__menu{
-  width:40px;
-  height:40px;
-  border:1px solid var(--line);
-  border-radius:50%;
-  transition:
-    border-color .25s ease,
-    color .25s ease,
-    background .25s ease;
-}
-
-.wahaj-header--luxury .wahaj-header__menu:hover{
-  border-color:var(--gold);
-  color:var(--gold);
-  background:rgba(200,169,107,.06);
-}
-
-.wahaj-header__accent{
-  height:1px;
-  width:100%;
-  background:linear-gradient(
-    90deg,
-    transparent 0%,
-    rgba(200,169,107,.10) 20%,
-    rgba(200,169,107,.45) 50%,
-    rgba(200,169,107,.10) 80%,
-    transparent 100%
-  );
-}
-
-@media (max-width:1100px){
-  .wahaj-header--luxury .wahaj-header__nav{
-    gap:20px;
-  }
-
-  .wahaj-header--luxury .wahaj-header__brand{
-    min-width:125px;
-  }
-
-  .wahaj-header--luxury .wahaj-header__logo span{
-    font-size:26px;
-  }
-}
-
-@media (max-width:800px){
-  .wahaj-header--luxury .wahaj-header__inner{
-    min-height:72px;
-    gap:10px;
-  }
-
-  .wahaj-header--luxury .wahaj-header__brand{
-    min-width:auto;
-    flex:1;
-  }
-
-  .wahaj-header--luxury .wahaj-header__logo{
-    margin-inline:auto;
-    align-items:center;
-  }
-
-  .wahaj-header--luxury .wahaj-header__logo span{
-    font-size:24px;
-  }
-
-  .wahaj-header--luxury .wahaj-header__logo small{
-    font-size:8px;
-    letter-spacing:.18em;
-  }
-
-  .wahaj-header--luxury .wahaj-header__actions{
-    gap:1px;
-  }
-
-  .wahaj-header--luxury .wahaj-header__action{
-    width:35px;
-    height:35px;
-  }
-
-  .wahaj-header--luxury .wahaj-header__menu{
-    width:38px;
-    height:38px;
-  }
-
-  .wahaj-header__accent{
-    background:linear-gradient(
-      90deg,
-      transparent,
-      rgba(200,169,107,.38),
-      transparent
-    );
-  }
-}
-
-@media (max-width:480px){
-  .wahaj-header--luxury .wahaj-header__logo small{
-    display:none;
-  }
-
-  .wahaj-header--luxury .wahaj-header__action{
-    width:33px;
-    height:33px;
-  }
-
-  .wahaj-header--luxury .wahaj-header__menu{
-    width:36px;
-    height:36px;
-  }
-}
-
-
-
-/* =========================================================
-   وَهَج — Unified Product Presentation
-   Shared by homepage product sections + shop
-   ========================================================= */
-
-.wahaj-product-grid {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 24px;
-}
-
-.wahaj-product-card {
-  position: relative;
-  min-width: 0;
-  overflow: hidden;
-  background: var(--card);
-  border: 1px solid var(--line);
-  border-radius: 22px;
-  box-shadow: var(--shadow-soft);
-  transition:
-    transform 360ms cubic-bezier(.2,.65,.2,1),
-    box-shadow 360ms ease,
-    border-color 360ms ease,
-    background-color 360ms ease;
-}
-
-.wahaj-product-card:hover {
-  transform: translateY(-6px);
-  border-color: color-mix(in srgb, var(--gold) 42%, var(--line));
-  box-shadow: var(--shadow-luxury);
-}
-
-.wahaj-product-card__media {
-  position: relative;
-  aspect-ratio: 4 / 5;
-  overflow: hidden;
-  background: var(--surface);
-}
-
-.wahaj-product-card__image {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: transform 750ms cubic-bezier(.2,.65,.2,1), filter 500ms ease;
-}
-
-.wahaj-product-card:hover .wahaj-product-card__image {
-  transform: scale(1.055);
-}
-
-.wahaj-product-card__media::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background: linear-gradient(
-    to bottom,
-    rgba(0,0,0,.20),
-    transparent 22%,
-    transparent 58%,
-    rgba(0,0,0,.34)
-  );
-  opacity: .72;
-}
-
-.wahaj-product-card__top {
-  position: absolute;
-  z-index: 3;
-  top: 12px;
-  inset-inline: 12px;
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 8px;
-  direction: ltr;
-}
-
-.wahaj-product-card__top > * {
-  direction: rtl;
-}
-
-.wahaj-product-card__discount {
-  display: inline-flex;
-  align-items: center;
-  min-height: 30px;
-  padding: 0 10px;
-  border: 1px solid rgba(255,255,255,.24);
-  border-radius: 999px;
-  background: color-mix(in srgb, var(--foreground) 88%, transparent);
-  color: var(--background);
-  font-size: 10px;
-  font-weight: 800;
-  letter-spacing: .02em;
-  backdrop-filter: blur(10px);
-}
-
-.wahaj-product-card__actions {
-  position: absolute;
-  z-index: 4;
-  inset-inline: 12px;
-  bottom: 12px;
-  display: flex;
-  gap: 8px;
-  opacity: 0;
-  transform: translateY(10px);
-  transition: opacity 300ms ease, transform 300ms ease;
-}
-
-.wahaj-product-card:hover .wahaj-product-card__actions,
-.wahaj-product-card:focus-within .wahaj-product-card__actions {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-.wahaj-product-card__action {
-  display: inline-flex;
-  flex: 1;
-  min-height: 38px;
-  align-items: center;
-  justify-content: center;
-  gap: 7px;
-  border: 1px solid rgba(255,255,255,.24);
-  border-radius: 12px;
-  background: rgba(20,16,14,.76);
-  color: #fff;
-  font-size: 11px;
-  font-weight: 700;
-  backdrop-filter: blur(12px);
-  transition: background-color 200ms ease, color 200ms ease, border-color 200ms ease;
-}
-
-.wahaj-product-card__action:hover {
-  background: var(--gold);
-  border-color: var(--gold);
-  color: var(--gold-contrast);
-}
-
-.wahaj-product-card__soldout {
-  position: absolute;
-  z-index: 4;
-  inset: 50% auto auto 50%;
-  transform: translate(-50%, -50%);
-  padding: 8px 14px;
-  border: 1px solid rgba(255,255,255,.28);
-  border-radius: 999px;
-  background: rgba(20,16,14,.78);
-  color: #fff;
-  font-size: 11px;
-  font-weight: 700;
-  backdrop-filter: blur(12px);
-}
-
-.wahaj-product-card__body {
-  padding: 17px 17px 18px;
-  text-align: right;
-}
-
-.wahaj-product-card__category {
-  margin-bottom: 7px;
-  color: var(--gold-muted);
-  font-size: 10px;
-  font-weight: 800;
-  letter-spacing: .11em;
-  text-transform: uppercase;
-}
-
-.wahaj-product-card__title {
-  margin: 0;
-  min-height: 1.7em;
-  overflow: hidden;
-  color: var(--foreground);
-  font-size: 15px;
-  font-weight: 600;
-  line-height: 1.7;
-  display: -webkit-box;
-  -webkit-line-clamp: 1;
-  -webkit-box-orient: vertical;
-  transition: color 200ms ease;
-}
-
-.wahaj-product-card:hover .wahaj-product-card__title {
-  color: var(--gold);
-}
-
-.wahaj-product-card__price-row {
-  display: flex;
-  align-items: baseline;
-  flex-wrap: wrap;
-  gap: 9px;
-  margin-top: 9px;
-}
-
-.wahaj-product-card__price {
-  color: var(--gold);
-  font-size: 17px;
-  font-weight: 800;
-  font-variant-numeric: tabular-nums;
-}
-
-.wahaj-product-card__old-price {
-  color: var(--muted-foreground);
-  font-size: 11px;
-  font-variant-numeric: tabular-nums;
-}
-
-.wahaj-product-card__availability {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  margin-top: 8px;
-  color: var(--muted-foreground);
-  font-size: 10px;
-  font-weight: 500;
-}
-
-.wahaj-product-card__dot {
-  width: 6px;
-  height: 6px;
-  flex: 0 0 6px;
-  border-radius: 50%;
-  background: var(--success);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--success) 13%, transparent);
-}
-
-.wahaj-product-card__dot.is-low {
-  background: var(--warning);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--warning) 13%, transparent);
-}
-
-.wahaj-product-card__dot.is-out {
-  background: var(--danger);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--danger) 13%, transparent);
-}
-
-.wahaj-product-card__cart {
-  margin-top: 14px;
-  padding-top: 13px;
-  border-top: 1px solid var(--line);
-}
-
-.wahaj-product-card__cart button {
-  min-height: 43px;
-  border-radius: 12px;
-  box-shadow: none;
-}
-
-.wahaj-products-section {
-  padding-block: clamp(58px, 7vw, 92px);
-}
-
-.wahaj-products-section__head {
-  display: flex;
-  align-items: end;
-  justify-content: space-between;
-  gap: 24px;
-  margin-bottom: 30px;
-  text-align: right;
-}
-
-.wahaj-shop-page {
-  min-height: 70vh;
-}
-
-.wahaj-shop-page__hero {
-  position: relative;
-  margin-bottom: 28px;
-  padding: clamp(26px, 4vw, 42px);
-  overflow: hidden;
-  border: 1px solid var(--line);
-  border-radius: 26px;
-  background:
-    radial-gradient(circle at 10% 10%, color-mix(in srgb, var(--gold) 10%, transparent), transparent 35%),
-    var(--surface);
-}
-
-.wahaj-shop-page__hero::after {
-  content: '';
-  position: absolute;
-  width: 210px;
-  height: 210px;
-  inset-inline-start: -70px;
-  bottom: -120px;
-  border: 1px solid color-mix(in srgb, var(--gold) 24%, transparent);
-  border-radius: 50%;
-  pointer-events: none;
-}
-
-.wahaj-shop-page__filters {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 9px;
-  margin-top: 20px;
-  padding-bottom: 4px;
-}
-
-.wahaj-shop-page__filters a {
-  border-radius: 999px;
-  transition: transform 200ms ease, background-color 200ms ease, border-color 200ms ease;
-}
-
-.wahaj-shop-page__filters a:hover {
-  transform: translateY(-1px);
-}
-
-.wahaj-product-modal {
-  background: rgba(14, 11, 10, .68);
-  backdrop-filter: blur(12px);
-}
-
-.wahaj-product-modal__panel {
-  position: relative;
-  overflow: hidden;
-  border: 1px solid color-mix(in srgb, var(--gold) 32%, var(--line));
-  border-radius: 24px;
-  background: var(--card);
-  color: var(--foreground);
-  box-shadow: 0 30px 100px rgba(0,0,0,.28);
-}
-
-.wahaj-product-modal__image {
-  min-height: 420px;
-  background: var(--surface);
-}
-
-.wahaj-product-modal__image img {
-  width: 100%;
-  height: 100%;
-  min-height: 420px;
-  display: block;
-  object-fit: cover;
-}
-
-.wahaj-product-modal__close {
-  position: absolute;
-  z-index: 5;
-  top: 14px;
-  inset-inline-end: 14px;
-  display: grid;
-  width: 38px;
-  height: 38px;
-  place-items: center;
-  border: 1px solid rgba(255,255,255,.24);
-  border-radius: 50%;
-  background: rgba(20,16,14,.68);
-  color: #fff;
-  backdrop-filter: blur(10px);
-}
-
-.wahaj-product-modal__details {
-  display: flex;
-  min-height: 48px;
-  align-items: center;
-  justify-content: center;
-  border-radius: 13px;
-  background: var(--gold);
-  color: var(--gold-contrast);
-  font-size: 13px;
-  font-weight: 800;
-  transition: transform 200ms ease, opacity 200ms ease;
-}
-
-.wahaj-product-modal__details:hover {
-  transform: translateY(-1px);
-  opacity: .92;
-}
-
-@media (max-width: 1024px) {
-  .wahaj-product-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-}
-
-@media (max-width: 700px) {
-  .wahaj-product-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 12px;
-  }
-
-  .wahaj-product-card {
-    border-radius: 16px;
-  }
-
-  .wahaj-product-card__media {
-    aspect-ratio: 4 / 5;
-  }
-
-  .wahaj-product-card__body {
-    padding: 13px 12px 14px;
-  }
-
-  .wahaj-product-card__title {
-    font-size: 13px;
-  }
-
-  .wahaj-product-card__price {
-    font-size: 15px;
-  }
-
-  .wahaj-product-card__availability {
-    font-size: 9px;
-  }
-
-  .wahaj-product-card__actions {
-    opacity: 1;
-    transform: none;
-  }
-
-  .wahaj-product-card__action {
-    min-height: 34px;
-    font-size: 9px;
-    border-radius: 10px;
-  }
-
-  .wahaj-product-card__action span {
-    display: none;
-  }
-
-  .wahaj-product-card__cart {
-    margin-top: 11px;
-    padding-top: 10px;
-  }
-
-  .wahaj-product-card__cart button {
-    min-height: 39px;
-    padding-inline: 8px;
-    font-size: 11px;
-  }
-
-  .wahaj-products-section__head {
-    display: block;
-    margin-bottom: 24px;
-  }
-
-  .wahaj-shop-page__hero {
-    padding: 22px 18px;
-    border-radius: 20px;
-  }
-
-  .wahaj-product-modal__image,
-  .wahaj-product-modal__image img {
-    min-height: 300px;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .wahaj-product-card,
-  .wahaj-product-card__image,
-  .wahaj-product-card__actions,
-  .wahaj-product-card__action {
-    transition: none !important;
-  }
-}
-👀
-
-تم تجهيز التعديل الكامل مرة واحدة، مع الحفاظ على النسخة الأخيرة من globals.css وإضافة التصميم الجديد عليها بدون حذف التعديلات السابقة.
-
-الملفات المعدلة فقط:
-
-Store.tsx
-
-globals.css
-
-
-Store.tsx
-Code
-
-
-globals.css
-Code
-
-
-No file chosen
-Library
-/
-Store.tsx
-
-
-
-1
-2
-3
-4
-5
-6
-7
-8
-9
-10
-11
-12
-13
-14
-15
-16
-17
-18
-19
-20
-21
-22
-23
-24
-25
-26
-27
-28
-29
-30
-31
-32
-33
-34
-35
-36
-37
-38
 "use client";
 
 import {
@@ -2284,3 +36,291 @@ function SectionHeading({
 }
 
 function ProductsSection({
+  data,
+  title = "الأكثر تألقًا",
+  subtitle = "اختيارات وَهَج",
+}: {
+  data: any;
+  title?: string;
+  subtitle?: string;
+}) {
+  const products = Array.isArray(data?.products) ? data.products : [];
+
+  return (
+    <section className="wahaj-products-section">
+      <div className="container">
+        <SectionHeading
+          eyebrow={subtitle}
+          title={title}
+          subtitle="قطع مختارة بعناية، تجمع بين الأناقة الهادئة والتفاصيل التي تصنع حضورك."
+          align="right"
+        />
+        <div className="wahaj-products-section__toolbar">
+          <span className="wahaj-products-section__count">
+            {products.length.toLocaleString("ar-EG")} منتجات مختارة
+          </span>
+          <a href="/shop" className="wahaj-products-section__link">
+            اكتشفي المتجر
+            <ArrowLeft size={15} />
+          </a>
+        </div>
+        {products.length > 0 ? (
+          <div className="wahaj-product-grid">
+            {products.map((p: any) => (
+              <ProductCard key={p.id} product={p} />
+            ))}
+          </div>
+        ) : (
+          <div className="wahaj-empty-state">سيتم عرض المنتجات المختارة هنا قريبًا.</div>
+        )}
+      </div>
+    </section>
+  );
+}
+
+export default function Store({ data }: { data: any }) {
+  const s = data?.settings || {};
+  const now = Date.now();
+  const sections = (Array.isArray(data?.sections) ? data.sections : [])
+    .filter(
+      (x: any) =>
+        x.visible !== false &&
+        x.isVisible !== false &&
+        (!x.startsAt || new Date(x.startsAt).getTime() <= now) &&
+        (!x.endsAt || new Date(x.endsAt).getTime() >= now),
+    )
+    .sort((a: any, b: any) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0));
+
+  const categories = Array.isArray(data?.categories) ? data.categories : [];
+  const offers = Array.isArray(data?.offers) ? data.offers : [];
+
+  return (
+    <div className="wahaj-storefront" dir="rtl">
+      <main>
+        {sections.map((sec: any) => {
+          if (sec.type === "hero") {
+            const image =
+              sec.imageUrl || data?.products?.[0]?.images?.[0]?.url || "/placeholder.svg";
+
+            return (
+              <section key={sec.id} className="wahaj-hero">
+                <div className="wahaj-hero__ornament" aria-hidden="true" />
+                <div className="wahaj-hero__inner">
+                  <div className="wahaj-hero__content">
+                    <span className="wahaj-hero__eyebrow">
+                      {sec.badge || "وَهَج — تفاصيل تصنع الفرق"}
+                    </span>
+                    <h1 className="wahaj-hero__title">
+                      {sec.title || "لأن أناقتك تستحق أن تتألّق"}
+                    </h1>
+                    <p className="wahaj-hero__description">
+                      {sec.subtitle ||
+                        "قطع مختارة بعناية لتضيف لمسة من الوهج والفخامة إلى كل إطلالة."}
+                    </p>
+                    <div className="wahaj-hero__actions">
+                      <a href={sec.ctaUrl || "/shop"} className="wahaj-hero__primary">
+                        {sec.ctaText || "اكتشفي المجموعة"}
+                        <ChevronLeft size={18} />
+                      </a>
+                      <a href="/shop" className="wahaj-hero__secondary">
+                        تسوقي الآن
+                        <ArrowLeft size={16} />
+                      </a>
+                    </div>
+                    <div className="wahaj-hero__meta">
+                      <span><Check size={14} /> مختارات بعناية</span>
+                      <span><Check size={14} /> جودة تليق بك</span>
+                      <span><Check size={14} /> تجربة تسوق راقية</span>
+                    </div>
+                  </div>
+
+                  <div className="wahaj-hero__visual">
+                    <img src={image} alt="مجموعة وَهَج" className="wahaj-hero__image" />
+                    <div className="wahaj-hero__frame" aria-hidden="true" />
+                    <div className="wahaj-hero__badge">
+                      <Sparkles size={14} />
+                      <span>مصممة لتبقى في الذاكرة</span>
+                    </div>
+                  </div>
+                </div>
+              </section>
+            );
+          }
+
+          if (sec.type === "story" || sec.type === "brandStory") {
+            return (
+              <section key={sec.id} className="wahaj-story">
+                <div className="wahaj-story__glow" aria-hidden="true" />
+                <div className="container">
+                  <div className="wahaj-story__inner">
+                    <div className="wahaj-story__mark" aria-hidden="true">و</div>
+                    <SectionHeading
+                      eyebrow="قصة وَهَج"
+                      title={sec.title || "تفاصيل صغيرة تصنع وهجًا كبيرًا."}
+                      subtitle={
+                        sec.subtitle ||
+                        s.brand_story ||
+                        "نؤمن بأن الجمال الحقيقي يكمن في التفاصيل الدقيقة التي تعكس شخصيتك الفريدة."
+                      }
+                    />
+                    <div className="wahaj-story__line" aria-hidden="true" />
+                    <a href={sec.ctaUrl || "/about"} className="wahaj-story__link">
+                      تعرّفي على قصة وَهَج
+                      <ArrowLeft size={16} />
+                    </a>
+                  </div>
+                </div>
+              </section>
+            );
+          }
+
+          if (sec.type === "collections" || sec.type === "categories") {
+            return (
+              <section id="collections" key={sec.id} className="wahaj-collections">
+                <div className="container">
+                  <SectionHeading
+                    eyebrow={sec.eyebrow || "اكتشفي عالم وَهَج"}
+                    title={sec.title || "اختاري ما يشبهك"}
+                    subtitle={
+                      sec.subtitle ||
+                      sec.description ||
+                      "مجموعات مختارة بعناية لتمنح كل إطلالة لمستها الخاصة من الرقي والفخامة."
+                    }
+                  />
+                  <div className="wahaj-collections__grid">
+                    {categories.map((c: any, index: number) => (
+                      <a
+                        key={c.id}
+                        href={`/shop?category=${c.slug}`}
+                        className="wahaj-collection"
+                      >
+                        <img
+                          src={c.imageUrl || data?.products?.[0]?.images?.[0]?.url || "/placeholder.svg"}
+                          alt={c.name}
+                          loading="lazy"
+                          className="wahaj-collection__image"
+                        />
+                        <span className="wahaj-collection__shade" aria-hidden="true" />
+                        <span className="wahaj-collection__number">
+                          {String(index + 1).padStart(2, "0")}
+                        </span>
+                        <span className="wahaj-collection__content">
+                          <span className="wahaj-collection__name">{c.name}</span>
+                          <span className="wahaj-collection__link">
+                            اكتشفي المجموعة
+                            <ChevronLeft size={15} />
+                          </span>
+                        </span>
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              </section>
+            );
+          }
+
+          if (sec.type === "products" || sec.type === "featured") {
+            return (
+              <ProductsSection
+                key={sec.id}
+                data={data}
+                title={sec.title || "الأكثر تألقًا"}
+                subtitle={sec.subtitle || "اختيارات وَهَج"}
+              />
+            );
+          }
+
+          if (sec.type === "offers") {
+            return (
+              <section id="offers" key={sec.id} className="wahaj-offers">
+                <div className="container">
+                  <div className="wahaj-offers__shell">
+                    <div className="wahaj-offers__head">
+                      <SectionHeading
+                        eyebrow={sec.eyebrow || "عروض مختارة"}
+                        title={sec.title || "لمعتك تبدأ من التفاصيل"}
+                        subtitle={
+                          sec.subtitle ||
+                          sec.description ||
+                          "فرص مختارة لفترة محدودة، بتفاصيل تمنحك قيمة وأناقة في الوقت نفسه."
+                        }
+                        align="right"
+                      />
+                      <a href="/offers" className="wahaj-offers__all">
+                        كل العروض <ArrowLeft size={15} />
+                      </a>
+                    </div>
+
+                    <div className="wahaj-offers__grid">
+                      {offers.slice(0, 3).map((o: any, index: number) => (
+                        <article key={o.id} className="wahaj-offer-card">
+                          <span className="wahaj-offer-card__number">0{index + 1}</span>
+                          <span className="wahaj-offer-card__icon"><Sparkles size={17} /></span>
+                          <h3>{o.name}</h3>
+                          <p>
+                            {o.discountValue
+                              ? `خصم ${Number(o.discountValue).toLocaleString("ar-EG")}`
+                              : "عرض خاص لفترة محدودة"}
+                          </p>
+                          <a href="/offers">اكتشفي العرض <ArrowLeft size={14} /></a>
+                        </article>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </section>
+            );
+          }
+
+          if (sec.type === "trust") {
+            const items = [
+              { icon: Truck, title: "شحن داخل مصر", desc: "توصيل سريع لكافة المحافظات", href: "/policies/shipping" },
+              { icon: ShieldCheck, title: "دفع آمن ومتعدد", desc: "طرق دفع تناسب احتياجاتك", href: "/payment-policy" },
+              { icon: RotateCcw, title: "استبدال واسترجاع", desc: "سياسة مرنة خلال 14 يومًا", href: "/policies/returns" },
+              { icon: MessageCircle, title: "دعم سريع", desc: "نحن هنا لمساعدتك دائمًا", href: "/contact" },
+            ];
+
+            return (
+              <section key={sec.id} className="wahaj-trust">
+                <div className="container">
+                  <div className="wahaj-trust__intro">
+                    <span>وَهَج</span>
+                    <p>تجربة راقية من أول اختيار حتى وصول طلبك.</p>
+                  </div>
+                  <div className="wahaj-trust__grid">
+                    {items.map(({ icon: Icon, title, desc, href }) => (
+                      <a href={href} key={title} className="wahaj-trust__item">
+                        <span className="wahaj-trust__icon"><Icon size={20} strokeWidth={1.6} /></span>
+                        <span className="wahaj-trust__copy">
+                          <span className="wahaj-trust__title">{title}</span>
+                          <span className="wahaj-trust__text">{desc}</span>
+                        </span>
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              </section>
+            );
+          }
+
+          return (
+            <section key={sec.id} className="wahaj-fallback-section">
+              <div className="container">
+                <div className="wahaj-fallback-section__card">
+                  <SectionHeading
+                    eyebrow="وَهَج"
+                    title={sec.title || "تفاصيل تستحق أن تُرى"}
+                    subtitle={sec.subtitle}
+                  />
+                  {sec.imageUrl ? (
+                    <img src={sec.imageUrl} alt={sec.title || "وَهَج"} />
+                  ) : null}
+                </div>
+              </div>
+            </section>
+          );
+        })}
+      </main>
+    </div>
+  );
+}
