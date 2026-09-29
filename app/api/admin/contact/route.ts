@@ -1,11 +1,16 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { requireUser } from '@/lib/auth';
+import { can } from '@/lib/rbac';
 
 export const dynamic = 'force-dynamic';
 
 // جلب جميع رسائل التواصل مرتبة من الأحدث للأقدم
 export async function GET() {
   try {
+    const user = await requireUser();
+    if (!user) return NextResponse.json({ error: 'غير مصرح' }, { status: 401 });
+    if (!can(user.role, 'contactRead')) return NextResponse.json({ error: 'غير مصرح' }, { status: 403 });
     const messages = await prisma.contactMessage.findMany({
       orderBy: { createdAt: 'desc' },
     });
@@ -18,6 +23,9 @@ export async function GET() {
 // حذف رسالة
 export async function DELETE(request: Request) {
   try {
+    const user = await requireUser();
+    if (!user) return NextResponse.json({ error: 'غير مصرح' }, { status: 401 });
+    if (!can(user.role, 'contactWrite')) return NextResponse.json({ error: 'غير مصرح' }, { status: 403 });
     const { searchParams } = new URL(request.url);
     const id = searchParams.get('id');
 
