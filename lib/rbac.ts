@@ -2,7 +2,8 @@ import { Role } from '@prisma/client';
 
 /**
  * Centralized admin authorization matrix.
- * Keep these permissions aligned with the User.role enum in prisma/schema.prisma.
+ * Keep all admin capabilities here so API routes do not need to maintain
+ * their own role lists.
  */
 export const PERMISSIONS = {
   dashboard: ['OWNER', 'ADMIN', 'MANAGER', 'EDITOR', 'ORDER_MANAGER', 'VIEWER'],
@@ -47,4 +48,24 @@ export type Permission = keyof typeof PERMISSIONS;
 export function can(role: Role | string | null | undefined, permission: Permission): boolean {
   if (!role) return false;
   return (PERMISSIONS[permission] as readonly string[]).includes(role);
+}
+
+/**
+ * Returns the role names allowed for a permission.
+ * Kept as a compatibility helper for routes that still use requireUser(roles).
+ */
+export function rolesFor(permission: Permission): string[] {
+  return [...PERMISSIONS[permission]];
+}
+
+/**
+ * Route-level guard for an already authenticated user.
+ * Authentication and authorization remain separate concerns: use requireUser()
+ * first, then this helper to check the requested capability.
+ */
+export function requirePermission(
+  user: { role?: Role | string | null } | null | undefined,
+  permission: Permission,
+): boolean {
+  return can(user?.role, permission);
 }
