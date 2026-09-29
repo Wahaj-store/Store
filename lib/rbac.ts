@@ -31,6 +31,15 @@ export const PERMISSIONS = {
 
   settingsRead: ['OWNER', 'ADMIN'],
   settingsWrite: ['OWNER', 'ADMIN'],
+
+  shippingRead: ['OWNER', 'ADMIN', 'MANAGER', 'VIEWER'],
+  shippingWrite: ['OWNER', 'ADMIN', 'MANAGER'],
+
+  faqRead: ['OWNER', 'ADMIN', 'MANAGER', 'EDITOR', 'VIEWER'],
+  faqWrite: ['OWNER', 'ADMIN', 'MANAGER', 'EDITOR'],
+
+  contactRead: ['OWNER', 'ADMIN', 'MANAGER', 'ORDER_MANAGER', 'VIEWER'],
+  contactWrite: ['OWNER', 'ADMIN', 'MANAGER', 'ORDER_MANAGER'],
 } as const;
 
 export type Permission = keyof typeof PERMISSIONS;
