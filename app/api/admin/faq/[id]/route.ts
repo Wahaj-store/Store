@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { requireUser } from '@/lib/auth';
+import { can } from '@/lib/rbac';
 
 export const dynamic = 'force-dynamic';
 
@@ -8,6 +10,9 @@ export async function PUT(
   { params }: { params: { id: string } }
 ) {
   try {
+    const user = await requireUser();
+    if (!user) return NextResponse.json({ error: 'غير مصرح' }, { status: 401 });
+    if (!can(user.role, 'faqWrite')) return NextResponse.json({ error: 'غير مصرح' }, { status: 403 });
     const { id } = params;
     const body = await request.json();
     const { question, answer, category, displayOrder, published } = body;
@@ -34,6 +39,9 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
+    const user = await requireUser();
+    if (!user) return NextResponse.json({ error: 'غير مصرح' }, { status: 401 });
+    if (!can(user.role, 'faqWrite')) return NextResponse.json({ error: 'غير مصرح' }, { status: 403 });
     const { id } = params;
     await prisma.faqItem.delete({
       where: { id },
