@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { requireUser } from "@/lib/auth";
+import { can } from "@/lib/rbac";
 
 const egyptianGovernorates = [
   "القاهرة", "الجيزة", "الإسكندرية", "الدقهلية", "الشرقية", 
@@ -53,6 +55,9 @@ async function ensureGovernoratesExistAndCleanDuplicates() {
 
 export async function GET() {
   try {
+    const user = await requireUser();
+    if (!user) return NextResponse.json({ error: "غير مصرح" }, { status: 401 });
+    if (!can(user.role, "shippingRead")) return NextResponse.json({ error: "غير مصرح" }, { status: 403 });
     await ensureGovernoratesExistAndCleanDuplicates();
     const zones = await prisma.shippingZone.findMany({
       orderBy: { governorate: "asc" },
@@ -65,6 +70,9 @@ export async function GET() {
 
 export async function POST(req: Request) {
   try {
+    const user = await requireUser();
+    if (!user) return NextResponse.json({ error: "غير مصرح" }, { status: 401 });
+    if (!can(user.role, "shippingWrite")) return NextResponse.json({ error: "غير مصرح" }, { status: 403 });
     const body = await req.json();
     const { governorate, price, freeAbove } = body;
 
@@ -98,6 +106,9 @@ export async function POST(req: Request) {
 
 export async function PUT(req: Request) {
   try {
+    const user = await requireUser();
+    if (!user) return NextResponse.json({ error: "غير مصرح" }, { status: 401 });
+    if (!can(user.role, "shippingWrite")) return NextResponse.json({ error: "غير مصرح" }, { status: 403 });
     const body = await req.json();
     const { id, price, freeAbove } = body;
 
@@ -121,6 +132,9 @@ export async function PUT(req: Request) {
 
 export async function DELETE(req: Request) {
   try {
+    const user = await requireUser();
+    if (!user) return NextResponse.json({ error: "غير مصرح" }, { status: 401 });
+    if (!can(user.role, "shippingWrite")) return NextResponse.json({ error: "غير مصرح" }, { status: 403 });
     const { searchParams } = new URL(req.url);
     let id = searchParams.get("id");
 
