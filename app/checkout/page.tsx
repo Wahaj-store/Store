@@ -145,7 +145,7 @@ function CheckoutContent() {
         setPay('COD');
       });
 
-    fetch('/api/admin/shipping')
+    fetch('/api/shipping')
       .then(x => x.json())
       .then(data => {
         if (Array.isArray(data)) {
