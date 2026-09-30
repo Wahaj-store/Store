@@ -22,6 +22,12 @@ export function hashIdentifier(value: string) {
   return crypto.createHash('sha256').update(`${process.env.AUTH_SECRET || 'development'}:${value}`).digest('hex');
 }
 
+export function timingSafeEqualText(a: string, b: string) {
+  const left = Buffer.from(a);
+  const right = Buffer.from(b);
+  return left.length === right.length && left.length > 0 && crypto.timingSafeEqual(left, right);
+}
+
 export function requestKey(req: Request) {
   return req.headers.get('x-request-id') || crypto.randomUUID();
 }
