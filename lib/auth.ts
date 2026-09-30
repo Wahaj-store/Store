@@ -92,6 +92,18 @@ export async function requireUser(roles?: string[]) {
   return user;
 }
 
+/**
+ * Authentication + permission lookup for API routes.
+ * Returns a small result object so callers can preserve the correct 401/403
+ * distinction without duplicating role arrays.
+ */
+export async function requirePermission(permission: Permission) {
+  const user = await getUser();
+  if (!user || !user.active) return { user: null, status: 401 as const };
+  if (!can(user.role, permission)) return { user: null, status: 403 as const };
+  return { user, status: 200 as const };
+}
+
 export async function clearSession() {
   cookies().delete('wahaj_session');
 }
