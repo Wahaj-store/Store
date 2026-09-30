@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useState } from "react";
 import { Eye, Heart, ShoppingBag, X } from "lucide-react";
 import AddToCart from "./AddToCart";
@@ -32,9 +33,12 @@ function QuickView({ p, onClose }: { p: any; onClose: () => void }) {
 
         <div className="grid md:grid-cols-2">
           <div className="wahaj-product-modal__image">
-            <img
+            <Image
               src={p.images?.[0]?.url || "/placeholder.svg"}
               alt={p.images?.[0]?.alt || p.name}
+              width={900}
+              height={1125}
+              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
             />
           </div>
 
@@ -110,11 +114,11 @@ export default function ProductCard({
             aria-label={`عرض ${product.name}`}
             className="block h-full"
           >
-            <img
+            <Image
               src={product.images?.[0]?.url || "/placeholder.svg"}
               alt={product.images?.[0]?.alt || product.name}
-              loading="lazy"
-              decoding="async"
+              fill
+              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
               className="wahaj-product-card__image"
             />
           </a>
