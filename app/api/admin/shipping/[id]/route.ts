@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { requireUser } from "@/lib/auth";
+import { requirePermission } from "@/lib/auth";
 import { can } from "@/lib/rbac";
 
 // تعديل سعر أو بيانات محافظة
@@ -9,9 +9,8 @@ export async function PUT(
   { params }: { params: { id: string } }
 ) {
   try {
-    const user = await requireUser();
-    if (!user) return NextResponse.json({ error: "غير مصرح" }, { status: 401 });
-    if (!can(user.role, "shippingWrite")) return NextResponse.json({ error: "غير مصرح" }, { status: 403 });
+    const auth = await requirePermission("shippingWrite");
+    if (!auth.user) return NextResponse.json({ error: "غير مصرح" }, { status: auth.status });
     const { id } = params;
     const body = await req.json();
     const { price, freeAbove, active } = body;
@@ -38,9 +37,8 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
-    const user = await requireUser();
-    if (!user) return NextResponse.json({ error: "غير مصرح" }, { status: 401 });
-    if (!can(user.role, "shippingWrite")) return NextResponse.json({ error: "غير مصرح" }, { status: 403 });
+    const auth = await requirePermission("shippingWrite");
+    if (!auth.user) return NextResponse.json({ error: "غير مصرح" }, { status: auth.status });
     const { id } = params;
 
     await prisma.shippingZone.delete({
