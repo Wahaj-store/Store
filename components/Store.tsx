@@ -10,6 +10,7 @@ import {
   Sparkles,
   Truck,
 } from "lucide-react";
+import Image from "next/image";
 import ProductCard from "./ProductCard";
 
 function SectionHeading({
@@ -135,7 +136,14 @@ export default function Store({ data }: { data: any }) {
                   </div>
 
                   <div className="wahaj-hero__visual">
-                    <img src={image} alt="مجموعة وَهَج" className="wahaj-hero__image" />
+                    <Image
+                      src={image}
+                      alt="مجموعة وَهَج"
+                      fill
+                      sizes="(max-width: 800px) 100vw, 50vw"
+                      priority
+                      className="wahaj-hero__image"
+                    />
                     <div className="wahaj-hero__frame" aria-hidden="true" />
                     <div className="wahaj-hero__badge">
                       <Sparkles size={14} />
@@ -194,10 +202,11 @@ export default function Store({ data }: { data: any }) {
                         href={`/shop?category=${c.slug}`}
                         className="wahaj-collection"
                       >
-                        <img
+                        <Image
                           src={c.imageUrl || data?.products?.[0]?.images?.[0]?.url || "/placeholder.svg"}
                           alt={c.name}
-                          loading="lazy"
+                          fill
+                          sizes="(max-width: 520px) 50vw, (max-width: 900px) 50vw, 25vw"
                           className="wahaj-collection__image"
                         />
                         <span className="wahaj-collection__shade" aria-hidden="true" />
@@ -313,7 +322,13 @@ export default function Store({ data }: { data: any }) {
                     subtitle={sec.subtitle}
                   />
                   {sec.imageUrl ? (
-                    <img src={sec.imageUrl} alt={sec.title || "وَهَج"} />
+                    <Image
+                      src={sec.imageUrl}
+                      alt={sec.title || "وَهَج"}
+                      width={1200}
+                      height={800}
+                      sizes="(max-width: 900px) 100vw, 50vw"
+                    />
                   ) : null}
                 </div>
               </div>
