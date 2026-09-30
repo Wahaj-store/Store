@@ -3,6 +3,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Image from 'next/image';
 import { 
   Heart, Package, UserRound, LogOut, Save, Sparkles, Phone, 
   Lock, User, ArrowLeft, MapPin, Eye, EyeOff, Clock, CheckCircle2, ChevronLeft, Trash2, XCircle, Truck, PackageCheck, MessageSquareText 
@@ -850,12 +851,13 @@ export default function Account() {
                       key={w.id}
                       className="group p-3 rounded-2xl bg-[var(--bg)] border border-border/60 hover:border-[var(--gold)]/50 transition space-y-2 block shadow-xs"
                     >
-                      <img
+                      <Image
                         className="aspect-square w-full object-cover rounded-xl"
                         src={w.product.images?.[0]?.url || '/placeholder.svg'}
                         alt={w.product.name}
-                        loading="lazy"
-                        decoding="async"
+                        width={600}
+                        height={600}
+                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                       />
                       <p className="text-sm font-medium group-hover:text-[var(--gold)] transition line-clamp-1">
                         {w.product.name}
@@ -880,12 +882,13 @@ export default function Account() {
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                     {recentProducts.map((prod: any, idx: number) => (
                       <a href={`/product/${prod.slug}`} key={idx} className="p-3 rounded-2xl bg-[var(--bg)] border border-border/60 space-y-2 block shadow-xs">
-                        <img 
-                          src={prod.image || '/placeholder.svg'} 
-                          alt={prod.name} 
-                          loading="lazy"
-                          decoding="async"
-                          className="aspect-square w-full object-cover rounded-xl" 
+                        <Image
+                          src={prod.image || '/placeholder.svg'}
+                          alt={prod.name}
+                          width={600}
+                          height={600}
+                          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                          className="aspect-square w-full object-cover rounded-xl"
                         />
                         <h3 className="text-sm font-medium line-clamp-1">{prod.name}</h3>
                         <span className="text-[var(--gold)] font-bold text-xs">{prod.price} ج.م</span>
