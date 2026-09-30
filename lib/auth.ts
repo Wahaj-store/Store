@@ -2,7 +2,7 @@ import { cookies } from 'next/headers';
 import { SignJWT, jwtVerify } from 'jose';
 import crypto from 'crypto';
 import { prisma } from './prisma';
-
+import { can, type Permission } from './rbac';
 let cachedSecret: Uint8Array | null = null;
 
 function getSecret() {
