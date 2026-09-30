@@ -10,6 +10,7 @@ import {
   FileText, HelpCircle, Mail, Settings, Gift, RefreshCcw, Share2, Lock, LucideProps, Menu, X
 } from 'lucide-react';
 import MediaPicker from './MediaPicker';
+import Image from 'next/image';
 
 interface MenuGroup {
   title: string;
@@ -487,7 +488,7 @@ function Editor({ tab, value, cats, onCancel, onSave, upload }: any) {
               <div className="flex flex-wrap gap-3">
                 {v.images.map((im: any, i: number) => (
                   <div key={i} className="relative">
-                    <img src={im.url} className="h-24 w-24 rounded-2xl object-cover border border-border/60 shadow-xs" />
+                    <Image src={im.url} width={96} height={96} alt={im.alt || v.name || "صورة المنتج"} className="h-24 w-24 rounded-2xl object-cover border border-border/60 shadow-xs" />
                     <button className="absolute -top-2 -end-2 rounded-full bg-red-500 w-6 h-6 flex items-center justify-center text-white text-xs font-bold shadow-xs cursor-pointer" onClick={() => set('images', v.images.filter((_: any, j: number) => j !== i))}>×</button>
                   </div>
                 ))}
@@ -840,7 +841,7 @@ function Media({ data, onDelete, onRefresh }: any) {
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
         {data.map((x: any) => (
           <div key={x.id} className="bg-muted/10 border border-border/40 rounded-3xl overflow-hidden shadow-xs">
-            <img src={x.url} className="aspect-square w-full object-cover" />
+            <Image src={x.url} width={600} height={600} alt={x.name || "صورة من مكتبة الوسائط"} sizes="(max-width: 768px) 50vw, 25vw" className="aspect-square w-full object-cover" />
             <div className="p-3.5 space-y-2">
               <p className="truncate text-xs text-foreground font-light">{x.name}</p>
               <button className="w-full py-2 rounded-xl border border-red-400 text-red-500 text-xs font-medium hover:bg-red-500/10 transition cursor-pointer" onClick={() => onDelete(x.id)}>حذف</button>
