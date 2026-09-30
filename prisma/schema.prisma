@@ -151,6 +151,7 @@ model Product {
   seoTitle         String?
   seoDescription   String?
   tags             String?
+  searchText       String?
   featured         Boolean                   @default(false)
   newArrival       Boolean                   @default(false)
   bestSeller       Boolean                   @default(false)
@@ -173,6 +174,7 @@ model Product {
   @@index([status, bestSeller])
   @@index([categoryId, status])
   @@index([stock, status])
+  @@index([searchText(ops: raw("gin_trgm_ops"))], type: Gin)
 }
 
 model ProductImage {
