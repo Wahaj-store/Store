@@ -6,6 +6,7 @@ import { normalizePhone } from '@/lib/security';
 import { getCustomer } from '@/lib/customer-auth';
 import { Prisma, PaymentMethod } from '@prisma/client';
 import { del, put } from '@vercel/blob';
+import { calculatePricing } from '@/lib/pricing';
 
 const Item = z.object({ productId: z.string().min(1), variantId: z.string().optional(), quantity: z.number().int().positive().max(50) });
 const S = z.object({
@@ -57,7 +58,6 @@ export async function POST(req: Request) {
       uploadedProofUrl = blob.url;
     }
 
-    let subtotal = 0;
     const requested = b.items.map(i => {
       const p = products.find(x => x.id === i.productId)!;
       const v = i.variantId ? p.variants.find(x => x.id === i.variantId) : undefined;
@@ -66,27 +66,51 @@ export async function POST(req: Request) {
       const stock = v ? v.stock : p.stock;
       if (stock < i.quantity) throw new Error(`الكمية المتاحة من ${p.name} غير كافية`);
       const price = v?.price != null ? Number(v.price) : Number(p.price);
-      subtotal += price * i.quantity;
       return { p, v, quantity: i.quantity, price };
     });
 
-    let discount = 0; let couponCode: string | undefined;
+    const now = new Date();
+    let coupon: { code: string; type: any; value: number; minOrder: number | null } | undefined;
     if (b.couponCode) {
-      const coupon = await prisma.coupon.findUnique({ where: { code: b.couponCode.toUpperCase() } });
-      const now = new Date();
-      if (!coupon || !coupon.active || (coupon.startsAt && coupon.startsAt > now) || (coupon.expiresAt && coupon.expiresAt < now) || (coupon.maxUses !== null && coupon.usedCount >= coupon.maxUses)) return NextResponse.json({ error: 'الكوبون غير صالح أو انتهت صلاحيته' }, { status: 400 });
-      if (coupon.minOrder !== null && subtotal < Number(coupon.minOrder)) return NextResponse.json({ error: `الحد الأدنى لاستخدام الكوبون هو ${Number(coupon.minOrder).toLocaleString('ar-EG')} ج.م` }, { status: 400 });
-      discount = coupon.type === 'PERCENTAGE' ? Math.min(subtotal, subtotal * Number(coupon.value) / 100) : Math.min(subtotal, Number(coupon.value));
-      couponCode = coupon.code;
+      const found = await prisma.coupon.findUnique({ where: { code: b.couponCode.toUpperCase() } });
+      if (!found || !found.active || (found.startsAt && found.startsAt > now) || (found.expiresAt && found.expiresAt < now) || (found.maxUses !== null && found.usedCount >= found.maxUses)) {
+        return NextResponse.json({ error: 'الكوبون غير صالح أو انتهت صلاحيته' }, { status: 400 });
+      }
+      coupon = { code: found.code, type: found.type, value: Number(found.value), minOrder: found.minOrder === null ? null : Number(found.minOrder) };
+      const subtotalBeforeDiscount = calculatePricing({ lines: requested.map(i => ({ quantity: i.quantity, unitPrice: i.price })), shippingPrice: 0, shippingFreeAbove: null }).subtotal;
+      if (coupon.minOrder !== null && subtotalBeforeDiscount < coupon.minOrder) {
+        return NextResponse.json({ error: `الحد الأدنى لاستخدام الكوبون هو ${coupon.minOrder.toLocaleString('ar-EG')} ج.م` }, { status: 400 });
+      }
     }
 
     const zone = await prisma.shippingZone.findFirst({ where: { governorate: b.governorate, active: true, OR: [{ city: b.city }, { city: null }] }, orderBy: { city: 'desc' } });
     if (!zone) return NextResponse.json({ error: 'لا توجد منطقة شحن مفعلة لهذا العنوان' }, { status: 400 });
-    const shipping = zone.freeAbove !== null && subtotal - discount >= Number(zone.freeAbove) ? 0 : Number(zone.price);
-    const siteMin = await prisma.siteSetting.findUnique({ where: { key: 'minimum_order' } }); 
-    const minimumOrder = Number(siteMin?.value || 0); 
+
+    const existingCustomer = loggedInCustomer?.id
+      ? await prisma.customer.findUnique({ where: { id: loggedInCustomer.id }, select: { id: true, _count: { select: { orders: true } } } })
+      : await prisma.customer.findUnique({ where: { phone: normalizedPhone }, select: { id: true, _count: { select: { orders: true } } } });
+    const isFirstOrder = !existingCustomer || existingCustomer._count.orders === 0;
+
+    const activeOffers = await prisma.offer.findMany({
+      where: { active: true, OR: [{ startsAt: null }, { startsAt: { lte: now } }], AND: [{ OR: [{ endsAt: null }, { endsAt: { gte: now } }] }] },
+      select: { name: true, type: true, discountValue: true, startsAt: true, endsAt: true, active: true },
+    });
+
+    const pricing = calculatePricing({
+      lines: requested.map(i => ({ quantity: i.quantity, unitPrice: i.price })),
+      shippingPrice: Number(zone.price),
+      shippingFreeAbove: zone.freeAbove === null ? null : Number(zone.freeAbove),
+      coupon,
+      offers: activeOffers.map(o => ({ ...o, discountValue: o.discountValue === null ? null : Number(o.discountValue) })),
+      isFirstOrder,
+      now,
+    });
+    const { subtotal, shipping, discount, total } = pricing;
+    const couponCode = pricing.couponCode;
+
+    const siteMin = await prisma.siteSetting.findUnique({ where: { key: 'minimum_order' } });
+    const minimumOrder = Number(siteMin?.value || 0);
     if (minimumOrder > 0 && subtotal - discount < minimumOrder) return NextResponse.json({ error: `الحد الأدنى للطلب هو ${minimumOrder.toLocaleString('ar-EG')} ج.م` }, { status: 400 });
-    const total = Math.max(0, subtotal + shipping - discount);
 
     const order = await prisma.$transaction(async tx => {
       if (couponCode) {
