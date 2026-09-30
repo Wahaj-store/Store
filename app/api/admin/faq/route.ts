@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { requireUser } from '@/lib/auth';
+import { requirePermission } from '@/lib/auth';
 import { can } from '@/lib/rbac';
 
 export const dynamic = 'force-dynamic';
@@ -8,9 +8,8 @@ export const dynamic = 'force-dynamic';
 // جلب كل الأسئلة للأدمن (حتى غير المنشورة)
 export async function GET() {
   try {
-    const user = await requireUser();
-    if (!user) return NextResponse.json({ error: 'غير مصرح' }, { status: 401 });
-    if (!can(user.role, 'faqRead')) return NextResponse.json({ error: 'غير مصرح' }, { status: 403 });
+    const auth = await requirePermission('faqRead');
+    if (!auth.user) return NextResponse.json({ error: 'غير مصرح' }, { status: auth.status });
     const faqs = await prisma.faqItem.findMany({
       orderBy: { displayOrder: 'asc' },
     });
@@ -23,9 +22,8 @@ export async function GET() {
 // إضافة سؤال جديد
 export async function POST(request: Request) {
   try {
-    const user = await requireUser();
-    if (!user) return NextResponse.json({ error: 'غير مصرح' }, { status: 401 });
-    if (!can(user.role, 'faqWrite')) return NextResponse.json({ error: 'غير مصرح' }, { status: 403 });
+    const auth = await requirePermission('faqWrite');
+    if (!auth.user) return NextResponse.json({ error: 'غير مصرح' }, { status: auth.status });
     const body = await request.json();
     const { question, answer, category, displayOrder, published } = body;
 
