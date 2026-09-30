@@ -6,6 +6,7 @@ import ReviewForm from '@/components/ReviewForm';
 import BackInStockForm from '@/components/BackInStockForm';
 import RecentlyViewed from '@/components/RecentlyViewed';
 import ClientRecentTracker from '@/components/ClientRecentTracker';
+import Image from 'next/image';
 import { ShieldCheck, Truck, RotateCcw, ChevronRight } from 'lucide-react';
 
 export async function generateMetadata({ params }: { params: { slug: string } }) {
@@ -101,11 +102,12 @@ export default async function ProductPage({ params }: { params: { slug: string }
         {/* 1. معرض الصور (Gallery) */}
         <div className="space-y-4">
           <div className="relative aspect-square overflow-hidden rounded-3xl border border-border/30 bg-muted/20 shadow-md">
-            <img
+            <Image
               src={mainImage}
               alt={p.images[0]?.alt || p.name}
-              loading="eager"
-              decoding="async"
+              fill
+              priority
+              sizes="(max-width: 768px) 100vw, 50vw"
               className="h-full w-full object-cover transition-all duration-700 hover:scale-105"
             />
           </div>
@@ -118,12 +120,12 @@ export default async function ProductPage({ params }: { params: { slug: string }
                   key={im.id || i}
                   className="relative aspect-square w-20 flex-shrink-0 overflow-hidden rounded-2xl border-2 border-border/40 hover:border-[var(--gold)] transition-all cursor-pointer shadow-xs"
                 >
-                  <img 
-                    src={im.url} 
-                    alt="" 
-                    loading="lazy"
-                    decoding="async"
-                    className="h-full w-full object-cover" 
+                  <Image
+                    src={im.url}
+                    alt=""
+                    fill
+                    sizes="80px"
+                    className="h-full w-full object-cover"
                   />
                 </div>
               ))}
@@ -243,11 +245,11 @@ export default async function ProductPage({ params }: { params: { slug: string }
                 className="group rounded-3xl border border-border/30 bg-[var(--bg)] p-4 shadow-sm transition-all duration-300 hover:shadow-xl hover:border-[var(--gold)]/50"
               >
                 <div className="overflow-hidden rounded-2xl bg-muted/30 aspect-square">
-                  <img
+                  <Image
                     src={r.toProduct.images?.[0]?.url || '/placeholder.svg'}
                     alt={r.toProduct.name}
-                    loading="lazy"
-                    decoding="async"
+                    fill
+                    sizes="(max-width: 768px) 50vw, 25vw"
                     className="h-full w-full object-cover transition duration-700 group-hover:scale-105"
                   />
                 </div>
