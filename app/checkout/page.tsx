@@ -228,7 +228,15 @@ function CheckoutContent() {
         canvas.height = height;
         const ctx = canvas.getContext('2d');
         ctx?.drawImage(img, 0, 0, width, height);
-        setProofPreview(canvas.toDataURL('image/jpeg', 0.7));
+        canvas.toBlob((blob) => {
+          if (!blob) {
+            setUploadError('تعذر تجهيز صورة الإيصال');
+            return;
+          }
+          const optimizedFile = new File([blob], 'payment-proof.jpg', { type: 'image/jpeg' });
+          setProofFile(optimizedFile);
+          setProofPreview(URL.createObjectURL(optimizedFile));
+        }, 'image/jpeg', 0.7);
       };
       img.src = event.target?.result as string;
     };
@@ -257,15 +265,17 @@ function CheckoutContent() {
       couponCode: coupon || undefined,
       idempotencyKey: crypto.randomUUID(),
       paymentReference: e.currentTarget.paymentReference?.value || undefined,
-      proofUrl: proofPreview || undefined,
       items: c.map(x => ({ productId: x.productId, variantId: x.variantId, quantity: x.quantity }))
     };
 
     try {
+      const uploadData = new FormData();
+      uploadData.append('data', JSON.stringify(body));
+      if (proofFile) uploadData.append('proof', proofFile, proofFile.name);
+
       const x = await fetch('/api/checkout', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body)
+        body: uploadData
       });
       const j = await x.json();
       if (x.ok) {
