@@ -57,6 +57,14 @@ enum OfferType {
   SEASONAL
 }
 
+enum GiftCardLedgerType {
+  ISSUE
+  REDEEM
+  REFUND
+  ADJUSTMENT
+  EXPIRE
+}
+
 enum RelationType {
   RELATED
   COMPLEMENTARY
@@ -98,6 +106,8 @@ model Customer {
   addresses          Address[]
   reviews            Review[]
   segmentMemberships CustomerSegmentMember[]
+  issuedGiftCards   GiftCard[]             @relation("GiftCardIssuedTo")
+  giftCardLedger    GiftCardLedger[]
   @@index([createdAt])
 }
 
@@ -128,6 +138,7 @@ model Category {
   active      Boolean   @default(true)
   sortOrder   Int       @default(0)
   products    Product[]
+  offers      Offer[]
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 
@@ -160,6 +171,8 @@ model Product {
   category         Category                  @relation(fields: [categoryId], references: [id])
   images           ProductImage[]
   variants         ProductVariant[]
+  offers            Offer[]
+  bundleItems       BundleItem[]
   reviews          Review[]
   orderItems       OrderItem[]
   wishlist         Wishlist[]
@@ -198,6 +211,7 @@ model ProductVariant {
   imageUrl  String?
   productId String
   product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  bundleItems BundleItem[]
 
   @@unique([productId, name, value])
   @@index([productId])
@@ -216,14 +230,42 @@ model BackInStockSubscription {
 }
 
 model GiftCard {
-  id        String    @id @default(cuid())
-  code      String    @unique
-  amount    Decimal   @db.Decimal(10, 2)
-  balance   Decimal   @db.Decimal(10, 2)
-  active    Boolean   @default(true)
-  expiresAt DateTime?
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  id                String               @id @default(cuid())
+  code              String               @unique
+  codeHash          String?              @unique
+  amount            Decimal              @db.Decimal(10, 2)
+  balance           Decimal              @db.Decimal(10, 2)
+  active            Boolean              @default(true)
+  expiresAt         DateTime?
+  issuedToCustomerId String?
+  issuedToCustomer  Customer?            @relation("GiftCardIssuedTo", fields: [issuedToCustomerId], references: [id], onDelete: SetNull)
+  orders            Order[]
+  ledger            GiftCardLedger[]
+  createdAt         DateTime             @default(now())
+  updatedAt         DateTime             @updatedAt
+
+  @@index([active, expiresAt])
+  @@index([issuedToCustomerId])
+}
+
+model GiftCardLedger {
+  id            String             @id @default(cuid())
+  giftCardId    String
+  giftCard      GiftCard           @relation(fields: [giftCardId], references: [id], onDelete: Cascade)
+  type          GiftCardLedgerType
+  amount        Decimal            @db.Decimal(10, 2)
+  balanceAfter Decimal            @db.Decimal(10, 2)
+  orderId      String?
+  order        Order?             @relation(fields: [orderId], references: [id], onDelete: SetNull)
+  customerId    String?
+  customer      Customer?         @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  reference     String?
+  note          String?
+  createdAt     DateTime           @default(now())
+
+  @@index([giftCardId, createdAt])
+  @@index([orderId])
+  @@index([customerId, createdAt])
 }
 
 model ProductRelation {
@@ -239,17 +281,67 @@ model ProductRelation {
   @@index([fromProductId, type, sortOrder])
 }
 
-model Offer {
-  id            String    @id @default(cuid())
-  name          String
-  type          OfferType
-  discountValue Decimal?  @db.Decimal(10, 2)
-  active        Boolean   @default(true)
-  startsAt      DateTime?
-  endsAt        DateTime?
-  createdAt     DateTime  @default(now())
+model Bundle {
+  id          String       @id @default(cuid())
+  name        String
+  slug        String       @unique
+  description String?
+  price       Decimal      @db.Decimal(10, 2)
+  imageUrl    String?
+  active      Boolean      @default(true)
+  startsAt    DateTime?
+  endsAt      DateTime?
+  items       BundleItem[]
+  orderItems  OrderItem[]  @relation("OrderItemBundle")
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
 
   @@index([active, startsAt, endsAt])
+}
+
+model BundleItem {
+  id        String         @id @default(cuid())
+  bundleId  String
+  bundle    Bundle         @relation(fields: [bundleId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product        @relation(fields: [productId], references: [id], onDelete: Restrict)
+  variantId String?
+  variant   ProductVariant? @relation(fields: [variantId], references: [id], onDelete: Restrict)
+  quantity  Int            @default(1)
+
+  @@unique([bundleId, productId, variantId])
+  @@index([productId])
+  @@index([variantId])
+}
+
+model Offer {
+  id                   String       @id @default(cuid())
+  name                 String
+  type                 OfferType
+  discountType         DiscountType @default(PERCENTAGE)
+  discountValue        Decimal?     @db.Decimal(10, 2)
+  minOrder             Decimal?     @db.Decimal(10, 2)
+  maxDiscount          Decimal?     @db.Decimal(10, 2)
+  priority             Int          @default(0)
+  stackable            Boolean      @default(false)
+  maxUses              Int?
+  usedCount            Int          @default(0)
+  productId            String?
+  product              Product?     @relation(fields: [productId], references: [id], onDelete: SetNull)
+  categoryId           String?
+  category             Category?    @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  buyQuantity          Int?
+  getQuantity          Int?
+  getDiscountPercent   Decimal?     @db.Decimal(5, 2)
+  active               Boolean      @default(true)
+  startsAt             DateTime?
+  endsAt               DateTime?
+  createdAt            DateTime     @default(now())
+  updatedAt            DateTime     @updatedAt
+
+  @@index([active, startsAt, endsAt])
+  @@index([productId, active])
+  @@index([categoryId, active])
 }
 
 model Coupon {
@@ -294,9 +386,13 @@ model Order {
   createdAt             DateTime        @default(now())
   updatedAt             DateTime        @updatedAt
   stockReleasedAt       DateTime?
+  giftCardId            String?
+  giftCard              GiftCard?       @relation(fields: [giftCardId], references: [id], onDelete: SetNull)
+  giftCardAmount        Decimal         @default(0) @db.Decimal(10, 2)
   items                 OrderItem[]
   payments              Payment[]
   timeline              OrderTimeline[]
+  giftCardLedger        GiftCardLedger[]
 
   @@index([status, createdAt])
   @@index([paymentStatus, createdAt])
@@ -309,6 +405,8 @@ model OrderItem {
   order        Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
   productId    String
   product      Product @relation(fields: [productId], references: [id])
+  bundleId     String?
+  bundle       Bundle?  @relation("OrderItemBundle", fields: [bundleId], references: [id], onDelete: SetNull)
   variantId    String?
   variantName  String?
   variantValue String?
@@ -319,6 +417,7 @@ model OrderItem {
 
   @@index([orderId])
   @@index([productId])
+  @@index([bundleId])
 }
 
 model Payment {
