@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { ShoppingBag, ArrowRight, Trash2, Plus, Minus, Sparkles } from 'lucide-react';
 
 export default function Cart() {
@@ -97,12 +98,13 @@ export default function Cart() {
                 className="bg-card border border-border/60 flex items-center gap-4 p-4 md:p-6 rounded-3xl transition hover:shadow-md relative overflow-hidden group" 
                 key={`${x.productId}:${x.variantId || i}`}
               >
-                <img 
-                  src={x.image || '/placeholder.png'} 
-                  alt={x.name} 
-                  loading="lazy"
-                  decoding="async"
-                  className="h-20 w-20 md:h-24 md:w-24 rounded-2xl object-cover flex-shrink-0 border border-border/40 bg-black/5" 
+                <Image
+                  src={x.image || '/placeholder.svg'}
+                  alt={x.name}
+                  width={96}
+                  height={96}
+                  sizes="96px"
+                  className="h-20 w-20 md:h-24 md:w-24 rounded-2xl object-cover flex-shrink-0 border border-border/40 bg-black/5"
                 />
                 <div className="flex-1 space-y-1.5">
                   <h3 className="font-bold text-base md:text-lg">{x.name}</h3>
