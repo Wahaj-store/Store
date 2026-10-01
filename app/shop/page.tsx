@@ -1,7 +1,7 @@
 import { prisma } from '@/lib/prisma';
 import ProductCard from '@/components/ProductCard';
 
-export const revalidate = 0;
+export const revalidate = 60;
 
 const PAGE_SIZE = 24;
 
