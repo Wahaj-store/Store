@@ -38,6 +38,8 @@ export const PERMISSIONS = {
 
   shippingRead: ['OWNER', 'ADMIN', 'MANAGER', 'VIEWER'],
   shippingWrite: ['OWNER', 'ADMIN', 'MANAGER'],
+  returnsRead: ['OWNER', 'ADMIN', 'MANAGER', 'ORDER_MANAGER', 'VIEWER'],
+  returnsWrite: ['OWNER', 'ADMIN', 'MANAGER', 'ORDER_MANAGER'],
 
   faqRead: ['OWNER', 'ADMIN', 'MANAGER', 'EDITOR', 'VIEWER'],
   faqWrite: ['OWNER', 'ADMIN', 'MANAGER', 'EDITOR'],
