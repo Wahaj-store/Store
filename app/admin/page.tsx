@@ -79,6 +79,14 @@ export default function Admin() {
 
           {/* أزرار الإجراءات الأخرى (استعراض المتجر وتسجيل الخروج) */}
           <div className="flex items-center gap-3 flex-wrap">
+            <a
+              href="/admin/inventory"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl text-xs md:text-sm font-medium bg-muted/10 border border-border/60 text-foreground hover:border-[var(--gold)] transition shadow-xs"
+            >
+              <span className="text-[var(--gold)]">◈</span>
+              <span>سجل المخزون</span>
+            </a>
+
             <a 
               href="/" 
               target="_blank"
