@@ -13,7 +13,7 @@ export default function SiteFooter() {
   useEffect(() => {
     let mounted = true;
 
-    fetch('/api/settings', { cache: 'no-store' })
+    fetch('/api/settings')
       .then(r => r.ok ? r.json() : null)
       .then(data => {
         if (!mounted || !data) return;
