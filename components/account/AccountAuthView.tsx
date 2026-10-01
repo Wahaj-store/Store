@@ -136,7 +136,7 @@ export default function AccountAuthView(props: any) {
                           value={resetData.newPassword}
                           onChange={e => setResetData({ ...resetData, newPassword: e.target.value })}
                         />
-                        <button type="button" onClick={() => setShowResetPassword((v: boolean) => !v)} aria-label={showResetPassword ? 'إخفاء كلمة المرور' : 'إظهار كلمة المرور'} className="absolute left-3 top-1/2 -translate-y-1/2 p-2 rounded-xl text-muted-foreground hover:text-[var(--gold)] hover:bg-[var(--gold)]/10 transition">
+                        <button type="button" onClick={() => setShowResetPassword(v => !v)} aria-label={showResetPassword ? 'إخفاء كلمة المرور' : 'إظهار كلمة المرور'} className="absolute left-3 top-1/2 -translate-y-1/2 p-2 rounded-xl text-muted-foreground hover:text-[var(--gold)] hover:bg-[var(--gold)]/10 transition">
                           {showResetPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                         </button>
                       </div>
@@ -229,7 +229,7 @@ export default function AccountAuthView(props: any) {
                       dir="ltr"
                       onChange={e => setForm({ ...form, password: e.target.value })}
                     />
-                    <button type="button" onClick={() => setShowPassword((v: boolean) => !v)} aria-label={showPassword ? 'إخفاء كلمة المرور' : 'إظهار كلمة المرور'} className="absolute left-3 top-1/2 -translate-y-1/2 p-2 rounded-xl text-muted-foreground hover:text-[var(--gold)] hover:bg-[var(--gold)]/10 transition">
+                    <button type="button" onClick={() => setShowPassword(v => !v)} aria-label={showPassword ? 'إخفاء كلمة المرور' : 'إظهار كلمة المرور'} className="absolute left-3 top-1/2 -translate-y-1/2 p-2 rounded-xl text-muted-foreground hover:text-[var(--gold)] hover:bg-[var(--gold)]/10 transition">
                       {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                     </button>
                   </div>
