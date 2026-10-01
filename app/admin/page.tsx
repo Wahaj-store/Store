@@ -87,6 +87,14 @@ export default function Admin() {
               <span>سجل المخزون</span>
             </a>
 
+            <a
+              href="/admin/logistics"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl text-xs md:text-sm font-medium bg-muted/10 border border-border/60 text-foreground hover:border-[var(--gold)] transition shadow-xs"
+            >
+              <span className="text-[var(--gold)]">◌</span>
+              <span>الشحن والمرتجعات</span>
+            </a>
+
             <a 
               href="/" 
               target="_blank"
