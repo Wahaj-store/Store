@@ -1,7 +1,7 @@
 import { prisma } from '@/lib/prisma';
 import { AlertCircle, Database, Lock, ShieldCheck } from 'lucide-react';
 
-export const revalidate = 0;
+export const revalidate = 3600;
 
 export const metadata = {
   title: 'سياسة الخصوصية — وَهَج',
