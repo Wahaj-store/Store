@@ -121,22 +121,30 @@ export async function POST(req: Request) {
           throw new Error('الكوبون لم يعد متاحاً');
         }
       }
-      const inventoryEntryIds: string[] = [];
+      const inventoryMoves: Array<{
+        productId: string;
+        variantId?: string;
+        productName: string;
+        variantName?: string;
+        variantValue?: string;
+        sku: string;
+        quantity: number;
+        balanceAfter: number;
+      }> = [];
+
       for (const i of requested) {
         if (i.v) {
           const r = await tx.productVariant.updateMany({ where: { id: i.v.id, stock: { gte: i.quantity } }, data: { stock: { decrement: i.quantity } } });
           if (r.count !== 1) throw new Error(`المخزون غير كافٍ للمنتج ${i.p.name}`);
-          const current = await tx.productVariant.findUnique({ where: { id: i.v.id }, select: { id: true, stock: true, name: true, value: true, sku: true } });
-          if (!current) throw new Error('الخيار المحدد غير متاح');
-          const entry = await recordInventoryEntry(tx, { productId: i.p.id, variantId: current.id, type: 'SALE', quantity: -i.quantity, balanceAfter: current.stock, productNameSnapshot: i.p.name, variantNameSnapshot: current.name, variantValueSnapshot: current.value, skuSnapshot: current.sku || i.p.sku, reason: 'خصم المخزون عند إنشاء الطلب', reference: 'CHECKOUT' });
-          inventoryEntryIds.push(entry.id);
+          const current = await tx.productVariant.findUnique({ where: { id: i.v.id }, select: { stock: true } });
+          if (!current) throw new Error(`الخيار المحدد غير متاح للمنتج ${i.p.name}`);
+          inventoryMoves.push({ productId: i.p.id, variantId: i.v.id, productName: i.p.name, variantName: i.v.name, variantValue: i.v.value, sku: i.v.sku || i.p.sku, quantity: -i.quantity, balanceAfter: current.stock });
         } else {
           const r = await tx.product.updateMany({ where: { id: i.p.id, stock: { gte: i.quantity } }, data: { stock: { decrement: i.quantity } } });
           if (r.count !== 1) throw new Error(`المخزون غير كافٍ للمنتج ${i.p.name}`);
-          const current = await tx.product.findUnique({ where: { id: i.p.id }, select: { id: true, stock: true, name: true, sku: true } });
-          if (!current) throw new Error('المنتج غير متاح');
-          const entry = await recordInventoryEntry(tx, { productId: current.id, type: 'SALE', quantity: -i.quantity, balanceAfter: current.stock, productNameSnapshot: current.name, skuSnapshot: current.sku, reason: 'خصم المخزون عند إنشاء الطلب', reference: 'CHECKOUT' });
-          inventoryEntryIds.push(entry.id);
+          const current = await tx.product.findUnique({ where: { id: i.p.id }, select: { stock: true } });
+          if (!current) throw new Error(`المنتج غير متاح: ${i.p.name}`);
+          inventoryMoves.push({ productId: i.p.id, productName: i.p.name, sku: i.p.sku, quantity: -i.quantity, balanceAfter: current.stock });
         }
       }
 
@@ -172,7 +180,21 @@ export async function POST(req: Request) {
         timeline: { create: { status: 'NEW', note: 'تم إنشاء الطلب' } }
       } });
 
-      if (inventoryEntryIds.length) await tx.inventoryLedger.updateMany({ where: { id: { in: inventoryEntryIds } }, data: { orderId: o.id } });
+      for (const move of inventoryMoves) {
+        await recordInventoryEntry(tx, {
+          productId: move.productId,
+          variantId: move.variantId,
+          orderId: o.id,
+          type: 'SALE',
+          productNameSnapshot: move.productName,
+          variantNameSnapshot: move.variantName,
+          variantValueSnapshot: move.variantValue,
+          skuSnapshot: move.sku,
+          quantity: move.quantity,
+          balanceAfter: move.balanceAfter,
+          reason: 'خصم المخزون عند إنشاء الطلب',
+        });
+      }
 
       if (couponCode) {
         const current = await tx.coupon.findUnique({ where: { code: couponCode }, select: { maxUses: true } });
