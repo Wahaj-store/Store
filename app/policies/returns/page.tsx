@@ -1,7 +1,7 @@
 import { prisma } from '@/lib/prisma';
 import { HelpCircle, RotateCcw, ShieldCheck, Truck } from 'lucide-react';
 
-export const revalidate = 0;
+export const revalidate = 3600;
 
 export const metadata = {
   title: 'سياسة الاستبدال والاسترجاع — وَهَج',
