@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma';
 import { requireUser } from '@/lib/auth';
 import { rolesFor } from '@/lib/rbac';
 import { recordInventoryEntry } from '@/lib/inventory';
+import { notifyReturn } from '@/lib/whatsapp';
 
 export async function GET() {
   const user = await requireUser(rolesFor('returnsRead'));
@@ -43,6 +44,8 @@ export async function PUT(req: Request) {
       return result;
     }, { isolationLevel: Prisma.TransactionIsolationLevel.Serializable, maxWait: 5000, timeout: 15000 });
     await prisma.activityLog.create({ data: { userId: user.id, action: 'UPDATE_RETURN', entity: 'ReturnRequest', entityId: updated.id, metadata: JSON.stringify({ status: updated.status }) } });
+    const notificationOrder = await prisma.order.findUnique({ where: { id: updated.orderId }, select: { id: true, number: true, customerId: true, customerPhoneSnapshot: true } });
+    if (notificationOrder) await notifyReturn({ id: updated.id, orderId: updated.orderId, orderNumber: notificationOrder.number, customerId: notificationOrder.customerId, phone: notificationOrder.customerPhoneSnapshot, status: updated.status });
     return NextResponse.json(updated);
   } catch (e: any) { return NextResponse.json({ error: e?.message || 'تعذر تحديث طلب الإرجاع' }, { status: e?.code === 'P2034' ? 409 : 400 }); }
 }
