@@ -3,6 +3,7 @@ import {prisma} from '@/lib/prisma';
 import {requireUser} from '@/lib/auth';
 import {OrderStatus, PaymentStatus, Prisma} from '@prisma/client';
 import { recordInventoryEntry } from '@/lib/inventory';
+import { notifyOrderStatus } from '@/lib/whatsapp';
 const READ=['OWNER','ADMIN','MANAGER','ORDER_MANAGER','VIEWER'];
 const WRITE=['OWNER','ADMIN','MANAGER','ORDER_MANAGER'];
 export async function GET(){const u=await requireUser(READ);if(!u)return NextResponse.json({error:'غير مصرح'},{status:403});return NextResponse.json(await prisma.order.findMany({include:{customer:{select:{id:true,name:true,phone:true,email:true}},items:{include:{product:true}},payments:true,timeline:{orderBy:{createdAt:'asc'}}},orderBy:{createdAt:'desc'},take:100}));}
@@ -38,6 +39,9 @@ export async function PUT(req:Request){
    return o;
   },{isolationLevel:Prisma.TransactionIsolationLevel.Serializable,maxWait:5000,timeout:15000});
   await prisma.activityLog.create({data:{userId:u.id,action:'UPDATE_ORDER',entity:'Order',entityId:order.id,metadata:JSON.stringify({status:b.status,paymentStatus:b.paymentStatus})}});
+  if (nextStatus && nextStatus !== undefined && nextStatus !== undefined) {
+   await notifyOrderStatus({ id: order.id, number: order.number, customerId: order.customerId, phone: order.customerPhoneSnapshot, status: order.status });
+  }
   return NextResponse.json(order);
  }catch(e:any){return NextResponse.json({error:e?.message||'تعذر تحديث الطلب'},{status:e?.code==='P2034'?409:400});}
 }
