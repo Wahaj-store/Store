@@ -2,6 +2,7 @@ import {NextResponse} from 'next/server';
 import {prisma} from '@/lib/prisma';
 import {requireUser} from '@/lib/auth';
 import {OrderStatus, PaymentStatus, Prisma} from '@prisma/client';
+import { recordInventoryEntry } from '@/lib/inventory';
 const READ=['OWNER','ADMIN','MANAGER','ORDER_MANAGER','VIEWER'];
 const WRITE=['OWNER','ADMIN','MANAGER','ORDER_MANAGER'];
 export async function GET(){const u=await requireUser(READ);if(!u)return NextResponse.json({error:'غير مصرح'},{status:403});return NextResponse.json(await prisma.order.findMany({include:{customer:{select:{id:true,name:true,phone:true,email:true}},items:{include:{product:true}},payments:true,timeline:{orderBy:{createdAt:'asc'}}},orderBy:{createdAt:'desc'},take:100}));}
@@ -20,8 +21,14 @@ export async function PUT(req:Request){
    let o=await tx.order.update({where:{id:b.id},data});
    if(status==='CANCELLED'&&old.status!=='CANCELLED'&&!old.stockReleasedAt){
     for(const item of old.items){
-     if(item.variantId) await tx.productVariant.update({where:{id:item.variantId},data:{stock:{increment:item.quantity}}});
-     else await tx.product.update({where:{id:item.productId},data:{stock:{increment:item.quantity}}});
+     if(item.variantId){
+      const variant=await tx.productVariant.update({where:{id:item.variantId},data:{stock:{increment:item.quantity}},select:{id:true,stock:true,name:true,value:true,sku:true,productId:true}});
+      const product=await tx.product.findUnique({where:{id:item.productId},select:{id:true,name:true,sku:true}});
+      await recordInventoryEntry(tx,{productId:item.productId,variantId:variant.id,orderId:old.id,type:'ORDER_RELEASE',quantity:item.quantity,balanceAfter:variant.stock,productNameSnapshot:product?.name||item.name,variantNameSnapshot:variant.name,variantValueSnapshot:variant.value,skuSnapshot:variant.sku||item.skuSnapshot||product?.sku,reason:'إعادة المخزون عند إلغاء الطلب',reference:old.number});
+     } else {
+      const product=await tx.product.update({where:{id:item.productId},data:{stock:{increment:item.quantity}},select:{id:true,stock:true,name:true,sku:true}});
+      await recordInventoryEntry(tx,{productId:product.id,orderId:old.id,type:'ORDER_RELEASE',quantity:item.quantity,balanceAfter:product.stock,productNameSnapshot:product.name,skuSnapshot:product.sku||item.skuSnapshot,reason:'إعادة المخزون عند إلغاء الطلب',reference:old.number});
+     }
     }
     o=await tx.order.update({where:{id:o.id},data:{stockReleasedAt:new Date()}});
    }
