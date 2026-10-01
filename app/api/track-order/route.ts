@@ -49,8 +49,6 @@ export async function POST(req: Request) {
       );
     }
 
-    // The order number is unique. Query it exactly, then verify the phone after
-    // normalizing both sides. This prevents partial-number matching/enumeration.
     const order = await prisma.order.findUnique({
       where: { number: orderNumber },
       select: {
@@ -81,6 +79,47 @@ export async function POST(req: Request) {
             status: true,
             note: true,
             createdAt: true,
+          },
+        },
+        shipments: {
+          orderBy: { updatedAt: 'desc' },
+          take: 1,
+          select: {
+            provider: true,
+            trackingNumber: true,
+            status: true,
+            shippedAt: true,
+            deliveredAt: true,
+            estimatedMinDays: true,
+            estimatedMaxDays: true,
+            events: {
+              orderBy: { createdAt: 'desc' },
+              take: 10,
+              select: {
+                status: true,
+                note: true,
+                createdAt: true,
+              },
+            },
+          },
+        },
+        returnRequests: {
+          orderBy: { requestedAt: 'desc' },
+          take: 5,
+          select: {
+            number: true,
+            status: true,
+            reason: true,
+            requestedAt: true,
+            approvedAt: true,
+            receivedAt: true,
+            refundedAt: true,
+            items: {
+              select: {
+                orderItemId: true,
+                quantity: true,
+              },
+            },
           },
         },
       },
