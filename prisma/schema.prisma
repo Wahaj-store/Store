@@ -73,6 +73,36 @@ enum InventoryLedgerType {
   ORDER_RELEASE
 }
 
+enum ShipmentStatus {
+  PENDING
+  PROCESSING
+  SHIPPED
+  IN_TRANSIT
+  OUT_FOR_DELIVERY
+  DELIVERED
+  FAILED
+  RETURNED
+  CANCELLED
+}
+
+enum ReturnStatus {
+  REQUESTED
+  APPROVED
+  REJECTED
+  RECEIVED
+  REFUNDED
+  CANCELLED
+}
+
+enum ReturnReason {
+  DAMAGED
+  WRONG_ITEM
+  NOT_AS_DESCRIBED
+  SIZE_ISSUE
+  CHANGED_MIND
+  OTHER
+}
+
 enum RelationType {
   RELATED
   COMPLEMENTARY
@@ -405,10 +435,78 @@ model Order {
   timeline              OrderTimeline[]
   giftCardLedger        GiftCardLedger[]
   inventoryLedger       InventoryLedger[]
+  shipments             Shipment[]
+  returnRequests        ReturnRequest[]
 
   @@index([status, createdAt])
   @@index([paymentStatus, createdAt])
   @@index([customerId, createdAt])
+}
+
+model Shipment {
+  id                String         @id @default(cuid())
+  orderId           String
+  order             Order          @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  provider          String?
+  trackingNumber    String?
+  status            ShipmentStatus @default(PENDING)
+  shippedAt         DateTime?
+  deliveredAt       DateTime?
+  estimatedMinDays  Int?
+  estimatedMaxDays  Int?
+  notes             String?
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+  events            ShipmentEvent[]
+
+  @@index([orderId, createdAt])
+  @@index([status, updatedAt])
+  @@index([trackingNumber])
+}
+
+model ShipmentEvent {
+  id          String         @id @default(cuid())
+  shipmentId  String
+  shipment    Shipment       @relation(fields: [shipmentId], references: [id], onDelete: Cascade)
+  status      ShipmentStatus
+  note        String?
+  createdAt   DateTime       @default(now())
+
+  @@index([shipmentId, createdAt])
+}
+
+model ReturnRequest {
+  id             String       @id @default(cuid())
+  number         String       @unique
+  orderId        String
+  order          Order        @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  status         ReturnStatus @default(REQUESTED)
+  reason         ReturnReason
+  note           String?
+  adminNote      String?
+  requestedAt    DateTime     @default(now())
+  approvedAt     DateTime?
+  receivedAt     DateTime?
+  refundedAt     DateTime?
+  updatedAt      DateTime     @updatedAt
+  items          ReturnItem[]
+
+  @@index([orderId, requestedAt])
+  @@index([status, requestedAt])
+}
+
+model ReturnItem {
+  id              String        @id @default(cuid())
+  returnRequestId String
+  returnRequest   ReturnRequest @relation(fields: [returnRequestId], references: [id], onDelete: Cascade)
+  orderItemId     String
+  orderItem       OrderItem     @relation(fields: [orderItemId], references: [id])
+  quantity        Int
+  restocked       Boolean       @default(false)
+  restockedAt     DateTime?
+
+  @@unique([returnRequestId, orderItemId])
+  @@index([orderItemId])
 }
 
 model InventoryLedger {
@@ -447,6 +545,7 @@ model OrderItem {
   product      Product @relation(fields: [productId], references: [id])
   bundleId     String?
   bundle       Bundle?  @relation("OrderItemBundle", fields: [bundleId], references: [id], onDelete: SetNull)
+  returnItems  ReturnItem[]
   variantId    String?
   variantName  String?
   variantValue String?
