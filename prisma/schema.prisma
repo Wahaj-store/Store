@@ -65,6 +65,14 @@ enum GiftCardLedgerType {
   EXPIRE
 }
 
+enum InventoryLedgerType {
+  OPENING
+  SALE
+  RESTOCK
+  ADJUSTMENT
+  ORDER_RELEASE
+}
+
 enum RelationType {
   RELATED
   COMPLEMENTARY
@@ -86,6 +94,7 @@ model User {
   updatedAt         DateTime            @updatedAt
   logs              ActivityLog[]
   notifications     AdminNotification[]
+  inventoryLedger   InventoryLedger[]
 }
 
 model Customer {
@@ -179,6 +188,7 @@ model Product {
   relationsFrom    ProductRelation[]         @relation("RelationFrom")
   relationsTo      ProductRelation[]         @relation("RelationTo")
   backInStock      BackInStockSubscription[]
+  inventoryLedger  InventoryLedger[]
   createdAt        DateTime                  @default(now())
   updatedAt        DateTime                  @updatedAt
 
@@ -212,6 +222,7 @@ model ProductVariant {
   productId String
   product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
   bundleItems BundleItem[]
+  inventoryLedger InventoryLedger[]
 
   @@unique([productId, name, value])
   @@index([productId])
@@ -393,10 +404,39 @@ model Order {
   payments              Payment[]
   timeline              OrderTimeline[]
   giftCardLedger        GiftCardLedger[]
+  inventoryLedger       InventoryLedger[]
 
   @@index([status, createdAt])
   @@index([paymentStatus, createdAt])
   @@index([customerId, createdAt])
+}
+
+model InventoryLedger {
+  id                    String              @id @default(cuid())
+  productId             String?
+  product               Product?            @relation(fields: [productId], references: [id], onDelete: SetNull)
+  variantId             String?
+  variant               ProductVariant?     @relation(fields: [variantId], references: [id], onDelete: SetNull)
+  orderId               String?
+  order                 Order?              @relation(fields: [orderId], references: [id], onDelete: SetNull)
+  userId                String?
+  user                  User?               @relation(fields: [userId], references: [id], onDelete: SetNull)
+  type                  InventoryLedgerType
+  quantity              Int
+  balanceAfter          Int
+  productNameSnapshot   String?
+  variantNameSnapshot   String?
+  variantValueSnapshot  String?
+  skuSnapshot           String?
+  reason                String?
+  reference             String?
+  createdAt             DateTime            @default(now())
+
+  @@index([productId, createdAt])
+  @@index([variantId, createdAt])
+  @@index([orderId, createdAt])
+  @@index([userId, createdAt])
+  @@index([type, createdAt])
 }
 
 model OrderItem {
