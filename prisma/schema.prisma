@@ -147,6 +147,7 @@ model Customer {
   segmentMemberships CustomerSegmentMember[]
   issuedGiftCards   GiftCard[]             @relation("GiftCardIssuedTo")
   giftCardLedger    GiftCardLedger[]
+  whatsappNotifications WhatsAppNotification[]
   @@index([createdAt])
 }
 
@@ -437,6 +438,7 @@ model Order {
   inventoryLedger       InventoryLedger[]
   shipments             Shipment[]
   returnRequests        ReturnRequest[]
+  whatsappNotifications WhatsAppNotification[]
 
   @@index([status, createdAt])
   @@index([paymentStatus, createdAt])
@@ -815,4 +817,27 @@ model FaqItem {
   updatedAt    DateTime @updatedAt
 
   @@index([published, displayOrder])
+}
+
+
+model WhatsAppNotification {
+  id                String    @id @default(cuid())
+  eventKey          String    @unique
+  customerId        String?
+  customer          Customer? @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  orderId           String?
+  order             Order?    @relation(fields: [orderId], references: [id], onDelete: SetNull)
+  phone             String
+  template          String
+  language          String    @default("ar")
+  status            String    @default("PROCESSING")
+  providerMessageId String?
+  error             String?
+  sentAt            DateTime?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  @@index([customerId, createdAt])
+  @@index([orderId, createdAt])
+  @@index([status, createdAt])
 }
