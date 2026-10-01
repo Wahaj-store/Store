@@ -9,6 +9,8 @@ import ClientRecentTracker from '@/components/ClientRecentTracker';
 import Image from 'next/image';
 import { ShieldCheck, Truck, RotateCcw, ChevronRight } from 'lucide-react';
 
+export const revalidate = 60;
+
 export async function generateMetadata({ params }: { params: { slug: string } }) {
   const p = await prisma.product.findUnique({
     where: { slug: params.slug },
