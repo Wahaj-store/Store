@@ -3,6 +3,7 @@ import { Prisma, ShipmentStatus } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 import { requireUser } from '@/lib/auth';
 import { rolesFor } from '@/lib/rbac';
+import { notifyShipment } from '@/lib/whatsapp';
 
 export async function GET() {
   const user = await requireUser(rolesFor('shippingRead'));
@@ -34,6 +35,8 @@ export async function POST(req: Request) {
       return created;
     }, { isolationLevel: Prisma.TransactionIsolationLevel.Serializable, maxWait: 5000, timeout: 15000 });
     await prisma.activityLog.create({ data: { userId: user.id, action: 'CREATE_SHIPMENT', entity: 'Shipment', entityId: shipment.id, metadata: JSON.stringify({ orderId: order.id, status }) } });
+    const notificationOrder = await prisma.order.findUnique({ where: { id: shipment.orderId }, select: { id: true, number: true, customerId: true, customerPhoneSnapshot: true } });
+    if (notificationOrder) await notifyShipment({ id: shipment.id, orderId: shipment.orderId, orderNumber: notificationOrder.number, customerId: notificationOrder.customerId, phone: notificationOrder.customerPhoneSnapshot, status: shipment.status, provider: shipment.provider, trackingNumber: shipment.trackingNumber });
     return NextResponse.json(shipment, { status: 201 });
   } catch (e: any) { return NextResponse.json({ error: e?.message || 'تعذر إنشاء الشحنة' }, { status: 400 }); }
 }
@@ -57,6 +60,8 @@ export async function PUT(req: Request) {
       return updated;
     }, { isolationLevel: Prisma.TransactionIsolationLevel.Serializable, maxWait: 5000, timeout: 15000 });
     await prisma.activityLog.create({ data: { userId: user.id, action: 'UPDATE_SHIPMENT', entity: 'Shipment', entityId: shipment.id, metadata: JSON.stringify({ status: body.status }) } });
+    const notificationOrder = await prisma.order.findUnique({ where: { id: shipment.orderId }, select: { id: true, number: true, customerId: true, customerPhoneSnapshot: true } });
+    if (notificationOrder) await notifyShipment({ id: shipment.id, orderId: shipment.orderId, orderNumber: notificationOrder.number, customerId: notificationOrder.customerId, phone: notificationOrder.customerPhoneSnapshot, status: shipment.status, provider: shipment.provider, trackingNumber: shipment.trackingNumber });
     return NextResponse.json(shipment);
   } catch (e: any) { return NextResponse.json({ error: e?.message || 'تعذر تحديث الشحنة' }, { status: e?.code === 'P2034' ? 409 : 400 }); }
 }
