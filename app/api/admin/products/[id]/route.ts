@@ -17,7 +17,16 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
   try {
     const b = await req.json();
     const newStock = Number(b.stock || 0);
-    const newVariants = (b.variants || []).filter((x: any) => x.name && x.value).map((x: any) => ({ name: x.name, value: x.value, stock: Number(x.stock || 0), price: x.price === '' || x.price == null ? null : Number(x.price), sku: x.sku || null, imageUrl: x.imageUrl || null }));
+    const newVariants: Array<{ name: string; value: string; stock: number; price: number | null; sku: string | null; imageUrl: string | null }> = (b.variants || [])
+      .filter((x: any) => x.name && x.value)
+      .map((x: any) => ({
+        name: String(x.name),
+        value: String(x.value),
+        stock: Number(x.stock || 0),
+        price: x.price === '' || x.price == null ? null : Number(x.price),
+        sku: x.sku || null,
+        imageUrl: x.imageUrl || null,
+      }));
     if (!Number.isInteger(newStock) || newStock < 0 || newVariants.some((x: any) => !Number.isInteger(x.stock) || x.stock < 0)) return NextResponse.json({ error: 'قيم المخزون غير صالحة' }, { status: 400 });
 
     const p = await prisma.$transaction(async tx => {
