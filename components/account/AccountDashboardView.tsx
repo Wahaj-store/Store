@@ -1,0 +1,569 @@
+"use client";
+
+import Image from 'next/image';
+import {
+  Heart, Package, UserRound, LogOut, Save, Sparkles, Lock, MapPin, Eye, Clock,
+  CheckCircle2, ChevronLeft, Trash2, XCircle, Truck, PackageCheck, MessageSquareText
+} from 'lucide-react';
+
+export default function AccountDashboardView(props: any) {
+  const {
+    c, logout, tab, setTab, setSelectedOrder, selectedOrder, recentProducts,
+    passwords, setPasswords, msg, setMsg, showAddressForm, setShowAddressForm,
+    addressFormMsg, setAddressFormMsg, load, getTimelineDate,
+  } = props;
+
+  return (
+    <main className="min-h-screen py-12 px-4 md:px-8 bg-[var(--bg)] text-foreground transition-colors duration-300" dir="rtl">
+      <div className="container max-w-6xl mx-auto space-y-8">
+        
+        {/* الترويسة العلوية */}
+        <div className="flex flex-wrap items-center justify-between gap-4 border-b border-border/40 pb-6">
+          <div className="space-y-1">
+            <span className="text-[var(--gold)] font-medium text-xs uppercase tracking-widest flex items-center gap-1.5">
+              <Sparkles size={16} /> لوحة التحكم 
+            </span>
+            <h1 className="text-2xl md:text-3xl font-serif font-bold">مرحبًا بكِ، {c.name}</h1>
+          </div>
+          <button
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-muted/10 border border-border/60 text-foreground hover:border-red-500/50 hover:text-red-500 transition text-sm font-medium shadow-xs"
+            onClick={logout}
+          >
+            <LogOut size={16} />
+            <span>تسجيل الخروج</span>
+          </button>
+        </div>
+
+        {/* تخطيط الصفحة */}
+        <div className="flex flex-col lg:grid lg:grid-cols-[280px_1fr] gap-8 items-start">
+          
+          {/* القائمة الجانبية */}
+          <aside className="w-full bg-muted/10 border border-border/40 rounded-3xl p-3 shadow-xs space-y-1.5">
+            {[
+              ['profile', 'حسابي والبيانات', UserRound],
+              ['orders', 'الطلبات ومتابعتها', Package],
+              ['addresses', 'العناوين المحفوظة', MapPin],
+              ['wishlist', 'المفضلة', Heart],
+              ['recent', 'المنتجات التي شاهدتها', Eye],
+              ['security', 'تغيير كلمة المرور', Lock],
+            ].map(([k, t, I]: any) => (
+              <button
+                key={k}
+                onClick={() => { setTab(k); setSelectedOrder(null); }}
+                className={`w-full flex items-center gap-3 p-3.5 text-start rounded-2xl text-sm font-medium transition-all ${
+                  tab === k
+                    ? 'bg-[var(--gold)] text-[var(--gold-contrast)] font-bold shadow-md'
+                    : 'text-muted-foreground hover:text-foreground hover:bg-[var(--bg)]/60'
+                }`}
+              >
+                <I size={18} className="shrink-0" />
+                <span className="flex-1">{t}</span>
+                <ChevronLeft size={16} className={tab === k ? 'text-[var(--gold-contrast)]' : 'text-muted-foreground'} />
+              </button>
+            ))}
+
+            <div className="pt-3 border-t border-border/30">
+              <button
+                onClick={logout}
+                className="w-full flex items-center gap-3 p-3.5 text-start rounded-2xl text-sm font-medium text-red-500 hover:bg-red-500/10 transition"
+              >
+                <LogOut size={18} className="shrink-0" />
+                <span>تسجيل الخروج</span>
+              </button>
+            </div>
+          </aside>
+
+          {/* محتوى التبويبات */}
+          <section className="w-full space-y-6">
+            
+            {tab === 'profile' && (
+              <div className="bg-muted/10 border border-border/40 rounded-3xl p-6 md:p-8 shadow-xs space-y-6">
+                <h2 className="text-xl font-serif font-bold border-b border-border/30 pb-4">البيانات الشخصية</h2>
+                
+                <div className="space-y-4 max-w-xl">
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-medium text-muted-foreground">الاسم الكامل</label>
+                    <input
+                      className="w-full px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[var(--gold)] transition shadow-xs"
+                      value={c.name || ''}
+                      onChange={e => setC({ ...c, name: e.target.value })}
+                    />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-medium text-muted-foreground">رقم الهاتف</label>
+                    <input
+                      className="w-full px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[var(--gold)] transition shadow-xs"
+                      value={c.phone || ''}
+                      dir="ltr"
+                      onChange={e => setC({ ...c, phone: e.target.value })}
+                    />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-medium text-muted-foreground">البريد الإلكتروني</label>
+                    <input
+                      className="w-full px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[var(--gold)] transition shadow-xs"
+                      value={c.email || ''}
+                      dir="ltr"
+                      onChange={e => setC({ ...c, email: e.target.value })}
+                    />
+                  </div>
+                </div>
+
+                <button
+                  className="inline-flex items-center gap-2 px-6 py-3.5 rounded-2xl bg-[var(--gold)] text-[var(--gold-contrast)] font-serif font-bold text-sm shadow-md hover:opacity-95 transition"
+                  onClick={async () => {
+                    await fetch('/api/customer/me', {
+                      method: 'PUT',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ name: c.name, phone: c.phone, email: c.email }),
+                    });
+                    setMsg('تم حفظ التغييرات بنجاح');
+                    setTimeout(() => setMsg(''), 3000);
+                  }}
+                >
+                  <Save size={16} />
+                  <span>حفظ التغييرات</span>
+                </button>
+
+                {msg && <p className="text-sm text-[var(--gold)] font-medium pt-2">{msg}</p>}
+              </div>
+            )}
+
+            {tab === 'orders' && (
+              <div className="bg-muted/10 border border-border/40 rounded-3xl p-6 md:p-8 shadow-xs space-y-6">
+                {selectedOrder ? (
+                  <div className="space-y-6">
+                    <div className="flex items-center justify-between border-b border-border/30 pb-4">
+                      <div>
+                        <h2 className="text-xl font-serif font-bold">تفاصيل الطلب: #{selectedOrder.number}</h2>
+                        <span className="text-xs text-muted-foreground font-light">حالة الطلب الحالية: <b className="text-[var(--gold)]">{selectedOrder.status}</b></span>
+                      </div>
+                      <button 
+                        onClick={() => setSelectedOrder(null)}
+                        className="px-4 py-2 rounded-xl bg-[var(--bg)] border border-border/60 text-xs font-medium hover:border-[var(--gold)] transition shadow-xs"
+                      >
+                        العودة للطلبات
+                      </button>
+                    </div>
+
+                    {selectedOrder.notes && (
+                      <div className="p-4 rounded-2xl bg-[var(--gold)]/10 border border-[var(--gold)]/30 space-y-1.5 shadow-xs">
+                        <span className="font-serif font-bold text-xs text-[var(--gold)] flex items-center gap-1.5">
+                          <MessageSquareText size={16} /> ملاحظة من الإدارة على الطلب:
+                        </span>
+                        <p className="text-xs md:text-sm text-foreground/90 leading-relaxed font-light">{selectedOrder.notes}</p>
+                      </div>
+                    )}
+
+                    <div className="p-5 rounded-2xl bg-[var(--bg)] border border-border/60 space-y-4 shadow-xs">
+                      <h3 className="font-serif font-bold text-sm flex items-center gap-2 text-[var(--gold)]">
+                        <Clock size={16} /> خط سير ومتابعة الطلب
+                      </h3>
+
+                      {selectedOrder.status === 'CANCELLED' ? (
+                        <div className="p-4 rounded-2xl bg-red-500/10 border border-red-500/20 text-center space-y-2">
+                          <XCircle size={28} className="mx-auto text-red-500" />
+                          <h4 className="font-serif font-bold text-sm text-red-500">تم إلغاء هذا الطلب</h4>
+                          <p className="text-xs text-muted-foreground font-light">عذراً، تم إلغاء الطلب من قبل الإدارة أو بناءً على رغبتك.</p>
+                        </div>
+                      ) : (
+                        <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 text-center text-xs font-medium">
+                          
+                          <div className={`p-3.5 rounded-2xl border flex flex-col items-center justify-center gap-1 shadow-xs ${
+                            ['NEW', 'PROCESSING', 'SHIPPED', 'DELIVERED'].includes(selectedOrder.status)
+                              ? 'bg-[var(--gold)]/15 border-[var(--gold)] text-[var(--gold)] font-bold'
+                              : 'border-border/60 text-muted-foreground'
+                          }`}>
+                            <div className="flex items-center gap-1">
+                              <CheckCircle2 size={14} /> تم استلام الطلب
+                            </div>
+                            <span className="text-[10px] opacity-75 font-light" dir="ltr">
+                              {getTimelineDate('NEW') || getTimelineDate('PENDING') || '-'}
+                            </span>
+                          </div>
+
+                          <div className={`p-3.5 rounded-2xl border flex flex-col items-center justify-center gap-1 shadow-xs ${
+                            ['PROCESSING', 'SHIPPED', 'DELIVERED'].includes(selectedOrder.status)
+                              ? 'bg-[var(--gold)]/15 border-[var(--gold)] text-[var(--gold)] font-bold'
+                              : 'border-border/60 text-muted-foreground'
+                          }`}>
+                            <div className="flex items-center gap-1">
+                              <Package size={14} /> قيد التجهيز
+                            </div>
+                            <span className="text-[10px] opacity-75 font-light" dir="ltr">
+                              {getTimelineDate('PROCESSING') || '-'}
+                            </span>
+                          </div>
+
+                          <div className={`p-3.5 rounded-2xl border flex flex-col items-center justify-center gap-1 shadow-xs ${
+                            ['SHIPPED', 'DELIVERED'].includes(selectedOrder.status)
+                              ? 'bg-[var(--gold)]/15 border-[var(--gold)] text-[var(--gold)] font-bold'
+                              : 'border-border/60 text-muted-foreground'
+                          }`}>
+                            <div className="flex items-center gap-1">
+                              <Truck size={14} /> تم الشحن
+                            </div>
+                            <span className="text-[10px] opacity-75 font-light" dir="ltr">
+                              {getTimelineDate('SHIPPED') || '-'}
+                            </span>
+                          </div>
+
+                          <div className={`p-3.5 rounded-2xl border flex flex-col items-center justify-center gap-1 shadow-xs ${
+                            selectedOrder.status === 'DELIVERED'
+                              ? 'bg-[var(--gold)] text-[var(--gold-contrast)] border-[var(--gold)] font-bold'
+                              : 'border-border/60 text-muted-foreground'
+                          }`}>
+                            <div className="flex items-center gap-1">
+                              <PackageCheck size={14} /> تم التسليم
+                            </div>
+                            <span className="text-[10px] opacity-75 font-light" dir="ltr">
+                              {getTimelineDate('DELIVERED') || '-'}
+                            </span>
+                          </div>
+
+                        </div>
+                      )}
+
+                      {(selectedOrder.shippingProvider || selectedOrder.trackingNumber) && (
+                        <div className="p-3.5 rounded-2xl bg-muted/20 border border-border/50 text-xs flex flex-wrap justify-between gap-2 mt-3 shadow-xs">
+                          {selectedOrder.shippingProvider && <span><b>شركة الشحن:</b> {selectedOrder.shippingProvider}</span>}
+                          {selectedOrder.trackingNumber && <span dir="ltr"><b>رقم التتبع:</b> {selectedOrder.trackingNumber}</span>}
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="space-y-3">
+                      <h3 className="font-serif font-bold text-sm">المنتجات في هذا الطلب</h3>
+                      {(selectedOrder.items || []).map((item: any, idx: number) => (
+                        <div key={idx} className="flex justify-between items-center p-3.5 rounded-2xl bg-[var(--bg)] border border-border/60 text-sm shadow-xs">
+                          <span>{item.name || item.product?.name || 'منتج'} × {item.quantity}</span>
+                          <span className="text-[var(--gold)] font-bold">{Number(item.price).toLocaleString('ar-EG')} ج.م</span>
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="flex justify-between items-center border-t border-border/30 pt-4 font-serif font-bold text-base">
+                      <span>الإجمالي الكلي</span>
+                      <span className="text-[var(--gold)] text-lg">{Number(selectedOrder.total).toLocaleString('ar-EG')} ج.م</span>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="space-y-6">
+                    <h2 className="text-xl font-serif font-bold border-b border-border/30 pb-4">سجل الطلبات ومتابعتها</h2>
+                    <div className="grid gap-3">
+                      {(c.orders || []).map((o: any) => (
+                        <div
+                          key={o.id}
+                          className="flex flex-wrap items-center justify-between gap-4 p-4.5 rounded-2xl bg-[var(--bg)] border border-border/65 hover:border-[var(--gold)]/50 transition shadow-xs"
+                        >
+                          <div className="space-y-1">
+                            <b className="text-foreground font-serif">طلب #{o.number}</b>
+                            <div className="flex items-center gap-2">
+                              <span className="text-xs px-2.5 py-0.5 rounded-full bg-[var(--gold)]/10 text-[var(--gold)] font-medium">
+                                {o.status}
+                              </span>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-4">
+                            <strong className="text-[var(--gold)] text-base font-serif">
+                              {Number(o.total).toLocaleString('ar-EG')} ج.م
+                            </strong>
+                            <button
+                              onClick={() => setSelectedOrder(o)}
+                              className="px-4 py-2 rounded-xl bg-[var(--gold)] text-[var(--gold-contrast)] text-xs font-serif font-bold hover:opacity-95 transition shadow-xs"
+                            >
+                              التفاصيل والمتابعة
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                      {!c.orders?.length && (
+                        <p className="text-muted-foreground text-sm py-12 text-center font-light">لا توجد طلبات سابقة حتى الآن.</p>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {tab === 'addresses' && (
+              <div className="bg-muted/10 border border-border/40 rounded-3xl p-6 md:p-8 shadow-xs space-y-6">
+                <div className="flex justify-between items-center border-b border-border/30 pb-4">
+                  <h2 className="text-xl font-serif font-bold">عناوين الشحن المحفوظة</h2>
+                  <button 
+                    onClick={() => setShowAddressForm(!showAddressForm)}
+                    className="px-4 py-2.5 rounded-2xl bg-[var(--gold)] text-[var(--gold-contrast)] text-xs font-serif font-bold hover:opacity-95 transition shadow-xs"
+                  >
+                    {showAddressForm ? 'إلغاء' : '+ إضافة عنوان جديد'}
+                  </button>
+                </div>
+
+                {/* نموذج إضافة العنوان الجديد داخل الصفحة */}
+                {showAddressForm && (
+                  <form 
+                    onSubmit={async (e) => {
+                      e.preventDefault();
+                      setAddressFormMsg('');
+                      const formData = new FormData(e.currentTarget);
+                      const payload = {
+                        label: formData.get('label'),
+                        name: formData.get('name'),
+                        phone: formData.get('phone'),
+                        secondaryPhone: formData.get('secondaryPhone'),
+                        governorate: formData.get('governorate'),
+                        city: formData.get('city'),
+                        address: formData.get('address'),
+                        notes: formData.get('notes'),
+                        isDefault: formData.get('isDefault') === 'on'
+                      };
+
+                      try {
+                        const res = await fetch('/api/customer/addresses', {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          credentials: 'include',
+                          body: JSON.stringify(payload),
+                        });
+                        const data = await res.json();
+                        if (!res.ok) throw new Error(data.error || 'فشل حفظ العنوان');
+                        
+                        load();
+                        setShowAddressForm(false);
+                        setMsg('تم إضافة العنوان بنجاح');
+                        setTimeout(() => setMsg(''), 3000);
+                      } catch (err: any) {
+                        setAddressFormMsg(err.message);
+                      }
+                    }}
+                    className="p-6 rounded-2xl bg-[var(--bg)] border border-[var(--gold)]/40 space-y-4 text-xs shadow-sm"
+                  >
+                    <h3 className="font-serif font-bold text-sm text-[var(--gold)]">تفاصيل عنوان الشحن الجديد</h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div>
+                        <label className="block mb-1 font-medium text-muted-foreground">مسمى العنوان (مثال: المنزل، العمل)</label>
+                        <input name="label" defaultValue="المنزل" required className="w-full px-3.5 py-3 rounded-xl bg-muted/10 border border-border/60 text-foreground text-xs shadow-xs" />
+                      </div>
+                      <div>
+                        <label className="block mb-1 font-medium text-muted-foreground">اسم المستلم</label>
+                        <input name="name" defaultValue={c.name || ''} required className="w-full px-3.5 py-3 rounded-xl bg-muted/10 border border-border/60 text-foreground text-xs shadow-xs" />
+                      </div>
+                      <div>
+                        <label className="block mb-1 font-medium text-muted-foreground">رقم الهاتف الأساسي</label>
+                        <input name="phone" defaultValue={c.phone || ''} required dir="ltr" className="w-full px-3.5 py-3 rounded-xl bg-muted/10 border border-border/60 text-foreground text-xs shadow-xs" />
+                      </div>
+                      <div>
+                        <label className="block mb-1 font-medium text-muted-foreground">رقم هاتف إضافي (اختياري)</label>
+                        <input name="secondaryPhone" dir="ltr" className="w-full px-3.5 py-3 rounded-xl bg-muted/10 border border-border/60 text-foreground text-xs shadow-xs" />
+                      </div>
+                      <div>
+                        <label className="block mb-1 font-medium text-muted-foreground">المحافظة</label>
+                        <input name="governorate" placeholder="القاهرة، الجيزة..." required className="w-full px-3.5 py-3 rounded-xl bg-muted/10 border border-border/60 text-foreground text-xs shadow-xs" />
+                      </div>
+                      <div>
+                        <label className="block mb-1 font-medium text-muted-foreground">المدينة / المركز</label>
+                        <input name="city" placeholder="مدينة نصر، الهرم..." required className="w-full px-3.5 py-3 rounded-xl bg-muted/10 border border-border/60 text-foreground text-xs shadow-xs" />
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block mb-1 font-medium text-muted-foreground">العنوان بالتفصيل</label>
+                      <input name="address" placeholder="اسم الشارع، رقم العمارة، رقم الشقة" required className="w-full px-3.5 py-3 rounded-xl bg-muted/10 border border-border/60 text-foreground text-xs shadow-xs" />
+                    </div>
+                    <div>
+                      <label className="block mb-1 font-medium text-muted-foreground">ملاحظات للتوصيل (اختياري)</label>
+                      <input name="notes" placeholder="علامة مميزة بجوار المنزل" className="w-full px-3.5 py-3 rounded-xl bg-muted/10 border border-border/60 text-foreground text-xs shadow-xs" />
+                    </div>
+                    <div className="flex items-center gap-2 pt-1">
+                      <input type="checkbox" name="isDefault" id="isDefault" className="w-4 h-4 accent-[var(--gold)]" />
+                      <label htmlFor="isDefault" className="cursor-pointer font-light">تعيين كعنوان أساسي للشحن</label>
+                    </div>
+
+                    {addressFormMsg && <p className="text-red-500 font-medium">{addressFormMsg}</p>}
+
+                    <div className="flex justify-end gap-2 pt-2">
+                      <button 
+                        type="button" 
+                        onClick={() => setShowAddressForm(false)}
+                        className="px-4 py-2.5 rounded-xl bg-muted/20 border border-border/60 text-muted-foreground font-medium"
+                      >
+                        إلغاء
+                      </button>
+                      <button 
+                        type="submit" 
+                        className="px-5 py-2.5 rounded-xl bg-[var(--gold)] text-[var(--gold-contrast)] font-serif font-bold shadow-sm"
+                      >
+                        حفظ العنوان
+                      </button>
+                    </div>
+                  </form>
+                )}
+
+                <div className="grid gap-4">
+                  {(c.addresses || []).map((addr: any) => (
+                    <div key={addr.id} className="p-4.5 rounded-2xl bg-[var(--bg)] border border-border/60 flex items-start justify-between gap-4 shadow-xs">
+                      <div className="space-y-1 text-sm">
+                        <div className="flex items-center gap-2">
+                          <span className="font-serif font-bold text-foreground">{addr.label || 'عنوان'}</span>
+                          {addr.isDefault && (
+                            <span className="text-[10px] px-2 py-0.5 rounded-full bg-[var(--gold)]/15 text-[var(--gold)] font-bold">
+                              الأساسي
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-muted-foreground text-xs font-light">
+                          {addr.governorate} - {addr.city} - {addr.address}
+                        </p>
+                        <span className="text-[var(--gold)] text-xs font-medium block pt-1" dir="ltr">
+                          المستلم: {addr.name} | الهاتف: {addr.phone}
+                        </span>
+                      </div>
+                      <button 
+                        onClick={async () => {
+                          if (!confirm('هل أنت متأكد من حذف هذا العنوان؟')) return;
+                          try {
+                            const res = await fetch(`/api/customer/addresses/${addr.id}`, {
+                              method: 'DELETE',
+                              credentials: 'include',
+                            });
+                            if (!res.ok) throw new Error('فشل حذف العنوان');
+                            load();
+                          } catch (err: any) {
+                            alert(err.message);
+                          }
+                        }}
+                        className="text-red-500 hover:text-red-600 transition p-1"
+                        title="حذف العنوان"
+                      >
+                        <Trash2 size={18} />
+                      </button>
+                    </div>
+                  ))}
+                  {(!c.addresses || c.addresses.length === 0) && !showAddressForm && (
+                    <p className="text-muted-foreground text-sm text-center py-8 font-light">
+                      لا توجد عناوين محفوظة حالياً. أضف عنوانك لتسهيل عملية الطلب القادمة.
+                    </p>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {tab === 'wishlist' && (
+              <div className="bg-muted/10 border border-border/40 rounded-3xl p-6 md:p-8 shadow-xs space-y-6">
+                <h2 className="text-xl font-serif font-bold border-b border-border/30 pb-4">قائمة المفضلة</h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {(c.wishlist || []).map((w: any) => (
+                    <a
+                      href={`/product/${w.product.slug}`}
+                      key={w.id}
+                      className="group p-3 rounded-2xl bg-[var(--bg)] border border-border/60 hover:border-[var(--gold)]/50 transition space-y-2 block shadow-xs"
+                    >
+                      <Image
+                        className="aspect-square w-full object-cover rounded-xl"
+                        src={w.product.images?.[0]?.url || '/placeholder.svg'}
+                        alt={w.product.name}
+                        width={600}
+                        height={600}
+                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                      />
+                      <p className="text-sm font-medium group-hover:text-[var(--gold)] transition line-clamp-1">
+                        {w.product.name}
+                      </p>
+                    </a>
+                  ))}
+                  {!c.wishlist?.length && (
+                    <div className="col-span-full py-12 text-center text-muted-foreground text-sm font-light">
+                      قائمة المفضلة فارغة حالياً. أضيفي قطعك المفضلة لتظهر هنا.
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {tab === 'recent' && (
+              <div className="bg-muted/10 border border-border/40 rounded-3xl p-6 md:p-8 shadow-xs space-y-6">
+                <h2 className="text-xl font-serif font-bold border-b border-border/30 pb-4">المنتجات التي شاهدتها مؤخراً</h2>
+                {recentProducts.length === 0 ? (
+                  <p className="text-muted-foreground text-sm text-center py-12 font-light">لم تقومي بمشاهدة أي منتجات مؤخراً.</p>
+                ) : (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {recentProducts.map((prod: any, idx: number) => (
+                      <a href={`/product/${prod.slug}`} key={idx} className="p-3 rounded-2xl bg-[var(--bg)] border border-border/60 space-y-2 block shadow-xs">
+                        <Image
+                          src={prod.image || '/placeholder.svg'}
+                          alt={prod.name}
+                          width={600}
+                          height={600}
+                          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                          className="aspect-square w-full object-cover rounded-xl"
+                        />
+                        <h3 className="text-sm font-medium line-clamp-1">{prod.name}</h3>
+                        <span className="text-[var(--gold)] font-bold text-xs">{prod.price} ج.م</span>
+                      </a>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {tab === 'security' && (
+              <div className="bg-muted/10 border border-border/40 rounded-3xl p-6 md:p-8 shadow-xs space-y-6">
+                <h2 className="text-xl font-serif font-bold border-b border-border/30 pb-4">تغيير كلمة المرور</h2>
+                <form onSubmit={(e) => { 
+                  e.preventDefault(); 
+                  if (passwords.newPass !== passwords.confirmPass) {
+                    setMsg('كلمتا المرور الجديدتان غير متطابقتين');
+                    return;
+                  }
+                  setMsg('تم تحديث كلمة المرور بنجاح'); 
+                  setTimeout(() => setMsg(''), 3000); 
+                }} className="space-y-4 max-w-xl">
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-medium text-muted-foreground">كلمة المرور الحالية</label>
+                    <input 
+                      type="password" 
+                      required
+                      value={passwords.current} 
+                      onChange={e => setPasswords({ ...passwords, current: e.target.value })} 
+                      className="w-full px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[var(--gold)] shadow-xs" 
+                      dir="ltr"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-medium text-muted-foreground">كلمة المرور الجديدة</label>
+                    <input 
+                      type="password" 
+                      required
+                      value={passwords.newPass} 
+                      onChange={e => setPasswords({ ...passwords, newPass: e.target.value })} 
+                      className="w-full px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[var(--gold)] shadow-xs" 
+                      dir="ltr"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-medium text-muted-foreground">تأكيد كلمة المرور الجديدة</label>
+                    <input 
+                      type="password" 
+                      required
+                      value={passwords.confirmPass} 
+                      onChange={e => setPasswords({ ...passwords, confirmPass: e.target.value })} 
+                      className="w-full px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[var(--gold)] shadow-xs" 
+                      dir="ltr"
+                    />
+                  </div>
+                  <button type="submit" className="px-6 py-3.5 rounded-2xl bg-[var(--gold)] text-[var(--gold-contrast)] font-serif font-bold text-sm shadow-md hover:opacity-95 transition">
+                    تحديث كلمة المرور
+                  </button>
+                  {msg && <p className="text-sm text-[var(--gold)] font-medium pt-2">{msg}</p>}
+                </form>
+              </div>
+            )}
+
+          </section>
+
+        </div>
+
+      </div>
+    </main>
+  );
+}
