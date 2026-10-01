@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { ReturnReason } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 import { normalizePhone } from '@/lib/security';
+import { notifyReturn } from '@/lib/whatsapp';
 
 export async function POST(req: Request) {
   try {
@@ -22,6 +23,7 @@ export async function POST(req: Request) {
     const requestNumber = `RET-${Date.now().toString(36).toUpperCase()}-${Math.random().toString(36).slice(2, 7).toUpperCase()}`;
     const created = await prisma.returnRequest.create({ data: { number: requestNumber, orderId: order.id, reason, note: typeof body.note === 'string' ? body.note.trim().slice(0, 1000) || null : null, items: { create: [...requested].map(([orderItemId, quantity]) => ({ orderItemId, quantity })) } }, include: { items: true } });
     await prisma.orderTimeline.create({ data: { orderId: order.id, status: 'RETURN_REQUESTED', note: `تم إنشاء طلب إرجاع ${created.number}` } });
+    await notifyReturn({ id: created.id, orderId: created.orderId, orderNumber: order.number, customerId: order.customerId, phone: order.customerPhoneSnapshot, status: created.status });
     return NextResponse.json({ ok: true, number: created.number, status: created.status }, { status: 201 });
   } catch (e: any) { return NextResponse.json({ error: e?.message || 'تعذر إنشاء طلب الإرجاع' }, { status: 400 }); }
 }
