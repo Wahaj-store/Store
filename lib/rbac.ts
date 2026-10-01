@@ -11,6 +11,9 @@ export const PERMISSIONS = {
   productsRead: ['OWNER', 'ADMIN', 'MANAGER', 'EDITOR', 'VIEWER'],
   productsWrite: ['OWNER', 'ADMIN', 'MANAGER', 'EDITOR'],
 
+  inventoryRead: ['OWNER', 'ADMIN', 'MANAGER', 'ORDER_MANAGER', 'VIEWER'],
+  inventoryWrite: ['OWNER', 'ADMIN', 'MANAGER'],
+
   ordersRead: ['OWNER', 'ADMIN', 'MANAGER', 'ORDER_MANAGER', 'VIEWER'],
   ordersWrite: ['OWNER', 'ADMIN', 'MANAGER', 'ORDER_MANAGER'],
 
