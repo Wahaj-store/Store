@@ -8,7 +8,7 @@ import {
 
 export default function AccountDashboardView(props: any) {
   const {
-    c, logout, tab, setTab, setSelectedOrder, selectedOrder, recentProducts,
+    c, setC, logout, tab, setTab, setSelectedOrder, selectedOrder, recentProducts,
     passwords, setPasswords, msg, setMsg, showAddressForm, setShowAddressForm,
     addressFormMsg, setAddressFormMsg, load, getTimelineDate,
   } = props;
