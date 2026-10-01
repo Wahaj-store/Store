@@ -7,6 +7,7 @@ import { getCustomer } from '@/lib/customer-auth';
 import { Prisma, PaymentMethod } from '@prisma/client';
 import { del, put } from '@vercel/blob';
 import { calculatePricing } from '@/lib/pricing';
+import { recordInventoryEntry } from '@/lib/inventory';
 
 const Item = z.object({ productId: z.string().min(1), variantId: z.string().optional(), quantity: z.number().int().positive().max(50) });
 const S = z.object({
@@ -120,13 +121,22 @@ export async function POST(req: Request) {
           throw new Error('الكوبون لم يعد متاحاً');
         }
       }
+      const inventoryEntryIds: string[] = [];
       for (const i of requested) {
         if (i.v) {
           const r = await tx.productVariant.updateMany({ where: { id: i.v.id, stock: { gte: i.quantity } }, data: { stock: { decrement: i.quantity } } });
           if (r.count !== 1) throw new Error(`المخزون غير كافٍ للمنتج ${i.p.name}`);
+          const current = await tx.productVariant.findUnique({ where: { id: i.v.id }, select: { id: true, stock: true, name: true, value: true, sku: true } });
+          if (!current) throw new Error('الخيار المحدد غير متاح');
+          const entry = await recordInventoryEntry(tx, { productId: i.p.id, variantId: current.id, type: 'SALE', quantity: -i.quantity, balanceAfter: current.stock, productNameSnapshot: i.p.name, variantNameSnapshot: current.name, variantValueSnapshot: current.value, skuSnapshot: current.sku || i.p.sku, reason: 'خصم المخزون عند إنشاء الطلب', reference: 'CHECKOUT' });
+          inventoryEntryIds.push(entry.id);
         } else {
           const r = await tx.product.updateMany({ where: { id: i.p.id, stock: { gte: i.quantity } }, data: { stock: { decrement: i.quantity } } });
           if (r.count !== 1) throw new Error(`المخزون غير كافٍ للمنتج ${i.p.name}`);
+          const current = await tx.product.findUnique({ where: { id: i.p.id }, select: { id: true, stock: true, name: true, sku: true } });
+          if (!current) throw new Error('المنتج غير متاح');
+          const entry = await recordInventoryEntry(tx, { productId: current.id, type: 'SALE', quantity: -i.quantity, balanceAfter: current.stock, productNameSnapshot: current.name, skuSnapshot: current.sku, reason: 'خصم المخزون عند إنشاء الطلب', reference: 'CHECKOUT' });
+          inventoryEntryIds.push(entry.id);
         }
       }
 
@@ -161,6 +171,8 @@ export async function POST(req: Request) {
         payments: { create: { method: b.paymentMethod, amount: total, reference: b.paymentReference, proofUrl: uploadedProofUrl } },
         timeline: { create: { status: 'NEW', note: 'تم إنشاء الطلب' } }
       } });
+
+      if (inventoryEntryIds.length) await tx.inventoryLedger.updateMany({ where: { id: { in: inventoryEntryIds } }, data: { orderId: o.id } });
 
       if (couponCode) {
         const current = await tx.coupon.findUnique({ where: { code: couponCode }, select: { maxUses: true } });
