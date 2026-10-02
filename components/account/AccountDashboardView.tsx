@@ -1,9 +1,10 @@
 "use client";
 
+import { useState } from 'react';
 import Image from 'next/image';
 import {
   Heart, Package, UserRound, LogOut, Save, Sparkles, Lock, MapPin, Eye, Clock,
-  CheckCircle2, ChevronLeft, Trash2, XCircle, Truck, PackageCheck, MessageSquareText
+  CheckCircle2, ChevronLeft, Trash2, XCircle, Truck, PackageCheck, MessageSquareText, RotateCcw
 } from 'lucide-react';
 
 export default function AccountDashboardView(props: any) {
@@ -12,6 +13,118 @@ export default function AccountDashboardView(props: any) {
     passwords, setPasswords, msg, setMsg, showAddressForm, setShowAddressForm,
     addressFormMsg, setAddressFormMsg, load, getTimelineDate,
   } = props;
+
+  const [returnRequest, setReturnRequest] = useState<any>(null);
+  const [returnFormOpen, setReturnFormOpen] = useState(false);
+  const [returnReason, setReturnReason] = useState('DAMAGED');
+  const [returnNote, setReturnNote] = useState('');
+  const [returnItems, setReturnItems] = useState<Record<string, number>>({});
+  const [returnBusy, setReturnBusy] = useState(false);
+  const [returnMsg, setReturnMsg] = useState('');
+  const [returnLoading, setReturnLoading] = useState(false);
+
+  const returnReasons = [
+    ['DAMAGED', 'المنتج تالف'],
+    ['WRONG_ITEM', 'تم استلام منتج خاطئ'],
+    ['NOT_AS_DESCRIBED', 'المنتج غير مطابق للوصف'],
+    ['SIZE_ISSUE', 'مشكلة في المقاس'],
+    ['CHANGED_MIND', 'تغيير الرأي'],
+    ['OTHER', 'سبب آخر'],
+  ];
+
+  const returnStatusLabels: Record<string, string> = {
+    REQUESTED: 'قيد المراجعة',
+    APPROVED: 'تمت الموافقة',
+    REJECTED: 'مرفوض',
+    RECEIVED: 'تم استلام المرتجع',
+    REFUNDED: 'تم رد المبلغ',
+    CANCELLED: 'ملغي',
+  };
+
+  async function openOrder(order: any) {
+    setSelectedOrder(order);
+    setReturnFormOpen(false);
+    setReturnMsg('');
+    setReturnReason('DAMAGED');
+    setReturnNote('');
+    setReturnItems({});
+    setReturnRequest(null);
+
+    if (order?.status !== 'DELIVERED') return;
+
+    setReturnLoading(true);
+    try {
+      const res = await fetch(`/api/returns?orderNumber=${encodeURIComponent(order.number)}`, { credentials: 'include' });
+      if (res.ok) {
+        const data = await res.json();
+        setReturnRequest(data.returnRequest || null);
+      }
+    } catch {
+      // لا نمنع عرض تفاصيل الطلب إذا تعذر تحميل حالة المرتجع.
+    } finally {
+      setReturnLoading(false);
+    }
+  }
+
+  function toggleReturnItem(item: any) {
+    setReturnItems(prev => {
+      const next = { ...prev };
+      if (next[item.id]) delete next[item.id];
+      else next[item.id] = 1;
+      return next;
+    });
+  }
+
+  function setReturnQuantity(item: any, value: number) {
+    const quantity = Math.max(1, Math.min(item.quantity, Math.trunc(value) || 1));
+    setReturnItems(prev => ({ ...prev, [item.id]: quantity }));
+  }
+
+  async function submitReturnRequest() {
+    if (!selectedOrder || !c?.phone) return;
+    const items = Object.entries(returnItems).map(([orderItemId, quantity]) => ({ orderItemId, quantity }));
+    if (!items.length) {
+      setReturnMsg('اختاري منتجًا واحدًا على الأقل للإرجاع.');
+      return;
+    }
+
+    setReturnBusy(true);
+    setReturnMsg('');
+    try {
+      const res = await fetch('/api/returns', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({
+          orderNumber: selectedOrder.number,
+          phone: c.phone,
+          reason: returnReason,
+          note: returnNote,
+          items,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'تعذر إرسال طلب الإرجاع');
+
+      setReturnFormOpen(false);
+      setReturnItems({});
+      setReturnNote('');
+      setReturnRequest({
+        number: data.number,
+        status: data.status,
+        reason: returnReason,
+        note: returnNote || null,
+        requestedAt: new Date().toISOString(),
+      });
+      setReturnMsg('تم إرسال طلب الإرجاع بنجاح.');
+    } catch (error: any) {
+      setReturnMsg(error?.message || 'تعذر إرسال طلب الإرجاع');
+    } finally {
+      setReturnBusy(false);
+    }
+  }
+
+  const canStartReturn = selectedOrder?.status === 'DELIVERED' && (!returnRequest || ['REJECTED', 'CANCELLED'].includes(returnRequest.status));
 
   return (
     <main className="min-h-screen py-12 px-4 md:px-8 bg-[var(--bg)] text-foreground transition-colors duration-300" dir="rtl">
@@ -49,7 +162,7 @@ export default function AccountDashboardView(props: any) {
             ].map(([k, t, I]: any) => (
               <button
                 key={k}
-                onClick={() => { setTab(k); setSelectedOrder(null); }}
+                onClick={() => { setTab(k); setSelectedOrder(null); setReturnRequest(null); setReturnFormOpen(false); }}
                 className={`w-full flex items-center gap-3 p-3.5 text-start rounded-2xl text-sm font-medium transition-all ${
                   tab === k
                     ? 'bg-[var(--gold)] text-[var(--gold-contrast)] font-bold shadow-md'
@@ -141,7 +254,7 @@ export default function AccountDashboardView(props: any) {
                         <span className="text-xs text-muted-foreground font-light">حالة الطلب الحالية: <b className="text-[var(--gold)]">{selectedOrder.status}</b></span>
                       </div>
                       <button 
-                        onClick={() => setSelectedOrder(null)}
+                        onClick={() => { setSelectedOrder(null); setReturnRequest(null); setReturnFormOpen(false); }}
                         className="px-4 py-2 rounded-xl bg-[var(--bg)] border border-border/60 text-xs font-medium hover:border-[var(--gold)] transition shadow-xs"
                       >
                         العودة للطلبات
@@ -244,6 +357,130 @@ export default function AccountDashboardView(props: any) {
                       ))}
                     </div>
 
+                    {selectedOrder.status === 'DELIVERED' && (
+                      <div className="rounded-2xl border border-border/60 bg-[var(--bg)] p-5 space-y-4 shadow-xs">
+                        <div className="flex flex-wrap items-center justify-between gap-3">
+                          <div>
+                            <h3 className="font-serif font-bold text-sm flex items-center gap-2">
+                              <RotateCcw size={17} className="text-[var(--gold)]" /> طلب إرجاع
+                            </h3>
+                            <p className="text-xs text-muted-foreground font-light mt-1">يمكنك طلب إرجاع المنتجات من هذا الطلب بعد التسليم.</p>
+                          </div>
+                          {returnLoading && <span className="text-xs text-muted-foreground">جاري التحقق...</span>}
+                        </div>
+
+                        {returnRequest && (
+                          <div className="p-4 rounded-2xl bg-[var(--gold)]/10 border border-[var(--gold)]/30 space-y-2">
+                            <div className="flex flex-wrap items-center justify-between gap-2">
+                              <span className="font-serif font-bold text-sm">طلب {returnRequest.number}</span>
+                              <span className="text-xs px-2.5 py-1 rounded-full bg-[var(--gold)]/15 text-[var(--gold)] font-bold">
+                                {returnStatusLabels[returnRequest.status] || returnRequest.status}
+                              </span>
+                            </div>
+                            {returnRequest.adminNote && <p className="text-xs text-muted-foreground leading-relaxed">ملاحظة الإدارة: {returnRequest.adminNote}</p>}
+                          </div>
+                        )}
+
+                        {returnMsg && (
+                          <p className={`text-xs font-medium ${returnMsg.includes('بنجاح') ? 'text-[var(--gold)]' : 'text-red-500'}`}>
+                            {returnMsg}
+                          </p>
+                        )}
+
+                        {canStartReturn && !returnFormOpen && (
+                          <button
+                            type="button"
+                            onClick={() => { setReturnFormOpen(true); setReturnMsg(''); }}
+                            className="inline-flex items-center gap-2 px-5 py-3 rounded-2xl bg-[var(--gold)] text-[var(--gold-contrast)] text-xs font-serif font-bold shadow-md hover:opacity-95 transition"
+                          >
+                            <RotateCcw size={16} />
+                            تقديم طلب إرجاع
+                          </button>
+                        )}
+
+                        {returnFormOpen && (
+                          <div className="space-y-5 border-t border-border/30 pt-5">
+                            <div>
+                              <h4 className="font-serif font-bold text-sm mb-3">اختاري المنتجات المراد إرجاعها</h4>
+                              <div className="space-y-2">
+                                {(selectedOrder.items || []).map((item: any) => {
+                                  const selectedQuantity = returnItems[item.id] || 0;
+                                  return (
+                                    <div key={item.id} className={`rounded-2xl border p-3.5 transition ${selectedQuantity ? 'border-[var(--gold)] bg-[var(--gold)]/5' : 'border-border/60'}`}>
+                                      <div className="flex items-center gap-3">
+                                        <input
+                                          type="checkbox"
+                                          checked={selectedQuantity > 0}
+                                          onChange={() => toggleReturnItem(item)}
+                                          className="w-4 h-4 accent-[var(--gold)] shrink-0"
+                                        />
+                                        <div className="flex-1 min-w-0">
+                                          <p className="text-sm font-medium truncate">{item.name || 'منتج'}</p>
+                                          <p className="text-[11px] text-muted-foreground mt-0.5">الكمية المطلوبة في الطلب: {item.quantity}</p>
+                                        </div>
+                                        {selectedQuantity > 0 && item.quantity > 1 && (
+                                          <input
+                                            type="number"
+                                            min={1}
+                                            max={item.quantity}
+                                            value={selectedQuantity}
+                                            onChange={e => setReturnQuantity(item, Number(e.target.value))}
+                                            className="w-20 px-2 py-2 rounded-xl bg-[var(--bg)] border border-border/60 text-xs text-center"
+                                          />
+                                        )}
+                                      </div>
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            </div>
+
+                            <div className="space-y-2">
+                              <label className="block text-xs font-semibold">سبب الإرجاع</label>
+                              <select
+                                value={returnReason}
+                                onChange={e => setReturnReason(e.target.value)}
+                                className="w-full px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-sm text-foreground focus:outline-none focus:border-[var(--gold)]"
+                              >
+                                {returnReasons.map(([value, label]) => <option key={value} value={value}>{label}</option>)}
+                              </select>
+                            </div>
+
+                            <div className="space-y-2">
+                              <label className="block text-xs font-semibold">ملاحظة إضافية (اختياري)</label>
+                              <textarea
+                                value={returnNote}
+                                onChange={e => setReturnNote(e.target.value)}
+                                maxLength={1000}
+                                rows={4}
+                                placeholder="اكتبي أي تفاصيل تساعدنا في مراجعة طلب الإرجاع..."
+                                className="w-full px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-sm text-foreground resize-none focus:outline-none focus:border-[var(--gold)]"
+                              />
+                            </div>
+
+                            <div className="flex flex-wrap justify-end gap-2">
+                              <button
+                                type="button"
+                                onClick={() => { setReturnFormOpen(false); setReturnMsg(''); }}
+                                className="px-4 py-2.5 rounded-xl bg-muted/20 border border-border/60 text-xs font-medium text-muted-foreground"
+                                disabled={returnBusy}
+                              >
+                                إلغاء
+                              </button>
+                              <button
+                                type="button"
+                                onClick={submitReturnRequest}
+                                disabled={returnBusy}
+                                className="px-5 py-2.5 rounded-xl bg-[var(--gold)] text-[var(--gold-contrast)] text-xs font-serif font-bold shadow-sm disabled:opacity-60"
+                              >
+                                {returnBusy ? 'جاري الإرسال...' : 'إرسال طلب الإرجاع'}
+                              </button>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
                     <div className="flex justify-between items-center border-t border-border/30 pt-4 font-serif font-bold text-base">
                       <span>الإجمالي الكلي</span>
                       <span className="text-[var(--gold)] text-lg">{Number(selectedOrder.total).toLocaleString('ar-EG')} ج.م</span>
@@ -271,7 +508,7 @@ export default function AccountDashboardView(props: any) {
                               {Number(o.total).toLocaleString('ar-EG')} ج.م
                             </strong>
                             <button
-                              onClick={() => setSelectedOrder(o)}
+                              onClick={() => openOrder(o)}
                               className="px-4 py-2 rounded-xl bg-[var(--gold)] text-[var(--gold-contrast)] text-xs font-serif font-bold hover:opacity-95 transition shadow-xs"
                             >
                               التفاصيل والمتابعة
