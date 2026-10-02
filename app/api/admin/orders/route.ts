@@ -5,6 +5,7 @@ import {OrderStatus, PaymentStatus, Prisma} from '@prisma/client';
 import { recordInventoryEntry } from '@/lib/inventory';
 import { notifyOrderStatus } from '@/lib/whatsapp';
 import { syncShipmentFromOrderStatus } from '@/lib/shipment-sync';
+import { notifyOrderStatusByEmail, notifyShipmentByEmail } from '@/lib/email';
 const READ=['OWNER','ADMIN','MANAGER','ORDER_MANAGER','VIEWER'];
 const WRITE=['OWNER','ADMIN','MANAGER','ORDER_MANAGER'];
 export async function GET(){const u=await requireUser(READ);if(!u)return NextResponse.json({error:'غير مصرح'},{status:403});return NextResponse.json(await prisma.order.findMany({include:{customer:{select:{id:true,name:true,phone:true,email:true}},items:{include:{product:true}},payments:true,timeline:{orderBy:{createdAt:'asc'}}},orderBy:{createdAt:'desc'},take:100}));}
@@ -41,6 +42,10 @@ export async function PUT(req:Request){
    return o;
   },{isolationLevel:Prisma.TransactionIsolationLevel.Serializable,maxWait:5000,timeout:15000});
   await prisma.activityLog.create({data:{userId:u.id,action:'UPDATE_ORDER',entity:'Order',entityId:order.id,metadata:JSON.stringify({status:b.status,paymentStatus:b.paymentStatus})}});
+  if (nextStatus) {
+   const customer = order.customerId ? await prisma.customer.findUnique({where:{id:order.customerId},select:{email:true,name:true}}) : null;
+   await notifyOrderStatusByEmail({email:customer?.email,name:customer?.name || order.customerNameSnapshot,orderNumber:order.number,status:order.status});
+  }
   if (nextStatus && nextStatus !== undefined && nextStatus !== undefined) {
    await notifyOrderStatus({ id: order.id, number: order.number, customerId: order.customerId, phone: order.customerPhoneSnapshot, status: order.status });
   }
