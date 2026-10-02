@@ -4,8 +4,7 @@ import { prisma } from '@/lib/prisma';
 import { OrderStatus, Prisma } from '@prisma/client';
 import { syncShipmentFromOrderStatus } from '@/lib/shipment-sync';
 import { notifyShipment } from '@/lib/whatsapp';
-import { notifyOrderStatusByEmail } from '@/lib/email';
-
+import { notifyOrderStatusByEmail, notifyShipmentByEmail } from '@/lib/email';
 // 1. جلب تفاصيل الطلب مع خط السير
 export async function GET(_: Request, { params }: { params: Promise<{ id: string }> }) {
   const u = await requireUser(['OWNER', 'ADMIN', 'MANAGER', 'ORDER_MANAGER', 'VIEWER']);
