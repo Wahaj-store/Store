@@ -513,6 +513,18 @@ export default function AccountDashboardView(props: any) {
                             >
                               التفاصيل والمتابعة
                             </button>
+                            {o.status === 'DELIVERED' && (
+                              <button
+                                type="button"
+                                onClick={() => openOrder(o).then(() => setReturnFormOpen(true))}
+                                className="px-4 py-2 rounded-xl bg-[var(--bg)] border border-[var(--gold)]/50 text-[var(--gold)] text-xs font-serif font-bold hover:bg-[var(--gold)]/10 transition shadow-xs"
+                              >
+                                <span className="inline-flex items-center gap-1.5">
+                                  <RotateCcw size={14} />
+                                  طلب إرجاع
+                                </span>
+                              </button>
+                            )}
                           </div>
                         </div>
                       ))}
