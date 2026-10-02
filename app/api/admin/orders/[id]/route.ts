@@ -1,7 +1,9 @@
 import { NextResponse } from 'next/server';
 import { requireUser } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
-import { OrderStatus } from '@prisma/client';
+import { OrderStatus, Prisma } from '@prisma/client';
+import { syncShipmentFromOrderStatus } from '@/lib/shipment-sync';
+import { notifyShipment } from '@/lib/whatsapp';
 
 // 1. جلب تفاصيل الطلب مع خط السير
 export async function GET(_: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -18,6 +20,7 @@ export async function GET(_: Request, { params }: { params: Promise<{ id: string
         items: { include: { product: true } },
         payments: true,
         timeline: { orderBy: { createdAt: 'desc' } },
+        shipments: { orderBy: { createdAt: 'desc' }, include: { events: { orderBy: { createdAt: 'asc' } } } },
       },
     });
     
@@ -48,25 +51,54 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
       return NextResponse.json({ error: 'حالة الطلب غير صالحة' }, { status: 400 });
     }
 
-    const [updatedOrder] = await prisma.$transaction([
-      prisma.order.update({
+    const result = await prisma.$transaction(async tx => {
+      const old = await tx.order.findUnique({ where: { id } });
+      if (!old) throw new Error('الطلب غير موجود');
+      if (old.status === 'DELIVERED' && status === 'CANCELLED') throw new Error('لا يمكن إلغاء طلب تم تسليمه');
+
+      const updatedOrder = await tx.order.update({
         where: { id },
         data: {
           status: status as OrderStatus,
           ...(shippingProvider !== undefined ? { shippingProvider } : {}),
           ...(trackingNumber !== undefined ? { trackingNumber } : {}),
         },
-      }),
-      prisma.orderTimeline.create({
+      });
+
+      await tx.orderTimeline.create({
         data: {
           orderId: id,
           status: status,
           note: note || `تم تحديث حالة الطلب إلى ${status} بواسطة ${u.name || u.email || 'المسؤول'}`,
         },
-      }),
-    ]);
+      });
 
-    return NextResponse.json({ success: true, updatedOrder });
+      const shipment = await syncShipmentFromOrderStatus(tx, id, status as OrderStatus, {
+        provider: shippingProvider !== undefined ? shippingProvider : old.shippingProvider,
+        trackingNumber: trackingNumber !== undefined ? trackingNumber : old.trackingNumber,
+        note: note || `تمت مزامنة الشحنة مع حالة الطلب بواسطة ${u.name || u.email || 'المسؤول'}`,
+      });
+
+      return { updatedOrder, shipment };
+    }, { isolationLevel: Prisma.TransactionIsolationLevel.Serializable, maxWait: 5000, timeout: 15000 });
+
+    if (result.shipment) {
+      const orderForNotification = await prisma.order.findUnique({ where: { id }, select: { id: true, number: true, customerId: true, customerPhoneSnapshot: true } });
+      if (orderForNotification) {
+        await notifyShipment({
+          id: result.shipment.id,
+          orderId: id,
+          orderNumber: orderForNotification.number,
+          customerId: orderForNotification.customerId,
+          phone: orderForNotification.customerPhoneSnapshot,
+          status: result.shipment.status,
+          provider: result.shipment.provider,
+          trackingNumber: result.shipment.trackingNumber,
+        });
+      }
+    }
+
+    return NextResponse.json({ success: true, updatedOrder: result.updatedOrder });
   } catch (error: any) {
     console.error('PATCH Order Error:', error);
     return NextResponse.json({ error: error.message || 'حدث خطأ أثناء التحديث' }, { status: 500 });
