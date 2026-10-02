@@ -2,7 +2,55 @@ import { NextResponse } from 'next/server';
 import { ReturnReason } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 import { normalizePhone } from '@/lib/security';
+import { getCustomer } from '@/lib/customer-auth';
 import { notifyReturn } from '@/lib/whatsapp';
+
+
+export async function GET(req: Request) {
+  try {
+    const customer = await getCustomer();
+    if (!customer) return NextResponse.json({ error: 'غير مسجل' }, { status: 401 });
+
+    const { searchParams } = new URL(req.url);
+    const number = String(searchParams.get('orderNumber') || '').trim();
+    if (!number) return NextResponse.json({ error: 'رقم الطلب مطلوب' }, { status: 400 });
+
+    const order = await prisma.order.findFirst({
+      where: { number, customerId: customer.id },
+      select: {
+        returnRequests: {
+          orderBy: { requestedAt: 'desc' },
+          take: 1,
+          select: {
+            id: true,
+            number: true,
+            status: true,
+            reason: true,
+            note: true,
+            adminNote: true,
+            requestedAt: true,
+            approvedAt: true,
+            receivedAt: true,
+            refundedAt: true,
+            updatedAt: true,
+            items: {
+              select: {
+                id: true,
+                orderItemId: true,
+                quantity: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    if (!order) return NextResponse.json({ error: 'الطلب غير موجود' }, { status: 404 });
+    return NextResponse.json({ returnRequest: order.returnRequests[0] || null });
+  } catch {
+    return NextResponse.json({ error: 'تعذر تحميل حالة طلب الإرجاع' }, { status: 500 });
+  }
+}
 
 export async function POST(req: Request) {
   try {
