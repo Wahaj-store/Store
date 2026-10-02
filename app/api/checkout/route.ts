@@ -9,6 +9,7 @@ import { del, put } from '@vercel/blob';
 import { calculatePricing } from '@/lib/pricing';
 import { recordInventoryEntry } from '@/lib/inventory';
 import { notifyOrderCreated } from '@/lib/whatsapp';
+import { notifyOrderCreatedByEmail } from '@/lib/email';
 
 const Item = z.object({ productId: z.string().min(1), variantId: z.string().optional(), quantity: z.number().int().positive().max(50) });
 const S = z.object({
@@ -184,6 +185,17 @@ export async function POST(req: Request) {
       }
       return o;
     }, { isolationLevel: Prisma.TransactionIsolationLevel.Serializable, maxWait: 5000, timeout: 15000 });
+
+    const orderCustomer = order.customerId
+      ? await prisma.customer.findUnique({ where: { id: order.customerId }, select: { email: true, name: true } })
+      : null;
+    await notifyOrderCreatedByEmail({
+      email: orderCustomer?.email,
+      name: orderCustomer?.name || order.customerNameSnapshot,
+      orderNumber: order.number,
+      total: order.total,
+      paymentMethod: order.paymentMethod,
+    });
 
     await notifyOrderCreated({
       id: order.id,
