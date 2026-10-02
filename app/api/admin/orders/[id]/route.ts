@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma';
 import { OrderStatus, Prisma } from '@prisma/client';
 import { syncShipmentFromOrderStatus } from '@/lib/shipment-sync';
 import { notifyShipment } from '@/lib/whatsapp';
+import { notifyOrderStatusByEmail } from '@/lib/email';
 
 // 1. جلب تفاصيل الطلب مع خط السير
 export async function GET(_: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -82,8 +83,13 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
       return { updatedOrder, shipment };
     }, { isolationLevel: Prisma.TransactionIsolationLevel.Serializable, maxWait: 5000, timeout: 15000 });
 
+    const orderForEmail = await prisma.order.findUnique({ where: { id }, select: { number: true, status: true, customerNameSnapshot: true, customer: { select: { email: true, name: true } } } });
+    if (orderForEmail) {
+      await notifyOrderStatusByEmail({ email: orderForEmail.customer?.email, name: orderForEmail.customer?.name || orderForEmail.customerNameSnapshot, orderNumber: orderForEmail.number, status: orderForEmail.status });
+    }
+
     if (result.shipment) {
-      const orderForNotification = await prisma.order.findUnique({ where: { id }, select: { id: true, number: true, customerId: true, customerPhoneSnapshot: true } });
+      const orderForNotification = await prisma.order.findUnique({ where: { id }, select: { id: true, number: true, customerId: true, customerPhoneSnapshot: true, customerNameSnapshot: true, customer: { select: { email: true, name: true } } } });
       if (orderForNotification) {
         await notifyShipment({
           id: result.shipment.id,
@@ -91,6 +97,14 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
           orderNumber: orderForNotification.number,
           customerId: orderForNotification.customerId,
           phone: orderForNotification.customerPhoneSnapshot,
+          status: result.shipment.status,
+          provider: result.shipment.provider,
+          trackingNumber: result.shipment.trackingNumber,
+        });
+        await notifyShipmentByEmail({
+          email: orderForNotification.customer?.email,
+          name: orderForNotification.customer?.name || orderForNotification.customerNameSnapshot,
+          orderNumber: orderForNotification.number,
           status: result.shipment.status,
           provider: result.shipment.provider,
           trackingNumber: result.shipment.trackingNumber,
