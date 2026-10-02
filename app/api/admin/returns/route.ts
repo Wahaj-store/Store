@@ -5,7 +5,7 @@ import { requireUser } from '@/lib/auth';
 import { rolesFor } from '@/lib/rbac';
 import { recordInventoryEntry } from '@/lib/inventory';
 import { notifyReturn } from '@/lib/whatsapp';
-import { notifyOrderStatusByEmail, notifyShipmentByEmail } from '@/lib/email';
+import { notifyReturnByEmail } from '@/lib/email';
 
 export async function GET() {
   const user = await requireUser(rolesFor('returnsRead'));
