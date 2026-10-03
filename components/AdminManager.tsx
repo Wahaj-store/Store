@@ -659,6 +659,32 @@ function Select({ label, value, options, onChange }: any) {
   );
 }
 
+
+function getOfferState(offer: any) {
+  const now = new Date();
+  if (!offer.active) return { label: 'موقوف يدويًا', tone: 'muted' };
+  if (offer.startsAt && new Date(offer.startsAt) > now) return { label: 'لم يبدأ بعد', tone: 'amber' };
+  if (offer.endsAt && new Date(offer.endsAt) < now) return { label: 'منتهي', tone: 'red' };
+  if (offer.maxUses != null && Number(offer.usedCount || 0) >= Number(offer.maxUses)) return { label: 'اكتمل الاستخدام', tone: 'red' };
+  return { label: 'مفعّل ومتاح', tone: 'green' };
+}
+
+function offerStateClass(tone: string) {
+  if (tone === 'green') return 'text-green-600 border-green-500/20 bg-green-500/10';
+  if (tone === 'red') return 'text-red-500 border-red-500/20 bg-red-500/10';
+  if (tone === 'amber') return 'text-amber-600 border-amber-500/20 bg-amber-500/10';
+  return 'text-muted-foreground border-border/40 bg-muted/20';
+}
+
+async function toggleOfferActive(offer: any, onRefresh: () => void) {
+  try {
+    await api('/api/admin/offers', 'PATCH', { id: offer.id, active: !offer.active });
+    onRefresh();
+  } catch (e: any) {
+    if (typeof window !== 'undefined') window.alert(e?.message || 'تعذر تغيير حالة العرض.');
+  }
+}
+
 function Content({ tab, data, onEdit, onDelete, onRefresh, onReorder }: any) {
   if (tab === 'analytics') return <Analytics data={data[0] || {}} />;
   if (tab === 'media') return <Media data={data} onDelete={onDelete} onRefresh={onRefresh} />;
@@ -694,6 +720,7 @@ function Content({ tab, data, onEdit, onDelete, onRefresh, onReorder }: any) {
     </div>
   );
   
+
   if (tab === 'faq') return (
     <div className="space-y-4">
       {data.map((faq: any) => (
@@ -838,6 +865,41 @@ function Content({ tab, data, onEdit, onDelete, onRefresh, onReorder }: any) {
 
   if (tab === 'orders') return <Orders data={data} onRefresh={onRefresh} />;
   if (tab === 'homepage') return <Sortable data={data} onEdit={onEdit} onDelete={onDelete} onReorder={onReorder} />;
+
+  if (tab === 'offers') return (
+    <div className="grid gap-4">
+      {data.map((offer: any) => {
+        const state = getOfferState(offer);
+        return (
+          <div key={offer.id} className="bg-muted/10 border border-border/40 rounded-3xl p-5 md:p-6 shadow-xs">
+            <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+              <div className="min-w-0 space-y-2">
+                <div className="flex flex-wrap items-center gap-2">
+                  <b className="font-serif font-bold text-foreground text-base">{offer.name}</b>
+                  <span className={`px-2.5 py-1 rounded-full text-[11px] border ${offerStateClass(state.tone)}`}>{state.label}</span>
+                </div>
+                <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
+                  <span>{offer.type}</span>
+                  <span>الأولوية {offer.priority ?? 0}</span>
+                  <span>الاستخدام {offer.usedCount ?? 0}{offer.maxUses != null ? `/${offer.maxUses}` : ''}</span>
+                  {offer.startsAt && <span>يبدأ {new Date(offer.startsAt).toLocaleString('ar-EG')}</span>}
+                  {offer.endsAt && <span>ينتهي {new Date(offer.endsAt).toLocaleString('ar-EG')}</span>}
+                </div>
+              </div>
+              <div className="flex flex-wrap gap-2 shrink-0">
+                <button className={`px-4 py-2 rounded-xl text-xs font-medium transition cursor-pointer ${offer.active ? 'bg-muted/20 border border-border/60 text-muted-foreground hover:bg-muted/30' : 'bg-[var(--gold)] text-[var(--gold-contrast)] font-bold hover:opacity-95'}`} onClick={() => toggleOfferActive(offer, onRefresh)}>
+                  {offer.active ? 'إيقاف العرض' : 'تفعيل العرض'}
+                </button>
+                <button className="px-4 py-2 rounded-xl bg-muted/20 border border-border/60 text-xs font-medium hover:bg-muted/30 transition cursor-pointer" onClick={() => onEdit(offer)}>تعديل</button>
+                <button className="p-2 rounded-xl border border-red-400 text-red-500 hover:bg-red-500/10 transition cursor-pointer" onClick={() => onDelete(offer.id)}><Trash2 size={16} /></button>
+              </div>
+            </div>
+          </div>
+        );
+      })}
+      {!data.length && <div className="bg-muted/10 border border-border/40 rounded-3xl p-12 text-center text-muted-foreground text-sm font-light">لا توجد عروض حتى الآن.</div>}
+    </div>
+  );
   
   return (
     <div className="space-y-3">
