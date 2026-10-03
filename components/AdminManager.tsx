@@ -87,6 +87,16 @@ function toIsoDateTime(value: unknown) {
   return d.toISOString();
 }
 
+const OFFER_SEGMENTS = [
+  ['vip', 'عملاء VIP'],
+  ['loyal', 'عملاء أوفياء'],
+  ['highValue', 'قيمة مرتفعة'],
+  ['new', 'عملاء نشطون حديثًا'],
+  ['atRisk', 'معرضون للفقد'],
+  ['dormant', 'عملاء غير نشطين'],
+  ['noPurchase', 'بدون شراء'],
+] as const;
+
 async function api(url: string, method = 'GET', body?: any) {
   const r = await fetch(url, {
     method,
@@ -159,7 +169,14 @@ export default function AdminManager({ sidebarOpen, setSidebarOpen }: { sidebarO
       }
 
       const x = await api(targetUrl);
-      if (tab === 'settings') {
+      if (tab === 'offers') {
+        const audience = await api('/api/admin/offers/audience').catch(() => ({ targets: {} }));
+        const targets = audience?.targets || {};
+        setData((Array.isArray(x) ? x : [x]).map((offer: any) => ({
+          ...offer,
+          segmentKeys: Array.isArray(targets[offer.id]) ? targets[offer.id] : [],
+        })));
+      } else if (tab === 'settings') {
         const settings = x?.settings || {};
         setData(Object.entries(settings).map(([key, value]) => ({ id: `setting:${key}`, key, value })));
       } else {
@@ -209,7 +226,13 @@ export default function AdminManager({ sidebarOpen, setSidebarOpen }: { sidebarO
           }
         : v;
 
-      await api(endpoint, method, payload);
+      const saved = await api(endpoint, method, payload);
+      if (tab === 'offers' && saved?.id) {
+        await api('/api/admin/offers/audience', 'PUT', {
+          offerId: saved.id,
+          segmentKeys: Array.isArray(v.segmentKeys) ? v.segmentKeys : [],
+        });
+      }
       setMsg('تم الحفظ بنجاح');
       setEditing(null);
       load();
@@ -258,7 +281,7 @@ export default function AdminManager({ sidebarOpen, setSidebarOpen }: { sidebarO
     switch (tab) {
       case 'products': return emptyProduct;
       case 'categories': return { name: '', slug: '', description: '', image: '' };
-      case 'offers': return { name: '', type: 'FLASH_SALE', discountType: 'PERCENTAGE', discountValue: 0, minOrder: '', maxDiscount: '', priority: 0, stackable: false, maxUses: '', productId: '', categoryId: '', buyQuantity: '', getQuantity: '', getDiscountPercent: 100, startsAt: '', endsAt: '', active: true };
+      case 'offers': return { name: '', type: 'FLASH_SALE', discountType: 'PERCENTAGE', discountValue: 0, minOrder: '', maxDiscount: '', priority: 0, stackable: false, maxUses: '', productId: '', categoryId: '', buyQuantity: '', getQuantity: '', getDiscountPercent: 100, startsAt: '', endsAt: '', active: true, segmentKeys: [] };
       case 'gift-cards': return { code: '', amount: 0, expiresAt: '', active: true };
       case 'shipping': return { governorate: '', city: '', price: 0, freeAbove: 0 };
       case 'homepage': return { type: 'BANNER', title: '', subtitle: '', visible: true };
@@ -532,6 +555,23 @@ function Editor({ tab, value, cats, products, onCancel, onSave, upload }: any) {
             {cats.map((x: any) => <option key={x.id} value={x.id}>{x.name}</option>)}
           </select>
         </label>
+        <div className="md:col-span-2 rounded-2xl bg-[var(--bg)] border border-[var(--gold)]/20 p-4 space-y-3">
+          <div>
+            <p className="text-sm font-serif font-bold text-[var(--gold)]">الجمهور المستهدف</p>
+            <p className="text-[11px] text-muted-foreground mt-1">اتركيه بدون اختيار ليعمل العرض مع كل العملاء.</p>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-2.5">
+            {OFFER_SEGMENTS.map(([key, label]) => (
+              <label key={key} className={`flex items-center gap-2.5 rounded-xl border px-3 py-2.5 text-xs cursor-pointer transition ${Array.isArray(v.segmentKeys) && v.segmentKeys.includes(key) ? 'border-[var(--gold)] bg-[var(--gold)]/10' : 'border-border/40 bg-muted/10'}`}>
+                <input type="checkbox" className="w-4 h-4 accent-[var(--gold)]" checked={Array.isArray(v.segmentKeys) && v.segmentKeys.includes(key)} onChange={e => {
+                  const current = Array.isArray(v.segmentKeys) ? v.segmentKeys : [];
+                  set('segmentKeys', e.target.checked ? [...current, key] : current.filter((x: string) => x !== key));
+                }} />
+                {label}
+              </label>
+            ))}
+          </div>
+        </div>
         <label className="text-xs md:text-sm font-medium text-muted-foreground">يبدأ
           <input type="datetime-local" className="w-full mt-1 px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[var(--gold)]" value={toDateTimeLocal(v.startsAt)} onChange={e => set('startsAt', e.target.value)} />
           <span className="block mt-1 text-[11px] text-muted-foreground">الوقت يُحفظ بنفس الساعة التي تختارينها.</span>
@@ -910,6 +950,7 @@ function Content({ tab, data, onEdit, onDelete, onRefresh, onReorder }: any) {
                   <span>{offer.type}</span>
                   <span>الأولوية {offer.priority ?? 0}</span>
                   <span>الاستخدام {offer.usedCount ?? 0}{offer.maxUses != null ? `/${offer.maxUses}` : ''}</span>
+                  <span>{Array.isArray(offer.segmentKeys) && offer.segmentKeys.length ? `الجمهور: ${offer.segmentKeys.map((key: string) => OFFER_SEGMENTS.find(x => x[0] === key)?.[1] || key).join('، ')}` : 'الجمهور: كل العملاء'}</span>
                   {offer.startsAt && <span>يبدأ {new Date(offer.startsAt).toLocaleString('ar-EG')}</span>}
                   {offer.endsAt && <span>ينتهي {new Date(offer.endsAt).toLocaleString('ar-EG')}</span>}
                 </div>
