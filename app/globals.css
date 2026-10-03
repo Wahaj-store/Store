@@ -1998,20 +1998,44 @@ a:focus-visible {
 .wahaj-offers__grid { position: relative; display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 12px; margin-top: 34px; }
 .wahaj-offer-card {
   position: relative;
-  min-height: 205px;
-  padding: 24px;
+  min-height: 184px;
+  display: flex;
+  flex-direction: column;
+  padding: 18px 18px 16px;
   overflow: hidden;
-  border: 1px solid var(--line);
-  border-radius: 14px;
-  background: color-mix(in srgb, var(--surface) 72%, transparent);
-  transition: transform .3s ease, border-color .3s ease, background-color .3s ease;
+  border: 1px solid color-mix(in srgb, var(--gold) 18%, var(--line));
+  border-radius: 2px 22px 2px 22px;
+  background: color-mix(in srgb, var(--surface) 76%, transparent);
+  box-shadow: 0 8px 24px color-mix(in srgb, var(--fg) 5%, transparent);
+  transition: transform .28s ease, border-color .28s ease, background-color .28s ease, box-shadow .28s ease;
 }
-.wahaj-offer-card:hover { transform: translateY(-4px); border-color: color-mix(in srgb, var(--gold) 48%, var(--line)); background: var(--card-hover); }
-.wahaj-offer-card__number { position: absolute; top: 18px; left: 20px; color: color-mix(in srgb, var(--gold) 55%, var(--muted)); font-size: 10px; letter-spacing: .14em; }
-.wahaj-offer-card__icon { display: grid; width: 38px; height: 38px; place-items: center; border: 1px solid color-mix(in srgb, var(--gold) 42%, var(--line)); border-radius: 50%; color: var(--gold); }
-.wahaj-offer-card h3 { margin: 22px 0 7px; color: var(--fg); font-size: 16px; font-weight: 600; }
-.wahaj-offer-card p { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.8; }
-.wahaj-offer-card a { display: inline-flex; align-items: center; gap: 6px; margin-top: 18px; color: var(--gold); font-size: 11px; font-weight: 600; }
+.wahaj-offer-card::after {
+  content: '';
+  position: absolute;
+  width: 92px;
+  height: 92px;
+  left: -52px;
+  bottom: -52px;
+  border: 1px solid color-mix(in srgb, var(--gold) 18%, transparent);
+  border-radius: 50%;
+  pointer-events: none;
+}
+.wahaj-offer-card:hover {
+  transform: translateY(-3px);
+  border-color: color-mix(in srgb, var(--gold) 44%, var(--line));
+  background: var(--card-hover);
+  box-shadow: var(--shadow-soft);
+}
+.wahaj-offer-card__top { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.wahaj-offer-card__number { color: color-mix(in srgb, var(--gold) 58%, var(--muted)); font-size: 9px; letter-spacing: .14em; }
+.wahaj-offer-card__icon { display: grid; width: 34px; height: 34px; place-items: center; border: 1px solid color-mix(in srgb, var(--gold) 38%, var(--line)); border-radius: 50%; color: var(--gold); background: color-mix(in srgb, var(--gold) 5%, transparent); }
+.wahaj-offer-card__main { margin-top: 13px; min-width: 0; }
+.wahaj-offer-card__eyebrow { color: var(--gold-muted); font-size: 8px; font-weight: 700; letter-spacing: .08em; }
+.wahaj-offer-card h3 { margin: 5px 0 0; color: var(--fg); font-size: 15px; font-weight: 600; line-height: 1.45; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.wahaj-offer-card p { margin: 5px 0 0; color: var(--gold); font-size: 11px; line-height: 1.6; font-weight: 600; }
+.wahaj-offer-card__cta { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: auto; padding-top: 12px; border-top: 1px solid color-mix(in srgb, var(--line) 72%, transparent); color: var(--fg); font-size: 10px; font-weight: 600; }
+.wahaj-offer-card__cta:hover { color: var(--gold); }
+
 
 /* Trust */
 .wahaj-storefront .wahaj-trust { padding: 30px 0; background: var(--bg); }
@@ -2062,7 +2086,12 @@ a:focus-visible {
   .wahaj-offers__head { display: block; }
   .wahaj-offers__all { margin-top: 17px; }
   .wahaj-offers__grid { grid-template-columns: 1fr; margin-top: 24px; }
-  .wahaj-offer-card { min-height: 175px; padding: 20px; }
+  .wahaj-offer-card { min-height: 164px; padding: 16px; border-radius: 2px 18px 2px 18px; }
+  .wahaj-offer-card__icon { width: 32px; height: 32px; }
+  .wahaj-offer-card__main { margin-top: 11px; }
+  .wahaj-offer-card h3 { font-size: 14px; }
+  .wahaj-offer-card p { font-size: 10px; }
+  .wahaj-offer-card__cta { font-size: 10px; padding-top: 10px; }
   .wahaj-storefront .wahaj-trust { padding: 22px 0; }
   .wahaj-trust__intro { display: block; }
   .wahaj-trust__intro p { margin-top: 5px; }
@@ -2563,6 +2592,8 @@ a:focus-visible {
 .wahaj-offer-detail__visual { position: relative; min-height: 540px; background: var(--surface); }
 .wahaj-offer-detail__visual img { width: 100%; height: 100%; min-height: 540px; display: block; object-fit: cover; }
 .wahaj-offer-detail__badge { position: absolute; top: 20px; inset-inline-start: 20px; padding: 7px 11px; border: 1px solid rgba(255,255,255,.28); border-radius: 999px; background: rgba(20,16,14,.64); color: #fff; font-size: 10px; backdrop-filter: blur(8px); }
+.wahaj-offer-detail__badge.is-active { background: color-mix(in srgb, var(--gold) 82%, #17130f); border-color: color-mix(in srgb, var(--gold) 60%, transparent); }
+.wahaj-offer-detail__badge.is-inactive { background: rgba(20,16,14,.78); border-color: rgba(255,255,255,.22); }
 .wahaj-offer-detail__content { padding: clamp(28px, 5vw, 58px); }
 .wahaj-offer-detail__eyebrow { display: inline-flex; align-items: center; gap: 7px; color: var(--gold); font-size: 10px; font-weight: 700; }
 .wahaj-offer-detail__content h1 { margin: 14px 0 0; color: var(--fg); font-size: clamp(27px, 4vw, 42px); line-height: 1.35; font-weight: 600; }
