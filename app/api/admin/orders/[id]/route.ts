@@ -5,6 +5,7 @@ import { OrderStatus, Prisma } from '@prisma/client';
 import { syncShipmentFromOrderStatus } from '@/lib/shipment-sync';
 import { notifyShipment } from '@/lib/whatsapp';
 import { notifyOrderStatusByEmail, notifyShipmentByEmail } from '@/lib/email';
+import { refundGiftCardForOrder } from '@/lib/gift-card';
 // 1. جلب تفاصيل الطلب مع خط السير
 export async function GET(_: Request, { params }: { params: Promise<{ id: string }> }) {
   const u = await requireUser(['OWNER', 'ADMIN', 'MANAGER', 'ORDER_MANAGER', 'VIEWER']);
@@ -64,6 +65,8 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
           ...(trackingNumber !== undefined ? { trackingNumber } : {}),
         },
       });
+
+      if (status === 'CANCELLED' && old.status !== 'CANCELLED') await refundGiftCardForOrder(tx, old);
 
       await tx.orderTimeline.create({
         data: {
