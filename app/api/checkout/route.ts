@@ -6,6 +6,7 @@ import { normalizePhone } from '@/lib/security';
 import { getCustomer } from '@/lib/customer-auth';
 import { Prisma, PaymentMethod } from '@prisma/client';
 import { del, put } from '@vercel/blob';
+import { getCustomerSegmentKey } from '@/lib/customer-segment';
 import { calculatePricing, type OfferPricing } from '@/lib/pricing';
 import { recordInventoryEntry } from '@/lib/inventory';
 import { notifyOrderCreated } from '@/lib/whatsapp';
@@ -80,9 +81,13 @@ export async function POST(req: Request) {
     if (!zone) return NextResponse.json({ error: 'لا توجد منطقة شحن مفعلة لهذا العنوان' }, { status: 400 });
 
     const existingCustomer = loggedInCustomer?.id
-      ? await prisma.customer.findUnique({ where: { id: loggedInCustomer.id }, select: { id: true, _count: { select: { orders: true } } } })
-      : await prisma.customer.findUnique({ where: { phone: normalizedPhone }, select: { id: true, _count: { select: { orders: true } } } });
-    const isFirstOrder = !existingCustomer || existingCustomer._count.orders === 0;
+      ? await prisma.customer.findUnique({ where: { id: loggedInCustomer.id }, select: { id: true, orders: { select: { total: true, status: true, createdAt: true }, orderBy: { createdAt: 'asc' } } } })
+      : await prisma.customer.findUnique({ where: { phone: normalizedPhone }, select: { id: true, orders: { select: { total: true, status: true, createdAt: true }, orderBy: { createdAt: 'asc' } } } });
+    const customerOrders = existingCustomer?.orders.filter(o => o.status !== 'CANCELLED') ?? [];
+    const customerSpend = customerOrders.reduce((sum, o) => sum + Number(o.total), 0);
+    const customerLastOrder = customerOrders.at(-1)?.createdAt ?? null;
+    const isFirstOrder = customerOrders.length === 0;
+    const customerSegmentKey = existingCustomer ? getCustomerSegmentKey({ orderCount: customerOrders.length, spend: customerSpend, lastOrder: customerLastOrder, now }) : null;
 
     const activeOffers = await prisma.offer.findMany({
       where: {
@@ -96,6 +101,7 @@ export async function POST(req: Request) {
         maxUses: true, usedCount: true, productId: true, categoryId: true,
         buyQuantity: true, getQuantity: true, getDiscountPercent: true,
         startsAt: true, endsAt: true, active: true,
+        segmentTargets: { select: { segmentKey: true } },
       },
     });
 
@@ -123,8 +129,10 @@ export async function POST(req: Request) {
         startsAt: o.startsAt,
         endsAt: o.endsAt,
         active: o.active,
+        segmentKeys: o.segmentTargets.map((target: { segmentKey: string }) => target.segmentKey),
       })),
       isFirstOrder,
+      customerSegmentKey,
       now,
     });
     const { subtotal, shipping, discount, total } = pricing;
