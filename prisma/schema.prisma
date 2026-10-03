@@ -394,23 +394,6 @@ model Offer {
   @@index([categoryId, active])
 }
 
-model Coupon {
-  id        String       @id @default(cuid())
-  code      String       @unique
-  type      DiscountType
-  value     Decimal      @db.Decimal(10, 2)
-  minOrder  Decimal?     @db.Decimal(10, 2)
-  maxUses   Int?
-  usedCount Int          @default(0)
-  active    Boolean      @default(true)
-  startsAt  DateTime?
-  expiresAt DateTime?
-  createdAt DateTime     @default(now())
-  updatedAt DateTime     @updatedAt
-
-  @@index([active, expiresAt])
-}
-
 model AbandonedCart {
   id             String              @id @default(cuid())
   customerId     String              @unique
@@ -452,7 +435,6 @@ model Order {
   shippingAddress       String?
   shippingProvider      String?      
   trackingNumber        String?    
-  couponCode            String?
   customerNameSnapshot  String?
   customerPhoneSnapshot String?
   createdAt             DateTime        @default(now())
