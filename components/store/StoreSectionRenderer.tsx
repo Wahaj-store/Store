@@ -4,7 +4,6 @@ import {
   ArrowLeft, ChevronLeft, Check, MessageCircle, RotateCcw, ShieldCheck, Sparkles, Truck,
 } from "lucide-react";
 import Image from "next/image";
-import Link from "next/link";
 import ProductCard from "../ProductCard";
 
 function SectionHeading({
@@ -255,32 +254,31 @@ export default function StoreSectionRenderer({
                     </div>
 
                     <div className="wahaj-offers__grid">
-                      {offers.slice(0, 3).map((o: any, index: number) => {
-                        const value = o.discountValue === null || o.discountValue === undefined
-                          ? null
-                          : Number(o.discountValue);
-                        const discountLabel =
-                          o.type === "FREE_SHIPPING"
-                            ? "شحن مجاني"
-                            : o.type === "BUY_X_GET_Y"
-                              ? `اشترِ ${Number(o.buyQuantity || 0).toLocaleString("ar-EG")} واحصلي على ${Number(o.getQuantity || 0).toLocaleString("ar-EG")}`
-                              : value !== null
-                                ? `${o.discountType === "FIXED" ? "خصم" : "خصم"} ${value.toLocaleString("ar-EG")}${o.discountType === "FIXED" ? " ج.م" : "%"}`
-                                : "عرض خاص لفترة محدودة";
-
-                        return (
-                          <Link key={o.id} href={`/offers/${o.id}`} className="wahaj-offer-card">
+                      {offers.slice(0, 3).map((o: any, index: number) => (
+                        <article key={o.id} className="wahaj-offer-card">
+                          <div className="wahaj-offer-card__top">
+                            <span className="wahaj-offer-card__icon"><Sparkles size={16} /></span>
                             <span className="wahaj-offer-card__number">0{index + 1}</span>
-                            <span className="wahaj-offer-card__icon" aria-hidden="true"><Sparkles size={17} /></span>
-                            <span className="wahaj-offer-card__body">
-                              <span className="wahaj-offer-card__eyebrow">عرض مختار</span>
-                              <span className="wahaj-offer-card__title">{o.name}</span>
-                              <span className="wahaj-offer-card__discount">{discountLabel}</span>
-                              <span className="wahaj-offer-card__cta">اكتشفي العرض <ArrowLeft size={14} /></span>
-                            </span>
-                          </Link>
-                        );
-                      })}
+                          </div>
+                          <div className="wahaj-offer-card__main">
+                            <span className="wahaj-offer-card__eyebrow">عرض مختار</span>
+                            <h3>{o.name}</h3>
+                            <p>
+                              {o.type === "FREE_SHIPPING"
+                                ? "شحن مجاني"
+                                : o.type === "BUY_X_GET_Y"
+                                  ? "عرض خاص على المنتجات المؤهلة"
+                                  : o.discountValue
+                                    ? `خصم ${Number(o.discountValue).toLocaleString("ar-EG")}${o.discountType === "FIXED" ? " ج.م" : "%"}`
+                                    : "عرض خاص لفترة محدودة"}
+                            </p>
+                          </div>
+                          <a href={`/offers/${o.id}`} className="wahaj-offer-card__cta">
+                            <span>اكتشفي العرض</span>
+                            <ArrowLeft size={14} />
+                          </a>
+                        </article>
+                      ))}
                     </div>
                   </div>
                 </div>
