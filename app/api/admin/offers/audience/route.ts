@@ -29,11 +29,11 @@ export async function PUT(req: Request) {
 
   await prisma.offer.findUniqueOrThrow({ where: { id: offerId }, select: { id: true } });
   await prisma.$transaction(async tx => {
-    await tx.offerSegmentTarget.deleteMany({ where: { offerId } });
-    if (segmentKeys.length) {
-      await tx.offerSegmentTarget.createMany({ data: segmentKeys.map(segmentKey => ({ offerId, segmentKey })) });
-    }
-  });
-
+    await tx.offerSegmentTarget.createMany({
+  data: segmentKeys.map((segmentKey: string) => ({
+    offerId,
+    segmentKey,
+  })),
+});
   return NextResponse.json({ ok: true, offerId, segmentKeys });
 }
