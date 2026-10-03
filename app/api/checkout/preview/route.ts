@@ -23,7 +23,13 @@ export async function POST(req: Request) {
       });
     }
 
-    const ids = [...new Set(items.map((item: any) => String(item?.productId || '')).filter(Boolean))];
+    const ids: string[] = [
+      ...new Set<string>(
+        items
+          .map((item: any) => String(item?.productId || ''))
+          .filter(Boolean)
+      ),
+    ];
     const products = await prisma.product.findMany({
       where: { id: { in: ids }, status: 'PUBLISHED' },
       include: { variants: true },
