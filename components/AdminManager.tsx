@@ -1094,14 +1094,33 @@ function CustomerSegments({ data, onRefresh }: any) {
     muted: 'text-muted-foreground bg-muted/20 border-border/40',
   };
 
+  const selectedSegmentData = (data.segments || []).find((x: any) => x.key === selectedSegment);
+
   async function loadAudience(key = selectedSegment) {
     setAudienceLoading(true);
     setAudienceMsg('');
     try {
       const result = await api(`/api/admin/customer-segments?segment=${encodeURIComponent(key)}`);
-      setAudience(result.audience || []);
+      const nextAudience = Array.isArray(result?.audience) ? result.audience : [];
+
+      // Keep the table useful immediately from the segment payload as a fallback.
+      // The API remains the source of truth and replaces this data when available.
+      if (nextAudience.length > 0 || key === 'all') {
+        setAudience(nextAudience);
+      } else {
+        const segment = (result?.segments || []).find((x: any) => x.key === key);
+        setAudience(Array.isArray(segment?.members) ? segment.members.map((m: any) => ({
+          ...m,
+          segment: key,
+        })) : []);
+      }
     } catch (e: any) {
-      setAudience([]);
+      const fallback = key === 'all'
+        ? []
+        : Array.isArray(selectedSegmentData?.members)
+          ? selectedSegmentData.members.map((m: any) => ({ ...m, segment: key }))
+          : [];
+      setAudience(fallback);
       setAudienceMsg(e?.message || 'تعذر تحميل الجمهور المستهدف');
     } finally {
       setAudienceLoading(false);
@@ -1110,6 +1129,7 @@ function CustomerSegments({ data, onRefresh }: any) {
 
   function selectSegment(key: string) {
     setSelectedSegment(key);
+    setAudienceMsg('');
     loadAudience(key);
   }
 
@@ -1141,7 +1161,7 @@ function CustomerSegments({ data, onRefresh }: any) {
             <h3 className="font-serif font-bold">جمهور التسويق</h3>
             <p className="text-[11px] text-muted-foreground mt-1">اختر شريحة لعرض العملاء الفعليين وتجهيزها للتواصل أو التصدير.</p>
           </div>
-          <span className="px-3 py-1.5 rounded-full border border-[var(--gold)]/20 bg-[var(--gold)]/10 text-[var(--gold)] text-[10px] font-bold">{audience.length} عميل</span>
+          <span className="px-3 py-1.5 rounded-full border border-[var(--gold)]/20 bg-[var(--gold)]/10 text-[var(--gold)] text-[10px] font-bold">{audience.length || (selectedSegment !== 'all' ? Number(selectedSegmentData?.count || 0) : 0)} عميل</span>
         </div>
         <div className="flex flex-wrap gap-2 mb-4">
           <button type="button" onClick={() => selectSegment('all')} className={`px-3 py-2 rounded-xl border text-xs cursor-pointer ${selectedSegment === 'all' ? 'bg-[var(--gold)] text-[var(--gold-contrast)] border-[var(--gold)]' : 'border-border/40 bg-muted/10'}`}>كل العملاء</button>
@@ -1157,8 +1177,8 @@ function CustomerSegments({ data, onRefresh }: any) {
           <table className="w-full text-right text-xs">
             <thead><tr className="border-b border-border/30 text-muted-foreground"><th className="p-3">العميل</th><th className="p-3">الهاتف</th><th className="p-3">الطلبات</th><th className="p-3">الإنفاق</th><th className="p-3">آخر طلب</th></tr></thead>
             <tbody>
-              {audience.slice(0, 50).map((m: any) => <tr key={m.id} className="border-b border-border/20 last:border-0"><td className="p-3 font-medium">{m.name}</td><td className="p-3" dir="ltr">{m.phone || '—'}</td><td className="p-3">{m.orderCount}</td><td className="p-3">{formatMoney(m.spend)}</td><td className="p-3 text-muted-foreground">{m.lastOrder ? new Date(m.lastOrder).toLocaleDateString('ar-EG') : '—'}</td></tr>)}
-              {!audience.length && !audienceLoading && <tr><td colSpan={5} className="p-8 text-center text-muted-foreground">اختر شريحة لعرض جمهورها.</td></tr>}
+              {(audience.length ? audience : (selectedSegment !== 'all' && Array.isArray(selectedSegmentData?.members) ? selectedSegmentData.members : [])).slice(0, 50).map((m: any) => <tr key={m.id} className="border-b border-border/20 last:border-0"><td className="p-3 font-medium">{m.name}</td><td className="p-3" dir="ltr">{m.phone || '—'}</td><td className="p-3">{m.orderCount}</td><td className="p-3">{formatMoney(m.spend)}</td><td className="p-3 text-muted-foreground">{m.lastOrder ? new Date(m.lastOrder).toLocaleDateString('ar-EG') : '—'}</td></tr>)}
+              {!audience.length && !audienceLoading && selectedSegment === 'all' && <tr><td colSpan={5} className="p-8 text-center text-muted-foreground">اختر شريحة لعرض جمهورها.</td></tr>}
             </tbody>
           </table>
         </div>
