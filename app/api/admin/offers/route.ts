@@ -88,6 +88,24 @@ export async function PUT(req: Request) {
   }
 }
 
+export async function PATCH(req: Request) {
+  const u = await requireUser(['OWNER', 'ADMIN', 'MANAGER', 'EDITOR']);
+  if (!u) return NextResponse.json({ error: 'غير مصرح' }, { status: 403 });
+  try {
+    const body = await req.json();
+    const id = String(body.id || '').trim();
+    if (!id) throw new Error('معرّف العرض مطلوب');
+    if (typeof body.active !== 'boolean') throw new Error('حالة العرض غير صالحة');
+
+    return NextResponse.json(await prisma.offer.update({
+      where: { id },
+      data: { active: body.active },
+    }));
+  } catch (e: any) {
+    return NextResponse.json({ error: e?.message || 'تعذر تغيير حالة العرض' }, { status: 400 });
+  }
+}
+
 export async function DELETE(req: Request) {
   const u = await requireUser(['OWNER', 'ADMIN', 'MANAGER']);
   if (!u) return NextResponse.json({ error: 'غير مصرح' }, { status: 403 });
