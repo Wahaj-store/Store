@@ -7,13 +7,6 @@ export type PricingLine = {
   categoryId?: string;
 };
 
-export type CouponPricing = {
-  code: string;
-  type: DiscountType;
-  value: number;
-  minOrder: number | null;
-};
-
 export type OfferPricing = {
   id: string;
   name: string;
@@ -34,6 +27,7 @@ export type OfferPricing = {
   startsAt: Date | null;
   endsAt: Date | null;
   active: boolean;
+  segmentKeys: string[];
 };
 
 export type AppliedOffer = { id: string; name: string; discount: number };
@@ -44,7 +38,6 @@ export type PricingResult = {
   shipping: number;
   total: number;
   freeShipping: boolean;
-  couponCode?: string;
   offerName?: string;
   appliedOffers: AppliedOffer[];
 };
@@ -56,17 +49,16 @@ export function calculateSubtotal(lines: PricingLine[]) {
   return roundMoney(lines.reduce((sum, line) => sum + line.unitPrice * line.quantity, 0));
 }
 
-export function calculateCouponDiscount(subtotal: number, coupon: CouponPricing) {
-  if (coupon.minOrder !== null && subtotal < coupon.minOrder) return 0;
-  const raw = coupon.type === DiscountType.PERCENTAGE ? subtotal * (coupon.value / 100) : coupon.value;
-  return roundMoney(Math.min(subtotal, Math.max(0, raw)));
-}
-
 function isActiveOffer(offer: OfferPricing, now: Date) {
   return offer.active
     && (!offer.startsAt || offer.startsAt <= now)
     && (!offer.endsAt || offer.endsAt >= now)
     && (offer.maxUses === null || offer.usedCount < offer.maxUses);
+}
+
+function targetsCustomer(offer: OfferPricing, customerSegmentKey: string | null) {
+  if (!offer.segmentKeys.length) return true;
+  return customerSegmentKey !== null && offer.segmentKeys.includes(customerSegmentKey);
 }
 
 function targetsLine(offer: OfferPricing, line: PricingLine) {
@@ -85,8 +77,8 @@ function eligibleBase(lines: PricingLine[], offer: OfferPricing) {
   return roundMoney(lines.filter(line => targetsLine(offer, line)).reduce((sum, line) => sum + line.unitPrice * line.quantity, 0));
 }
 
-function calculateOfferDiscount(subtotal: number, lines: PricingLine[], offer: OfferPricing, isFirstOrder: boolean, now: Date) {
-  if (!isActiveOffer(offer, now) || (offer.minOrder !== null && subtotal < offer.minOrder)) return 0;
+function calculateOfferDiscount(subtotal: number, lines: PricingLine[], offer: OfferPricing, isFirstOrder: boolean, customerSegmentKey: string | null, now: Date) {
+  if (!isActiveOffer(offer, now) || !targetsCustomer(offer, customerSegmentKey) || (offer.minOrder !== null && subtotal < offer.minOrder)) return 0;
   if (offer.type === OfferType.FREE_SHIPPING) return 0;
   if (offer.type === OfferType.FIRST_ORDER && !isFirstOrder) return 0;
 
@@ -128,18 +120,19 @@ export function calculatePricing(args: {
   lines: PricingLine[];
   shippingPrice: number;
   shippingFreeAbove: number | null;
-  coupon?: CouponPricing;
   offers?: OfferPricing[];
   isFirstOrder?: boolean;
+  customerSegmentKey?: string | null;
   now?: Date;
 }): PricingResult {
   const now = args.now ?? new Date();
   const subtotal = calculateSubtotal(args.lines);
   const isFirstOrder = Boolean(args.isFirstOrder);
+  const customerSegmentKey = args.customerSegmentKey ?? null;
   const offers = args.offers ?? [];
   const eligible = offers
     .filter(offer => isActiveOffer(offer, now))
-    .map(offer => ({ offer, discount: calculateOfferDiscount(subtotal, args.lines, offer, isFirstOrder, now) }))
+    .map(offer => ({ offer, discount: calculateOfferDiscount(subtotal, args.lines, offer, isFirstOrder, customerSegmentKey, now) }))
     .filter(x => x.discount > 0)
     .sort((a, b) => b.offer.priority - a.offer.priority || b.discount - a.discount);
 
@@ -147,16 +140,12 @@ export function calculatePricing(args: {
   const nonStackable = eligible.filter(x => !x.offer.stackable);
   const selected = stackable.length ? stackable : nonStackable.slice(0, 1);
   const offerDiscount = roundMoney(Math.min(subtotal, selected.reduce((sum, x) => sum + x.discount, 0)));
-  const couponDiscount = args.coupon ? calculateCouponDiscount(subtotal, args.coupon) : 0;
-
-  // Coupons remain mutually exclusive with promotional discounts: the larger eligible discount wins.
-  const useCoupon = couponDiscount >= offerDiscount && couponDiscount > 0;
-  const discount = Math.max(couponDiscount, offerDiscount);
-  const appliedOffers = useCoupon ? [] : selected.map(x => ({ id: x.offer.id, name: x.offer.name, discount: x.discount }));
+  const discount = offerDiscount;
+  const appliedOffers = selected.map(x => ({ id: x.offer.id, name: x.offer.name, discount: x.discount }));
 
   const freeByThreshold = args.shippingFreeAbove !== null && subtotal - discount >= args.shippingFreeAbove;
   const freeShippingOffer = offers
-    .filter(offer => isActiveOffer(offer, now) && offer.type === OfferType.FREE_SHIPPING)
+    .filter(offer => isActiveOffer(offer, now) && targetsCustomer(offer, customerSegmentKey) && offer.type === OfferType.FREE_SHIPPING)
     .filter(offer => offer.minOrder === null || subtotal >= offer.minOrder)
     .filter(offer => eligibleBase(args.lines, offer) > 0)
     .sort((a, b) => b.priority - a.priority)[0];
@@ -176,7 +165,6 @@ export function calculatePricing(args: {
     total,
     freeShipping,
     appliedOffers: finalAppliedOffers,
-    ...(useCoupon ? { couponCode: args.coupon?.code } : {}),
     ...(finalAppliedOffers.length ? { offerName: finalAppliedOffers.map(x => x.name).join(' + ') } : {}),
   };
 }
