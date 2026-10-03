@@ -92,6 +92,10 @@ function CheckoutContent() {
   const [shippingZones, setShippingZones] = useState<any[]>([]);
   const [selectedGovernorate, setSelectedGovernorate] = useState('');
   const [coupon, setCoupon] = useState('');
+  const [giftCardCode, setGiftCardCode] = useState('');
+  const [giftCardBalance, setGiftCardBalance] = useState<number | null>(null);
+  const [giftCardMsg, setGiftCardMsg] = useState('');
+  const [checkingGiftCard, setCheckingGiftCard] = useState(false);
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState('');
   
@@ -193,6 +197,20 @@ function CheckoutContent() {
   const subtotal = c.reduce((s, x) => s + Number(x.price) * x.quantity, 0);
   const finalTotal = subtotal + shippingCost;
 
+  async function validateGiftCard() {
+    if (!giftCardCode.trim()) return;
+    setCheckingGiftCard(true);
+    setGiftCardMsg('');
+    try {
+      const res = await fetch('/api/gift-cards/validate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ code: giftCardCode }) });
+      const data = await res.json();
+      if (!res.ok) { setGiftCardBalance(null); setGiftCardMsg(data.error || 'بطاقة الهدايا غير صالحة'); return; }
+      setGiftCardBalance(Number(data.balance));
+      setGiftCardMsg('تم التحقق من بطاقة الهدايا. سيتم خصم الرصيد المستحق عند إتمام الطلب.');
+    } catch { setGiftCardBalance(null); setGiftCardMsg('تعذر التحقق من بطاقة الهدايا.'); }
+    finally { setCheckingGiftCard(false); }
+  }
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     setUploadError('');
@@ -263,6 +281,7 @@ function CheckoutContent() {
       notes: formData.notes,
       paymentMethod: pay,
       couponCode: coupon || undefined,
+      giftCardCode: giftCardCode.trim() || undefined,
       idempotencyKey: crypto.randomUUID(),
       paymentReference: e.currentTarget.paymentReference?.value || undefined,
       items: c.map(x => ({ productId: x.productId, variantId: x.variantId, quantity: x.quantity }))
@@ -397,6 +416,17 @@ function CheckoutContent() {
             <label className="block text-xs font-semibold text-muted-foreground space-y-1.5">كود الخصم
               <input value={coupon} onChange={e => setCoupon(e.target.value.toUpperCase())} className="w-full mt-1 px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[var(--gold)] transition shadow-xs" placeholder="اختياري" dir="ltr" />
             </label>
+
+            <div className="space-y-2 rounded-2xl border border-[var(--gold)]/20 bg-[var(--gold)]/5 p-4">
+              <label className="block text-xs font-semibold text-muted-foreground">بطاقة الهدايا
+                <div className="mt-1 flex gap-2">
+                  <input value={giftCardCode} onChange={e => { setGiftCardCode(e.target.value.toUpperCase()); setGiftCardBalance(null); setGiftCardMsg(''); }} className="min-w-0 flex-1 px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[var(--gold)] transition shadow-xs" placeholder="WAHAJ-XXXX-XXXX" dir="ltr" />
+                  <button type="button" onClick={validateGiftCard} disabled={checkingGiftCard || !giftCardCode.trim()} className="px-4 py-3 rounded-2xl bg-[var(--gold)] text-[var(--gold-contrast)] text-xs font-bold disabled:opacity-50">{checkingGiftCard ? '...' : 'تحقق'}</button>
+                </div>
+              </label>
+              {giftCardBalance !== null && <p className="text-xs text-[var(--gold)]">الرصيد المتاح: {giftCardBalance.toLocaleString('ar-EG')} ج.م</p>}
+              {giftCardMsg && <p className="text-[11px] text-muted-foreground">{giftCardMsg}</p>}
+            </div>
           </div>
 
           {/* قسم طريقة الدفع */}
