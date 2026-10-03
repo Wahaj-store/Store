@@ -6,6 +6,7 @@ import { recordInventoryEntry } from '@/lib/inventory';
 import { notifyOrderStatus } from '@/lib/whatsapp';
 import { syncShipmentFromOrderStatus } from '@/lib/shipment-sync';
 import { notifyOrderStatusByEmail, notifyShipmentByEmail } from '@/lib/email';
+import { refundGiftCardForOrder } from '@/lib/gift-card';
 const READ=['OWNER','ADMIN','MANAGER','ORDER_MANAGER','VIEWER'];
 const WRITE=['OWNER','ADMIN','MANAGER','ORDER_MANAGER'];
 export async function GET(){const u=await requireUser(READ);if(!u)return NextResponse.json({error:'غير مصرح'},{status:403});return NextResponse.json(await prisma.order.findMany({include:{customer:{select:{id:true,name:true,phone:true,email:true}},items:{include:{product:true}},payments:true,timeline:{orderBy:{createdAt:'asc'}}},orderBy:{createdAt:'desc'},take:100}));}
@@ -35,6 +36,7 @@ export async function PUT(req:Request){
     }
     o=await tx.order.update({where:{id:o.id},data:{stockReleasedAt:new Date()}});
    }
+   if(status==='CANCELLED'&&old.status!=='CANCELLED') await refundGiftCardForOrder(tx, old);
    if(paymentStatus!==old.paymentStatus) await tx.payment.updateMany({where:{orderId:o.id},data:{status:paymentStatus,confirmedAt:paymentStatus==='CONFIRMED'?new Date():null}});
    if(status!==old.status) await tx.orderTimeline.create({data:{orderId:o.id,status,note:`تم تغيير الحالة بواسطة ${u.name||u.email}`}});
    await syncShipmentFromOrderStatus(tx, o.id, status, { provider: old.shippingProvider, trackingNumber: old.trackingNumber, note: `تمت مزامنة الشحنة مع حالة الطلب بواسطة ${u.name||u.email}` });
