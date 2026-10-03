@@ -150,38 +150,80 @@ export async function GET(_: Request, { params }: { params: Promise<{ id: string
   }
   .top-accent { height: 5px; background: var(--gold); }
   .header {
-    padding: 28px 34px 24px;
+    padding: 18px 28px 16px;
     display: grid;
-    grid-template-columns: 1fr auto 1fr;
+    grid-template-columns: 1fr auto;
     align-items: center;
     gap: 24px;
     border-bottom: 1px solid var(--line);
   }
-  .brand { text-align: right; }
+  .brand {
+    grid-column: 2;
+    grid-row: 1;
+    text-align: right;
+    justify-self: end;
+  }
   .logo {
     display: block;
-    width: 180px;
+    width: 112px;
     max-width: 100%;
     height: auto;
     object-fit: contain;
     object-position: right center;
   }
-  .brand-caption { margin-top: 5px; color: var(--muted); font-size: 9px; letter-spacing: .7px; }
-  .header-center { text-align: center; }
-  .invoice-word {
-    display: inline-block;
-    color: var(--gold-dark);
-    font-size: 10px;
-    font-weight: 800;
-    letter-spacing: 2px;
-    margin-bottom: 2px;
+  .brand-caption {
+    margin-top: 3px;
+    color: var(--muted);
+    font-size: 8px;
+    letter-spacing: .4px;
   }
-  .header-center h1 { margin: 0; font-size: 27px; line-height: 1.15; font-weight: 800; }
-  .header-center p { margin: 6px 0 0; color: var(--muted); font-size: 10px; }
-  .header-meta { text-align: left; }
-  .meta-label { color: var(--muted); font-size: 9px; margin-bottom: 2px; }
-  .order-number { font-size: 16px; font-weight: 800; direction: ltr; unicode-bidi: plaintext; }
-  .date { color: #5f5b54; font-size: 10px; margin-top: 3px; }
+  .invoice-summary {
+    grid-column: 1;
+    grid-row: 1;
+    text-align: left;
+    direction: rtl;
+    justify-self: start;
+  }
+  .invoice-word {
+    display: block;
+    color: var(--gold-dark);
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 1.8px;
+    margin-bottom: 1px;
+    direction: ltr;
+    text-align: left;
+  }
+  .invoice-summary h1 {
+    margin: 0;
+    font-size: 21px;
+    line-height: 1.15;
+    font-weight: 800;
+  }
+  .invoice-summary p {
+    margin: 3px 0 7px;
+    color: var(--muted);
+    font-size: 9px;
+  }
+  .header-meta {
+    border-top: 1px solid var(--line);
+    padding-top: 5px;
+    text-align: left;
+  }
+  .meta-label {
+    display: none;
+  }
+  .order-number {
+    font-size: 12px;
+    font-weight: 800;
+    direction: ltr;
+    unicode-bidi: plaintext;
+  }
+  .date {
+    color: #5f5b54;
+    font-size: 8px;
+    margin-top: 1px;
+  }
 
   .content { padding: 24px 34px 30px; }
   .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
@@ -271,28 +313,52 @@ export async function GET(_: Request, { params }: { params: Promise<{ id: string
     }
     .top-accent { height: 2px; }
     .header {
-      padding: 8px 12px 7px;
+      padding: 5px 10px 5px;
+      grid-template-columns: 1fr auto;
       gap: 10px;
       border-bottom: 1px solid var(--line);
     }
+    .brand {
+      grid-column: 2;
+      grid-row: 1;
+      justify-self: end;
+      text-align: right;
+    }
     .logo {
-      width: 92px;
-      max-height: 38px;
+      width: 64px;
+      max-height: 28px;
     }
-    .brand-caption { display: none; }
+    .brand-caption {
+      display: block;
+      margin-top: 1px;
+      font-size: 5.5px;
+      letter-spacing: 0;
+    }
+    .invoice-summary {
+      grid-column: 1;
+      grid-row: 1;
+      justify-self: start;
+      text-align: left;
+    }
     .invoice-word {
-      font-size: 7px;
-      letter-spacing: 1.2px;
-      margin-bottom: 1px;
+      font-size: 6.5px;
+      letter-spacing: 1.1px;
+      margin-bottom: 0;
     }
-    .header-center h1 {
-      font-size: 18px;
+    .invoice-summary h1 {
+      font-size: 15px;
       line-height: 1.1;
     }
-    .header-center p { display: none; }
-    .meta-label { font-size: 7px; margin-bottom: 1px; }
-    .order-number { font-size: 11px; }
-    .date { font-size: 7px; margin-top: 1px; }
+    .invoice-summary p {
+      margin: 1px 0 3px;
+      font-size: 7px;
+    }
+    .header-meta {
+      padding-top: 3px;
+    }
+    .meta-label { display: none; }
+    .order-number { font-size: 9px; }
+    .date { font-size: 6.5px; margin-top: 0; }
 
     .content { padding: 9px 12px 10px; }
 
@@ -400,9 +466,10 @@ export async function GET(_: Request, { params }: { params: Promise<{ id: string
     }
   }
   @media (max-width: 720px) {
-    .header { grid-template-columns: 1fr; text-align: center; }
-    .brand, .header-meta { text-align: center; }
-    .logo { margin: 0 auto; }
+    .header { grid-template-columns: 1fr auto; text-align: initial; }
+    .brand { text-align: right; }
+    .invoice-summary { text-align: left; }
+    .logo { margin: 0; }
     .info-grid, .bottom-grid { grid-template-columns: 1fr; }
     .content { padding: 20px; }
     .header { padding: 22px 20px; }
@@ -426,16 +493,14 @@ export async function GET(_: Request, { params }: { params: Promise<{ id: string
         <div class="brand-caption">متجر واجهة تسوق راقية</div>
       </div>
 
-      <div class="header-center">
+      <div class="invoice-summary">
         <div class="invoice-word">INVOICE</div>
         <h1>فاتورة شراء</h1>
         <p>شكرًا لاختيارك Wahaj Store</p>
-      </div>
-
-      <div class="header-meta">
-        <div class="meta-label">رقم الطلب</div>
-        <div class="order-number">#${esc(order.number)}</div>
-        <div class="date">${esc(dateTime(order.createdAt))}</div>
+        <div class="header-meta">
+          <div class="order-number">#${esc(order.number)}</div>
+          <div class="date">${esc(dateTime(order.createdAt))}</div>
+        </div>
       </div>
     </header>
 
