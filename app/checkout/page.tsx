@@ -563,7 +563,7 @@ function CheckoutContent() {
 
           {pricing.appliedOffers?.length > 0 && offerDiscount > 0 && (
             <div className="rounded-2xl border border-[var(--gold)]/30 bg-[var(--gold)]/5 px-3.5 py-3 text-[11px] text-[var(--gold)] font-medium">
-              ✓ تم تطبيق العرض تلقائيًا على المنتجات المؤهلة قبل حساب الإجمالي النهائي.
+              ✓ تم تطبيق العرض على المنتجات المؤهلة .
             </div>
           )}
 
