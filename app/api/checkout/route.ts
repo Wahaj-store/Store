@@ -10,6 +10,7 @@ import { calculatePricing } from '@/lib/pricing';
 import { recordInventoryEntry } from '@/lib/inventory';
 import { notifyOrderCreated } from '@/lib/whatsapp';
 import { notifyOrderCreatedByEmail } from '@/lib/email';
+import { markLatestCartRecovered } from '@/lib/abandoned-cart';
 
 const Item = z.object({ productId: z.string().min(1), variantId: z.string().optional(), quantity: z.number().int().positive().max(50) });
 const S = z.object({
@@ -189,6 +190,8 @@ export async function POST(req: Request) {
     const orderCustomer = order.customerId
       ? await prisma.customer.findUnique({ where: { id: order.customerId }, select: { email: true, name: true } })
       : null;
+    if (order.customerId) await markLatestCartRecovered(order.customerId, order.id);
+
     await notifyOrderCreatedByEmail({
       email: orderCustomer?.email,
       name: orderCustomer?.name || order.customerNameSnapshot,
