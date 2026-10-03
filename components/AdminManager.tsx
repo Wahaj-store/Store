@@ -7,7 +7,7 @@ import {
   GripVertical, Trash2, Upload, Plus, Save, Image as ImageIcon, Search, ChevronLeft,
   Package, FolderTree, Tag, CreditCard, Truck, LayoutTemplate, 
   MessageSquareQuote, Users, Shield, ShoppingCart, BarChart3, Sliders, 
-  FileText, HelpCircle, Mail, Settings, Gift, RefreshCcw, Share2, Lock, LucideProps, Menu, X
+  FileText, HelpCircle, Mail, Settings, Gift, RefreshCcw, Share2, Lock, LucideProps, Menu, X, TrendingUp, TrendingDown, PieChart
 } from 'lucide-react';
 import MediaPicker from './MediaPicker';
 import Image from 'next/image';
@@ -25,6 +25,7 @@ const menuGroups: MenuGroup[] = [
       ['categories', 'التصنيفات', FolderTree],
       ['orders', 'الطلبات', ShoppingCart],
       ['customers', 'العملاء', Users],
+      ['customer-segments', 'تقسيم العملاء', Users],
     ]
   },
   {
@@ -142,6 +143,7 @@ export default function AdminManager({ sidebarOpen, setSidebarOpen }: { sidebarO
         media: '/api/admin/media',
         reviews: '/api/admin/reviews',
         customers: '/api/admin/customers',
+        'customer-segments': '/api/admin/customer-segments',
         users: '/api/admin/users',
         orders: '/api/admin/orders',
         analytics: '/api/admin/analytics',
@@ -712,6 +714,7 @@ async function toggleOfferActive(offer: any, onRefresh: () => void) {
 
 function Content({ tab, data, onEdit, onDelete, onRefresh, onReorder }: any) {
   if (tab === 'analytics') return <Analytics data={data[0] || {}} />;
+  if (tab === 'customer-segments') return <CustomerSegments data={data[0] || {}} onRefresh={onRefresh} />;
   if (tab === 'media') return <Media data={data} onDelete={onDelete} onRefresh={onRefresh} />;
   if (tab === 'gift-cards') return (
     <div className="space-y-4">
@@ -947,21 +950,153 @@ function Content({ tab, data, onEdit, onDelete, onRefresh, onReorder }: any) {
   );
 }
 
-function Analytics({ data }: any) {
+function formatMoney(value: any) {
+  return `${Number(value || 0).toLocaleString('ar-EG')} ج.م`;
+}
+
+function Delta({ value }: { value: number }) {
+  const positive = value >= 0;
+  const Icon = positive ? TrendingUp : TrendingDown;
   return (
-    <div className="grid gap-4 md:grid-cols-3">
-      <div className="bg-muted/10 border border-border/40 rounded-3xl p-6 shadow-xs space-y-1">
-        <p className="text-muted-foreground text-xs font-light">إجمالي المبيعات</p>
-        <h3 className="text-2xl font-serif font-bold text-[var(--gold)]">{data.totalSales || 0} ج.م</h3>
+    <span className={`inline-flex items-center gap-1 text-[10px] ${positive ? 'text-green-600' : 'text-red-500'}`}>
+      <Icon size={12} /> {Math.abs(Number(value || 0))}%
+    </span>
+  );
+}
+
+function Analytics({ data: initialData }: any) {
+  const [days, setDays] = useState(30);
+  const [data, setData] = useState<any>(initialData || {});
+  const [loading, setLoading] = useState(false);
+
+  async function loadRange(nextDays: number) {
+    setDays(nextDays);
+    setLoading(true);
+    try {
+      const x = await api(`/api/admin/analytics?days=${nextDays}`);
+      setData(x || {});
+    } catch (e: any) {
+      if (typeof window !== 'undefined') window.alert(e?.message || 'تعذر تحميل التحليلات.');
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  const totals = data.totals || {};
+  const comparison = data.comparison || {};
+  const daily = data.daily || [];
+  const maxSales = Math.max(1, ...daily.map((x: any) => Number(x.sales || 0)));
+  const statusLabels: Record<string, string> = { NEW: 'جديد', PROCESSING: 'قيد التجهيز', SHIPPED: 'تم الشحن', DELIVERED: 'تم التسليم', CANCELLED: 'ملغي' };
+  const paymentLabels: Record<string, string> = { COD: 'الدفع عند الاستلام', VODAFONE_CASH: 'فودافون كاش', INSTAPAY: 'InstaPay' };
+
+  return (
+    <div className="space-y-5">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h2 className="text-xl md:text-2xl font-serif font-bold text-foreground">التحليلات المتقدمة</h2>
+          <p className="text-xs text-muted-foreground font-light mt-1">قراءة أداء المتجر وسلوك العملاء من الطلبات الفعلية.</p>
+        </div>
+        <div className="flex items-center gap-1.5 p-1 rounded-2xl bg-muted/10 border border-border/40">
+          {[7, 30, 90, 365].map((x) => (
+            <button key={x} onClick={() => loadRange(x)} className={`px-3 py-2 rounded-xl text-[11px] transition cursor-pointer ${days === x ? 'bg-[var(--gold)] text-[var(--gold-contrast)] font-bold' : 'text-muted-foreground hover:bg-muted/20'}`}>
+              {x === 7 ? '7 أيام' : x === 30 ? '30 يوم' : x === 90 ? '90 يوم' : 'سنة'}
+            </button>
+          ))}
+        </div>
       </div>
-      <div className="bg-muted/10 border border-border/40 rounded-3xl p-6 shadow-xs space-y-1">
-        <p className="text-muted-foreground text-xs font-light">إجمالي الطلبات</p>
-        <h3 className="text-2xl font-serif font-bold text-foreground">{data.totalOrders || 0}</h3>
+
+      {loading && <div className="text-xs text-muted-foreground">جارٍ تحديث البيانات…</div>}
+
+      <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+        {[
+          ['المبيعات', formatMoney(totals.sales), comparison.sales, 'text-[var(--gold)]'],
+          ['الطلبات', totals.orders || 0, comparison.orders, 'text-foreground'],
+          ['متوسط الطلب', formatMoney(totals.aov), comparison.aov, 'text-foreground'],
+          ['العملاء النشطون', totals.activeCustomers || 0, comparison.activeCustomers, 'text-foreground'],
+        ].map(([label, value, delta, tone]) => (
+          <div key={String(label)} className="bg-muted/10 border border-border/40 rounded-3xl p-5 shadow-xs space-y-2">
+            <p className="text-muted-foreground text-xs font-light">{label}</p>
+            <div className="flex items-end justify-between gap-2">
+              <h3 className={`text-2xl font-serif font-bold ${tone}`}>{value}</h3>
+              <Delta value={Number(delta || 0)} />
+            </div>
+          </div>
+        ))}
       </div>
-      <div className="bg-muted/10 border border-border/40 rounded-3xl p-6 shadow-xs space-y-1">
-        <p className="text-muted-foreground text-xs font-light">إجمالي العملاء</p>
-        <h3 className="text-2xl font-serif font-bold text-foreground">{data.totalCustomers || 0}</h3>
+
+      <div className="grid gap-4 lg:grid-cols-[1.5fr_1fr]">
+        <div className="bg-muted/10 border border-border/40 rounded-3xl p-5 shadow-xs">
+          <div className="flex items-center justify-between mb-5">
+            <div><h3 className="font-serif font-bold">المبيعات اليومية</h3><p className="text-[11px] text-muted-foreground mt-1">آخر {days} يوم</p></div>
+            <TrendingUp size={18} className="text-[var(--gold)]" />
+          </div>
+          <div className="h-48 flex items-end gap-1.5 overflow-hidden">
+            {daily.map((x: any) => (
+              <div key={x.date} className="flex-1 min-w-[4px] h-full flex items-end group" title={`${x.date}: ${formatMoney(x.sales)}`}>
+                <div className="w-full rounded-t-md bg-[var(--gold)]/70 group-hover:bg-[var(--gold)] transition" style={{ height: `${Math.max(3, (Number(x.sales || 0) / maxSales) * 100)}%` }} />
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="bg-muted/10 border border-border/40 rounded-3xl p-5 shadow-xs">
+          <div className="flex items-center gap-2 mb-4"><PieChart size={17} className="text-[var(--gold)]" /><h3 className="font-serif font-bold">طرق الدفع</h3></div>
+          <div className="space-y-3">
+            {(data.payments || []).map((x: any) => (
+              <div key={x.method} className="space-y-1">
+                <div className="flex justify-between text-xs"><span>{paymentLabels[x.method] || x.method}</span><b>{formatMoney(x.sales)}</b></div>
+                <div className="h-2 rounded-full bg-muted/20 overflow-hidden"><div className="h-full bg-[var(--gold)] rounded-full" style={{ width: `${totals.sales ? Math.min(100, (x.sales / totals.sales) * 100) : 0}%` }} /></div>
+              </div>
+            ))}
+            {!(data.payments || []).length && <p className="text-xs text-muted-foreground">لا توجد بيانات كافية.</p>}
+          </div>
+        </div>
       </div>
+
+      <div className="grid gap-4 lg:grid-cols-2">
+        <div className="bg-muted/10 border border-border/40 rounded-3xl p-5 shadow-xs">
+          <h3 className="font-serif font-bold mb-4">أفضل المنتجات</h3>
+          <div className="space-y-2.5">
+            {(data.topProducts || []).map((x: any, i: number) => <div key={`${x.name}-${i}`} className="flex items-center gap-3 py-2 border-b border-border/20 last:border-0"><span className="w-6 text-xs text-muted-foreground">{i + 1}</span><div className="flex-1 min-w-0"><p className="text-xs font-medium truncate">{x.name}</p><p className="text-[10px] text-muted-foreground">{x.quantity} قطعة</p></div><b className="text-xs">{formatMoney(x.revenue)}</b></div>)}
+            {!(data.topProducts || []).length && <p className="text-xs text-muted-foreground">لا توجد مبيعات في الفترة.</p>}
+          </div>
+        </div>
+        <div className="bg-muted/10 border border-border/40 rounded-3xl p-5 shadow-xs">
+          <h3 className="font-serif font-bold mb-4">حالة الطلبات</h3>
+          <div className="space-y-2.5">
+            {(data.statuses || []).map((x: any) => <div key={x.status} className="flex items-center justify-between text-xs"><span>{statusLabels[x.status] || x.status}</span><span className="px-2.5 py-1 rounded-full bg-muted/20 border border-border/40">{x.count}</span></div>)}
+          </div>
+        </div>
+      </div>
+
+      <div className="bg-muted/10 border border-border/40 rounded-3xl p-5 shadow-xs">
+        <div className="flex flex-wrap justify-between items-center gap-3 mb-4"><div><h3 className="font-serif font-bold">مؤشرات العملاء</h3><p className="text-[11px] text-muted-foreground mt-1">مبنية على تاريخ الطلبات الكامل.</p></div><span className="text-xs text-muted-foreground">عملاء جدد: <b className="text-foreground">{totals.newCustomers || 0}</b></span></div>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5">
+          {[['vip','VIP'],['loyal','أوفياء'],['highValue','قيمة مرتفعة'],['atRisk','معرضون للفقد']].map(([key,label]) => <div key={key} className="rounded-2xl bg-[var(--bg)] border border-border/40 p-4"><p className="text-[11px] text-muted-foreground">{label}</p><b className="text-xl font-serif">{data.segments?.[key] || 0}</b></div>)}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function CustomerSegments({ data, onRefresh }: any) {
+  const toneClass: Record<string, string> = {
+    gold: 'text-[var(--gold)] bg-[var(--gold)]/10 border-[var(--gold)]/20',
+    green: 'text-green-600 bg-green-500/10 border-green-500/20',
+    blue: 'text-blue-600 bg-blue-500/10 border-blue-500/20',
+    violet: 'text-violet-600 bg-violet-500/10 border-violet-500/20',
+    amber: 'text-amber-600 bg-amber-500/10 border-amber-500/20',
+    red: 'text-red-500 bg-red-500/10 border-red-500/20',
+    muted: 'text-muted-foreground bg-muted/20 border-border/40',
+  };
+  return (
+    <div className="space-y-5">
+      <div className="flex flex-wrap items-center justify-between gap-3"><div><h2 className="text-xl md:text-2xl font-serif font-bold">تقسيم العملاء</h2><p className="text-xs text-muted-foreground font-light mt-1">تقسيم تلقائي للعملاء حسب قيمة الشراء، التكرار وحداثة آخر طلب.</p></div><button onClick={onRefresh} className="px-4 py-2.5 rounded-xl bg-[var(--gold)] text-[var(--gold-contrast)] text-xs font-bold cursor-pointer inline-flex items-center gap-2"><RefreshCcw size={15} /> تحديث الشرائح</button></div>
+      <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+        {(data.segments || []).map((segment: any) => <div key={segment.key} className="bg-muted/10 border border-border/40 rounded-3xl p-5 shadow-xs"><div className="flex items-start justify-between gap-2"><div><h3 className="font-serif font-bold text-sm">{segment.name}</h3><p className="text-[10px] text-muted-foreground mt-1 leading-relaxed">{segment.rule}</p></div><span className={`px-2 py-1 rounded-full border text-[10px] ${toneClass[segment.tone] || toneClass.muted}`}>{segment.count}</span></div><div className="mt-4 flex justify-between text-[11px] text-muted-foreground"><span>إجمالي الإنفاق</span><b className="text-foreground">{formatMoney(segment.totalSpend)}</b></div><div className="mt-1 flex justify-between text-[11px] text-muted-foreground"><span>متوسط العميل</span><b className="text-foreground">{formatMoney(segment.avgSpend)}</b></div></div>)}
+      </div>
+      <div className="bg-muted/10 border border-border/40 rounded-3xl p-5 shadow-xs"><h3 className="font-serif font-bold mb-4">أهم العملاء داخل الشرائح</h3><div className="overflow-x-auto"><table className="w-full text-right text-xs"><thead><tr className="border-b border-border/30 text-muted-foreground"><th className="p-3">العميل</th><th className="p-3">الشريحة</th><th className="p-3">الطلبات</th><th className="p-3">الإنفاق</th><th className="p-3">آخر طلب</th></tr></thead><tbody>{(data.segments || []).flatMap((s: any) => (s.members || []).slice(0, 5).map((m: any) => ({ ...m, segment: s.name, id: `${s.key}-${m.id}` }))).map((m: any) => <tr key={m.id} className="border-b border-border/20 last:border-0"><td className="p-3 font-medium">{m.name}</td><td className="p-3 text-muted-foreground">{m.segment}</td><td className="p-3">{m.orderCount}</td><td className="p-3">{formatMoney(m.spend)}</td><td className="p-3 text-muted-foreground">{m.lastOrder ? new Date(m.lastOrder).toLocaleDateString('ar-EG') : '—'}</td></tr>)}</tbody></table></div></div>
+      <p className="text-[11px] text-muted-foreground">{data.note || ''}</p>
     </div>
   );
 }
