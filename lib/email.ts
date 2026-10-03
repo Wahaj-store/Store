@@ -129,3 +129,18 @@ export async function notifyReturnByEmail(input: {
     htmlContent: brandHtml(`<h2 style="margin-top:0">تحديث طلب الإرجاع</h2><p>طلب الإرجاع <strong>${escapeHtml(input.returnNumber)}</strong> المرتبط بالطلب <strong>${escapeHtml(input.orderNumber)}</strong>:</p><div style="margin:20px 0;padding:16px;border:1px solid #d4af37;border-radius:12px;text-align:center;font-weight:700;color:#8a6a00">${escapeHtml(statusLabel)}</div>`),
   });
 }
+
+export async function notifyAbandonedCartByEmail(input: {
+  email?: string | null;
+  name?: string | null;
+  items: Array<{ name?: string; quantity?: number; price?: number }>;
+  subtotal: unknown;
+}) {
+  if (!input.email) return false;
+  const rows = input.items.slice(0, 12).map((item) => `<li style="margin:8px 0">${escapeHtml(item.name || 'منتج')} × ${escapeHtml(item.quantity || 1)} — ${escapeHtml(Number(item.price || 0).toLocaleString('ar-EG'))} ج.م</li>`).join('');
+  return sendBrevoEmail({
+    to: { email: input.email, name: input.name },
+    subject: 'سلتك ما زالت بانتظارك - متجر وَهَج',
+    htmlContent: brandHtml(`<h2 style="margin-top:0">سلتك ما زالت بانتظارك ✨</h2><p>مرحبًا${input.name ? ` ${escapeHtml(input.name)}` : ''}، لاحظنا أن بعض المنتجات ما زالت في سلتك ولم يكتمل الطلب بعد.</p><ul style="padding-right:20px">${rows}</ul><p><strong>إجمالي السلة:</strong> ${escapeHtml(Number(input.subtotal).toLocaleString('ar-EG'))} ج.م</p><p style="margin-top:24px">يمكنك العودة إلى متجر وَهَج لإكمال طلبك في أي وقت.</p>`),
+  });
+}
