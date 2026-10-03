@@ -36,7 +36,7 @@ function getOfferMeta(offer: any) {
 
 export default async function OffersPage() {
   const now = new Date();
-  const offers = await prisma.offer.findMany({
+  const allOffers = await prisma.offer.findMany({
     where: {
       active: true,
       OR: [{ startsAt: null }, { startsAt: { lte: now } }],
@@ -44,6 +44,7 @@ export default async function OffersPage() {
     },
     orderBy: [{ priority: "desc" }, { createdAt: "desc" }],
   });
+  const offers = allOffers.filter((offer) => offer.maxUses === null || offer.usedCount < offer.maxUses);
 
   return (
     <main className="wahaj-offers-page" dir="rtl">
