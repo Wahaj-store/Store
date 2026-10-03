@@ -11,12 +11,13 @@ import { recordInventoryEntry } from '@/lib/inventory';
 import { notifyOrderCreated } from '@/lib/whatsapp';
 import { notifyOrderCreatedByEmail } from '@/lib/email';
 import { markLatestCartRecovered } from '@/lib/abandoned-cart';
+import { hashGiftCardCode, normalizeGiftCardCode } from '@/lib/gift-card';
 
 const Item = z.object({ productId: z.string().min(1), variantId: z.string().optional(), quantity: z.number().int().positive().max(50) });
 const S = z.object({
   name: z.string().trim().min(2).max(100), phone: z.string().trim().min(8).max(30),
   governorate: z.string().trim().min(2).max(80), city: z.string().trim().min(2).max(100), address: z.string().trim().min(5).max(500), notes: z.string().trim().max(1000).optional(),
-  paymentMethod: z.nativeEnum(PaymentMethod), couponCode: z.string().trim().max(50).optional(),
+  paymentMethod: z.nativeEnum(PaymentMethod), giftCardCode: z.string().trim().max(40).optional(),
   idempotencyKey: z.string().uuid().optional(), items: z.array(Item).min(1).max(100), paymentReference: z.string().trim().max(100).optional()
 });
 
@@ -74,18 +75,6 @@ export async function POST(req: Request) {
     });
 
     const now = new Date();
-    let coupon: { code: string; type: any; value: number; minOrder: number | null } | undefined;
-    if (b.couponCode) {
-      const found = await prisma.coupon.findUnique({ where: { code: b.couponCode.toUpperCase() } });
-      if (!found || !found.active || (found.startsAt && found.startsAt > now) || (found.expiresAt && found.expiresAt < now) || (found.maxUses !== null && found.usedCount >= found.maxUses)) {
-        return NextResponse.json({ error: 'الكوبون غير صالح أو انتهت صلاحيته' }, { status: 400 });
-      }
-      coupon = { code: found.code, type: found.type, value: Number(found.value), minOrder: found.minOrder === null ? null : Number(found.minOrder) };
-      const subtotalBeforeDiscount = calculatePricing({ lines: requested.map(i => ({ quantity: i.quantity, unitPrice: i.price })), shippingPrice: 0, shippingFreeAbove: null }).subtotal;
-      if (coupon.minOrder !== null && subtotalBeforeDiscount < coupon.minOrder) {
-        return NextResponse.json({ error: `الحد الأدنى لاستخدام الكوبون هو ${coupon.minOrder.toLocaleString('ar-EG')} ج.م` }, { status: 400 });
-      }
-    }
 
     const zone = await prisma.shippingZone.findFirst({ where: { governorate: b.governorate, active: true, OR: [{ city: b.city }, { city: null }] }, orderBy: { city: 'desc' } });
     if (!zone) return NextResponse.json({ error: 'لا توجد منطقة شحن مفعلة لهذا العنوان' }, { status: 400 });
@@ -114,7 +103,6 @@ export async function POST(req: Request) {
       lines: requested.map(i => ({ quantity: i.quantity, unitPrice: i.price, productId: i.p.id, categoryId: i.p.categoryId })),
       shippingPrice: Number(zone.price),
       shippingFreeAbove: zone.freeAbove === null ? null : Number(zone.freeAbove),
-      coupon,
       offers: activeOffers.map((o): OfferPricing => ({
         id: o.id,
         name: o.name,
@@ -140,18 +128,24 @@ export async function POST(req: Request) {
       now,
     });
     const { subtotal, shipping, discount, total } = pricing;
-    const couponCode = pricing.couponCode;
+    const giftCardCode = b.giftCardCode ? normalizeGiftCardCode(b.giftCardCode) : undefined;
 
     const siteMin = await prisma.siteSetting.findUnique({ where: { key: 'minimum_order' } });
     const minimumOrder = Number(siteMin?.value || 0);
     if (minimumOrder > 0 && subtotal - discount < minimumOrder) return NextResponse.json({ error: `الحد الأدنى للطلب هو ${minimumOrder.toLocaleString('ar-EG')} ج.م` }, { status: 400 });
 
     const order = await prisma.$transaction(async tx => {
-      if (couponCode) {
-        const c = await tx.coupon.findUnique({ where: { code: couponCode } });
-        const now = new Date();
-        if (!c || !c.active || (c.startsAt && c.startsAt > now) || (c.expiresAt && c.expiresAt < now) || (c.maxUses !== null && c.usedCount >= c.maxUses)) {
-          throw new Error('الكوبون لم يعد متاحاً');
+      let giftCardId: string | null = null;
+      let giftCardAmount = 0;
+      if (giftCardCode) {
+        const card = await tx.giftCard.findFirst({ where: { OR: [{ codeHash: hashGiftCardCode(giftCardCode) }, { code: giftCardCode }] } });
+        const valid = card && card.active && Number(card.balance) > 0 && (!card.expiresAt || card.expiresAt > new Date());
+        if (!valid) throw new Error('بطاقة الهدايا غير صالحة أو منتهية أو بدون رصيد');
+        giftCardId = card.id;
+        giftCardAmount = Math.min(Number(card.balance), Math.max(0, Number(total)));
+        if (giftCardAmount > 0) {
+          const consumed = await tx.giftCard.updateMany({ where: { id: card.id, active: true, balance: { gte: giftCardAmount } }, data: { balance: { decrement: giftCardAmount } } });
+          if (consumed.count !== 1) throw new Error('رصيد بطاقة الهدايا تغير، أعيدي المحاولة');
         }
       }
       const inventoryEntryIds: string[] = [];
@@ -199,20 +193,17 @@ export async function POST(req: Request) {
       const number = `WAH-${crypto.randomUUID().slice(0, 8).toUpperCase()}`;
       const o = await tx.order.create({ data: {
         number, idempotencyKey, customerId: c.id, customerNameSnapshot: b.name, customerPhoneSnapshot: normalizedPhone,
-        paymentMethod: b.paymentMethod, total, shipping, discount, couponCode, notes: b.notes, shippingGovernorate: b.governorate, shippingCity: b.city, shippingAddress: b.address,
+        paymentMethod: b.paymentMethod, total: Math.max(0, total - giftCardAmount), shipping, discount, giftCardId, giftCardAmount, notes: b.notes, shippingGovernorate: b.governorate, shippingCity: b.city, shippingAddress: b.address,
         items: { create: requested.map(i => ({ productId: i.p.id, variantId: i.v?.id, variantName: i.v?.name, variantValue: i.v?.value, skuSnapshot: i.v?.sku || i.p.sku, name: i.p.name, quantity: i.quantity, price: new Prisma.Decimal(i.price) })) },
-        payments: { create: { method: b.paymentMethod, amount: total, reference: b.paymentReference, proofUrl: uploadedProofUrl } },
+        payments: { create: { method: b.paymentMethod, amount: Math.max(0, total - giftCardAmount), reference: b.paymentReference, proofUrl: uploadedProofUrl } },
         timeline: { create: { status: 'NEW', note: 'تم إنشاء الطلب' } }
       } });
 
       if (inventoryEntryIds.length) await tx.inventoryLedger.updateMany({ where: { id: { in: inventoryEntryIds } }, data: { orderId: o.id } });
 
-      if (couponCode) {
-        const current = await tx.coupon.findUnique({ where: { code: couponCode }, select: { maxUses: true } });
-        const where: Prisma.CouponWhereInput = { code: couponCode, active: true };
-        if (current?.maxUses !== null && current?.maxUses !== undefined) where.usedCount = { lt: current.maxUses };
-        const consumed = await tx.coupon.updateMany({ where, data: { usedCount: { increment: 1 } } });
-        if (consumed.count !== 1) throw new Error('الكوبون لم يعد متاحاً');
+      if (giftCardId && giftCardAmount > 0) {
+        const cardAfter = await tx.giftCard.findUnique({ where: { id: giftCardId }, select: { balance: true } });
+        await tx.giftCardLedger.create({ data: { giftCardId, type: 'REDEEM', amount: giftCardAmount, balanceAfter: cardAfter?.balance ?? 0, orderId: o.id, reference: o.number, customerId: o.customerId, note: 'استخدام بطاقة هدايا عند الدفع' } });
       }
 
       if (pricing.appliedOffers.length) {
