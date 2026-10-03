@@ -96,6 +96,7 @@ export default function AdminManager({ sidebarOpen, setSidebarOpen }: { sidebarO
   const [tab, setTab] = useState('products');
   const [data, setData] = useState<any[]>([]);
   const [cats, setCats] = useState<any[]>([]);
+  const [products, setProducts] = useState<any[]>([]);
   const [editing, setEditing] = useState<any>(null);
   const [msg, setMsg] = useState('');
   const [loading, setLoading] = useState(false);
@@ -160,6 +161,7 @@ export default function AdminManager({ sidebarOpen, setSidebarOpen }: { sidebarO
   useEffect(() => {
     load();
     api('/api/admin/categories').then(setCats).catch(() => {});
+    api('/api/admin/products').then((items) => setProducts(Array.isArray(items) ? items : [])).catch(() => {});
   }, [tab]);
 
   async function save(v: any) {
@@ -229,7 +231,7 @@ export default function AdminManager({ sidebarOpen, setSidebarOpen }: { sidebarO
     switch (tab) {
       case 'products': return emptyProduct;
       case 'categories': return { name: '', slug: '', description: '', image: '' };
-      case 'offers': return { name: '', type: 'FLASH_SALE', discountValue: 0, startsAt: '', endsAt: '' };
+      case 'offers': return { name: '', type: 'FLASH_SALE', discountType: 'PERCENTAGE', discountValue: 0, minOrder: '', maxDiscount: '', priority: 0, stackable: false, maxUses: '', productId: '', categoryId: '', buyQuantity: '', getQuantity: '', getDiscountPercent: 100, startsAt: '', endsAt: '', active: true };
       case 'coupons': return { code: '', value: 0, type: 'PERCENTAGE', minOrder: 0, maxUses: 100 };
       case 'gift-cards': return { code: '', amount: 0, expiresAt: '', active: true };
       case 'shipping': return { governorate: '', city: '', price: 0, freeAbove: 0 };
@@ -320,7 +322,7 @@ export default function AdminManager({ sidebarOpen, setSidebarOpen }: { sidebarO
           {loading ? (
             <div className="bg-muted/10 border border-border/40 rounded-3xl p-12 text-center text-muted-foreground text-sm font-light">جارٍ التحميل…</div>
           ) : editing ? (
-            <Editor tab={tab} value={editing} cats={cats} onCancel={() => setEditing(null)} onSave={save} upload={upload} />
+            <Editor tab={tab} value={editing} cats={cats} products={products} onCancel={() => setEditing(null)} onSave={save} upload={upload} />
           ) : (
             <Content tab={tab} data={data} onEdit={setEditing} onDelete={del} onRefresh={load} onReorder={reorder} />
           )}
@@ -330,7 +332,7 @@ export default function AdminManager({ sidebarOpen, setSidebarOpen }: { sidebarO
   );
 }
 
-function Editor({ tab, value, cats, onCancel, onSave, upload }: any) {
+function Editor({ tab, value, cats, products, onCancel, onSave, upload }: any) {
   const [v, setV] = useState({ 
     ...value, 
     images: value.images || [], 
@@ -470,13 +472,53 @@ function Editor({ tab, value, cats, onCancel, onSave, upload }: any) {
         <Field label="اسم العرض" value={v.name || ''} onChange={(x: any) => set('name', x)} />
         <label className="text-xs md:text-sm font-medium text-muted-foreground">نوع العرض
           <select className="w-full mt-1 px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[var(--gold)]" value={v.type || 'FLASH_SALE'} onChange={e => set('type', e.target.value)}>
-            {['FLASH_SALE', 'BUY_X_GET_Y', 'FREE_SHIPPING', 'FIRST_ORDER', 'SEASONAL'].map((x: any) => <option key={x}>{x}</option>)}
+            <option value="FLASH_SALE">تخفيض مباشر</option>
+            <option value="BUY_X_GET_Y">اشترِ X واحصل على Y</option>
+            <option value="FREE_SHIPPING">شحن مجاني</option>
+            <option value="FIRST_ORDER">أول طلب</option>
+            <option value="SEASONAL">موسمي</option>
           </select>
         </label>
-        <Field label="قيمة الخصم" value={v.discountValue || ''} onChange={(x: any) => set('discountValue', x)} type="number" />
-        <Field label="يبدأ" value={v.startsAt || ''} onChange={(x: any) => set('startsAt', x)} />
-        <Field label="ينتهي" value={v.endsAt || ''} onChange={(x: any) => set('endsAt', x)} />
+        <label className="text-xs md:text-sm font-medium text-muted-foreground">نوع الخصم
+          <select className="w-full mt-1 px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[var(--gold)]" value={v.discountType || 'PERCENTAGE'} onChange={e => set('discountType', e.target.value)}>
+            <option value="PERCENTAGE">نسبة مئوية</option>
+            <option value="FIXED">قيمة ثابتة</option>
+          </select>
+        </label>
+        {v.type !== 'FREE_SHIPPING' && v.type !== 'BUY_X_GET_Y' && <Field label="قيمة الخصم" value={v.discountValue ?? ''} onChange={(x: any) => set('discountValue', x)} type="number" />}
+        <Field label="الحد الأدنى للطلب" value={v.minOrder ?? ''} onChange={(x: any) => set('minOrder', x)} type="number" />
+        <Field label="أقصى خصم" value={v.maxDiscount ?? ''} onChange={(x: any) => set('maxDiscount', x)} type="number" />
+        <Field label="الأولوية" value={v.priority ?? 0} onChange={(x: any) => set('priority', x)} type="number" />
+        <Field label="الحد الأقصى للاستخدام" value={v.maxUses ?? ''} onChange={(x: any) => set('maxUses', x)} type="number" />
+        {v.type === 'BUY_X_GET_Y' && <>
+          <Field label="اشترِ عدد" value={v.buyQuantity ?? ''} onChange={(x: any) => set('buyQuantity', x)} type="number" />
+          <Field label="احصل على عدد" value={v.getQuantity ?? ''} onChange={(x: any) => set('getQuantity', x)} type="number" />
+          <Field label="نسبة خصم الوحدات المجانية" value={v.getDiscountPercent ?? 100} onChange={(x: any) => set('getDiscountPercent', x)} type="number" />
+        </>}
+        <label className="text-xs md:text-sm font-medium text-muted-foreground">المنتج المستهدف
+          <select className="w-full mt-1 px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[var(--gold)]" value={v.productId || ''} onChange={e => set('productId', e.target.value)}>
+            <option value="">كل المنتجات</option>
+            {products.map((x: any) => <option key={x.id} value={x.id}>{x.name}</option>)}
+          </select>
+        </label>
+        <label className="text-xs md:text-sm font-medium text-muted-foreground">التصنيف المستهدف
+          <select className="w-full mt-1 px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[var(--gold)]" value={v.categoryId || ''} onChange={e => set('categoryId', e.target.value)}>
+            <option value="">كل التصنيفات</option>
+            {cats.map((x: any) => <option key={x.id} value={x.id}>{x.name}</option>)}
+          </select>
+        </label>
+        <label className="text-xs md:text-sm font-medium text-muted-foreground">يبدأ
+          <input type="datetime-local" className="w-full mt-1 px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[var(--gold)]" value={v.startsAt || ''} onChange={e => set('startsAt', e.target.value)} />
+        </label>
+        <label className="text-xs md:text-sm font-medium text-muted-foreground">ينتهي
+          <input type="datetime-local" className="w-full mt-1 px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[var(--gold)]" value={v.endsAt || ''} onChange={e => set('endsAt', e.target.value)} />
+        </label>
       </div>
+      <div className="flex flex-wrap gap-5 pt-2">
+        <label className="flex items-center gap-2.5 text-sm font-light cursor-pointer"><input type="checkbox" className="w-4 h-4 accent-[var(--gold)]" checked={!!v.stackable} onChange={e => set('stackable', e.target.checked)} /> قابل للدمج مع العروض الأخرى</label>
+        <label className="flex items-center gap-2.5 text-sm font-light cursor-pointer"><input type="checkbox" className="w-4 h-4 accent-[var(--gold)]" checked={v.active !== false} onChange={e => set('active', e.target.checked)} /> مفعّل</label>
+      </div>
+      <p className="text-xs text-muted-foreground leading-relaxed">العروض تُطبّق على السيرفر فقط، وتُراجع الصلاحية والمدة والحد الأقصى للاستخدام أثناء إنشاء الطلب.</p>
       <div className="mt-5 flex gap-3">
         <button className="px-6 py-3 rounded-2xl bg-[var(--gold)] text-[var(--gold-contrast)] font-serif font-bold text-sm shadow-sm hover:opacity-95 transition inline-flex items-center gap-2 cursor-pointer" onClick={() => onSave(v)}><Save size={17} /> حفظ</button>
         <button className="px-5 py-3 rounded-2xl bg-muted/20 border border-border/60 text-muted-foreground text-sm font-medium hover:bg-muted/30 transition cursor-pointer" onClick={onCancel}>إلغاء</button>
@@ -804,7 +846,7 @@ function Content({ tab, data, onEdit, onDelete, onRefresh, onReorder }: any) {
           <div>
             <b className="font-serif font-bold text-foreground text-sm">{x.name || x.title || x.code || x.governorate || x.type || x.key}</b>
             <p className="text-muted-foreground text-xs font-light mt-1">
-              {tab === 'products' ? `${x.sku || ''} • ${Number(x.price || 0).toLocaleString('ar-EG')} ج.م • مخزون ${x.stock}` : tab === 'categories' ? x.slug : tab === 'coupons' ? `${x.type} • ${x.value}` : tab === 'settings' ? x.value : ''}
+              {tab === 'products' ? `${x.sku || ''} • ${Number(x.price || 0).toLocaleString('ar-EG')} ج.م • مخزون ${x.stock}` : tab === 'categories' ? x.slug : tab === 'coupons' ? `${x.type} • ${x.value}` : tab === 'offers' ? `${x.type} • ${x.stackable ? 'قابل للدمج' : 'غير قابل للدمج'} • الأولوية ${x.priority ?? 0} • الاستخدام ${x.usedCount ?? 0}${x.maxUses != null ? `/${x.maxUses}` : ''}` : tab === 'settings' ? x.value : ''}
             </p>
           </div>
           <div className="flex gap-2.5">
