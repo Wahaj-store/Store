@@ -72,6 +72,21 @@ const emptyProduct: any = {
   careInstructions: '', seoTitle: '', seoDescription: '', images: [], variants: [] 
 };
 
+function toDateTimeLocal(value: unknown) {
+  if (!value) return '';
+  const d = new Date(String(value));
+  if (Number.isNaN(d.getTime())) return '';
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+function toIsoDateTime(value: unknown) {
+  if (!value) return null;
+  const d = new Date(String(value));
+  if (Number.isNaN(d.getTime())) return null;
+  return d.toISOString();
+}
+
 async function api(url: string, method = 'GET', body?: any) {
   const r = await fetch(url, {
     method,
@@ -182,7 +197,19 @@ export default function AdminManager({ sidebarOpen, setSidebarOpen }: { sidebarO
         endpoint = v.id ? `/api/admin/categories` : '/api/admin/categories';
       }
 
-      await api(endpoint, method, v);
+      // datetime-local gives us a timezone-less local time. Convert it to an
+      // explicit ISO timestamp before sending it to Vercel/Prisma (whose
+      // runtime uses UTC), otherwise the selected clock time can shift by the
+      // server timezone offset after saving.
+      const payload = tab === 'offers'
+        ? {
+            ...v,
+            startsAt: toIsoDateTime(v.startsAt),
+            endsAt: toIsoDateTime(v.endsAt),
+          }
+        : v;
+
+      await api(endpoint, method, payload);
       setMsg('تم الحفظ بنجاح');
       setEditing(null);
       load();
@@ -508,10 +535,12 @@ function Editor({ tab, value, cats, products, onCancel, onSave, upload }: any) {
           </select>
         </label>
         <label className="text-xs md:text-sm font-medium text-muted-foreground">يبدأ
-          <input type="datetime-local" className="w-full mt-1 px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[var(--gold)]" value={v.startsAt || ''} onChange={e => set('startsAt', e.target.value)} />
+          <input type="datetime-local" className="w-full mt-1 px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[var(--gold)]" value={toDateTimeLocal(v.startsAt)} onChange={e => set('startsAt', e.target.value)} />
+          <span className="block mt-1 text-[11px] text-muted-foreground">الوقت يُحفظ بنفس الساعة التي تختارينها.</span>
         </label>
         <label className="text-xs md:text-sm font-medium text-muted-foreground">ينتهي
-          <input type="datetime-local" className="w-full mt-1 px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[var(--gold)]" value={v.endsAt || ''} onChange={e => set('endsAt', e.target.value)} />
+          <input type="datetime-local" className="w-full mt-1 px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[var(--gold)]" value={toDateTimeLocal(v.endsAt)} onChange={e => set('endsAt', e.target.value)} />
+          <span className="block mt-1 text-[11px] text-muted-foreground">الوقت يُحفظ بنفس الساعة التي تختارينها.</span>
         </label>
       </div>
       <div className="flex flex-wrap gap-5 pt-2">
