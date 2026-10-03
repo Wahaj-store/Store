@@ -98,7 +98,7 @@ export async function GET(_: Request, { params }: { params: Promise<{ id: string
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>فاتورة #${esc(order.number)} | Wahaj Store</title>
 <style>
-  @page { size: A4; margin: 10mm; }
+  @page { size: A4 portrait; margin: 5mm; }
   :root {
     color-scheme: light;
     --ink: #171717;
@@ -254,14 +254,150 @@ export async function GET(_: Request, { params }: { params: Promise<{ id: string
   .footer-mark { text-align: left; color: #a39b8e; font-size: 8px; }
 
   @media print {
-    body { background: #fff; }
-    .screen-actions { display: none; }
-    .invoice { width: auto; margin: 0; border: 0; box-shadow: none; }
-    .top-accent { height: 4px; }
-    .header { padding: 20px 24px 18px; }
-    .content { padding: 18px 24px 22px; }
-    .info-card, .notes-box, .totals, table { break-inside: avoid; }
-    tr { break-inside: avoid; }
+    html, body { width: 210mm; min-height: 297mm; }
+    body {
+      background: #fff;
+      font-size: 9.5px;
+      line-height: 1.35;
+    }
+    .screen-actions { display: none !important; }
+    .invoice {
+      width: auto;
+      min-height: 0;
+      margin: 0;
+      border: 0;
+      box-shadow: none;
+      overflow: visible;
+    }
+    .top-accent { height: 2px; }
+    .header {
+      padding: 8px 12px 7px;
+      gap: 10px;
+      border-bottom: 1px solid var(--line);
+    }
+    .logo {
+      width: 92px;
+      max-height: 38px;
+    }
+    .brand-caption { display: none; }
+    .invoice-word {
+      font-size: 7px;
+      letter-spacing: 1.2px;
+      margin-bottom: 1px;
+    }
+    .header-center h1 {
+      font-size: 18px;
+      line-height: 1.1;
+    }
+    .header-center p { display: none; }
+    .meta-label { font-size: 7px; margin-bottom: 1px; }
+    .order-number { font-size: 11px; }
+    .date { font-size: 7px; margin-top: 1px; }
+
+    .content { padding: 9px 12px 10px; }
+
+    .info-grid {
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+    }
+    .info-card {
+      border-radius: 7px;
+      padding: 7px 9px;
+      min-height: 0;
+    }
+    .section-label {
+      gap: 5px;
+      margin-bottom: 4px;
+      font-size: 8px;
+    }
+    .section-label::before {
+      width: 3px;
+      height: 10px;
+    }
+    .info-card p { margin: 1px 0; }
+    .customer-name { font-size: 10px; }
+    .small { font-size: 7.5px; }
+    .status-row { gap: 3px; margin-top: 3px; }
+    .pill {
+      padding: 2px 5px;
+      font-size: 7px;
+    }
+    .address { line-height: 1.45; }
+
+    .items-title {
+      margin: 9px 0 4px;
+    }
+    .items-title h2 { font-size: 10px; }
+    .items-count { font-size: 7px; }
+
+    table {
+      border-radius: 7px;
+    }
+    thead th {
+      padding: 5px 5px;
+      font-size: 7px;
+    }
+    tbody td {
+      padding: 6px 5px;
+    }
+    .num {
+      width: 24px;
+      font-size: 7px;
+    }
+    .product-cell { min-width: 0; }
+    .product-name { font-size: 8.5px; }
+    .meta {
+      margin-top: 1px;
+      font-size: 6.5px;
+    }
+    .qty { font-size: 8px; }
+    .price { font-size: 8px; }
+
+    .bottom-grid {
+      grid-template-columns: 1.1fr .9fr;
+      gap: 9px;
+      margin-top: 8px;
+    }
+    .notes-box {
+      min-height: 45px;
+      border-radius: 7px;
+      padding: 7px 9px;
+    }
+    .notes-box .section-label { margin-bottom: 3px; }
+    .notes-text { font-size: 7.5px; line-height: 1.4; }
+    .totals {
+      border-radius: 7px;
+      padding: 7px 9px;
+    }
+    .total-row {
+      padding: 3px 0;
+      font-size: 7.5px;
+    }
+    .final {
+      margin: 5px -9px -7px;
+      padding: 7px 9px;
+      border-top-width: 1px;
+      border-radius: 0 0 6px 6px;
+      font-size: 10px;
+    }
+
+    .footer {
+      margin-top: 9px;
+      padding-top: 7px;
+      gap: 10px;
+    }
+    .thank-you { font-size: 8px; }
+    .thank-you span { font-size: 6.5px; }
+    .footer-mark { font-size: 6.5px; }
+
+    .info-card, .notes-box, .totals, table {
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+    tr {
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
   }
   @media (max-width: 720px) {
     .header { grid-template-columns: 1fr; text-align: center; }
