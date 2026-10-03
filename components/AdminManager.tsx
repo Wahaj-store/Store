@@ -5,7 +5,7 @@ import { useEffect, useState, ComponentType } from 'react';
 import Link from 'next/link';
 import { 
   GripVertical, Trash2, Upload, Plus, Save, Image as ImageIcon, Search, ChevronLeft,
-  Package, FolderTree, Tag, Ticket, CreditCard, Truck, LayoutTemplate, 
+  Package, FolderTree, Tag, CreditCard, Truck, LayoutTemplate, 
   MessageSquareQuote, Users, Shield, ShoppingCart, BarChart3, Sliders, 
   FileText, HelpCircle, Mail, Settings, Gift, RefreshCcw, Share2, Lock, LucideProps, Menu, X
 } from 'lucide-react';
@@ -32,7 +32,6 @@ const menuGroups: MenuGroup[] = [
     items: [
       ['homepage', 'Homepage Builder', LayoutTemplate],
       ['offers', 'العروض', Tag],
-      ['coupons', 'الكوبونات', Ticket],
       ['gift-cards', 'بطاقات الهدايا', Gift],
       ['relations', 'ترشيحات المنتجات', Share2],
     ]
@@ -132,7 +131,6 @@ export default function AdminManager({ sidebarOpen, setSidebarOpen }: { sidebarO
         products: '/api/admin/products',
         categories: '/api/admin/categories',
         offers: '/api/admin/offers',
-        coupons: '/api/admin/coupons',
         payments: '/api/admin/payments',
         shipping: '/api/admin/shipping',
         homepage: '/api/admin/homepage',
@@ -259,7 +257,6 @@ export default function AdminManager({ sidebarOpen, setSidebarOpen }: { sidebarO
       case 'products': return emptyProduct;
       case 'categories': return { name: '', slug: '', description: '', image: '' };
       case 'offers': return { name: '', type: 'FLASH_SALE', discountType: 'PERCENTAGE', discountValue: 0, minOrder: '', maxDiscount: '', priority: 0, stackable: false, maxUses: '', productId: '', categoryId: '', buyQuantity: '', getQuantity: '', getDiscountPercent: 100, startsAt: '', endsAt: '', active: true };
-      case 'coupons': return { code: '', value: 0, type: 'PERCENTAGE', minOrder: 0, maxUses: 100 };
       case 'gift-cards': return { code: '', amount: 0, expiresAt: '', active: true };
       case 'shipping': return { governorate: '', city: '', price: 0, freeAbove: 0 };
       case 'homepage': return { type: 'BANNER', title: '', subtitle: '', visible: true };
@@ -334,7 +331,7 @@ export default function AdminManager({ sidebarOpen, setSidebarOpen }: { sidebarO
               <h2 className="text-2xl font-serif font-bold text-foreground">{getCurrentTabLabel()}</h2>
               <p className="text-muted-foreground text-xs md:text-sm mt-0.5 font-light">إدارة كاملة لبيانات المتجر والتحكم المباشر.</p>
             </div>
-            {!editing && ['products', 'categories', 'offers', 'coupons', 'shipping', 'homepage', 'gift-cards', 'relations', 'faq', 'redirects', 'settings'].includes(tab) && (
+            {!editing && ['products', 'categories', 'offers', 'shipping', 'homepage', 'gift-cards', 'relations', 'faq', 'redirects', 'settings'].includes(tab) && (
               <button 
                 className="px-5 py-2.5 rounded-2xl bg-[var(--gold)] text-[var(--gold-contrast)] font-serif font-bold text-xs md:text-sm shadow-sm hover:opacity-95 transition inline-flex items-center gap-2 cursor-pointer" 
                 onClick={() => setEditing(getNewItemTemplate())}
@@ -487,7 +484,6 @@ function Editor({ tab, value, cats, products, onCancel, onSave, upload }: any) {
     relations: [['type', 'نوع العلاقة'], ['fromProductId', 'المنتج الأساسي'], ['toProductId', 'المنتج المقترح'], ['sortOrder', 'الترتيب']], 
     categories: [['name', 'اسم التصنيف'], ['slug', 'Slug'], ['description', 'الوصف'], ['sortOrder', 'الترتيب']], 
     offers: [['name', 'اسم العرض'], ['type', 'نوع العرض'], ['discountValue', 'قيمة الخصم'], ['startsAt', 'يبدأ'], ['endsAt', 'ينتهي']], 
-    coupons: [['code', 'الكود'], ['value', 'قيمة الخصم'], ['minOrder', 'الحد الأدنى'], ['maxUses', 'عدد الاستخدامات']], 
     shipping: [['governorate', 'المحافظة'], ['city', 'المدينة'], ['price', 'سعر الشحن'], ['freeAbove', 'مجاني فوق']], 
     homepage: [['type', 'نوع القسم'], ['title', 'العنوان'], ['subtitle', 'الوصف'], ['ctaText', 'نص الزر'], ['ctaUrl', 'رابط الزر'], ['sortOrder', 'الترتيب']], 
     redirects: [['fromPath', 'المسار القديم'], ['toPath', 'المسار الجديد'], ['statusCode', 'كود التحويل']] 
@@ -937,7 +933,7 @@ function Content({ tab, data, onEdit, onDelete, onRefresh, onReorder }: any) {
           <div>
             <b className="font-serif font-bold text-foreground text-sm">{x.name || x.title || x.code || x.governorate || x.type || x.key}</b>
             <p className="text-muted-foreground text-xs font-light mt-1">
-              {tab === 'products' ? `${x.sku || ''} • ${Number(x.price || 0).toLocaleString('ar-EG')} ج.م • مخزون ${x.stock}` : tab === 'categories' ? x.slug : tab === 'coupons' ? `${x.type} • ${x.value}` : tab === 'offers' ? `${x.type} • ${x.stackable ? 'قابل للدمج' : 'غير قابل للدمج'} • الأولوية ${x.priority ?? 0} • الاستخدام ${x.usedCount ?? 0}${x.maxUses != null ? `/${x.maxUses}` : ''}` : tab === 'settings' ? x.value : ''}
+              {tab === 'products' ? `${x.sku || ''} • ${Number(x.price || 0).toLocaleString('ar-EG')} ج.م • مخزون ${x.stock}` : tab === 'categories' ? x.slug : tab === 'offers' ? `${x.type} • ${x.stackable ? 'قابل للدمج' : 'غير قابل للدمج'} • الأولوية ${x.priority ?? 0} • الاستخدام ${x.usedCount ?? 0}${x.maxUses != null ? `/${x.maxUses}` : ''}` : tab === 'settings' ? x.value : ''}
             </p>
           </div>
           <div className="flex gap-2.5">
