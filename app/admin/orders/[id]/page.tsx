@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useState, use } from 'react';
-import { Clock, CheckCircle2, Truck, XCircle, AlertCircle, Save } from 'lucide-react';
+import { Clock, CheckCircle2, Truck, XCircle, AlertCircle, Save, FileText } from 'lucide-react';
 import Link from 'next/link';
 
 export default function OrderDetail({ params }: { params: Promise<{ id: string }> | { id: string } }) {
@@ -94,7 +94,18 @@ export default function OrderDetail({ params }: { params: Promise<{ id: string }
       <Link href="/admin/orders" className="text-[var(--gold)] hover:underline inline-block mb-4">
         ‹ العودة لقائمة الطلبات
       </Link>
-      <h1 className="text-3xl font-semibold">تفاصيل الطلب #{o.number}</h1>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h1 className="text-3xl font-semibold">تفاصيل الطلب #{o.number}</h1>
+        <button
+          type="button"
+          onClick={() => window.open(`/api/admin/orders/${orderId}/invoice`, '_blank', 'noopener,noreferrer')}
+          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[var(--gold)] text-black text-xs font-bold hover:opacity-95 transition cursor-pointer"
+          title="فتح الفاتورة للطباعة أو حفظها كملف PDF"
+        >
+          <FileText size={16} />
+          <span>الفاتورة PDF</span>
+        </button>
+      </div>
       
       {msg && (
         <div className="mt-4 p-3 rounded-xl bg-[var(--gold)]/10 border border-[var(--gold)]/30 text-sm text-[var(--gold)] font-medium">
