@@ -521,6 +521,19 @@ function Editor({ tab, value, cats, onCancel, onSave, upload }: any) {
         )}
       </div>
 
+      {tab === 'gift-cards' && (
+        <div className="grid gap-4 md:grid-cols-2 pt-2 border-t border-border/30">
+          <div className="rounded-2xl bg-[var(--bg)] border border-border/40 p-4">
+            <p className="text-xs text-muted-foreground">الرصيد الحالي</p>
+            <p className="mt-1 text-lg font-serif font-bold text-[var(--gold)]">{Number(v.balance || 0).toLocaleString('ar-EG')} ج.م</p>
+            <p className="mt-1 text-[11px] text-muted-foreground">لا يمكن تعديل القيمة الأصلية بعد الإصدار.</p>
+          </div>
+          <label className="flex items-center gap-2.5 text-sm font-light cursor-pointer">
+            <input type="checkbox" className="w-4 h-4 accent-[var(--gold)]" checked={v.active !== false} onChange={e => set('active', e.target.checked)} /> البطاقة مفعلة
+          </label>
+        </div>
+      )}
+
       {tab === 'categories' && (
         <div className="space-y-2 pt-2 border-t border-border/30">
           <p className="text-sm font-medium text-muted-foreground">صورة التصنيف</p>
@@ -569,6 +582,37 @@ function Select({ label, value, options, onChange }: any) {
 function Content({ tab, data, onEdit, onDelete, onRefresh, onReorder }: any) {
   if (tab === 'analytics') return <Analytics data={data[0] || {}} />;
   if (tab === 'media') return <Media data={data} onDelete={onDelete} onRefresh={onRefresh} />;
+  if (tab === 'gift-cards') return (
+    <div className="space-y-4">
+      {data.map((card: any) => {
+        const expired = card.expiresAt && new Date(card.expiresAt) <= new Date();
+        const usable = card.active && !expired && Number(card.balance) > 0;
+        return (
+          <div key={card.id} className="bg-muted/10 border border-border/40 rounded-3xl p-5 md:p-6 shadow-xs">
+            <div className="flex flex-wrap items-start justify-between gap-4">
+              <div className="space-y-2">
+                <div className="flex flex-wrap items-center gap-2">
+                  <b className="font-mono text-sm md:text-base tracking-wider" dir="ltr">{card.code}</b>
+                  <span className={`px-2.5 py-1 rounded-full text-[11px] border ${usable ? 'text-green-600 border-green-500/20 bg-green-500/10' : 'text-muted-foreground border-border/40 bg-muted/20'}`}>{usable ? 'صالحة' : expired ? 'منتهية' : card.active ? 'بدون رصيد' : 'موقوفة'}</span>
+                </div>
+                <div className="flex flex-wrap gap-x-5 gap-y-1 text-xs text-muted-foreground">
+                  <span>القيمة: <b className="text-foreground">{Number(card.amount).toLocaleString('ar-EG')} ج.م</b></span>
+                  <span>الرصيد: <b className="text-[var(--gold)]">{Number(card.balance).toLocaleString('ar-EG')} ج.م</b></span>
+                  <span>الحركات: {card._count?.ledger ?? 0}</span>
+                  {card.expiresAt && <span>الانتهاء: {new Date(card.expiresAt).toLocaleDateString('ar-EG')}</span>}
+                </div>
+              </div>
+              <div className="flex gap-2">
+                <button className="px-4 py-2 rounded-xl bg-muted/20 border border-border/60 text-xs font-medium hover:bg-muted/30 transition cursor-pointer" onClick={() => onEdit(card)}>تعديل</button>
+                <button className="p-2 rounded-xl border border-red-400 text-red-500 hover:bg-red-500/10 transition cursor-pointer" onClick={() => onDelete(card.id)}><Trash2 size={16} /></button>
+              </div>
+            </div>
+          </div>
+        );
+      })}
+      {!data.length && <div className="bg-muted/10 border border-border/40 rounded-3xl p-12 text-center text-muted-foreground text-sm font-light">لا توجد بطاقات هدايا حتى الآن.</div>}
+    </div>
+  );
   
   if (tab === 'faq') return (
     <div className="space-y-4">
