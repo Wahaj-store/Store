@@ -133,14 +133,34 @@ export async function notifyReturnByEmail(input: {
 export async function notifyAbandonedCartByEmail(input: {
   email?: string | null;
   name?: string | null;
-  items: Array<{ name?: string; quantity?: number; price?: number }>;
+  items: Array<{
+    name?: string | null;
+    price?: number | string | null;
+    quantity?: number | null;
+    variantName?: string | null;
+    variantValue?: string | null;
+  }>;
   subtotal: unknown;
 }) {
   if (!input.email) return false;
-  const rows = input.items.slice(0, 12).map((item) => `<li style="margin:8px 0">${escapeHtml(item.name || 'منتج')} × ${escapeHtml(item.quantity || 1)} — ${escapeHtml(Number(item.price || 0).toLocaleString('ar-EG'))} ج.م</li>`).join('');
+
+  const rows = input.items
+    .map((item) => {
+      const variant = [item.variantName, item.variantValue].filter(Boolean).join(' - ');
+      const quantity = Math.max(0, Number(item.quantity || 0));
+      const price = Number(item.price || 0);
+      return `<tr><td style="padding:10px 8px;border-bottom:1px solid #eee">${escapeHtml(item.name || 'منتج')}${variant ? `<div style="font-size:12px;color:#888;margin-top:3px">${escapeHtml(variant)}</div>` : ''}</td><td style="padding:10px 8px;border-bottom:1px solid #eee;text-align:center">${quantity}</td><td style="padding:10px 8px;border-bottom:1px solid #eee;text-align:left">${escapeHtml(price.toLocaleString('ar-EG'))} ج.م</td></tr>`;
+    })
+    .join('');
+
   return sendBrevoEmail({
     to: { email: input.email, name: input.name },
-    subject: 'سلتك ما زالت بانتظارك - متجر وَهَج',
-    htmlContent: brandHtml(`<h2 style="margin-top:0">سلتك ما زالت بانتظارك ✨</h2><p>مرحبًا${input.name ? ` ${escapeHtml(input.name)}` : ''}، لاحظنا أن بعض المنتجات ما زالت في سلتك ولم يكتمل الطلب بعد.</p><ul style="padding-right:20px">${rows}</ul><p><strong>إجمالي السلة:</strong> ${escapeHtml(Number(input.subtotal).toLocaleString('ar-EG'))} ج.م</p><p style="margin-top:24px">يمكنك العودة إلى متجر وَهَج لإكمال طلبك في أي وقت.</p>`),
+    subject: 'سلتك ما زالت في انتظارك - متجر وَهَج',
+    htmlContent: brandHtml(`
+      <h2 style="margin-top:0">سلتك ما زالت في انتظارك${input.name ? ` يا ${escapeHtml(input.name)}` : ''} ✨</h2>
+      <p>وجدنا منتجاتك ما زالت محفوظة في سلة المشتريات. يمكنك العودة لإكمال طلبك في أي وقت.</p>
+      ${rows ? `<table style="width:100%;border-collapse:collapse;margin:20px 0;font-size:14px"><thead><tr><th style="padding:10px 8px;text-align:right;border-bottom:1px solid #ddd">المنتج</th><th style="padding:10px 8px;text-align:center;border-bottom:1px solid #ddd">الكمية</th><th style="padding:10px 8px;text-align:left;border-bottom:1px solid #ddd">السعر</th></tr></thead><tbody>${rows}</tbody></table>` : ''}
+      <p style="margin-bottom:0"><strong>الإجمالي:</strong> ${escapeHtml(Number(input.subtotal).toLocaleString('ar-EG'))} ج.م</p>
+    `),
   });
 }
