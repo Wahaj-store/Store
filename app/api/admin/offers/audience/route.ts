@@ -34,6 +34,11 @@ export async function PUT(req: Request) {
 });
 
 if (segmentKeys.length) {
+  await tx.offerSegmentTarget.deleteMany({
+  where: { offerId },
+});
+
+if (segmentKeys.length) {
   await tx.offerSegmentTarget.createMany({
     data: segmentKeys.map((segmentKey: string) => ({
       offerId,
@@ -42,4 +47,9 @@ if (segmentKeys.length) {
   });
 }
 
-return NextResponse.json({ ok: true, offerId, segmentKeys });
+return NextResponse.json({
+  ok: true,
+  offerId,
+  segmentKeys,
+});
+}
