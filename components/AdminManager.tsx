@@ -1080,6 +1080,10 @@ function Analytics({ data: initialData }: any) {
 }
 
 function CustomerSegments({ data, onRefresh }: any) {
+  const [selectedSegment, setSelectedSegment] = useState('all');
+  const [audience, setAudience] = useState<any[]>([]);
+  const [audienceLoading, setAudienceLoading] = useState(false);
+  const [audienceMsg, setAudienceMsg] = useState('');
   const toneClass: Record<string, string> = {
     gold: 'text-[var(--gold)] bg-[var(--gold)]/10 border-[var(--gold)]/20',
     green: 'text-green-600 bg-green-500/10 border-green-500/20',
@@ -1089,6 +1093,41 @@ function CustomerSegments({ data, onRefresh }: any) {
     red: 'text-red-500 bg-red-500/10 border-red-500/20',
     muted: 'text-muted-foreground bg-muted/20 border-border/40',
   };
+
+  async function loadAudience(key = selectedSegment) {
+    setAudienceLoading(true);
+    setAudienceMsg('');
+    try {
+      const result = await api(`/api/admin/customer-segments?segment=${encodeURIComponent(key)}`);
+      setAudience(result.audience || []);
+    } catch (e: any) {
+      setAudience([]);
+      setAudienceMsg(e?.message || 'تعذر تحميل الجمهور المستهدف');
+    } finally {
+      setAudienceLoading(false);
+    }
+  }
+
+  function selectSegment(key: string) {
+    setSelectedSegment(key);
+    loadAudience(key);
+  }
+
+  async function copyPhones() {
+    const phones = audience.map((x) => x.phone).filter(Boolean);
+    if (!phones.length) { setAudienceMsg('لا توجد أرقام هاتف متاحة في هذه الشريحة.'); return; }
+    try {
+      await navigator.clipboard.writeText(phones.join('\n'));
+      setAudienceMsg(`تم نسخ ${phones.length} رقم هاتف.`);
+    } catch {
+      setAudienceMsg('تعذر النسخ تلقائيًا من المتصفح.');
+    }
+  }
+
+  function exportAudience() {
+    window.open(`/api/admin/customer-segments?segment=${encodeURIComponent(selectedSegment)}&format=csv`, '_blank');
+  }
+
   return (
     <div className="space-y-5">
       <div className="flex flex-wrap items-center justify-between gap-3"><div><h2 className="text-xl md:text-2xl font-serif font-bold">تقسيم العملاء</h2><p className="text-xs text-muted-foreground font-light mt-1">تقسيم تلقائي للعملاء حسب قيمة الشراء، التكرار وحداثة آخر طلب.</p></div><button onClick={onRefresh} className="px-4 py-2.5 rounded-xl bg-[var(--gold)] text-[var(--gold-contrast)] text-xs font-bold cursor-pointer inline-flex items-center gap-2"><RefreshCcw size={15} /> تحديث الشرائح</button></div>
@@ -1096,6 +1135,35 @@ function CustomerSegments({ data, onRefresh }: any) {
         {(data.segments || []).map((segment: any) => <div key={segment.key} className="bg-muted/10 border border-border/40 rounded-3xl p-5 shadow-xs"><div className="flex items-start justify-between gap-2"><div><h3 className="font-serif font-bold text-sm">{segment.name}</h3><p className="text-[10px] text-muted-foreground mt-1 leading-relaxed">{segment.rule}</p></div><span className={`px-2 py-1 rounded-full border text-[10px] ${toneClass[segment.tone] || toneClass.muted}`}>{segment.count}</span></div><div className="mt-4 flex justify-between text-[11px] text-muted-foreground"><span>إجمالي الإنفاق</span><b className="text-foreground">{formatMoney(segment.totalSpend)}</b></div><div className="mt-1 flex justify-between text-[11px] text-muted-foreground"><span>متوسط العميل</span><b className="text-foreground">{formatMoney(segment.avgSpend)}</b></div></div>)}
       </div>
       <div className="bg-muted/10 border border-border/40 rounded-3xl p-5 shadow-xs"><h3 className="font-serif font-bold mb-4">أهم العملاء داخل الشرائح</h3><div className="overflow-x-auto"><table className="w-full text-right text-xs"><thead><tr className="border-b border-border/30 text-muted-foreground"><th className="p-3">العميل</th><th className="p-3">الشريحة</th><th className="p-3">الطلبات</th><th className="p-3">الإنفاق</th><th className="p-3">آخر طلب</th></tr></thead><tbody>{(data.segments || []).flatMap((s: any) => (s.members || []).slice(0, 5).map((m: any) => ({ ...m, segment: s.name, id: `${s.key}-${m.id}` }))).map((m: any) => <tr key={m.id} className="border-b border-border/20 last:border-0"><td className="p-3 font-medium">{m.name}</td><td className="p-3 text-muted-foreground">{m.segment}</td><td className="p-3">{m.orderCount}</td><td className="p-3">{formatMoney(m.spend)}</td><td className="p-3 text-muted-foreground">{m.lastOrder ? new Date(m.lastOrder).toLocaleDateString('ar-EG') : '—'}</td></tr>)}</tbody></table></div></div>
+      <div className="bg-muted/10 border border-border/40 rounded-3xl p-5 shadow-xs">
+        <div className="flex flex-wrap items-start justify-between gap-3 mb-4">
+          <div>
+            <h3 className="font-serif font-bold">جمهور التسويق</h3>
+            <p className="text-[11px] text-muted-foreground mt-1">اختر شريحة لعرض العملاء الفعليين وتجهيزها للتواصل أو التصدير.</p>
+          </div>
+          <span className="px-3 py-1.5 rounded-full border border-[var(--gold)]/20 bg-[var(--gold)]/10 text-[var(--gold)] text-[10px] font-bold">{audience.length} عميل</span>
+        </div>
+        <div className="flex flex-wrap gap-2 mb-4">
+          <button type="button" onClick={() => selectSegment('all')} className={`px-3 py-2 rounded-xl border text-xs cursor-pointer ${selectedSegment === 'all' ? 'bg-[var(--gold)] text-[var(--gold-contrast)] border-[var(--gold)]' : 'border-border/40 bg-muted/10'}`}>كل العملاء</button>
+          {(data.segments || []).map((segment: any) => <button key={segment.key} type="button" onClick={() => selectSegment(segment.key)} className={`px-3 py-2 rounded-xl border text-xs cursor-pointer ${selectedSegment === segment.key ? 'bg-[var(--gold)] text-[var(--gold-contrast)] border-[var(--gold)]' : 'border-border/40 bg-muted/10'}`}>{segment.name} ({segment.count})</button>)}
+        </div>
+        <div className="flex flex-wrap gap-2 mb-4">
+          <button type="button" disabled={audienceLoading} onClick={() => loadAudience()} className="px-3 py-2 rounded-xl border border-border/40 text-xs inline-flex items-center gap-2 cursor-pointer disabled:opacity-50"><RefreshCcw size={14} />{audienceLoading ? 'جاري التحميل...' : 'تحديث الجمهور'}</button>
+          <button type="button" onClick={copyPhones} className="px-3 py-2 rounded-xl border border-border/40 text-xs inline-flex items-center gap-2 cursor-pointer"><Share2 size={14} />نسخ أرقام الهاتف</button>
+          <button type="button" onClick={exportAudience} className="px-3 py-2 rounded-xl border border-border/40 text-xs inline-flex items-center gap-2 cursor-pointer"><FileText size={14} />تصدير CSV</button>
+        </div>
+        {audienceMsg && <p className="text-[11px] text-[var(--gold)] mb-3">{audienceMsg}</p>}
+        <div className="overflow-x-auto rounded-2xl border border-border/30">
+          <table className="w-full text-right text-xs">
+            <thead><tr className="border-b border-border/30 text-muted-foreground"><th className="p-3">العميل</th><th className="p-3">الهاتف</th><th className="p-3">الطلبات</th><th className="p-3">الإنفاق</th><th className="p-3">آخر طلب</th></tr></thead>
+            <tbody>
+              {audience.slice(0, 50).map((m: any) => <tr key={m.id} className="border-b border-border/20 last:border-0"><td className="p-3 font-medium">{m.name}</td><td className="p-3" dir="ltr">{m.phone || '—'}</td><td className="p-3">{m.orderCount}</td><td className="p-3">{formatMoney(m.spend)}</td><td className="p-3 text-muted-foreground">{m.lastOrder ? new Date(m.lastOrder).toLocaleDateString('ar-EG') : '—'}</td></tr>)}
+              {!audience.length && !audienceLoading && <tr><td colSpan={5} className="p-8 text-center text-muted-foreground">اختر شريحة لعرض جمهورها.</td></tr>}
+            </tbody>
+          </table>
+        </div>
+        {audience.length > 50 && <p className="text-[10px] text-muted-foreground mt-2">يتم عرض أول 50 عميلًا فقط في اللوحة. التصدير CSV يحتوي على الجمهور كاملًا.</p>}
+      </div>
       <p className="text-[11px] text-muted-foreground">{data.note || ''}</p>
     </div>
   );
