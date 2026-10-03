@@ -5,7 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import {
   GripVertical, Trash2, Upload, Plus, Save, Image as ImageIcon, Search, ChevronLeft,
-  Package, FolderTree, Tag, Ticket, CreditCard, Truck, LayoutTemplate,
+  Package, FolderTree, Tag, CreditCard, Truck, LayoutTemplate,
   MessageSquareQuote, Users, Shield, ShoppingCart, BarChart3, Sliders,
   FileText, HelpCircle, Mail, Settings, Gift, RefreshCcw, Share2, Lock, LucideProps
 } from 'lucide-react';
@@ -89,7 +89,6 @@ export function Editor({ tab, value, cats, onCancel, onSave, upload }: any) {
     'gift-cards': [['code', 'كود البطاقة'], ['amount', 'القيمة'], ['expiresAt', 'تاريخ الانتهاء']], 
     categories: [['name', 'اسم التصنيف'], ['slug', 'Slug'], ['description', 'الوصف'], ['sortOrder', 'الترتيب']], 
     offers: [['name', 'اسم العرض'], ['type', 'نوع العرض'], ['discountValue', 'قيمة الخصم'], ['startsAt', 'يبدأ'], ['endsAt', 'ينتهي']], 
-    coupons: [['code', 'الكود'], ['value', 'قيمة الخصم'], ['minOrder', 'الحد الأدنى'], ['maxUses', 'عدد الاستخدامات']], 
     shipping: [['governorate', 'المحافظة'], ['city', 'المدينة'], ['price', 'سعر الشحن'], ['freeAbove', 'مجاني فوق']], 
     homepage: [['type', 'نوع القسم'], ['title', 'العنوان'], ['subtitle', 'الوصف'], ['ctaText', 'نص الزر'], ['ctaUrl', 'رابط الزر'], ['sortOrder', 'الترتيب']], 
     redirects: [['fromPath', 'المسار القديم'], ['toPath', 'المسار الجديد'], ['statusCode', 'كود التحويل']] 
@@ -404,7 +403,7 @@ export function Content({ tab, data, onEdit, onDelete, onRefresh, onReorder }: a
           <div>
             <b className="font-serif font-bold text-foreground text-sm">{x.name || x.title || x.code || x.governorate || x.type || x.key}</b>
             <p className="text-muted-foreground text-xs font-light mt-1">
-              {tab === 'products' ? `${x.sku || ''} • ${Number(x.price || 0).toLocaleString('ar-EG')} ج.م • مخزون ${x.stock}` : tab === 'categories' ? x.slug : tab === 'coupons' ? `${x.type} • ${x.value}` : tab === 'settings' ? x.value : ''}
+              {tab === 'products' ? `${x.sku || ''} • ${Number(x.price || 0).toLocaleString('ar-EG')} ج.م • مخزون ${x.stock}` : tab === 'categories' ? x.slug : tab === 'settings' ? x.value : ''}
             </p>
           </div>
           <div className="flex gap-2.5">
