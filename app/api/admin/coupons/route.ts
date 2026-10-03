@@ -1,5 +1,23 @@
-import {NextResponse} from 'next/server';import {prisma} from '@/lib/prisma';import {requireUser} from '@/lib/auth';
-export async function GET(){const u=await requireUser(['OWNER','ADMIN','MANAGER','EDITOR','VIEWER']);if(!u)return NextResponse.json({error:'غير مصرح'},{status:401});return NextResponse.json(await prisma.coupon.findMany({orderBy:{code:'asc'}}))}
-export async function POST(req:Request){const u=await requireUser(['OWNER','ADMIN','MANAGER','EDITOR']);if(!u)return NextResponse.json({error:'غير مصرح'},{status:403});const b=await req.json();return NextResponse.json(await prisma.coupon.create({data:{code:String(b.code).trim().toUpperCase(),type:b.type,value:Number(b.value),minOrder:b.minOrder?Number(b.minOrder):null,maxUses:b.maxUses?Number(b.maxUses):null,active:b.active!==false,expiresAt:b.expiresAt?new Date(b.expiresAt):null}}),{status:201})}
-export async function PUT(req:Request){const u=await requireUser(['OWNER','ADMIN','MANAGER','EDITOR']);if(!u)return NextResponse.json({error:'غير مصرح'},{status:403});const b=await req.json();return NextResponse.json(await prisma.coupon.update({where:{id:b.id},data:{code:String(b.code).trim().toUpperCase(),type:b.type,value:Number(b.value),minOrder:b.minOrder?Number(b.minOrder):null,maxUses:b.maxUses?Number(b.maxUses):null,active:b.active!==false,expiresAt:b.expiresAt?new Date(b.expiresAt):null}}))}
-export async function DELETE(req:Request){const u=await requireUser(['OWNER','ADMIN','MANAGER']);if(!u)return NextResponse.json({error:'غير مصرح'},{status:403});return NextResponse.json(await prisma.coupon.delete({where:{id:(await req.json()).id}}))}
+import { NextResponse } from 'next/server';
+
+const disabledResponse = () =>
+  NextResponse.json(
+    { error: 'نظام الكوبونات متوقف وتم استبداله بالعروض وبطاقات الهدايا.' },
+    { status: 410 },
+  );
+
+export async function GET() {
+  return disabledResponse();
+}
+
+export async function POST() {
+  return disabledResponse();
+}
+
+export async function PUT() {
+  return disabledResponse();
+}
+
+export async function DELETE() {
+  return disabledResponse();
+}
