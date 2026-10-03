@@ -231,7 +231,7 @@ export default function AdminManager({ sidebarOpen, setSidebarOpen }: { sidebarO
       case 'categories': return { name: '', slug: '', description: '', image: '' };
       case 'offers': return { name: '', type: 'FLASH_SALE', discountValue: 0, startsAt: '', endsAt: '' };
       case 'coupons': return { code: '', value: 0, type: 'PERCENTAGE', minOrder: 0, maxUses: 100 };
-      case 'gift-cards': return { code: '', amount: 0, expiresAt: '' };
+      case 'gift-cards': return { code: '', amount: 0, expiresAt: '', active: true };
       case 'shipping': return { governorate: '', city: '', price: 0, freeAbove: 0 };
       case 'homepage': return { type: 'BANNER', title: '', subtitle: '', visible: true };
       case 'relations': return { type: 'RELATED', fromProductId: '', toProductId: '', sortOrder: 0 };
@@ -402,9 +402,60 @@ function Editor({ tab, value, cats, onCancel, onSave, upload }: any) {
     </div>
   );
 
+  if (tab === 'gift-cards') return (
+    <div className="bg-muted/10 border border-border/40 rounded-3xl p-6 md:p-8 space-y-5 shadow-xs">
+      <div className="grid gap-4 md:grid-cols-2">
+        <Field
+          label="القيمة"
+          value={v.amount ?? ''}
+          onChange={(x: any) => set('amount', x)}
+          type="number"
+        />
+
+        <label className="text-xs md:text-sm font-medium text-muted-foreground space-y-1 block">
+          تاريخ الانتهاء
+          <input
+            className="w-full mt-1 px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[var(--gold)] transition shadow-xs"
+            type="date"
+            min={new Date().toISOString().slice(0, 10)}
+            value={v.expiresAt ? String(v.expiresAt).slice(0, 10) : ''}
+            onChange={e => set('expiresAt', e.target.value ? `${e.target.value}T23:59:59.000Z` : '')}
+          />
+          <span className="block mt-1 text-[11px] text-muted-foreground">اختاري التاريخ مباشرة من التقويم.</span>
+        </label>
+
+        <div className="md:col-span-2 rounded-2xl bg-[var(--bg)] border border-[var(--gold)]/20 p-4">
+          <p className="text-xs text-muted-foreground">كود البطاقة</p>
+          {v.id ? (
+            <p className="mt-1 font-mono text-base tracking-wider text-foreground" dir="ltr">{v.code}</p>
+          ) : (
+            <p className="mt-1 text-sm font-medium text-[var(--gold)]">سيتم إنشاء كود البطاقة تلقائيًا عند الحفظ.</p>
+          )}
+        </div>
+
+        <label className="flex items-center gap-2.5 text-sm font-light cursor-pointer">
+          <input type="checkbox" className="w-4 h-4 accent-[var(--gold)]" checked={v.active !== false} onChange={e => set('active', e.target.checked)} />
+          البطاقة مفعلة
+        </label>
+      </div>
+
+      {v.id && (
+        <div className="rounded-2xl bg-[var(--bg)] border border-border/40 p-4">
+          <p className="text-xs text-muted-foreground">الرصيد الحالي</p>
+          <p className="mt-1 text-lg font-serif font-bold text-[var(--gold)]">{Number(v.balance || 0).toLocaleString('ar-EG')} ج.م</p>
+          <p className="mt-1 text-[11px] text-muted-foreground">لا يمكن تعديل القيمة الأصلية بعد الإصدار.</p>
+        </div>
+      )}
+
+      <div className="mt-5 flex gap-3 pt-4 border-t border-border/30">
+        <button className="px-6 py-3 rounded-2xl bg-[var(--gold)] text-[var(--gold-contrast)] font-serif font-bold text-sm shadow-sm hover:opacity-95 transition inline-flex items-center gap-2 cursor-pointer" onClick={() => onSave(v)}><Save size={17} /> حفظ</button>
+        <button className="px-5 py-3 rounded-2xl bg-muted/20 border border-border/60 text-muted-foreground text-sm font-medium hover:bg-muted/30 transition cursor-pointer" onClick={onCancel}>إلغاء</button>
+      </div>
+    </div>
+  );
+
   const common: any = { 
     relations: [['type', 'نوع العلاقة'], ['fromProductId', 'المنتج الأساسي'], ['toProductId', 'المنتج المقترح'], ['sortOrder', 'الترتيب']], 
-    'gift-cards': [['code', 'كود البطاقة'], ['amount', 'القيمة'], ['expiresAt', 'تاريخ الانتهاء']], 
     categories: [['name', 'اسم التصنيف'], ['slug', 'Slug'], ['description', 'الوصف'], ['sortOrder', 'الترتيب']], 
     offers: [['name', 'اسم العرض'], ['type', 'نوع العرض'], ['discountValue', 'قيمة الخصم'], ['startsAt', 'يبدأ'], ['endsAt', 'ينتهي']], 
     coupons: [['code', 'الكود'], ['value', 'قيمة الخصم'], ['minOrder', 'الحد الأدنى'], ['maxUses', 'عدد الاستخدامات']], 
@@ -520,19 +571,6 @@ function Editor({ tab, value, cats, onCancel, onSave, upload }: any) {
           common[tab]?.map((f: any) => <Field key={f[0]} label={f[1]} value={v[f[0]] ?? ''} onChange={(x: any) => set(f[0], x)} />)
         )}
       </div>
-
-      {tab === 'gift-cards' && (
-        <div className="grid gap-4 md:grid-cols-2 pt-2 border-t border-border/30">
-          <div className="rounded-2xl bg-[var(--bg)] border border-border/40 p-4">
-            <p className="text-xs text-muted-foreground">الرصيد الحالي</p>
-            <p className="mt-1 text-lg font-serif font-bold text-[var(--gold)]">{Number(v.balance || 0).toLocaleString('ar-EG')} ج.م</p>
-            <p className="mt-1 text-[11px] text-muted-foreground">لا يمكن تعديل القيمة الأصلية بعد الإصدار.</p>
-          </div>
-          <label className="flex items-center gap-2.5 text-sm font-light cursor-pointer">
-            <input type="checkbox" className="w-4 h-4 accent-[var(--gold)]" checked={v.active !== false} onChange={e => set('active', e.target.checked)} /> البطاقة مفعلة
-          </label>
-        </div>
-      )}
 
       {tab === 'categories' && (
         <div className="space-y-2 pt-2 border-t border-border/30">
