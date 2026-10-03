@@ -388,10 +388,22 @@ model Offer {
   endsAt               DateTime?
   createdAt            DateTime     @default(now())
   updatedAt            DateTime     @updatedAt
+  segmentTargets       OfferSegmentTarget[]
 
   @@index([active, startsAt, endsAt])
   @@index([productId, active])
   @@index([categoryId, active])
+}
+
+model OfferSegmentTarget {
+  id         String   @id @default(cuid())
+  offerId    String
+  offer      Offer    @relation(fields: [offerId], references: [id], onDelete: Cascade)
+  segmentKey String
+  createdAt  DateTime @default(now())
+
+  @@unique([offerId, segmentKey])
+  @@index([segmentKey])
 }
 
 model AbandonedCart {
