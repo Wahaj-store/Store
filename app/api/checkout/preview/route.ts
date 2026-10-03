@@ -111,6 +111,7 @@ export async function POST(req: Request) {
       shippingFreeAbove,
       offers: activeOffers.map(o => ({
         ...o,
+        segmentKeys: (o.segmentTargets || []).map((target: any) => target.segmentKey),
         discountValue: o.discountValue === null ? null : Number(o.discountValue),
         minOrder: o.minOrder === null ? null : Number(o.minOrder),
         maxDiscount: o.maxDiscount === null ? null : Number(o.maxDiscount),
