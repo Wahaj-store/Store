@@ -24,7 +24,17 @@ export default async function OfferDetailsPage({ params }: { params: { id: strin
   const now = new Date();
   const starts = !offer.startsAt || offer.startsAt <= now;
   const ends = !offer.endsAt || offer.endsAt >= now;
-  const active = offer.active && starts && ends;
+  const usageAvailable = offer.maxUses === null || offer.usedCount < offer.maxUses;
+  const active = offer.active && starts && ends && usageAvailable;
+  const statusLabel = !offer.active
+    ? "موقوف يدويًا"
+    : !starts
+      ? "لم يبدأ بعد"
+      : !ends
+        ? "منتهي"
+        : !usageAvailable
+          ? "اكتمل الاستخدام"
+          : "متاح الآن";
   const value = offer.discountValue === null ? null : Number(offer.discountValue);
   const isShipping = offer.type === "FREE_SHIPPING";
   const isGift = offer.type === "BUY_X_GET_Y";
@@ -47,7 +57,7 @@ export default async function OfferDetailsPage({ params }: { params: { id: strin
         <section className="wahaj-offer-detail__card">
           <div className="wahaj-offer-detail__visual">
             <img src={image} alt={offer.product?.name || offer.category?.name || offer.name} />
-            <span className="wahaj-offer-detail__badge">{active ? "متاح الآن" : "انتهى العرض"}</span>
+            <span className={`wahaj-offer-detail__badge ${active ? "is-active" : "is-inactive"}`}>{statusLabel}</span>
           </div>
 
           <div className="wahaj-offer-detail__content">
@@ -57,10 +67,11 @@ export default async function OfferDetailsPage({ params }: { params: { id: strin
             <p className="wahaj-offer-detail__lead">استفيدي من هذا العرض على المنتجات المؤهلة خلال فترة سريانه، وتابعي شروط العرض الظاهرة قبل إتمام الطلب.</p>
 
             <div className="wahaj-offer-detail__facts">
-              <div><span>الحالة</span><strong>{active ? "متاح الآن" : "غير متاح حاليًا"}</strong></div>
+              <div><span>الحالة</span><strong>{statusLabel}</strong></div>
               {offer.minOrder ? <div><span>الحد الأدنى</span><strong>{Number(offer.minOrder).toLocaleString("ar-EG")} ج.م</strong></div> : null}
               {offer.maxDiscount ? <div><span>أقصى خصم</span><strong>{Number(offer.maxDiscount).toLocaleString("ar-EG")} ج.م</strong></div> : null}
               {offer.endsAt ? <div><span>ينتهي</span><strong>{formatDate(offer.endsAt)}</strong></div> : null}
+              {offer.maxUses !== null ? <div><span>الاستخدام</span><strong>{Number(offer.usedCount || 0).toLocaleString("ar-EG")} / {Number(offer.maxUses).toLocaleString("ar-EG")}</strong></div> : null}
             </div>
 
             <div className="wahaj-offer-detail__conditions">
@@ -72,7 +83,11 @@ export default async function OfferDetailsPage({ params }: { params: { id: strin
             </div>
 
             <div className="wahaj-offer-detail__actions">
-              <Link href="/shop" className="btn btn-gold">تسوّقي واستفيدي من العرض <ArrowLeft size={16} /></Link>
+              {active ? (
+                <Link href="/shop" className="btn btn-gold">تسوّقي واستفيدي من العرض <ArrowLeft size={16} /></Link>
+              ) : (
+                <span className="btn" aria-disabled="true">العرض غير متاح حاليًا</span>
+              )}
               <Link href="/offers" className="btn">العودة لكل العروض</Link>
             </div>
 
