@@ -121,7 +121,7 @@ function calculateOfferDiscount(subtotal: number, lines: PricingLine[], offer: O
 }
 
 export function hasFreeShippingOffer(offers: OfferPricing[], isFirstOrder: boolean, now = new Date()) {
-  return offers.some(offer => isActiveOffer(offer, now) && offer.type === OfferType.FREE_SHIPPING && (offer.type !== OfferType.FIRST_ORDER || isFirstOrder));
+  return offers.some(offer => isActiveOffer(offer, now) && offer.type === OfferType.FREE_SHIPPING);
 }
 
 export function calculatePricing(args: {
@@ -158,7 +158,6 @@ export function calculatePricing(args: {
   const freeShippingOffer = offers
     .filter(offer => isActiveOffer(offer, now) && offer.type === OfferType.FREE_SHIPPING)
     .filter(offer => offer.minOrder === null || subtotal >= offer.minOrder)
-    .filter(offer => offer.type !== OfferType.FIRST_ORDER || isFirstOrder)
     .filter(offer => eligibleBase(args.lines, offer) > 0)
     .sort((a, b) => b.priority - a.priority)[0];
   const freeByOffer = Boolean(freeShippingOffer);
