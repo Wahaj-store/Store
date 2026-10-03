@@ -12,6 +12,9 @@ export default function Cart() {
   useEffect(() => {
     const sync = () => setC(JSON.parse(localStorage.getItem('wahaj_cart') || '[]'));
     sync();
+    const initial = JSON.parse(localStorage.getItem('wahaj_cart') || '[]');
+    if (initial.length) fetch('/api/cart/abandoned', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ items: initial }) }).catch(() => {});
+    else fetch('/api/cart/abandoned', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ items: [] }) }).catch(() => {});
     fetch('/api/settings')
       .then(x => x.json())
       .then(x => {
@@ -20,7 +23,9 @@ export default function Cart() {
       })
       .catch(() => {});
     window.addEventListener('wahaj-cart-change', sync);
-    return () => window.removeEventListener('wahaj-cart-change', sync);
+    const syncServer = () => { const latest = JSON.parse(localStorage.getItem('wahaj_cart') || '[]'); fetch('/api/cart/abandoned', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ items: latest }) }).catch(() => {}); };
+    window.addEventListener('wahaj-cart-change', syncServer);
+    return () => { window.removeEventListener('wahaj-cart-change', sync); window.removeEventListener('wahaj-cart-change', syncServer); };
   }, []);
 
   function save(x: any[]) {
