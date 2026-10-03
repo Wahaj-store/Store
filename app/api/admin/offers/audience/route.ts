@@ -38,14 +38,12 @@ export async function PUT(req: Request) {
   const offerId = String(body?.offerId || '');
 
   const segmentKeys: string[] = Array.isArray(body?.segmentKeys)
-    ? [
-        ...new Set(
-          body.segmentKeys
-            .map((x: unknown) => String(x))
-            .filter((x: string) => ALLOWED.has(x)),
-        ),
-      ]
-    : [];
+  ? Array.from(
+      new Set<string>(
+        body.segmentKeys.map((x: unknown) => String(x)),
+      ),
+    ).filter((x) => ALLOWED.has(x))
+  : [];
 
   if (!offerId) {
     return NextResponse.json({ error: 'العرض مطلوب' }, { status: 400 });
