@@ -7,7 +7,7 @@ import {
   GripVertical, Trash2, Upload, Plus, Save, Image as ImageIcon, Search, ChevronLeft,
   Package, FolderTree, Tag, CreditCard, Truck, LayoutTemplate, 
   MessageSquareQuote, Users, Shield, ShoppingCart, BarChart3, Sliders, 
-  FileText, HelpCircle, Mail, Settings, Gift, RefreshCcw, Share2, Lock, LucideProps, Menu, X, TrendingUp, TrendingDown, PieChart
+  FileText, HelpCircle, Mail, Settings, Gift, RefreshCcw, Share2, Lock, LucideProps, Menu, X, TrendingUp, TrendingDown, PieChart, Bell, Command, Keyboard, CheckCircle2, AlertCircle, Clock
 } from 'lucide-react';
 import MediaPicker from './MediaPicker';
 import Image from 'next/image';
@@ -126,6 +126,24 @@ export default function AdminManager({ sidebarOpen, setSidebarOpen }: { sidebarO
   const [msg, setMsg] = useState('');
   const [loading, setLoading] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [commandOpen, setCommandOpen] = useState(false);
+  const [commandQuery, setCommandQuery] = useState('');
+  const [notificationsOpen, setNotificationsOpen] = useState(false);
+
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k') { event.preventDefault(); setCommandOpen(true); }
+      if (event.key === 'Escape') { setCommandOpen(false); setNotificationsOpen(false); }
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, []);
+
+  const commandItems = menuGroups.flatMap(group => group.items.map(([key, label, Icon]) => ({ key, label, Icon, group: group.title })));
+  const filteredCommandItems = commandItems.filter(item => {
+    const q = commandQuery.trim().toLowerCase();
+    return !q || item.label.toLowerCase().includes(q) || item.group.toLowerCase().includes(q);
+  }).slice(0, 8);
 
   const getCurrentTabLabel = () => {
     for (const group of menuGroups) {
@@ -340,7 +358,7 @@ export default function AdminManager({ sidebarOpen, setSidebarOpen }: { sidebarO
             </div>
           </div>
 
-          <div className="h-11 w-11 shrink-0" aria-hidden="true" />
+          <button type="button" onClick={() => { setCommandOpen(true); setCommandQuery(''); }} className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-border/50 bg-muted/10 text-foreground transition hover:border-[var(--gold)]/40 hover:text-[var(--gold)]" aria-label="البحث السريع"><Search size={18} /></button>
         </header>
       </div>
 
@@ -476,9 +494,18 @@ export default function AdminManager({ sidebarOpen, setSidebarOpen }: { sidebarO
               </div>
             </div>
 
-            <div className="flex items-center gap-2 rounded-full border border-border/40 bg-muted/10 px-3.5 py-2 text-[10px] text-muted-foreground">
-              <span className="h-1.5 w-1.5 rounded-full bg-[var(--gold)]" />
-              <span>Wahaj Admin</span>
+            <div className="flex items-center gap-2">
+              <button type="button" onClick={() => { setCommandOpen(true); setCommandQuery(''); }} className="hidden h-10 min-w-[190px] items-center justify-between gap-3 rounded-xl border border-border/40 bg-muted/10 px-3 text-[10px] text-muted-foreground transition hover:border-[var(--gold)]/30 sm:flex" aria-label="فتح البحث السريع">
+                <span className="flex items-center gap-2"><Search size={14} /> بحث سريع في لوحة الإدارة</span><kbd className="rounded-md border border-border/50 px-1.5 py-0.5 text-[9px]">Ctrl K</kbd>
+              </button>
+              <div className="relative">
+                <button type="button" onClick={() => setNotificationsOpen(v => !v)} className="relative flex h-10 w-10 items-center justify-center rounded-xl border border-border/40 bg-muted/10 text-muted-foreground transition hover:border-[var(--gold)]/30 hover:text-[var(--gold)]" aria-label="التنبيهات"><Bell size={16} /><span className="absolute right-1.5 top-1.5 h-1.5 w-1.5 rounded-full bg-[var(--gold)]" /></button>
+                {notificationsOpen && <div className="absolute left-0 top-12 z-[70] w-[290px] rounded-2xl border border-border/50 bg-[var(--bg)] p-3 shadow-2xl">
+                  <div className="flex items-center justify-between border-b border-border/30 px-2 pb-3"><b className="text-xs text-foreground">مركز التنبيهات</b><span className="rounded-full bg-[var(--gold)]/10 px-2 py-1 text-[9px] text-[var(--gold)]">مباشر</span></div>
+                  <div className="space-y-1 pt-2"><div className="flex gap-3 rounded-xl p-2.5 hover:bg-muted/10"><Clock size={15} className="mt-0.5 text-[var(--gold)]" /><div><p className="text-[11px] font-medium">بيانات القسم الحالي جاهزة</p><p className="mt-0.5 text-[9px] text-muted-foreground">يتم تحديث البيانات عند تغيير القسم</p></div></div><div className="flex gap-3 rounded-xl p-2.5 hover:bg-muted/10"><CheckCircle2 size={15} className="mt-0.5 text-green-600" /><div><p className="text-[11px] font-medium">النظام متصل</p><p className="mt-0.5 text-[9px] text-muted-foreground">جلسة الإدارة محمية بالصلاحيات</p></div></div></div>
+                </div>}
+              </div>
+              <div className="hidden rounded-full border border-border/40 bg-muted/10 px-3 py-2 text-[10px] text-muted-foreground xl:flex xl:items-center xl:gap-2"><span className="h-1.5 w-1.5 rounded-full bg-[var(--gold)]" /><span>Wahaj Admin</span></div>
             </div>
           </header>
 
@@ -530,9 +557,8 @@ export default function AdminManager({ sidebarOpen, setSidebarOpen }: { sidebarO
           </section>
 
           {msg && (
-            <div className="flex items-start gap-3 rounded-2xl border border-[var(--gold)]/25 bg-[var(--gold)]/8 px-4 py-3 text-xs font-medium text-[var(--gold)] shadow-sm">
-              <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-[var(--gold)]" />
-              <span>{msg}</span>
+            <div className={`flex items-start gap-3 rounded-2xl border px-4 py-3 text-xs font-medium shadow-sm ${msg.includes('خطأ') || msg.includes('تعذر') ? 'border-red-500/20 bg-red-500/5 text-red-600' : 'border-green-500/20 bg-green-500/5 text-green-600'}`}>
+              {msg.includes('خطأ') || msg.includes('تعذر') ? <AlertCircle size={15} className="mt-0.5 shrink-0" /> : <CheckCircle2 size={15} className="mt-0.5 shrink-0" />}<span>{msg}</span>
             </div>
           )}
 
@@ -567,6 +593,18 @@ export default function AdminManager({ sidebarOpen, setSidebarOpen }: { sidebarO
           </section>
         </main>
       </div>
+      {commandOpen && (
+        <div className="fixed inset-0 z-[100] flex items-start justify-center bg-black/55 px-3 pt-[12vh] backdrop-blur-sm" onMouseDown={() => setCommandOpen(false)}>
+          <div className="w-full max-w-xl overflow-hidden rounded-[28px] border border-border/50 bg-[var(--bg)] shadow-2xl" dir="rtl" onMouseDown={e => e.stopPropagation()}>
+            <div className="flex items-center gap-3 border-b border-border/40 px-4 py-3.5"><Command size={18} className="text-[var(--gold)]" /><input autoFocus value={commandQuery} onChange={e => setCommandQuery(e.target.value)} placeholder="ابحث عن قسم أو أداة..." className="min-w-0 flex-1 bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground" /><kbd className="rounded-lg border border-border/50 px-2 py-1 text-[9px] text-muted-foreground">ESC</kbd></div>
+            <div className="max-h-[55vh] overflow-y-auto p-2">
+              {filteredCommandItems.map(item => { const Icon = item.Icon; return <button key={item.key} type="button" onClick={() => { setTab(item.key); setEditing(null); setCommandOpen(false); setCommandQuery(''); setSidebarOpen(false); }} className={`flex w-full items-center gap-3 rounded-xl px-3 py-3 text-right transition ${tab === item.key ? 'bg-[var(--gold)]/10 text-[var(--gold)]' : 'text-foreground hover:bg-muted/10'}`}><span className="flex h-8 w-8 items-center justify-center rounded-lg bg-muted/10"><Icon size={15} /></span><span className="min-w-0 flex-1"><span className="block text-xs font-medium">{item.label}</span><span className="mt-0.5 block text-[9px] text-muted-foreground">{item.group}</span></span><ChevronLeft size={14} className="text-muted-foreground" /></button>; })}
+              {!filteredCommandItems.length && <div className="p-10 text-center text-xs text-muted-foreground">لا توجد نتائج مطابقة.</div>}
+            </div>
+            <div className="flex items-center justify-between border-t border-border/30 px-4 py-2.5 text-[9px] text-muted-foreground"><span className="flex items-center gap-1.5"><Keyboard size={12} /> للتنقل السريع</span><span>Ctrl + K</span></div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -1200,6 +1238,9 @@ function Analytics({ data: initialData }: any) {
   const [data, setData] = useState<any>(initialData || {});
   const [loading, setLoading] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [commandOpen, setCommandOpen] = useState(false);
+  const [commandQuery, setCommandQuery] = useState('');
+  const [notificationsOpen, setNotificationsOpen] = useState(false);
 
   async function loadRange(nextDays: number) {
     setDays(nextDays);
