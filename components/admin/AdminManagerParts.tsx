@@ -23,21 +23,21 @@ export function Editor({ tab, value, cats, onCancel, onSave, upload }: any) {
   const addVar = () => set('variants', [...v.variants, { name: 'اللون', value: '', stock: 0, price: '' }]);
 
   if (tab === 'settings') return (
-    <div className="bg-muted/10 border border-border/40 rounded-3xl p-6 md:p-8 space-y-5 shadow-xs">
+    <div className="bg-muted/10 border border-border/40 rounded-3xl p-6 md:p-8 space-y-5 shadow-xs transition-all duration-200 hover:border-[var(--gold)]/20">
       <h3 className="font-serif font-bold text-lg text-[var(--gold)]">إعدادات المتجر العامة</h3>
       <div className="grid gap-4 md:grid-cols-2">
         <Field label="المفتاح (Key)" value={v.key || ''} onChange={(x: any) => set('key', x)} />
         <Field label="القيمة (Value)" value={v.value || ''} onChange={(x: any) => set('value', x)} />
       </div>
       <div className="flex gap-3 pt-3">
-        <button className="px-6 py-3 rounded-2xl bg-[var(--gold)] text-[var(--gold-contrast)] font-serif font-bold text-sm shadow-sm hover:opacity-95 transition inline-flex items-center gap-2 cursor-pointer" onClick={() => onSave(v)}><Save size={17} /> حفظ الإعداد</button>
-        <button className="px-5 py-3 rounded-2xl bg-muted/20 border border-border/60 text-muted-foreground text-sm font-medium hover:bg-muted/30 transition cursor-pointer" onClick={onCancel}>إلغاء</button>
+        <button className="px-6 py-3 rounded-2xl bg-[var(--gold)] text-[var(--gold-contrast)] font-serif font-bold text-sm shadow-sm hover:opacity-95 focus:outline-none focus:ring-2 focus:ring-[var(--gold)]/20 transition-all duration-200 inline-flex items-center gap-2 cursor-pointer" onClick={() => onSave(v)}><Save size={17} /> حفظ الإعداد</button>
+        <button className="px-5 py-3 rounded-2xl bg-muted/20 border border-border/60 text-muted-foreground text-sm font-medium hover:bg-muted/30 hover:border-[var(--gold)]/30 focus:outline-none focus:ring-2 focus:ring-[var(--gold)]/10 transition-all duration-200 cursor-pointer" onClick={onCancel}>إلغاء</button>
       </div>
     </div>
   );
 
   if (tab === 'faq') return (
-    <div className="bg-muted/10 border border-border/40 rounded-3xl p-6 md:p-8 space-y-5 shadow-xs">
+    <div className="bg-muted/10 border border-border/40 rounded-3xl p-6 md:p-8 space-y-5 shadow-xs transition-all duration-200 hover:border-[var(--gold)]/20">
       <h3 className="font-serif font-bold text-lg text-[var(--gold)]">{v.id ? 'تعديل السؤال' : 'إضافة سؤال جديد'}</h3>
       <div className="grid gap-4 md:grid-cols-2">
         <Field label="السؤال" value={v.question || ''} onChange={(x: any) => set('question', x)} />
@@ -59,14 +59,14 @@ export function Editor({ tab, value, cats, onCancel, onSave, upload }: any) {
         </label>
       </div>
       <div className="flex gap-3 pt-3">
-        <button className="px-6 py-3 rounded-2xl bg-[var(--gold)] text-[var(--gold-contrast)] font-serif font-bold text-sm shadow-sm hover:opacity-95 transition inline-flex items-center gap-2 cursor-pointer" onClick={() => onSave(v)}><Save size={17} /> حفظ</button>
-        <button className="px-5 py-3 rounded-2xl bg-muted/20 border border-border/60 text-muted-foreground text-sm font-medium hover:bg-muted/30 transition cursor-pointer" onClick={onCancel}>إلغاء</button>
+        <button className="px-6 py-3 rounded-2xl bg-[var(--gold)] text-[var(--gold-contrast)] font-serif font-bold text-sm shadow-sm hover:opacity-95 focus:outline-none focus:ring-2 focus:ring-[var(--gold)]/20 transition-all duration-200 inline-flex items-center gap-2 cursor-pointer" onClick={() => onSave(v)}><Save size={17} /> حفظ</button>
+        <button className="px-5 py-3 rounded-2xl bg-muted/20 border border-border/60 text-muted-foreground text-sm font-medium hover:bg-muted/30 hover:border-[var(--gold)]/30 focus:outline-none focus:ring-2 focus:ring-[var(--gold)]/10 transition-all duration-200 cursor-pointer" onClick={onCancel}>إلغاء</button>
       </div>
     </div>
   );
 
   if (tab === 'payments') return (
-    <div className="bg-muted/10 border border-border/40 rounded-3xl p-6 md:p-8 space-y-5 shadow-xs">
+    <div className="bg-muted/10 border border-border/40 rounded-3xl p-6 md:p-8 space-y-5 shadow-xs transition-all duration-200 hover:border-[var(--gold)]/20">
       <div className="grid gap-4 md:grid-cols-2">
         <Field label="اسم الطريقة" value={v.label} onChange={(x: any) => set('label', x)} />
         <Field label="ترتيب الظهور" value={v.displayOrder || 0} onChange={(x: any) => set('displayOrder', x)} type="number" />
@@ -78,8 +78,8 @@ export function Editor({ tab, value, cats, onCancel, onSave, upload }: any) {
         <label className="flex items-center gap-2.5 text-sm font-light cursor-pointer"><input type="checkbox" className="w-4 h-4 accent-[var(--gold)]" checked={!!v.proofRequired} onChange={e => set('proofRequired', e.target.checked)} /> طلب إثبات دفع</label>
       </div>
       <div className="mt-5 flex gap-3">
-        <button className="px-6 py-3 rounded-2xl bg-[var(--gold)] text-[var(--gold-contrast)] font-serif font-bold text-sm shadow-sm hover:opacity-95 transition inline-flex items-center gap-2 cursor-pointer" onClick={() => onSave(v)}><Save size={17} /> حفظ</button>
-        <button className="px-5 py-3 rounded-2xl bg-muted/20 border border-border/60 text-muted-foreground text-sm font-medium hover:bg-muted/30 transition cursor-pointer" onClick={onCancel}>إلغاء</button>
+        <button className="px-6 py-3 rounded-2xl bg-[var(--gold)] text-[var(--gold-contrast)] font-serif font-bold text-sm shadow-sm hover:opacity-95 focus:outline-none focus:ring-2 focus:ring-[var(--gold)]/20 transition-all duration-200 inline-flex items-center gap-2 cursor-pointer" onClick={() => onSave(v)}><Save size={17} /> حفظ</button>
+        <button className="px-5 py-3 rounded-2xl bg-muted/20 border border-border/60 text-muted-foreground text-sm font-medium hover:bg-muted/30 hover:border-[var(--gold)]/30 focus:outline-none focus:ring-2 focus:ring-[var(--gold)]/10 transition-all duration-200 cursor-pointer" onClick={onCancel}>إلغاء</button>
       </div>
     </div>
   );
@@ -95,7 +95,7 @@ export function Editor({ tab, value, cats, onCancel, onSave, upload }: any) {
   };
 
   if (tab === 'offers') return (
-    <div className="bg-muted/10 border border-border/40 rounded-3xl p-6 md:p-8 space-y-5 shadow-xs">
+    <div className="bg-muted/10 border border-border/40 rounded-3xl p-6 md:p-8 space-y-5 shadow-xs transition-all duration-200 hover:border-[var(--gold)]/20">
       <div className="grid gap-4 md:grid-cols-2">
         <Field label="اسم العرض" value={v.name || ''} onChange={(x: any) => set('name', x)} />
         <label className="text-xs md:text-sm font-medium text-muted-foreground">نوع العرض
@@ -108,28 +108,28 @@ export function Editor({ tab, value, cats, onCancel, onSave, upload }: any) {
         <Field label="ينتهي" value={v.endsAt || ''} onChange={(x: any) => set('endsAt', x)} />
       </div>
       <div className="mt-5 flex gap-3">
-        <button className="px-6 py-3 rounded-2xl bg-[var(--gold)] text-[var(--gold-contrast)] font-serif font-bold text-sm shadow-sm hover:opacity-95 transition inline-flex items-center gap-2 cursor-pointer" onClick={() => onSave(v)}><Save size={17} /> حفظ</button>
-        <button className="px-5 py-3 rounded-2xl bg-muted/20 border border-border/60 text-muted-foreground text-sm font-medium hover:bg-muted/30 transition cursor-pointer" onClick={onCancel}>إلغاء</button>
+        <button className="px-6 py-3 rounded-2xl bg-[var(--gold)] text-[var(--gold-contrast)] font-serif font-bold text-sm shadow-sm hover:opacity-95 focus:outline-none focus:ring-2 focus:ring-[var(--gold)]/20 transition-all duration-200 inline-flex items-center gap-2 cursor-pointer" onClick={() => onSave(v)}><Save size={17} /> حفظ</button>
+        <button className="px-5 py-3 rounded-2xl bg-muted/20 border border-border/60 text-muted-foreground text-sm font-medium hover:bg-muted/30 hover:border-[var(--gold)]/30 focus:outline-none focus:ring-2 focus:ring-[var(--gold)]/10 transition-all duration-200 cursor-pointer" onClick={onCancel}>إلغاء</button>
       </div>
     </div>
   );
 
   if (tab === 'redirects') return (
-    <div className="bg-muted/10 border border-border/40 rounded-3xl p-6 md:p-8 space-y-5 shadow-xs">
+    <div className="bg-muted/10 border border-border/40 rounded-3xl p-6 md:p-8 space-y-5 shadow-xs transition-all duration-200 hover:border-[var(--gold)]/20">
       <div className="grid gap-4 md:grid-cols-2">
         <Field label="المسار القديم" value={v.fromPath || ''} onChange={(x: any) => set('fromPath', x)} />
         <Field label="المسار الجديد" value={v.toPath || ''} onChange={(x: any) => set('toPath', x)} />
         <Field label="كود التحويل" value={v.statusCode || 301} onChange={(x: any) => set('statusCode', x)} type="number" />
       </div>
       <div className="mt-5 flex gap-3">
-        <button className="px-6 py-3 rounded-2xl bg-[var(--gold)] text-[var(--gold-contrast)] font-serif font-bold text-sm shadow-sm hover:opacity-95 transition inline-flex items-center gap-2 cursor-pointer" onClick={() => onSave(v)}><Save size={17} /> حفظ</button>
-        <button className="px-5 py-3 rounded-2xl bg-muted/20 border border-border/60 text-muted-foreground text-sm font-medium hover:bg-muted/30 transition cursor-pointer" onClick={onCancel}>إلغاء</button>
+        <button className="px-6 py-3 rounded-2xl bg-[var(--gold)] text-[var(--gold-contrast)] font-serif font-bold text-sm shadow-sm hover:opacity-95 focus:outline-none focus:ring-2 focus:ring-[var(--gold)]/20 transition-all duration-200 inline-flex items-center gap-2 cursor-pointer" onClick={() => onSave(v)}><Save size={17} /> حفظ</button>
+        <button className="px-5 py-3 rounded-2xl bg-muted/20 border border-border/60 text-muted-foreground text-sm font-medium hover:bg-muted/30 hover:border-[var(--gold)]/30 focus:outline-none focus:ring-2 focus:ring-[var(--gold)]/10 transition-all duration-200 cursor-pointer" onClick={onCancel}>إلغاء</button>
       </div>
     </div>
   );
 
   return (
-    <div className="bg-muted/10 border border-border/40 rounded-3xl p-6 md:p-8 space-y-6 shadow-xs">
+    <div className="bg-muted/10 border border-border/40 rounded-3xl p-6 md:p-8 space-y-6 shadow-xs transition-all duration-200 hover:border-[var(--gold)]/20">
       <div className="grid gap-4 md:grid-cols-2">
         {tab === 'products' ? (
           <>
@@ -181,7 +181,7 @@ export function Editor({ tab, value, cats, onCancel, onSave, upload }: any) {
             <div className="md:col-span-2 space-y-3 pt-2 border-t border-border/30">
               <div className="flex items-center justify-between">
                 <b className="font-serif font-bold text-sm text-[var(--gold)]">Variants / الخيارات</b>
-                <button className="px-4 py-2 rounded-xl bg-muted/20 border border-border/60 text-xs font-medium hover:bg-muted/30 transition cursor-pointer" onClick={addVar}>+ إضافة خيار</button>
+                <button className="px-4 py-2 rounded-xl bg-muted/20 border border-border/60 text-xs font-medium hover:bg-muted/30 hover:border-[var(--gold)]/30 focus:outline-none focus:ring-2 focus:ring-[var(--gold)]/10 transition-all duration-200 cursor-pointer" onClick={addVar}>+ إضافة خيار</button>
               </div>
               {v.variants.map((x: any, i: number) => (
                 <div className="grid gap-2.5 md:grid-cols-5 items-center p-3 rounded-2xl bg-[var(--bg)] border border-border/60 shadow-xs" key={i}>
@@ -191,7 +191,7 @@ export function Editor({ tab, value, cats, onCancel, onSave, upload }: any) {
                   <input className="w-full px-3 py-2 rounded-xl bg-muted/10 border border-border/60 text-xs text-foreground focus:outline-none focus:border-[var(--gold)]" type="number" placeholder="سعر خاص" value={x.price ?? ""} onChange={e => { const a = [...v.variants]; a[i].price = e.target.value === '' ? null : Number(e.target.value); set('variants', a); }} />
                   <div className="flex gap-2">
                     <input className="w-full px-3 py-2 rounded-xl bg-muted/10 border border-border/60 text-xs text-foreground focus:outline-none focus:border-[var(--gold)]" placeholder="SKU" value={x.sku || ""} onChange={e => { const a = [...v.variants]; a[i].sku = e.target.value; set('variants', a); }} />
-                    <button className="p-2 rounded-xl border border-red-400 text-red-500 hover:bg-red-500/10 transition cursor-pointer" onClick={() => set('variants', v.variants.filter((_: any, j: number) => j !== i))}><Trash2 size={16} /></button>
+                    <button className="p-2 rounded-xl border border-red-400 text-red-500 hover:bg-red-500/10 focus:outline-none focus:ring-2 focus:ring-red-500/10 transition-all duration-200 cursor-pointer" onClick={() => set('variants', v.variants.filter((_: any, j: number) => j !== i))}><Trash2 size={16} /></button>
                   </div>
                 </div>
               ))}
@@ -220,8 +220,8 @@ export function Editor({ tab, value, cats, onCancel, onSave, upload }: any) {
       )}
 
       <div className="mt-6 flex gap-3 pt-4 border-t border-border/30">
-        <button className="px-6 py-3 rounded-2xl bg-[var(--gold)] text-[var(--gold-contrast)] font-serif font-bold text-sm shadow-sm hover:opacity-95 transition inline-flex items-center gap-2 cursor-pointer" onClick={() => onSave(v)}><Save size={17} /> حفظ</button>
-        <button className="px-5 py-3 rounded-2xl bg-muted/20 border border-border/60 text-muted-foreground text-sm font-medium hover:bg-muted/30 transition cursor-pointer" onClick={onCancel}>إلغاء</button>
+        <button className="px-6 py-3 rounded-2xl bg-[var(--gold)] text-[var(--gold-contrast)] font-serif font-bold text-sm shadow-sm hover:opacity-95 focus:outline-none focus:ring-2 focus:ring-[var(--gold)]/20 transition-all duration-200 inline-flex items-center gap-2 cursor-pointer" onClick={() => onSave(v)}><Save size={17} /> حفظ</button>
+        <button className="px-5 py-3 rounded-2xl bg-muted/20 border border-border/60 text-muted-foreground text-sm font-medium hover:bg-muted/30 hover:border-[var(--gold)]/30 focus:outline-none focus:ring-2 focus:ring-[var(--gold)]/10 transition-all duration-200 cursor-pointer" onClick={onCancel}>إلغاء</button>
       </div>
     </div>
   );
@@ -231,7 +231,7 @@ export function Field({ label, value, onChange, type = 'text' }: any) {
   return (
     <label className="text-xs md:text-sm font-medium text-muted-foreground space-y-1 block">
       {label}
-      <input className="w-full mt-1 px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[var(--gold)] transition shadow-xs" type={type} value={value ?? ''} onChange={e => onChange(e.target.value)} />
+      <input className="w-full mt-1 px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[var(--gold)] focus:ring-2 focus:ring-[var(--gold)]/10 transition shadow-xs" type={type} value={value ?? ''} onChange={e => onChange(e.target.value)} />
     </label>
   );
 }
@@ -240,7 +240,7 @@ export function Select({ label, value, options, onChange }: any) {
   return (
     <label className="mt-4 block text-xs md:text-sm font-medium text-muted-foreground space-y-1">
       {label}
-      <select className="w-full mt-1 px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[var(--gold)] transition shadow-xs" value={value} onChange={e => onChange(e.target.value)}>
+      <select className="w-full mt-1 px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[var(--gold)] focus:ring-2 focus:ring-[var(--gold)]/10 transition shadow-xs" value={value} onChange={e => onChange(e.target.value)}>
         {options.map((x: string) => <option key={x}>{x}</option>)}
       </select>
     </label>
@@ -254,7 +254,7 @@ export function Content({ tab, data, onEdit, onDelete, onRefresh, onReorder }: a
   if (tab === 'faq') return (
     <div className="space-y-4">
       {data.map((faq: any) => (
-        <div key={faq.id} className="bg-muted/10 border border-border/40 rounded-3xl p-6 space-y-3 shadow-xs">
+        <div key={faq.id} className="bg-muted/10 border border-border/40 rounded-3xl p-6 space-y-3 shadow-xs transition-all duration-200 hover:border-[var(--gold)]/20">
           <div className="flex justify-between items-start gap-4">
             <div className="space-y-1">
               <b className="text-base font-serif font-bold text-foreground">{faq.question}</b>
@@ -269,8 +269,8 @@ export function Content({ tab, data, onEdit, onDelete, onRefresh, onReorder }: a
               </div>
             </div>
             <div className="flex gap-2">
-              <button className="px-4 py-2 rounded-xl bg-muted/20 border border-border/60 text-xs font-medium hover:bg-muted/30 transition cursor-pointer" onClick={() => onEdit(faq)}>تعديل</button>
-              <button className="p-2 rounded-xl border border-red-400 text-red-500 hover:bg-red-500/10 transition cursor-pointer" onClick={() => onDelete(faq.id)}><Trash2 size={16} /></button>
+              <button className="px-4 py-2 rounded-xl bg-muted/20 border border-border/60 text-xs font-medium hover:bg-muted/30 hover:border-[var(--gold)]/30 focus:outline-none focus:ring-2 focus:ring-[var(--gold)]/10 transition-all duration-200 cursor-pointer" onClick={() => onEdit(faq)}>تعديل</button>
+              <button className="p-2 rounded-xl border border-red-400 text-red-500 hover:bg-red-500/10 focus:outline-none focus:ring-2 focus:ring-red-500/10 transition-all duration-200 cursor-pointer" onClick={() => onDelete(faq.id)}><Trash2 size={16} /></button>
             </div>
           </div>
           <p className="text-xs md:text-sm text-muted-foreground/90 bg-[var(--bg)]/60 border border-border/40 p-4 rounded-2xl font-light leading-relaxed">
@@ -285,7 +285,7 @@ export function Content({ tab, data, onEdit, onDelete, onRefresh, onReorder }: a
   if (tab === 'contact') return (
     <div className="space-y-4">
       {data.map((msg: any) => (
-        <div key={msg.id} className="bg-muted/10 border border-border/40 rounded-3xl p-6 space-y-4 shadow-xs">
+        <div key={msg.id} className="bg-muted/10 border border-border/40 rounded-3xl p-6 space-y-4 shadow-xs transition-all duration-200 hover:border-[var(--gold)]/20">
           <div className="flex flex-wrap justify-between items-start gap-4 border-b border-border/30 pb-4">
             <div className="space-y-1">
               <b className="text-base font-serif font-bold text-foreground">{msg.name}</b>
@@ -299,14 +299,14 @@ export function Content({ tab, data, onEdit, onDelete, onRefresh, onReorder }: a
               <span className="px-3 py-1 rounded-full text-xs bg-[var(--gold)]/10 text-[var(--gold)] font-medium border border-[var(--gold)]/20">
                 {msg.subject || 'استفسار عام'}
               </span>
-              <button className="p-2 rounded-xl border border-red-400 text-red-500 hover:bg-red-500/10 transition cursor-pointer" onClick={() => onDelete(msg.id)} title="حذف الرسالة"><Trash2 size={16} /></button>
+              <button className="p-2 rounded-xl border border-red-400 text-red-500 hover:bg-red-500/10 focus:outline-none focus:ring-2 focus:ring-red-500/10 transition-all duration-200 cursor-pointer" onClick={() => onDelete(msg.id)} title="حذف الرسالة"><Trash2 size={16} /></button>
             </div>
           </div>
           <p className="text-xs md:text-sm text-foreground/90 bg-[var(--bg)]/60 border border-border/40 p-4 rounded-2xl leading-relaxed whitespace-pre-wrap font-light">
             {msg.message}
           </p>
           <div className="flex justify-end">
-            <a href={`https://wa.me/${msg.phone}`} target="_blank" rel="noopener noreferrer" className="px-5 py-2.5 rounded-xl bg-[var(--gold)] text-[var(--gold-contrast)] text-xs font-serif font-bold shadow-sm hover:opacity-95 transition inline-flex items-center gap-1.5 cursor-pointer">
+            <a href={`https://wa.me/${msg.phone}`} target="_blank" rel="noopener noreferrer" className="px-5 py-2.5 rounded-xl bg-[var(--gold)] text-[var(--gold-contrast)] text-xs font-serif font-bold shadow-sm hover:opacity-95 focus:outline-none focus:ring-2 focus:ring-[var(--gold)]/20 transition-all duration-200 inline-flex items-center gap-1.5 cursor-pointer">
               الرد عبر واتساب مباشرة
             </a>
           </div>
@@ -319,7 +319,7 @@ export function Content({ tab, data, onEdit, onDelete, onRefresh, onReorder }: a
   if (tab === 'payments') return (
     <div className="grid gap-3.5">
       {data.map((x: any) => (
-        <div className="bg-muted/10 border border-border/40 rounded-3xl p-5 shadow-xs space-y-3" key={x.method}>
+        <div className="bg-muted/10 border border-border/40 rounded-3xl p-5 shadow-xs space-y-3 transition-all duration-200 hover:border-[var(--gold)]/20" key={x.method}>
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
               <b className="font-serif font-bold text-foreground">{x.label}</b>
@@ -329,7 +329,7 @@ export function Content({ tab, data, onEdit, onDelete, onRefresh, onReorder }: a
               <button className={`px-4 py-2 rounded-xl text-xs font-medium transition cursor-pointer ${x.enabled ? 'bg-[var(--gold)] text-[var(--gold-contrast)] font-bold shadow-xs' : 'bg-muted/20 border border-border/60 text-muted-foreground'}`} onClick={async () => { await api('/api/admin/payments', 'PUT', { ...x, enabled: !x.enabled }); onRefresh(); }}>
                 {x.enabled ? 'مفعل' : 'متوقف'}
               </button>
-              <button className="px-4 py-2 rounded-xl bg-muted/20 border border-border/60 text-xs font-medium hover:bg-muted/30 transition cursor-pointer" onClick={() => onEdit(x)}>إدارة</button>
+              <button className="px-4 py-2 rounded-xl bg-muted/20 border border-border/60 text-xs font-medium hover:bg-muted/30 hover:border-[var(--gold)]/30 focus:outline-none focus:ring-2 focus:ring-[var(--gold)]/10 transition-all duration-200 cursor-pointer" onClick={() => onEdit(x)}>إدارة</button>
             </div>
           </div>
           <p className="text-xs text-muted-foreground font-light pt-2 border-t border-border/30">
@@ -343,7 +343,7 @@ export function Content({ tab, data, onEdit, onDelete, onRefresh, onReorder }: a
   if (tab === 'features') return (
     <div className="grid gap-3.5">
       {data.map((x: any) => (
-        <div className="bg-muted/10 border border-border/40 rounded-3xl p-5 flex items-center justify-between shadow-xs" key={x.id}>
+        <div className="bg-muted/10 border border-border/40 rounded-3xl p-5 flex items-center justify-between shadow-xs transition-all duration-200 hover:border-[var(--gold)]/20" key={x.id}>
           <div>
             <b className="font-serif font-bold text-foreground">{x.key}</b>
             <p className="text-muted-foreground text-xs font-light mt-0.5">{x.description || 'ميزة قابلة للتفعيل'}</p>
@@ -360,7 +360,7 @@ export function Content({ tab, data, onEdit, onDelete, onRefresh, onReorder }: a
   if (tab === 'security') return (
     <div className="space-y-2.5">
       {(data[0]?.logs || data || []).map((x: any) => (
-        <div className="bg-muted/10 border border-border/40 rounded-2xl p-4 shadow-xs" key={x.id || Math.random()}>
+        <div className="bg-muted/10 border border-border/40 rounded-2xl p-4 shadow-xs transition-all duration-200 hover:border-[var(--gold)]/20" key={x.id || Math.random()}>
           <b className="font-serif font-bold text-sm text-foreground">{x.action || 'سجل نشاط'}</b>
           <span className="text-muted-foreground text-xs mr-3 font-light">{x.entity || ''}</span>
           <div className="text-muted-foreground text-[11px] mt-1 font-light">{x.createdAt ? new Date(x.createdAt).toLocaleString('ar-EG') : ''}</div>
@@ -376,7 +376,7 @@ export function Content({ tab, data, onEdit, onDelete, onRefresh, onReorder }: a
   if (tab === 'users') return (
     <div className="space-y-3">
       {data.map((x: any) => (
-        <div className="bg-muted/10 border border-border/40 rounded-2xl p-4 flex flex-wrap items-center gap-4 shadow-xs" key={x.id}>
+        <div className="bg-muted/10 border border-border/40 rounded-2xl p-4 flex flex-wrap items-center gap-4 shadow-xs transition-all duration-200 hover:border-[var(--gold)]/20" key={x.id}>
           <div className="flex-1">
             <b className="font-serif font-bold text-foreground">{x.name || x.email}</b>
             <p className="text-muted-foreground text-xs font-light mt-0.5">{x.email}</p>
@@ -399,7 +399,7 @@ export function Content({ tab, data, onEdit, onDelete, onRefresh, onReorder }: a
   return (
     <div className="space-y-3">
       {data.map((x: any) => (
-        <div className="bg-muted/10 border border-border/40 rounded-2xl p-4 flex items-center justify-between gap-4 shadow-xs" key={x.id || x.key}>
+        <div className="bg-muted/10 border border-border/40 rounded-2xl p-4 flex items-center justify-between gap-4 shadow-xs transition-all duration-200 hover:border-[var(--gold)]/20" key={x.id || x.key}>
           <div>
             <b className="font-serif font-bold text-foreground text-sm">{x.name || x.title || x.code || x.governorate || x.type || x.key}</b>
             <p className="text-muted-foreground text-xs font-light mt-1">
@@ -407,8 +407,8 @@ export function Content({ tab, data, onEdit, onDelete, onRefresh, onReorder }: a
             </p>
           </div>
           <div className="flex gap-2.5">
-            <button className="px-4 py-2 rounded-xl bg-muted/20 border border-border/60 text-xs font-medium hover:bg-muted/30 transition cursor-pointer" onClick={() => onEdit(x)}>تعديل</button>
-            <button className="p-2 rounded-xl border border-red-400 text-red-500 hover:bg-red-500/10 transition cursor-pointer" onClick={() => onDelete(x.id)}><Trash2 size={16} /></button>
+            <button className="px-4 py-2 rounded-xl bg-muted/20 border border-border/60 text-xs font-medium hover:bg-muted/30 hover:border-[var(--gold)]/30 focus:outline-none focus:ring-2 focus:ring-[var(--gold)]/10 transition-all duration-200 cursor-pointer" onClick={() => onEdit(x)}>تعديل</button>
+            <button className="p-2 rounded-xl border border-red-400 text-red-500 hover:bg-red-500/10 focus:outline-none focus:ring-2 focus:ring-red-500/10 transition-all duration-200 cursor-pointer" onClick={() => onDelete(x.id)}><Trash2 size={16} /></button>
           </div>
         </div>
       ))}
@@ -420,15 +420,15 @@ export function Content({ tab, data, onEdit, onDelete, onRefresh, onReorder }: a
 export function Analytics({ data }: any) {
   return (
     <div className="grid gap-4 md:grid-cols-3">
-      <div className="bg-muted/10 border border-border/40 rounded-3xl p-6 shadow-xs space-y-1">
+      <div className="bg-muted/10 border border-border/40 rounded-3xl p-6 shadow-xs space-y-1 transition-all duration-200 hover:border-[var(--gold)]/20">
         <p className="text-muted-foreground text-xs font-light">إجمالي المبيعات</p>
         <h3 className="text-2xl font-serif font-bold text-[var(--gold)]">{data.totalSales || 0} ج.م</h3>
       </div>
-      <div className="bg-muted/10 border border-border/40 rounded-3xl p-6 shadow-xs space-y-1">
+      <div className="bg-muted/10 border border-border/40 rounded-3xl p-6 shadow-xs space-y-1 transition-all duration-200 hover:border-[var(--gold)]/20">
         <p className="text-muted-foreground text-xs font-light">إجمالي الطلبات</p>
         <h3 className="text-2xl font-serif font-bold text-foreground">{data.totalOrders || 0}</h3>
       </div>
-      <div className="bg-muted/10 border border-border/40 rounded-3xl p-6 shadow-xs space-y-1">
+      <div className="bg-muted/10 border border-border/40 rounded-3xl p-6 shadow-xs space-y-1 transition-all duration-200 hover:border-[var(--gold)]/20">
         <p className="text-muted-foreground text-xs font-light">إجمالي العملاء</p>
         <h3 className="text-2xl font-serif font-bold text-foreground">{data.totalCustomers || 0}</h3>
       </div>
@@ -440,7 +440,7 @@ export function Customers({ data }: any) {
   return (
     <div className="space-y-2.5">
       {data.map((c: any) => (
-        <div className="bg-muted/10 border border-border/40 rounded-2xl p-4 flex justify-between items-center shadow-xs" key={c.id}>
+        <div className="bg-muted/10 border border-border/40 rounded-2xl p-4 flex justify-between items-center shadow-xs transition-all duration-200 hover:border-[var(--gold)]/20" key={c.id}>
           <div>
             <b className="font-serif font-bold text-foreground">{c.name}</b>
             <p className="text-muted-foreground text-xs font-light mt-0.5">{c.phone} • {c.email || 'بدون إيميل'}</p>
@@ -456,7 +456,7 @@ export function Orders({ data, onRefresh }: any) {
   return (
     <div className="space-y-2.5">
       {data.map((o: any) => (
-        <div className="bg-muted/10 border border-border/40 rounded-2xl p-4 flex justify-between items-center shadow-xs" key={o.id}>
+        <div className="bg-muted/10 border border-border/40 rounded-2xl p-4 flex justify-between items-center shadow-xs transition-all duration-200 hover:border-[var(--gold)]/20" key={o.id}>
           <div>
             <Link href={`/admin/orders/${o.id}`} className="text-[var(--gold)] font-serif font-bold hover:underline inline-block text-base cursor-pointer">
               طلب #{o.number} 🔗
@@ -465,7 +465,7 @@ export function Orders({ data, onRefresh }: any) {
               {o.customerNameSnapshot || 'عميل'} • {o.total} ج.م • <span className="text-[var(--gold)] font-medium">{o.status}</span>
             </p>
           </div>
-          <Link href={`/admin/orders/${o.id}`} className="px-4 py-2 rounded-xl bg-[var(--gold)] text-[var(--gold-contrast)] text-xs font-serif font-bold hover:opacity-95 transition shadow-xs cursor-pointer">
+          <Link href={`/admin/orders/${o.id}`} className="px-4 py-2 rounded-xl bg-[var(--gold)] text-[var(--gold-contrast)] text-xs font-serif font-bold hover:opacity-95 focus:outline-none focus:ring-2 focus:ring-[var(--gold)]/20 transition-all duration-200 shadow-xs cursor-pointer">
             إدارة الطلب ←
           </Link>
         </div>
@@ -489,8 +489,8 @@ export function Sortable({ data, onEdit, onDelete, onReorder }: any) {
             <b className="font-serif font-bold text-foreground text-sm">{x.title || x.type}</b>
             <p className="text-muted-foreground text-xs font-light mt-0.5">{x.visible ? 'ظاهر' : 'مخفي'} • ترتيب {i + 1}</p>
           </div>
-          <button className="px-4 py-2 rounded-xl bg-muted/20 border border-border/60 text-xs font-medium hover:bg-muted/30 transition cursor-pointer" onClick={() => onEdit(x)}>تعديل</button>
-          <button className="p-2 rounded-xl border border-red-400 text-red-500 hover:bg-red-500/10 transition cursor-pointer" onClick={() => onDelete(x.id)}><Trash2 size={16} /></button>
+          <button className="px-4 py-2 rounded-xl bg-muted/20 border border-border/60 text-xs font-medium hover:bg-muted/30 hover:border-[var(--gold)]/30 focus:outline-none focus:ring-2 focus:ring-[var(--gold)]/10 transition-all duration-200 cursor-pointer" onClick={() => onEdit(x)}>تعديل</button>
+          <button className="p-2 rounded-xl border border-red-400 text-red-500 hover:bg-red-500/10 focus:outline-none focus:ring-2 focus:ring-red-500/10 transition-all duration-200 cursor-pointer" onClick={() => onDelete(x.id)}><Trash2 size={16} /></button>
         </div>
       ))}
     </div>
@@ -515,17 +515,17 @@ export function Media({ data, onDelete, onRefresh }: any) {
 
   return (
     <div className="space-y-4">
-      <label className="px-5 py-3 rounded-2xl bg-[var(--gold)] text-[var(--gold-contrast)] font-serif font-bold text-xs shadow-sm hover:opacity-95 transition inline-flex items-center gap-2 cursor-pointer">
+      <label className="px-5 py-3 rounded-2xl bg-[var(--gold)] text-[var(--gold-contrast)] font-serif font-bold text-xs shadow-sm hover:opacity-95 focus:outline-none focus:ring-2 focus:ring-[var(--gold)]/20 transition-all duration-200 inline-flex items-center gap-2 cursor-pointer">
         <Upload size={17} /> {busy ? 'جارٍ الرفع…' : 'رفع صورة'}
         <input hidden type="file" accept="image/*" onChange={e => { const f = e.target.files?.[0]; if (f) upload(f); }} />
       </label>
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
         {data.map((x: any) => (
-          <div key={x.id} className="bg-muted/10 border border-border/40 rounded-3xl overflow-hidden shadow-xs">
+          <div key={x.id} className="bg-muted/10 border border-border/40 rounded-3xl overflow-hidden shadow-xs transition-all duration-200 hover:border-[var(--gold)]/20">
             <Image src={x.url} width={600} height={600} alt={x.name || "صورة من مكتبة الوسائط"} sizes="(max-width: 768px) 50vw, 25vw" className="aspect-square w-full object-cover" />
             <div className="p-3.5 space-y-2">
               <p className="truncate text-xs text-foreground font-light">{x.name}</p>
-              <button className="w-full py-2 rounded-xl border border-red-400 text-red-500 text-xs font-medium hover:bg-red-500/10 transition cursor-pointer" onClick={() => onDelete(x.id)}>حذف</button>
+              <button className="w-full py-2 rounded-xl border border-red-400 text-red-500 text-xs font-medium hover:bg-red-500/10 focus:outline-none focus:ring-2 focus:ring-red-500/10 transition-all duration-200 cursor-pointer" onClick={() => onDelete(x.id)}>حذف</button>
             </div>
           </div>
         ))}
@@ -539,7 +539,7 @@ export function Reviews({ data, onRefresh }: any) {
   return (
     <div className="space-y-2.5">
       {data.map((x: any) => (
-        <div className="bg-muted/10 border border-border/40 rounded-2xl p-4 flex flex-wrap items-center gap-4 shadow-xs" key={x.id}>
+        <div className="bg-muted/10 border border-border/40 rounded-2xl p-4 flex flex-wrap items-center gap-4 shadow-xs transition-all duration-200 hover:border-[var(--gold)]/20" key={x.id}>
           <div className="flex-1 space-y-1">
             <b className="font-serif font-bold text-foreground text-sm">{x.customer?.name || 'عميل'} — {x.product?.name}</b>
             <p className="text-xs text-foreground font-light">{'★'.repeat(x.rating)} <span className="text-muted-foreground">{x.text || ''}</span></p>
