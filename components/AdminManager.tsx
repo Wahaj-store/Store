@@ -1,7 +1,7 @@
 // مسار الملف: components/AdminManager.tsx
 
 'use client';
-import { useEffect, useState, ComponentType } from 'react';
+import { useEffect, useState, ComponentType, ReactNode } from 'react';
 import Link from 'next/link';
 import { 
   GripVertical, Trash2, Upload, Plus, Save, Image as ImageIcon, Search, ChevronLeft,
@@ -117,7 +117,7 @@ async function api(url: string, method = 'GET', body?: any) {
   return j;
 }
 
-export default function AdminManager({ sidebarOpen, setSidebarOpen }: { sidebarOpen: boolean, setSidebarOpen: (open: boolean) => void }) {
+export default function AdminManager({ sidebarOpen, setSidebarOpen, topContent }: { sidebarOpen: boolean, setSidebarOpen: (open: boolean) => void, topContent?: ReactNode }) {
   const [tab, setTab] = useState('analytics');
   const [data, setData] = useState<any[]>([]);
   const [cats, setCats] = useState<any[]>([]);
@@ -361,6 +361,8 @@ export default function AdminManager({ sidebarOpen, setSidebarOpen }: { sidebarO
           <button type="button" onClick={() => { setCommandOpen(true); setCommandQuery(''); }} className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-border/50 bg-muted/10 text-foreground transition hover:border-[var(--gold)]/40 hover:text-[var(--gold)]" aria-label="البحث السريع"><Search size={18} /></button>
         </header>
       </div>
+
+      {topContent}
 
       <div className="mx-auto flex max-w-[1900px] gap-4 px-2 pb-8 pt-2 sm:px-4 lg:gap-5 lg:px-5 lg:pt-4 xl:px-6">
         {/* Right navigation rail */}
