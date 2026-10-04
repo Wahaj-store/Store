@@ -38,7 +38,7 @@ export default function Admin() {
         <header className="wahaj-admin-page__bar">
           <a href="/" className="wahaj-admin-page__identity">
             <span className="wahaj-admin-page__logo"><Image src="/images/wahaj.logo.png" alt="" fill sizes="42px" priority /></span>
-            <span><b>وَهَج</b><small>مساحة إدارة المتجر</small></span>
+            <span><b>وَهَج</b><small>لوحة تحكم المتجر</small></span>
           </a>
           <div className="wahaj-admin-page__bar-actions">
             <span className="wahaj-admin-page__secure"><i /> النظام يعمل</span>
@@ -47,21 +47,25 @@ export default function Admin() {
           </div>
         </header>
 
-        <section className="wahaj-admin-page__welcome">
-          <div className="wahaj-admin-page__welcome-copy">
-            <span className="wahaj-admin-page__eyebrow"><ShieldCheck size={14} /> لوحة تحكم آمنة</span>
-            <h1>أهلًا بعودتك، <span>{user?.name || user?.email}</span></h1>
-            <p>تابع متجرك وأدر تفاصيله اليومية من مساحة عمل واحدة.</p>
-          </div>
-          <div className="wahaj-admin-page__welcome-actions">
-            <span className="wahaj-admin-page__role"><ShieldCheck size={15} /><span>الصلاحية</span><b>{user?.role}</b></span>
-            <a href="/admin/inventory" className="wahaj-admin-page__quick-link"><Package size={16} /> سجل المخزون</a>
-            <a href="/admin/logistics" className="wahaj-admin-page__quick-link"><Truck size={16} /> الشحن والمرتجعات</a>
-          </div>
-          <span className="wahaj-admin-page__ornament" aria-hidden="true">و</span>
-        </section>
-
-        <AdminManager sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
+        <AdminManager
+          sidebarOpen={sidebarOpen}
+          setSidebarOpen={setSidebarOpen}
+          topContent={(
+            <section className="wahaj-admin-page__welcome">
+              <div className="wahaj-admin-page__welcome-copy">
+                <span className="wahaj-admin-page__eyebrow"><ShieldCheck size={14} /> لوحة تحكم آمنة</span>
+                <h1>أهلًا بعودتك، <span>{user?.name || user?.email}</span></h1>
+                <p>تابع متجرك وأدر تفاصيله اليومية من مساحة عمل واحدة.</p>
+              </div>
+              <div className="wahaj-admin-page__welcome-actions">
+                <span className="wahaj-admin-page__role"><ShieldCheck size={15} /><span>الصلاحية</span><b>{user?.role}</b></span>
+                <a href="/admin/inventory" className="wahaj-admin-page__quick-link"><Package size={16} /> سجل المخزون</a>
+                <a href="/admin/logistics" className="wahaj-admin-page__quick-link"><Truck size={16} /> الشحن والمرتجعات</a>
+              </div>
+              <span className="wahaj-admin-page__ornament" aria-hidden="true">و</span>
+            </section>
+          )}
+        />
       </div>
     </main>
   );
