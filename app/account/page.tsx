@@ -29,41 +29,97 @@ export default function Account() {
   // حالة التحكم في إظهار وإخفاء نموذج إضافة العنوان داخل الصفحة
   const [showAddressForm, setShowAddressForm] = useState(false);
   const [addressFormMsg, setAddressFormMsg] = useState('');
+  const [sessionReady, setSessionReady] = useState(false);
+  const [authBusy, setAuthBusy] = useState(false);
 
   async function load() {
     try {
-      const r = await fetch('/api/customer/me');
+      const r = await fetch('/api/customer/me', { credentials: 'include', cache: 'no-store' });
       if (r.ok) setC(await r.json());
+      else if (r.status === 401) setC(null);
     } catch (error) {
       console.error('Failed to load customer data', error);
+    } finally {
+      setSessionReady(true);
     }
   }
 
   useEffect(() => {
     load();
-    const recents = JSON.parse(localStorage.getItem('wahaj_recent_products') || '[]');
-    setRecentProducts(recents);
+    const socialCode = new URLSearchParams(window.location.search).get('social');
+    if (socialCode) {
+      const socialMessages: Record<string, string> = {
+        success: 'تم تسجيل الدخول بنجاح',
+        google_unavailable: 'تسجيل الدخول عبر Google غير مفعّل حاليًا',
+        facebook_unavailable: 'تسجيل الدخول عبر Facebook غير مفعّل حاليًا',
+        cancelled: 'تم إلغاء تسجيل الدخول الاجتماعي',
+        email_required: 'يجب أن يسمح الحساب الاجتماعي بمشاركة البريد الإلكتروني',
+        invalid_state: 'انتهت جلسة تسجيل الدخول، حاولي مرة أخرى',
+        rate_limited: 'محاولات كثيرة. حاولي مرة أخرى لاحقًا.',
+        oauth_failed: 'تعذر إكمال تسجيل الدخول الاجتماعي حاليًا',
+      };
+      setMsg(socialMessages[socialCode] || 'تعذر إكمال تسجيل الدخول الاجتماعي');
+      window.history.replaceState({}, '', window.location.pathname);
+    }
+    try {
+      const recents = JSON.parse(localStorage.getItem('wahaj_recent_products') || '[]');
+      setRecentProducts(Array.isArray(recents) ? recents : []);
+    } catch {
+      setRecentProducts([]);
+    }
   }, []);
 
   async function auth() {
     setMsg('');
-    const r = await fetch('/api/customer/auth', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ...form, action: mode, rememberMe }),
-    });
-    const j = await r.json();
-    if (!r.ok) return setMsg(j.error);
-    load();
+    setAuthBusy(true);
+    try {
+      const r = await fetch('/api/customer/auth', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ ...form, action: mode, rememberMe }),
+      });
+      const j = await r.json().catch(() => ({}));
+      if (!r.ok) return setMsg(j.error || 'تعذر تسجيل الدخول');
+      setC(j);
+      setTab('profile');
+    } catch {
+      setMsg('تعذر الاتصال بالخادم، يرجى المحاولة لاحقًا');
+    } finally {
+      setAuthBusy(false);
+    }
   }
 
   async function logout() {
-    await fetch('/api/customer/auth', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: 'logout' }),
-    });
-    setC(null);
+    setAuthBusy(true);
+    try {
+      await fetch('/api/customer/auth', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ action: 'logout' }),
+      });
+      setC(null);
+      setMode('login');
+      setForm({});
+    } finally {
+      setAuthBusy(false);
+    }
+  }
+
+  async function changePassword(values: { current: string; newPass: string }) {
+    try {
+      const response = await fetch('/api/customer/password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ currentPassword: values.current, newPassword: values.newPass }),
+      });
+      const data = await response.json().catch(() => ({}));
+      return { ok: response.ok, error: data.error };
+    } catch {
+      return { ok: false, error: 'تعذر الاتصال بالخادم، يرجى المحاولة لاحقًا' };
+    }
   }
 
   async function handleSendOtp(e: React.FormEvent) {
@@ -126,6 +182,9 @@ export default function Account() {
 
 
 
+  if (!sessionReady) {
+    return <main className="wahaj-account-loading" dir="rtl"><span className="wahaj-account-loading__spinner" /><p>جاري تجهيز مساحة حسابك...</p></main>;
+  }
   if (!c) {
     return (
       <AccountAuthView
@@ -141,7 +200,7 @@ export default function Account() {
         setForgotStep={setForgotStep}
         resetData={resetData}
         setResetData={setResetData}
-        loading={loading}
+        loading={loading || authBusy}
         showPassword={showPassword}
         setShowPassword={setShowPassword}
         showResetPassword={showResetPassword}
@@ -175,6 +234,7 @@ export default function Account() {
       setAddressFormMsg={setAddressFormMsg}
       load={load}
       getTimelineDate={getTimelineDate}
+      changePassword={changePassword}
     />
   );
 }
