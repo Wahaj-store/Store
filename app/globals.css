@@ -2831,3 +2831,150 @@ a:focus-visible {
   .wahaj-admin-page__welcome-actions { display: grid; grid-template-columns: 1fr 1fr; width: 100%; }
   .wahaj-admin-page__role { grid-column: 1 / -1; width: fit-content; }
 }
+
+
+/* =========================================================
+   Admin operations: logistics, inventory and shipping zones
+   Uses the existing Wahaj light/dark theme tokens and Tajawal.
+   ========================================================= */
+.admin-action { display:inline-flex; min-height:42px; align-items:center; justify-content:center; gap:8px; border:1px solid transparent; border-radius:12px; padding:0 15px; font-size:11px; font-weight:700; transition:transform .18s ease, background-color .18s ease, border-color .18s ease, opacity .18s ease; }
+.admin-action:hover:not(:disabled) { transform:translateY(-1px); }
+.admin-action:disabled { cursor:wait; opacity:.65; }
+.admin-action--gold { background:linear-gradient(135deg,color-mix(in srgb,var(--gold) 88%,white),var(--gold)); color:var(--gold-contrast); box-shadow:0 7px 18px color-mix(in srgb,var(--gold) 20%,transparent); }
+.admin-action--secondary { border-color:var(--border); background:var(--card); color:var(--foreground-secondary); }
+.admin-action--secondary:hover:not(:disabled) { border-color:color-mix(in srgb,var(--gold) 55%,var(--border)); color:var(--gold-muted); }
+
+.logistics-hero,.inventory-hero,.shipping-hero { position:relative; isolation:isolate; display:flex; min-height:190px; align-items:center; justify-content:space-between; gap:22px; overflow:hidden; border:1px solid color-mix(in srgb,var(--gold) 26%,var(--border)); border-radius:22px; padding:22px clamp(18px,3vw,34px); background:linear-gradient(112deg,color-mix(in srgb,var(--gold) 15%,var(--card)),var(--card) 68%); box-shadow:var(--shadow-soft); }
+.logistics-back,.inventory-back,.shipping-back { display:inline-flex; align-items:center; gap:6px; color:var(--gold-muted); font-size:10px; font-weight:700; transition:color .18s ease; }
+.logistics-back:hover,.inventory-back:hover,.shipping-back:hover { color:var(--gold); }
+.logistics-hero__eyebrow,.inventory-hero__eyebrow,.shipping-hero__eyebrow { display:inline-flex; align-items:center; gap:7px; color:var(--gold-muted); font-size:10px; font-weight:700; }
+.logistics-live,.inventory-live,.shipping-live { display:inline-flex; align-items:center; gap:6px; border:1px solid color-mix(in srgb,var(--success) 23%,var(--border)); border-radius:999px; background:color-mix(in srgb,var(--success) 8%,var(--card)); padding:4px 8px; color:var(--success); font-size:9px; font-weight:700; }
+.logistics-live i,.inventory-live i,.shipping-live i { width:6px; height:6px; border-radius:50%; background:var(--success); box-shadow:0 0 0 3px color-mix(in srgb,var(--success) 14%,transparent); }
+.logistics-hero__actions,.inventory-hero__actions,.shipping-hero__actions { position:relative; z-index:1; display:flex; flex-shrink:0; flex-direction:column; align-items:flex-end; gap:12px; }
+.logistics-hero__shield,.inventory-hero__shield,.shipping-hero__shield { display:inline-flex; align-items:center; gap:7px; color:var(--muted-foreground); font-size:10px; }
+.logistics-hero__shield svg,.inventory-hero__shield svg,.shipping-hero__shield svg { color:var(--gold-muted); }
+.logistics-hero__watermark,.inventory-hero__watermark,.shipping-hero__watermark { position:absolute; z-index:-1; inset-inline-start:26%; top:-80px; color:color-mix(in srgb,var(--gold) 7%,transparent); font-size:280px; line-height:1; font-weight:700; pointer-events:none; }
+.logistics-metric,.inventory-metric,.shipping-metric { display:flex; min-width:0; align-items:center; gap:13px; border:1px solid var(--border); border-radius:17px; background:var(--card); padding:16px; box-shadow:var(--shadow-soft); }
+.logistics-metric__icon,.inventory-metric__icon,.shipping-metric__icon { display:grid; width:42px; height:42px; flex:0 0 42px; place-items:center; border:1px solid color-mix(in srgb,var(--gold) 25%,var(--border)); border-radius:13px; background:color-mix(in srgb,var(--gold) 10%,var(--card)); color:var(--gold-muted); }
+.logistics-metric__icon--blue,.inventory-metric__icon--blue,.shipping-metric__icon--blue { border-color:color-mix(in srgb,#5682b9 25%,var(--border)); background:color-mix(in srgb,#5682b9 9%,var(--card)); color:#5278a6; }
+.logistics-metric__icon--green,.inventory-metric__icon--green,.shipping-metric__icon--green { border-color:color-mix(in srgb,var(--success) 25%,var(--border)); background:color-mix(in srgb,var(--success) 9%,var(--card)); color:var(--success); }
+.logistics-metric__icon--rose,.inventory-metric__icon--rose,.shipping-metric__icon--rose { border-color:color-mix(in srgb,var(--rose) 25%,var(--border)); background:color-mix(in srgb,var(--rose) 9%,var(--card)); color:var(--rose-muted); }
+.logistics-alert,.inventory-alert,.shipping-alert { display:flex; align-items:center; gap:10px; border:1px solid; border-radius:13px; padding:12px 14px; font-size:11px; }
+.logistics-alert span,.inventory-alert span,.shipping-alert span { flex:1; }
+.logistics-alert button,.inventory-alert button,.shipping-alert button { display:grid; width:30px; height:30px; flex:0 0 30px; place-items:center; border-radius:9px; background:transparent; }
+.logistics-alert--error,.inventory-alert--error,.shipping-alert--error { border-color:color-mix(in srgb,var(--danger) 30%,transparent); background:color-mix(in srgb,var(--danger) 8%,var(--card)); color:var(--danger); }
+.logistics-alert--success,.inventory-alert--success,.shipping-alert--success { border-color:color-mix(in srgb,var(--success) 30%,transparent); background:color-mix(in srgb,var(--success) 8%,var(--card)); color:var(--success); }
+.logistics-panel,.inventory-workspace,.inventory-history,.shipping-zones { overflow:hidden; border:1px solid var(--border); border-radius:20px; background:var(--card); box-shadow:var(--shadow-soft); }
+.logistics-panel__header,.inventory-history__head,.shipping-zones__head { display:flex; align-items:center; justify-content:space-between; gap:16px; padding:18px 20px; }
+.logistics-panel__icon,.inventory-section-icon,.shipping-section-icon { display:grid; width:34px; height:34px; flex:0 0 34px; place-items:center; border:1px solid color-mix(in srgb,var(--gold) 26%,var(--border)); border-radius:11px; background:color-mix(in srgb,var(--gold) 9%,var(--card)); color:var(--gold-muted); }
+.logistics-search,.inventory-search,.shipping-search { display:flex; min-width:0; min-height:42px; align-items:center; gap:9px; border:1px solid var(--border); border-radius:12px; background:var(--bg); padding:0 12px; color:var(--muted-foreground); transition:border-color .18s ease,box-shadow .18s ease; }
+.logistics-search:focus-within,.inventory-search:focus-within,.shipping-search:focus-within { border-color:var(--gold); box-shadow:0 0 0 3px color-mix(in srgb,var(--gold) 10%,transparent); }
+.logistics-search { width:min(100%,330px); }
+.inventory-search,.shipping-search { flex:1; }
+.logistics-search input,.inventory-search input,.shipping-search input { width:100%; min-width:0; border:0; outline:0; background:transparent; color:var(--foreground); font-size:11px; }
+.logistics-search input::placeholder,.inventory-search input::placeholder,.shipping-search input::placeholder { color:var(--muted-foreground); }
+.logistics-search button,.inventory-search button,.shipping-search button { display:grid; width:27px; height:27px; flex:0 0 27px; place-items:center; border-radius:8px; }
+.logistics-search button:hover,.inventory-search button:hover,.shipping-search button:hover { background:color-mix(in srgb,var(--gold) 10%,var(--card)); color:var(--gold-muted); }
+.logistics-tabs { display:flex; gap:4px; overflow-x:auto; border-block:1px solid var(--border); background:color-mix(in srgb,var(--surface) 65%,var(--card)); padding:7px 12px; scrollbar-width:thin; }
+.logistics-tab { display:inline-flex; min-height:42px; flex:0 0 auto; align-items:center; gap:8px; border:1px solid transparent; border-radius:11px; padding:0 13px; color:var(--muted-foreground); font-size:10px; font-weight:600; transition:.18s ease; }
+.logistics-tab:hover { background:var(--card); color:var(--foreground); }
+.logistics-tab.is-active { border-color:color-mix(in srgb,var(--gold) 30%,var(--border)); background:var(--card); color:var(--gold-muted); box-shadow:0 3px 10px rgba(36,27,26,.04); }
+.logistics-tab b { display:inline-grid; min-width:21px; height:21px; place-items:center; border-radius:999px; background:color-mix(in srgb,var(--gold) 12%,var(--surface)); color:var(--gold-muted); font-size:9px; }
+.logistics-record { border:1px solid var(--border); border-radius:16px; background:var(--card); padding:15px; transition:border-color .18s ease,box-shadow .18s ease; }
+.logistics-record:hover { border-color:color-mix(in srgb,var(--gold) 38%,var(--border)); box-shadow:0 5px 18px rgba(36,27,26,.035); }
+.logistics-order-id { border:1px solid color-mix(in srgb,var(--gold) 27%,var(--border)); border-radius:8px; background:color-mix(in srgb,var(--gold) 9%,var(--card)); padding:5px 8px; color:var(--gold-muted); font-size:10px; font-weight:700; }
+.logistics-inline-status { display:inline-flex; align-items:center; gap:5px; color:var(--warning); font-size:9px; }
+.logistics-field,.inventory-field,.shipping-field { display:block; min-width:0; color:var(--foreground-secondary); font-size:10px; font-weight:600; }
+.logistics-create-form { margin-top:15px; border:1px solid var(--border); border-radius:15px; background:var(--surface); padding:14px; }
+.logistics-badge { display:inline-flex; align-items:center; gap:6px; white-space:nowrap; border:1px solid var(--border); border-radius:999px; background:var(--surface); padding:5px 9px; color:var(--muted-foreground); font-size:9px; font-weight:700; }
+.logistics-badge i { width:6px; height:6px; border-radius:50%; background:currentColor; }
+.logistics-badge--success { border-color:color-mix(in srgb,var(--success) 25%,var(--border)); background:color-mix(in srgb,var(--success) 8%,var(--card)); color:var(--success); }
+.logistics-badge--danger { border-color:color-mix(in srgb,var(--danger) 25%,var(--border)); background:color-mix(in srgb,var(--danger) 8%,var(--card)); color:var(--danger); }
+.logistics-badge--gold { border-color:color-mix(in srgb,var(--gold) 29%,var(--border)); background:color-mix(in srgb,var(--gold) 10%,var(--card)); color:var(--gold-muted); }
+.logistics-badge--muted { color:var(--muted-foreground); }
+.logistics-info-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:13px; border-block:1px solid var(--border); padding-block:11px; }
+.logistics-events { margin-top:10px; color:var(--muted-foreground); font-size:10px; }
+.logistics-events summary { display:inline-flex; cursor:pointer; list-style:none; align-items:center; gap:6px; border-radius:8px; padding:5px 7px; }
+.logistics-events summary::-webkit-details-marker { display:none; }
+.logistics-events summary:hover { background:color-mix(in srgb,var(--gold) 9%,var(--card)); color:var(--gold-muted); }
+.logistics-empty,.inventory-empty,.shipping-empty { display:flex; min-height:180px; flex-direction:column; align-items:center; justify-content:center; gap:8px; padding:24px; text-align:center; color:var(--muted-foreground); }
+.logistics-empty>span,.inventory-empty>span,.shipping-empty>span { display:grid; width:48px; height:48px; place-items:center; border:1px solid color-mix(in srgb,var(--gold) 24%,var(--border)); border-radius:16px; background:color-mix(in srgb,var(--gold) 8%,var(--card)); color:var(--gold-muted); }
+.logistics-empty b,.inventory-empty b,.shipping-empty b { color:var(--foreground); font-size:12px; }
+.logistics-empty p,.inventory-empty p,.shipping-empty p { max-width:380px; font-size:10px; line-height:1.8; }
+.logistics-loading,.inventory-loading,.shipping-loading { display:flex; min-height:190px; align-items:center; justify-content:center; gap:10px; color:var(--muted-foreground); font-size:11px; }
+.logistics-spinner,.inventory-spinner,.shipping-spinner { display:inline-block; width:17px; height:17px; flex:0 0 auto; border:2px solid color-mix(in srgb,var(--gold) 25%,var(--border)); border-top-color:var(--gold); border-radius:50%; animation:wahaj-admin-spin .8s linear infinite; }
+.logistics-spinner--small,.shipping-spinner { width:15px; height:15px; }
+.inventory-spinner--large,.shipping-spinner--large { width:25px; height:25px; }
+
+.inventory-workspace__heading { display:flex; align-items:center; gap:11px; border-bottom:1px solid var(--border); padding:16px 18px; }
+.inventory-workspace__manual { display:inline-flex; flex:0 0 auto; align-items:center; gap:6px; border:1px solid color-mix(in srgb,var(--gold) 24%,var(--border)); border-radius:999px; background:color-mix(in srgb,var(--gold) 8%,var(--card)); padding:6px 9px; color:var(--gold-muted); font-size:9px; }
+.inventory-type-badge { display:inline-flex; align-items:center; gap:5px; border:1px solid var(--border); border-radius:999px; background:var(--surface); padding:5px 8px; color:var(--muted-foreground); white-space:nowrap; font-size:9px; font-weight:700; }
+.inventory-type-badge--positive { border-color:color-mix(in srgb,var(--success) 25%,var(--border)); background:color-mix(in srgb,var(--success) 8%,var(--card)); color:var(--success); }
+.inventory-type-badge--negative { border-color:color-mix(in srgb,var(--danger) 24%,var(--border)); background:color-mix(in srgb,var(--danger) 7%,var(--card)); color:var(--danger); }
+.inventory-type-badge--neutral { border-color:color-mix(in srgb,var(--gold) 25%,var(--border)); background:color-mix(in srgb,var(--gold) 8%,var(--card)); color:var(--gold-muted); }
+.inventory-history__head { border-bottom:1px solid var(--border); }
+.inventory-history__count,.shipping-count { flex:0 0 auto; border:1px solid var(--border); border-radius:999px; background:var(--surface); padding:6px 10px; color:var(--muted-foreground); font-size:9px; font-weight:700; }
+.inventory-filters { display:flex; align-items:center; gap:10px; border-bottom:1px solid var(--border); background:color-mix(in srgb,var(--surface) 42%,var(--card)); padding:12px 16px; }
+.inventory-filter-select { display:flex; min-height:42px; align-items:center; gap:8px; border:1px solid var(--border); border-radius:12px; background:var(--card); padding:0 10px; color:var(--muted-foreground); font-size:9px; white-space:nowrap; }
+.inventory-filter-select select { max-width:190px; border:0; outline:0; background:transparent; color:var(--foreground); font-size:10px; }
+.inventory-table,.shipping-table { width:100%; border-collapse:collapse; text-align:right; font-size:11px; }
+.inventory-table thead,.shipping-table thead { background:color-mix(in srgb,var(--surface) 75%,var(--card)); color:var(--muted-foreground); }
+.inventory-table th,.shipping-table th { padding:13px 15px; font-size:10px; font-weight:700; white-space:nowrap; }
+.inventory-table td,.shipping-table td { border-top:1px solid var(--border); padding:13px 15px; vertical-align:middle; }
+.inventory-table tbody tr,.shipping-table tbody tr { transition:background-color .16s ease; }
+.inventory-table tbody tr:hover,.shipping-table tbody tr:hover { background:color-mix(in srgb,var(--surface) 50%,var(--card)); }
+.inventory-quantity { display:inline-flex; min-width:46px; justify-content:center; border-radius:9px; background:var(--surface); padding:6px 8px; color:var(--muted-foreground); font-size:11px; font-weight:800; }
+.inventory-quantity.is-positive { background:color-mix(in srgb,var(--success) 9%,var(--card)); color:var(--success); }
+.inventory-quantity.is-negative { background:color-mix(in srgb,var(--danger) 8%,var(--card)); color:var(--danger); }
+.inventory-balance { display:inline-flex; border:1px solid var(--border); border-radius:9px; background:var(--surface); padding:6px 8px; color:var(--foreground-secondary); font-size:10px; font-weight:700; white-space:nowrap; }
+.inventory-entry-card { border:1px solid var(--border); border-radius:15px; background:var(--card); padding:13px; }
+
+.shipping-zones__head { border-bottom:1px solid var(--border); }
+.shipping-toolbar { display:flex; align-items:center; gap:9px; border-bottom:1px solid var(--border); background:color-mix(in srgb,var(--surface) 42%,var(--card)); padding:12px 16px; }
+.shipping-governorate { display:inline-flex; align-items:center; gap:8px; font-weight:700; }
+.shipping-governorate svg { color:var(--gold-muted); }
+.shipping-price { color:var(--gold-muted); font-weight:800; white-space:nowrap; }
+.shipping-icon-button { display:grid; width:36px; height:36px; flex:0 0 36px; place-items:center; border:1px solid var(--border); border-radius:10px; background:var(--card); color:var(--muted-foreground); transition:.16s ease; }
+.shipping-icon-button:hover:not(:disabled) { border-color:color-mix(in srgb,var(--gold) 50%,var(--border)); background:color-mix(in srgb,var(--gold) 8%,var(--card)); color:var(--gold-muted); }
+.shipping-icon-button:disabled { opacity:.5; }
+.shipping-icon-button--save { border-color:color-mix(in srgb,var(--success) 35%,var(--border)); color:var(--success); }
+.shipping-icon-button--delete:hover:not(:disabled) { border-color:color-mix(in srgb,var(--danger) 35%,var(--border)); background:color-mix(in srgb,var(--danger) 8%,var(--card)); color:var(--danger); }
+.shipping-zone-card { border:1px solid var(--border); border-radius:15px; background:var(--card); padding:13px; }
+.shipping-zone-card__values { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:12px; border-top:1px solid var(--border); padding-top:11px; }
+.shipping-zone-value { display:flex; min-width:0; flex-direction:column; gap:7px; color:var(--muted-foreground); font-size:9px; }
+.shipping-zone-value input { min-width:0; }
+.shipping-modal-backdrop { position:fixed; z-index:80; inset:0; display:grid; place-items:center; overflow-y:auto; background:rgba(12,10,9,.62); padding:16px; backdrop-filter:blur(5px); }
+.shipping-modal { width:min(100%,480px); overflow:hidden; border:1px solid var(--border); border-radius:20px; background:var(--card); box-shadow:var(--shadow-luxury); }
+.shipping-modal__head { display:flex; align-items:center; justify-content:space-between; gap:12px; border-bottom:1px solid var(--border); padding:16px 18px; }
+.shipping-field { display:block; color:var(--foreground-secondary); font-size:10px; font-weight:600; }
+
+@media (max-width: 700px) {
+  .logistics-hero,.inventory-hero,.shipping-hero { min-height:0; align-items:flex-start; flex-direction:column; gap:15px; border-radius:18px; padding:17px; }
+  .logistics-hero__actions,.inventory-hero__actions,.shipping-hero__actions { width:100%; flex-direction:row; align-items:center; justify-content:space-between; gap:8px; }
+  .logistics-hero__shield,.inventory-hero__shield,.shipping-hero__shield { font-size:9px; }
+  .logistics-hero__watermark,.inventory-hero__watermark,.shipping-hero__watermark { inset-inline-start:2%; top:-39px; font-size:190px; }
+  .logistics-panel__header,.inventory-history__head,.shipping-zones__head { align-items:flex-start; padding:14px; }
+  .logistics-panel__header { flex-direction:column; }
+  .logistics-search { width:100%; }
+  .logistics-tabs { padding-inline:8px; }
+  .logistics-tab { padding-inline:10px; }
+  .inventory-workspace__manual { max-width:130px; white-space:normal; line-height:1.5; }
+  .inventory-filters { align-items:stretch; flex-direction:column; padding:10px 12px; }
+  .inventory-filter-select { justify-content:space-between; }
+  .inventory-filter-select select { flex:1; max-width:none; }
+  .shipping-toolbar { align-items:stretch; }
+  .shipping-toolbar>.admin-action { flex:0 0 auto; }
+}
+@media (max-width: 430px) {
+  .admin-action { min-height:40px; gap:6px; border-radius:11px; padding-inline:11px; font-size:10px; }
+  .logistics-hero__actions,.inventory-hero__actions,.shipping-hero__actions { flex-wrap:wrap; }
+  .logistics-hero__actions>.admin-action,.inventory-hero__actions>.admin-action,.shipping-hero__actions>.admin-action { flex:1; }
+  .inventory-workspace__heading { align-items:flex-start; padding:13px; }
+  .inventory-workspace__manual { display:none; }
+  .shipping-zone-card__values { gap:8px; }
+}
+
+@media (max-width: 430px) {
+  .logistics-metric,.inventory-metric,.shipping-metric { gap:9px; padding:11px; }
+  .logistics-metric__icon,.inventory-metric__icon,.shipping-metric__icon { width:36px; height:36px; flex-basis:36px; border-radius:11px; }
+}
