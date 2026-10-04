@@ -1,7 +1,7 @@
 // مسار الملف: components/AdminManager.tsx
 
 'use client';
-import React, { useEffect, useState, ComponentType } from 'react';
+import { useEffect, useState, ComponentType } from 'react';
 import Link from 'next/link';
 import { 
   GripVertical, Trash2, Upload, Plus, Save, Image as ImageIcon, Search, ChevronLeft,
@@ -1036,41 +1036,6 @@ async function toggleOfferActive(offer: any, onRefresh: () => void) {
   }
 }
 
-function DataWorkspace({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="overflow-hidden rounded-[26px] border border-border/50 bg-[var(--bg)] shadow-sm">
-      {children}
-    </div>
-  );
-}
-
-function DataToolbar({
-  search,
-  onSearch,
-  placeholder,
-  children,
-}: {
-  search: string;
-  onSearch: (value: string) => void;
-  placeholder?: string;
-  children?: React.ReactNode;
-}) {
-  return (
-    <div className="flex flex-col gap-3 border-b border-border/40 bg-muted/5 p-4 md:flex-row md:items-center md:justify-between">
-      <div className="relative min-w-0 flex-1 md:max-w-xl">
-        <Search size={17} className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-        <input
-          value={search}
-          onChange={(e) => onSearch(e.target.value)}
-          placeholder={placeholder || 'بحث...'}
-          className="w-full rounded-2xl border border-border/60 bg-[var(--bg)] py-3 pr-10 pl-4 text-sm text-foreground outline-none transition focus:border-[var(--gold)]"
-        />
-      </div>
-      {children ? <div className="flex shrink-0 items-center gap-2">{children}</div> : null}
-    </div>
-  );
-}
-
 function Content({ tab, data, onEdit, onDelete, onRefresh, onReorder }: any) {
   if (tab === 'analytics') return <Analytics data={data[0] || {}} />;
   if (tab === 'customer-segments') return <CustomerSegments data={data[0] || {}} onRefresh={onRefresh} />;
@@ -1228,11 +1193,6 @@ function Analytics({ data: initialData }: any) {
   const maxSales = Math.max(1, ...daily.map((x: any) => Number(x.sales || 0)));
   const statusLabels: Record<string, string> = { NEW: 'جديد', PROCESSING: 'قيد التجهيز', SHIPPED: 'تم الشحن', DELIVERED: 'تم التسليم', CANCELLED: 'ملغي' };
   const paymentLabels: Record<string, string> = { COD: 'الدفع عند الاستلام', VODAFONE_CASH: 'فودافون كاش', INSTAPAY: 'InstaPay' };
-  const peakDay = daily.reduce((best: any, item: any) => Number(item.sales || 0) > Number(best?.sales || 0) ? item : best, null);
-  const totalPaymentSales = (data.payments || []).reduce((sum: number, item: any) => sum + Number(item.sales || 0), 0);
-  const topPayment = (data.payments || []).reduce((best: any, item: any) => Number(item.sales || 0) > Number(best?.sales || 0) ? item : best, null);
-  const deliveredOrders = (data.statuses || []).find((x: any) => x.status === 'DELIVERED')?.count || 0;
-  const cancelledOrders = (data.statuses || []).find((x: any) => x.status === 'CANCELLED')?.count || 0;
 
   return (
     <div className="space-y-5">
@@ -1267,21 +1227,6 @@ function Analytics({ data: initialData }: any) {
             </div>
           </div>
         ))}
-      </div>
-
-      <div className="grid gap-3 md:grid-cols-3">
-        <div className="rounded-3xl border border-border/40 bg-muted/10 p-4 shadow-xs">
-          <div className="flex items-center justify-between gap-3"><span className="text-[11px] text-muted-foreground">أفضل يوم مبيعات</span><TrendingUp size={15} className="text-[var(--gold)]" /></div>
-          <div className="mt-2 flex items-end justify-between gap-3"><b className="text-sm font-serif">{peakDay?.date ? new Date(`${peakDay.date}T00:00:00`).toLocaleDateString('ar-EG', { weekday: 'long' }) : '—'}</b><span className="text-xs text-muted-foreground">{peakDay ? formatMoney(peakDay.sales) : '—'}</span></div>
-        </div>
-        <div className="rounded-3xl border border-border/40 bg-muted/10 p-4 shadow-xs">
-          <div className="flex items-center justify-between gap-3"><span className="text-[11px] text-muted-foreground">أقوى وسيلة دفع</span><CreditCard size={15} className="text-[var(--gold)]" /></div>
-          <div className="mt-2 flex items-end justify-between gap-3"><b className="text-sm font-serif">{topPayment ? (paymentLabels[topPayment.method] || topPayment.method) : '—'}</b><span className="text-xs text-muted-foreground">{topPayment && totalPaymentSales ? `${Math.round((Number(topPayment.sales || 0) / totalPaymentSales) * 100)}%` : '—'}</span></div>
-        </div>
-        <div className="rounded-3xl border border-border/40 bg-muted/10 p-4 shadow-xs">
-          <div className="flex items-center justify-between gap-3"><span className="text-[11px] text-muted-foreground">توزيع النتائج</span><CheckCircle2 size={15} className="text-[var(--gold)]" /></div>
-          <div className="mt-2 flex items-center justify-between gap-3 text-xs"><span>تم التسليم <b>{deliveredOrders}</b></span><span className="text-red-500">ملغي <b>{cancelledOrders}</b></span></div>
-        </div>
       </div>
 
       <div className="grid gap-4 lg:grid-cols-[1.5fr_1fr]">
@@ -1412,7 +1357,7 @@ function CustomerSegments({ data, onRefresh }: any) {
     <div className="space-y-5">
       <div className="flex flex-wrap items-center justify-between gap-3"><div><h2 className="text-xl md:text-2xl font-serif font-bold">تقسيم العملاء</h2><p className="text-xs text-muted-foreground font-light mt-1">تقسيم تلقائي للعملاء حسب قيمة الشراء، التكرار وحداثة آخر طلب.</p></div><button onClick={onRefresh} className="px-4 py-2.5 rounded-xl bg-[var(--gold)] text-[var(--gold-contrast)] text-xs font-bold cursor-pointer inline-flex items-center gap-2"><RefreshCcw size={15} /> تحديث الشرائح</button></div>
       <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-        {(data.segments || []).map((segment: any) => <button type="button" key={segment.key} onClick={() => selectSegment(segment.key)} className={`w-full text-right bg-muted/10 border rounded-3xl p-5 shadow-xs transition cursor-pointer ${selectedSegment === segment.key ? 'border-[var(--gold)] bg-[var(--gold)]/5 shadow-md' : 'border-border/40 hover:border-[var(--gold)]/40'}`}><div className="flex items-start justify-between gap-2"><div><h3 className="font-serif font-bold text-sm">{segment.name}</h3><p className="text-[10px] text-muted-foreground mt-1 leading-relaxed">{segment.rule}</p></div><span className={`px-2 py-1 rounded-full border text-[10px] ${toneClass[segment.tone] || toneClass.muted}`}>{segment.count}</span></div><div className="mt-4 flex justify-between text-[11px] text-muted-foreground"><span>إجمالي الإنفاق</span><b className="text-foreground">{formatMoney(segment.totalSpend)}</b></div><div className="mt-1 flex justify-between text-[11px] text-muted-foreground"><span>متوسط العميل</span><b className="text-foreground">{formatMoney(segment.avgSpend)}</b></div></div></button>)}
+        {(data.segments || []).map((segment: any) => <div key={segment.key} className="bg-muted/10 border border-border/40 rounded-3xl p-5 shadow-xs"><div className="flex items-start justify-between gap-2"><div><h3 className="font-serif font-bold text-sm">{segment.name}</h3><p className="text-[10px] text-muted-foreground mt-1 leading-relaxed">{segment.rule}</p></div><span className={`px-2 py-1 rounded-full border text-[10px] ${toneClass[segment.tone] || toneClass.muted}`}>{segment.count}</span></div><div className="mt-4 flex justify-between text-[11px] text-muted-foreground"><span>إجمالي الإنفاق</span><b className="text-foreground">{formatMoney(segment.totalSpend)}</b></div><div className="mt-1 flex justify-between text-[11px] text-muted-foreground"><span>متوسط العميل</span><b className="text-foreground">{formatMoney(segment.avgSpend)}</b></div></div>)}
       </div>
       <div className="bg-muted/10 border border-border/40 rounded-3xl p-5 shadow-xs"><h3 className="font-serif font-bold mb-4">أهم العملاء داخل الشرائح</h3><div className="overflow-x-auto"><table className="w-full text-right text-xs"><thead><tr className="border-b border-border/30 text-muted-foreground"><th className="p-3">العميل</th><th className="p-3">الشريحة</th><th className="p-3">الطلبات</th><th className="p-3">الإنفاق</th><th className="p-3">آخر طلب</th></tr></thead><tbody>{(data.segments || []).flatMap((s: any) => (s.members || []).slice(0, 5).map((m: any) => ({ ...m, segment: s.name, id: `${s.key}-${m.id}` }))).map((m: any) => <tr key={m.id} className="border-b border-border/20 last:border-0"><td className="p-3 font-medium">{m.name}</td><td className="p-3 text-muted-foreground">{m.segment}</td><td className="p-3">{m.orderCount}</td><td className="p-3">{formatMoney(m.spend)}</td><td className="p-3 text-muted-foreground">{m.lastOrder ? new Date(m.lastOrder).toLocaleDateString('ar-EG') : '—'}</td></tr>)}</tbody></table></div></div>
       <div className="bg-muted/10 border border-border/40 rounded-3xl p-5 shadow-xs">
@@ -1433,18 +1378,7 @@ function CustomerSegments({ data, onRefresh }: any) {
           <button type="button" onClick={exportAudience} className="px-3 py-2 rounded-xl border border-border/40 text-xs inline-flex items-center gap-2 cursor-pointer"><FileText size={14} />تصدير CSV</button>
         </div>
         {audienceMsg && <p className="text-[11px] text-[var(--gold)] mb-3">{audienceMsg}</p>}
-        <div className="space-y-2 md:hidden">
-          {(audience.length ? audience : (selectedSegment !== 'all' && Array.isArray(selectedSegmentData?.members) ? selectedSegmentData.members : [])).slice(0, 50).map((m: any) => (
-            <div key={m.id} className="rounded-2xl border border-border/30 bg-[var(--bg)] p-4">
-              <div className="flex items-start justify-between gap-3">
-                <div className="min-w-0"><b className="block truncate text-sm">{m.name}</b><span className="mt-1 block text-[11px] text-muted-foreground" dir="ltr">{m.phone || '—'}</span></div>
-                <span className="shrink-0 rounded-full bg-muted/20 px-2 py-1 text-[10px]">{m.orderCount || 0} طلب</span>
-              </div>
-              <div className="mt-3 grid grid-cols-2 gap-2 text-[11px]"><div><span className="text-muted-foreground">الإنفاق</span><b className="block mt-1">{formatMoney(m.spend)}</b></div><div><span className="text-muted-foreground">آخر طلب</span><b className="block mt-1">{m.lastOrder ? new Date(m.lastOrder).toLocaleDateString('ar-EG') : '—'}</b></div></div>
-            </div>
-          ))}
-        </div>
-        <div className="hidden overflow-x-auto rounded-2xl border border-border/30 md:block">
+        <div className="overflow-x-auto rounded-2xl border border-border/30">
           <table className="w-full text-right text-xs">
             <thead><tr className="border-b border-border/30 text-muted-foreground"><th className="p-3">العميل</th><th className="p-3">الهاتف</th><th className="p-3">الطلبات</th><th className="p-3">الإنفاق</th><th className="p-3">آخر طلب</th></tr></thead>
             <tbody>
