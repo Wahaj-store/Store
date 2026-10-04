@@ -615,19 +615,43 @@ function Editor({ tab, value, cats, products, onCancel, onSave, upload }: any) {
     images: value.images || [], 
     variants: value.variants || [] 
   });
+  const [saving, setSaving] = useState(false);
+  const initialSnapshot = JSON.stringify({ ...value, images: value.images || [], variants: value.variants || [] });
+  const currentSnapshot = JSON.stringify(v);
+  const dirty = currentSnapshot !== initialSnapshot;
+
+  useEffect(() => {
+    if (!dirty) return;
+    const onBeforeUnload = (event: BeforeUnloadEvent) => {
+      event.preventDefault();
+      event.returnValue = '';
+    };
+    window.addEventListener('beforeunload', onBeforeUnload);
+    return () => window.removeEventListener('beforeunload', onBeforeUnload);
+  }, [dirty]);
+
+  const save = async () => {
+    setSaving(true);
+    try {
+      await onSave(v);
+    } finally {
+      setSaving(false);
+    }
+  };
 
   const set = (k: string, x: any) => setV((p: any) => ({ ...p, [k]: x }));
   const addVar = () => set('variants', [...v.variants, { name: 'اللون', value: '', stock: 0, price: '' }]);
 
   if (tab === 'settings') return (
     <div className="bg-muted/10 border border-border/40 rounded-3xl p-6 md:p-8 space-y-5 shadow-xs">
+      <EditorToolbar tab={tab} dirty={dirty} saving={saving} onSave={save} onCancel={onCancel} />
       <h3 className="font-serif font-bold text-lg text-[var(--gold)]">إعدادات المتجر العامة</h3>
       <div className="grid gap-4 md:grid-cols-2">
         <Field label="المفتاح (Key)" value={v.key || ''} onChange={(x: any) => set('key', x)} />
         <Field label="القيمة (Value)" value={v.value || ''} onChange={(x: any) => set('value', x)} />
       </div>
       <div className="flex gap-3 pt-3">
-        <button className="px-6 py-3 rounded-2xl bg-[var(--gold)] text-[var(--gold-contrast)] font-serif font-bold text-sm shadow-sm hover:opacity-95 transition inline-flex items-center gap-2 cursor-pointer" onClick={() => onSave(v)}><Save size={17} /> حفظ الإعداد</button>
+        <button className="px-6 py-3 rounded-2xl bg-[var(--gold)] text-[var(--gold-contrast)] font-serif font-bold text-sm shadow-sm hover:opacity-95 transition inline-flex items-center gap-2 cursor-pointer" onClick={save}><Save size={17} /> حفظ الإعداد</button>
         <button className="px-5 py-3 rounded-2xl bg-muted/20 border border-border/60 text-muted-foreground text-sm font-medium hover:bg-muted/30 transition cursor-pointer" onClick={onCancel}>إلغاء</button>
       </div>
     </div>
@@ -635,6 +659,7 @@ function Editor({ tab, value, cats, products, onCancel, onSave, upload }: any) {
 
   if (tab === 'faq') return (
     <div className="bg-muted/10 border border-border/40 rounded-3xl p-6 md:p-8 space-y-5 shadow-xs">
+      <EditorToolbar tab={tab} dirty={dirty} saving={saving} onSave={save} onCancel={onCancel} />
       <h3 className="font-serif font-bold text-lg text-[var(--gold)]">{v.id ? 'تعديل السؤال' : 'إضافة سؤال جديد'}</h3>
       <div className="grid gap-4 md:grid-cols-2">
         <Field label="السؤال" value={v.question || ''} onChange={(x: any) => set('question', x)} />
@@ -656,7 +681,7 @@ function Editor({ tab, value, cats, products, onCancel, onSave, upload }: any) {
         </label>
       </div>
       <div className="flex gap-3 pt-3">
-        <button className="px-6 py-3 rounded-2xl bg-[var(--gold)] text-[var(--gold-contrast)] font-serif font-bold text-sm shadow-sm hover:opacity-95 transition inline-flex items-center gap-2 cursor-pointer" onClick={() => onSave(v)}><Save size={17} /> حفظ</button>
+        <button className="px-6 py-3 rounded-2xl bg-[var(--gold)] text-[var(--gold-contrast)] font-serif font-bold text-sm shadow-sm hover:opacity-95 transition inline-flex items-center gap-2 cursor-pointer" onClick={save}><Save size={17} /> حفظ</button>
         <button className="px-5 py-3 rounded-2xl bg-muted/20 border border-border/60 text-muted-foreground text-sm font-medium hover:bg-muted/30 transition cursor-pointer" onClick={onCancel}>إلغاء</button>
       </div>
     </div>
@@ -664,6 +689,7 @@ function Editor({ tab, value, cats, products, onCancel, onSave, upload }: any) {
 
   if (tab === 'payments') return (
     <div className="bg-muted/10 border border-border/40 rounded-3xl p-6 md:p-8 space-y-5 shadow-xs">
+      <EditorToolbar tab={tab} dirty={dirty} saving={saving} onSave={save} onCancel={onCancel} />
       <div className="grid gap-4 md:grid-cols-2">
         <Field label="اسم الطريقة" value={v.label} onChange={(x: any) => set('label', x)} />
         <Field label="ترتيب الظهور" value={v.displayOrder || 0} onChange={(x: any) => set('displayOrder', x)} type="number" />
@@ -675,7 +701,7 @@ function Editor({ tab, value, cats, products, onCancel, onSave, upload }: any) {
         <label className="flex items-center gap-2.5 text-sm font-light cursor-pointer"><input type="checkbox" className="w-4 h-4 accent-[var(--gold)]" checked={!!v.proofRequired} onChange={e => set('proofRequired', e.target.checked)} /> طلب إثبات دفع</label>
       </div>
       <div className="mt-5 flex gap-3">
-        <button className="px-6 py-3 rounded-2xl bg-[var(--gold)] text-[var(--gold-contrast)] font-serif font-bold text-sm shadow-sm hover:opacity-95 transition inline-flex items-center gap-2 cursor-pointer" onClick={() => onSave(v)}><Save size={17} /> حفظ</button>
+        <button className="px-6 py-3 rounded-2xl bg-[var(--gold)] text-[var(--gold-contrast)] font-serif font-bold text-sm shadow-sm hover:opacity-95 transition inline-flex items-center gap-2 cursor-pointer" onClick={save}><Save size={17} /> حفظ</button>
         <button className="px-5 py-3 rounded-2xl bg-muted/20 border border-border/60 text-muted-foreground text-sm font-medium hover:bg-muted/30 transition cursor-pointer" onClick={onCancel}>إلغاء</button>
       </div>
     </div>
@@ -683,6 +709,7 @@ function Editor({ tab, value, cats, products, onCancel, onSave, upload }: any) {
 
   if (tab === 'gift-cards') return (
     <div className="bg-muted/10 border border-border/40 rounded-3xl p-6 md:p-8 space-y-5 shadow-xs">
+      <EditorToolbar tab={tab} dirty={dirty} saving={saving} onSave={save} onCancel={onCancel} />
       <div className="grid gap-4 md:grid-cols-2">
         <Field
           label="القيمة"
@@ -727,7 +754,7 @@ function Editor({ tab, value, cats, products, onCancel, onSave, upload }: any) {
       )}
 
       <div className="mt-5 flex gap-3 pt-4 border-t border-border/30">
-        <button className="px-6 py-3 rounded-2xl bg-[var(--gold)] text-[var(--gold-contrast)] font-serif font-bold text-sm shadow-sm hover:opacity-95 transition inline-flex items-center gap-2 cursor-pointer" onClick={() => onSave(v)}><Save size={17} /> حفظ</button>
+        <button className="px-6 py-3 rounded-2xl bg-[var(--gold)] text-[var(--gold-contrast)] font-serif font-bold text-sm shadow-sm hover:opacity-95 transition inline-flex items-center gap-2 cursor-pointer" onClick={save}><Save size={17} /> حفظ</button>
         <button className="px-5 py-3 rounded-2xl bg-muted/20 border border-border/60 text-muted-foreground text-sm font-medium hover:bg-muted/30 transition cursor-pointer" onClick={onCancel}>إلغاء</button>
       </div>
     </div>
@@ -744,6 +771,7 @@ function Editor({ tab, value, cats, products, onCancel, onSave, upload }: any) {
 
   if (tab === 'offers') return (
     <div className="bg-muted/10 border border-border/40 rounded-3xl p-6 md:p-8 space-y-5 shadow-xs">
+      <EditorToolbar tab={tab} dirty={dirty} saving={saving} onSave={save} onCancel={onCancel} />
       <div className="grid gap-4 md:grid-cols-2">
         <Field label="اسم العرض" value={v.name || ''} onChange={(x: any) => set('name', x)} />
         <label className="text-xs md:text-sm font-medium text-muted-foreground">نوع العرض
@@ -815,7 +843,7 @@ function Editor({ tab, value, cats, products, onCancel, onSave, upload }: any) {
       </div>
       <p className="text-xs text-muted-foreground leading-relaxed">العروض تُطبّق على السيرفر فقط، وتُراجع الصلاحية والمدة والحد الأقصى للاستخدام أثناء إنشاء الطلب.</p>
       <div className="mt-5 flex gap-3">
-        <button className="px-6 py-3 rounded-2xl bg-[var(--gold)] text-[var(--gold-contrast)] font-serif font-bold text-sm shadow-sm hover:opacity-95 transition inline-flex items-center gap-2 cursor-pointer" onClick={() => onSave(v)}><Save size={17} /> حفظ</button>
+        <button className="px-6 py-3 rounded-2xl bg-[var(--gold)] text-[var(--gold-contrast)] font-serif font-bold text-sm shadow-sm hover:opacity-95 transition inline-flex items-center gap-2 cursor-pointer" onClick={save}><Save size={17} /> حفظ</button>
         <button className="px-5 py-3 rounded-2xl bg-muted/20 border border-border/60 text-muted-foreground text-sm font-medium hover:bg-muted/30 transition cursor-pointer" onClick={onCancel}>إلغاء</button>
       </div>
     </div>
@@ -823,13 +851,14 @@ function Editor({ tab, value, cats, products, onCancel, onSave, upload }: any) {
 
   if (tab === 'redirects') return (
     <div className="bg-muted/10 border border-border/40 rounded-3xl p-6 md:p-8 space-y-5 shadow-xs">
+      <EditorToolbar tab={tab} dirty={dirty} saving={saving} onSave={save} onCancel={onCancel} />
       <div className="grid gap-4 md:grid-cols-2">
         <Field label="المسار القديم" value={v.fromPath || ''} onChange={(x: any) => set('fromPath', x)} />
         <Field label="المسار الجديد" value={v.toPath || ''} onChange={(x: any) => set('toPath', x)} />
         <Field label="كود التحويل" value={v.statusCode || 301} onChange={(x: any) => set('statusCode', x)} type="number" />
       </div>
       <div className="mt-5 flex gap-3">
-        <button className="px-6 py-3 rounded-2xl bg-[var(--gold)] text-[var(--gold-contrast)] font-serif font-bold text-sm shadow-sm hover:opacity-95 transition inline-flex items-center gap-2 cursor-pointer" onClick={() => onSave(v)}><Save size={17} /> حفظ</button>
+        <button className="px-6 py-3 rounded-2xl bg-[var(--gold)] text-[var(--gold-contrast)] font-serif font-bold text-sm shadow-sm hover:opacity-95 transition inline-flex items-center gap-2 cursor-pointer" onClick={save}><Save size={17} /> حفظ</button>
         <button className="px-5 py-3 rounded-2xl bg-muted/20 border border-border/60 text-muted-foreground text-sm font-medium hover:bg-muted/30 transition cursor-pointer" onClick={onCancel}>إلغاء</button>
       </div>
     </div>
@@ -837,6 +866,7 @@ function Editor({ tab, value, cats, products, onCancel, onSave, upload }: any) {
 
   return (
     <div className="bg-muted/10 border border-border/40 rounded-3xl p-6 md:p-8 space-y-6 shadow-xs">
+      <EditorToolbar tab={tab} dirty={dirty} saving={saving} onSave={save} onCancel={onCancel} />
       <div className="grid gap-4 md:grid-cols-2">
         {tab === 'products' ? (
           <>
@@ -927,8 +957,34 @@ function Editor({ tab, value, cats, products, onCancel, onSave, upload }: any) {
       )}
 
       <div className="mt-6 flex gap-3 pt-4 border-t border-border/30">
-        <button className="px-6 py-3 rounded-2xl bg-[var(--gold)] text-[var(--gold-contrast)] font-serif font-bold text-sm shadow-sm hover:opacity-95 transition inline-flex items-center gap-2 cursor-pointer" onClick={() => onSave(v)}><Save size={17} /> حفظ</button>
+        <button className="px-6 py-3 rounded-2xl bg-[var(--gold)] text-[var(--gold-contrast)] font-serif font-bold text-sm shadow-sm hover:opacity-95 transition inline-flex items-center gap-2 cursor-pointer" onClick={save}><Save size={17} /> حفظ</button>
         <button className="px-5 py-3 rounded-2xl bg-muted/20 border border-border/60 text-muted-foreground text-sm font-medium hover:bg-muted/30 transition cursor-pointer" onClick={onCancel}>إلغاء</button>
+      </div>
+    </div>
+  );
+}
+
+function EditorToolbar({ tab, dirty, saving, onSave, onCancel }: any) {
+  const labels: Record<string, string> = {
+    settings: 'إعدادات المتجر العامة', faq: 'الأسئلة الشائعة', payments: 'طريقة الدفع',
+    'gift-cards': 'بطاقة هدايا', offers: 'العرض', redirects: 'إعادة توجيه',
+    products: 'المنتج', categories: 'التصنيف', shipping: 'الشحن', homepage: 'محتوى الصفحة الرئيسية',
+    relations: 'ترشيحات المنتجات', features: 'الميزة', reviews: 'المراجعة', contact: 'رسالة العميل'
+  };
+  return (
+    <div className="sticky top-2 z-20 mb-5 flex flex-col gap-3 rounded-2xl border border-border/50 bg-[var(--bg)]/95 p-3 shadow-lg backdrop-blur md:flex-row md:items-center md:justify-between">
+      <div className="flex min-w-0 items-center gap-3">
+        <div className={`h-2.5 w-2.5 shrink-0 rounded-full ${dirty ? 'bg-amber-500' : 'bg-emerald-500'}`} />
+        <div className="min-w-0">
+          <p className="truncate text-sm font-bold text-foreground">{labels[tab] || 'تحرير البيانات'}</p>
+          <p className="text-xs text-muted-foreground">{dirty ? 'لديك تغييرات غير محفوظة' : 'كل التغييرات محفوظة'}</p>
+        </div>
+      </div>
+      <div className="flex items-center gap-2">
+        <button type="button" onClick={onCancel} className="rounded-xl border border-border/60 bg-muted/10 px-4 py-2 text-sm font-medium text-muted-foreground transition hover:bg-muted/20 cursor-pointer">إلغاء</button>
+        <button type="button" onClick={onSave} disabled={!dirty || saving} className="inline-flex items-center gap-2 rounded-xl bg-[var(--gold)] px-5 py-2 text-sm font-bold text-[var(--gold-contrast)] transition hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer">
+          {saving ? <><RefreshCcw size={15} className="animate-spin" /> جارٍ الحفظ...</> : <><Save size={15} /> حفظ التغييرات</>}
+        </button>
       </div>
     </div>
   );
