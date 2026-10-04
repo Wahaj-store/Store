@@ -2978,3 +2978,157 @@ a:focus-visible {
   .logistics-metric,.inventory-metric,.shipping-metric { gap:9px; padding:11px; }
   .logistics-metric__icon,.inventory-metric__icon,.shipping-metric__icon { width:36px; height:36px; flex-basis:36px; border-radius:11px; }
 }
+
+
+/* =========================================================
+   Customer directory and order management
+   Inherits Wahaj typography, warm gold brand and dark tokens.
+   ========================================================= */
+.order-page-hero,.customer-profile-hero { position:relative; isolation:isolate; display:flex; min-height:184px; align-items:center; justify-content:space-between; gap:22px; overflow:hidden; border:1px solid color-mix(in srgb,var(--gold) 26%,var(--border)); border-radius:22px; padding:22px clamp(18px,3vw,34px); background:linear-gradient(112deg,color-mix(in srgb,var(--gold) 15%,var(--card)),var(--card) 68%); box-shadow:var(--shadow-soft); }
+.order-page-back { display:inline-flex; align-items:center; gap:6px; color:var(--gold-muted); font-size:10px; font-weight:700; transition:color .18s ease; }
+.order-page-back:hover { color:var(--gold); }
+.order-page-hero__eyebrow { display:inline-flex; align-items:center; gap:7px; color:var(--gold-muted); font-size:10px; font-weight:700; }
+.order-page-live { display:inline-flex; align-items:center; gap:6px; border:1px solid color-mix(in srgb,var(--success) 23%,var(--border)); border-radius:999px; background:color-mix(in srgb,var(--success) 8%,var(--card)); padding:4px 8px; color:var(--success); font-size:9px; font-weight:700; }
+.order-page-live i { width:6px; height:6px; border-radius:50%; background:var(--success); box-shadow:0 0 0 3px color-mix(in srgb,var(--success) 14%,transparent); }
+.order-page-hero__actions,.customer-profile-hero__actions { position:relative; z-index:1; display:flex; flex-shrink:0; flex-direction:column; align-items:flex-end; gap:10px; }
+.order-page-hero__secure { display:inline-flex; align-items:center; gap:7px; color:var(--muted-foreground); font-size:10px; }
+.order-page-hero__secure svg { color:var(--gold-muted); }
+.order-page-hero__watermark { position:absolute; z-index:-1; inset-inline-start:24%; top:-77px; color:color-mix(in srgb,var(--gold) 7%,transparent); font-size:265px; line-height:1; font-weight:700; pointer-events:none; }
+.order-detail-hero { min-height:176px; }
+.order-summary-card,.profile-metric,.order-detail-metric { display:flex; min-width:0; align-items:center; gap:12px; border:1px solid var(--border); border-radius:16px; background:var(--card); padding:14px; box-shadow:var(--shadow-soft); }
+.order-summary-card__icon,.profile-metric__icon { display:grid; width:40px; height:40px; flex:0 0 40px; place-items:center; border:1px solid color-mix(in srgb,var(--gold) 25%,var(--border)); border-radius:12px; background:color-mix(in srgb,var(--gold) 10%,var(--card)); color:var(--gold-muted); }
+.order-summary-card__icon--blue,.profile-metric__icon--blue { border-color:color-mix(in srgb,#5682b9 25%,var(--border)); background:color-mix(in srgb,#5682b9 9%,var(--card)); color:#5278a6; }
+.order-summary-card__icon--green,.profile-metric__icon--green { border-color:color-mix(in srgb,var(--success) 25%,var(--border)); background:color-mix(in srgb,var(--success) 9%,var(--card)); color:var(--success); }
+.order-summary-card__icon--gold { color:var(--gold-muted); }
+.order-status,.order-payment { display:inline-flex; min-height:24px; align-items:center; justify-content:center; gap:6px; white-space:nowrap; border:1px solid var(--border); border-radius:999px; background:var(--surface); padding:4px 8px; color:var(--muted-foreground); font-size:9px; font-weight:700; }
+.order-status i { width:6px; height:6px; border-radius:50%; background:currentColor; }
+.order-status--success,.order-payment--success { border-color:color-mix(in srgb,var(--success) 25%,var(--border)); background:color-mix(in srgb,var(--success) 8%,var(--card)); color:var(--success); }
+.order-status--danger,.order-payment--danger { border-color:color-mix(in srgb,var(--danger) 25%,var(--border)); background:color-mix(in srgb,var(--danger) 8%,var(--card)); color:var(--danger); }
+.order-status--blue { border-color:color-mix(in srgb,#5682b9 25%,var(--border)); background:color-mix(in srgb,#5682b9 8%,var(--card)); color:#5278a6; }
+.order-status--gold { border-color:color-mix(in srgb,var(--gold) 29%,var(--border)); background:color-mix(in srgb,var(--gold) 10%,var(--card)); color:var(--gold-muted); }
+.order-number { color:var(--gold-muted); font-weight:800; transition:color .16s ease; }
+.order-number:hover { color:var(--gold); text-decoration:underline; }
+.order-avatar { display:grid; width:34px; height:34px; flex:0 0 34px; place-items:center; border:1px solid color-mix(in srgb,var(--gold) 24%,var(--border)); border-radius:11px; background:color-mix(in srgb,var(--gold) 9%,var(--card)); color:var(--gold-muted); }
+.orders-workspace,.customer-profile-panel,.admin-orders-panel { overflow:hidden; border:1px solid var(--border); border-radius:20px; background:var(--card); box-shadow:var(--shadow-soft); }
+.orders-workspace__head,.customer-profile-panel__head { display:flex; align-items:center; justify-content:space-between; gap:14px; border-bottom:1px solid var(--border); padding:16px 18px; }
+.orders-section-icon { display:grid; width:34px; height:34px; flex:0 0 34px; place-items:center; border:1px solid color-mix(in srgb,var(--gold) 26%,var(--border)); border-radius:11px; background:color-mix(in srgb,var(--gold) 9%,var(--card)); color:var(--gold-muted); }
+.orders-count { flex:0 0 auto; border:1px solid var(--border); border-radius:999px; background:var(--surface); padding:6px 10px; color:var(--muted-foreground); font-size:9px; font-weight:700; }
+.orders-toolbar,.admin-orders-toolbar { display:flex; align-items:center; gap:10px; border-bottom:1px solid var(--border); background:color-mix(in srgb,var(--surface) 42%,var(--card)); padding:11px 15px; }
+.orders-search,.customer-directory-search { display:flex; min-width:0; min-height:42px; align-items:center; gap:9px; border:1px solid var(--border); border-radius:12px; background:var(--bg); padding:0 12px; color:var(--muted-foreground); transition:border-color .18s ease,box-shadow .18s ease; }
+.orders-search { flex:1; }
+.orders-search:focus-within,.customer-directory-search:focus-within { border-color:var(--gold); box-shadow:0 0 0 3px color-mix(in srgb,var(--gold) 10%,transparent); }
+.orders-search input,.customer-directory-search input { width:100%; min-width:0; border:0; outline:0; background:transparent; color:var(--foreground); font-size:11px; }
+.orders-search input::placeholder,.customer-directory-search input::placeholder { color:var(--muted-foreground); }
+.orders-search button,.customer-directory-search button { display:grid; width:27px; height:27px; flex:0 0 27px; place-items:center; border-radius:8px; }
+.orders-search button:hover,.customer-directory-search button:hover { background:color-mix(in srgb,var(--gold) 10%,var(--card)); color:var(--gold-muted); }
+.orders-filters { display:flex; gap:4px; overflow-x:auto; border-bottom:1px solid var(--border); background:color-mix(in srgb,var(--surface) 65%,var(--card)); padding:7px 10px; scrollbar-width:thin; }
+.orders-filter { display:inline-flex; min-height:38px; flex:0 0 auto; align-items:center; gap:7px; border:1px solid transparent; border-radius:10px; padding:0 10px; color:var(--muted-foreground); font-size:9px; transition:.16s ease; }
+.orders-filter:hover { background:var(--card); color:var(--foreground); }
+.orders-filter.is-active { border-color:color-mix(in srgb,var(--gold) 30%,var(--border)); background:var(--card); color:var(--gold-muted); }
+.orders-filter b { display:inline-grid; min-width:19px; height:19px; place-items:center; border-radius:999px; background:color-mix(in srgb,var(--gold) 12%,var(--surface)); color:var(--gold-muted); font-size:8px; }
+.orders-table,.customer-directory-table { width:100%; border-collapse:collapse; text-align:right; font-size:10px; }
+.orders-table thead,.customer-directory-table thead { background:color-mix(in srgb,var(--surface) 75%,var(--card)); color:var(--muted-foreground); }
+.orders-table th,.customer-directory-table th { padding:13px 14px; font-size:9px; font-weight:700; white-space:nowrap; }
+.orders-table td,.customer-directory-table td { border-top:1px solid var(--border); padding:12px 14px; vertical-align:middle; }
+.orders-table tbody tr,.customer-directory-table tbody tr { transition:background-color .16s ease; }
+.orders-table tbody tr:hover,.customer-directory-table tbody tr:hover { background:color-mix(in srgb,var(--surface) 50%,var(--card)); }
+.order-open-link,.customer-directory-open { display:inline-flex; align-items:center; gap:5px; color:var(--gold-muted); font-size:10px; font-weight:700; white-space:nowrap; }
+.order-open-link:hover,.customer-directory-open:hover { color:var(--gold); }
+.order-mobile-card,.customer-order-card { border:1px solid var(--border); border-radius:15px; background:var(--card); padding:13px; }
+.order-mobile-action { display:flex; min-height:36px; align-items:center; justify-content:center; gap:6px; margin-top:12px; border:1px solid color-mix(in srgb,var(--gold) 25%,var(--border)); border-radius:10px; background:color-mix(in srgb,var(--gold) 8%,var(--card)); color:var(--gold-muted); font-size:10px; font-weight:700; }
+.orders-empty,.orders-loading { display:flex; min-height:175px; flex-direction:column; align-items:center; justify-content:center; gap:8px; padding:24px; text-align:center; color:var(--muted-foreground); }
+.orders-empty>span { display:grid; width:46px; height:46px; place-items:center; border:1px solid color-mix(in srgb,var(--gold) 24%,var(--border)); border-radius:15px; background:color-mix(in srgb,var(--gold) 8%,var(--card)); color:var(--gold-muted); }
+.orders-empty b { color:var(--foreground); font-size:12px; }
+.orders-empty p,.orders-loading { font-size:10px; line-height:1.8; }
+.orders-loading { flex-direction:row; }
+.orders-alert { display:flex; align-items:center; gap:10px; border:1px solid color-mix(in srgb,var(--danger) 30%,transparent); border-radius:13px; background:color-mix(in srgb,var(--danger) 8%,var(--card)); padding:12px 14px; color:var(--danger); font-size:11px; }
+.orders-alert>span:nth-child(2) { flex:1; }
+.orders-alert button { display:inline-flex; align-items:center; gap:6px; border-radius:8px; padding:6px; }
+.orders-alert--success { border-color:color-mix(in srgb,var(--success) 30%,transparent); background:color-mix(in srgb,var(--success) 8%,var(--card)); color:var(--success); }
+.orders-spinner { display:inline-block; width:24px; height:24px; flex:0 0 auto; border:2px solid color-mix(in srgb,var(--gold) 25%,var(--border)); border-top-color:var(--gold); border-radius:50%; animation:wahaj-admin-spin .8s linear infinite; }
+.orders-spinner--small { width:15px; height:15px; }
+.admin-action--danger { border-color:color-mix(in srgb,var(--danger) 30%,var(--border)); background:color-mix(in srgb,var(--danger) 9%,var(--card)); color:var(--danger); }
+.admin-action--danger:hover:not(:disabled) { border-color:var(--danger); background:color-mix(in srgb,var(--danger) 15%,var(--card)); }
+
+.order-detail-panel { overflow:hidden; border:1px solid var(--border); border-radius:19px; background:var(--card); box-shadow:var(--shadow-soft); }
+.order-detail-panel__head { display:flex; align-items:center; gap:10px; border-bottom:1px solid var(--border); padding:14px 16px; }
+.order-info-row { display:flex; align-items:center; justify-content:space-between; gap:12px; font-size:10px; }
+.order-info-row span { color:var(--muted-foreground); }
+.order-info-row b { min-width:0; overflow-wrap:anywhere; text-align:left; font-weight:600; }
+.order-field { display:block; color:var(--foreground-secondary); font-size:10px; font-weight:600; }
+.order-input { display:block; width:100%; height:42px; margin-top:7px; border:1px solid var(--border); border-radius:11px; background:var(--bg); padding:0 12px; color:var(--foreground); font-size:11px; outline:0; transition:border-color .16s ease,box-shadow .16s ease; }
+.order-input:focus { border-color:var(--gold); box-shadow:0 0 0 3px color-mix(in srgb,var(--gold) 10%,transparent); }
+.order-timeline { position:relative; display:grid; gap:0; padding-right:6px; }
+.order-timeline__item { position:relative; display:flex; gap:11px; padding:0 0 16px; }
+.order-timeline__item:not(:last-child)::before { position:absolute; top:22px; right:10px; bottom:0; width:1px; background:color-mix(in srgb,var(--gold) 32%,var(--border)); content:""; }
+.order-timeline__dot { z-index:1; display:grid; width:22px; height:22px; flex:0 0 22px; place-items:center; border:1px solid color-mix(in srgb,var(--gold) 35%,var(--border)); border-radius:50%; background:var(--card); color:var(--gold-muted); }
+.order-line-item { display:flex; align-items:flex-start; justify-content:space-between; gap:12px; padding:15px 0; }
+
+.customer-profile-hero { min-height:190px; }
+.customer-contact-chip { display:inline-flex; align-items:center; gap:6px; border:1px solid var(--border); border-radius:999px; background:color-mix(in srgb,var(--surface) 72%,var(--card)); padding:6px 9px; color:var(--foreground-secondary); font-size:9px; }
+.customer-contact-chip svg { color:var(--gold-muted); }
+.profile-metric__icon--gold { color:var(--gold-muted); }
+.customer-profile-panel__head { justify-content:space-between; }
+.customer-address-card,.customer-review-card { border:1px solid var(--border); border-radius:14px; background:color-mix(in srgb,var(--surface) 45%,var(--card)); padding:12px; }
+.customer-default-badge { border:1px solid color-mix(in srgb,var(--gold) 25%,var(--border)); border-radius:999px; background:color-mix(in srgb,var(--gold) 9%,var(--card)); padding:4px 7px; color:var(--gold-muted); font-size:8px; font-weight:700; }
+.customer-rating { display:inline-flex; align-items:center; gap:4px; color:var(--warning); font-size:9px; font-weight:700; white-space:nowrap; }
+.profile-empty { display:flex; min-height:160px; flex-direction:column; align-items:center; justify-content:center; gap:8px; padding:20px; text-align:center; color:var(--muted-foreground); }
+.profile-empty--compact { min-height:110px; padding:12px; }
+.profile-empty>span { display:grid; width:42px; height:42px; place-items:center; border:1px solid color-mix(in srgb,var(--gold) 24%,var(--border)); border-radius:14px; background:color-mix(in srgb,var(--gold) 8%,var(--card)); color:var(--gold-muted); }
+.profile-empty b { color:var(--foreground); font-size:11px; }
+.profile-empty p { max-width:320px; font-size:9px; line-height:1.7; }
+
+.customer-directory-hero,.admin-orders-section__hero { position:relative; display:flex; align-items:center; justify-content:space-between; gap:16px; overflow:hidden; border:1px solid color-mix(in srgb,var(--gold) 23%,var(--border)); border-radius:19px; background:linear-gradient(112deg,color-mix(in srgb,var(--gold) 11%,var(--card)),var(--card) 72%); padding:16px 18px; }
+.customer-directory-hero__eyebrow { display:inline-flex; align-items:center; gap:6px; color:var(--gold-muted); font-size:10px; font-weight:700; }
+.customer-directory-hero__seal { display:inline-flex; flex:0 0 auto; align-items:center; gap:6px; border:1px solid var(--border); border-radius:999px; background:var(--card); padding:7px 10px; color:var(--muted-foreground); font-size:9px; }
+.customer-directory-hero__seal svg { color:var(--gold-muted); }
+.customer-directory-metric { display:flex; min-width:0; align-items:center; gap:10px; border:1px solid var(--border); border-radius:15px; background:var(--card); padding:12px; box-shadow:var(--shadow-soft); }
+.customer-directory-metric__icon { display:grid; width:36px; height:36px; flex:0 0 36px; place-items:center; border:1px solid color-mix(in srgb,var(--gold) 25%,var(--border)); border-radius:11px; background:color-mix(in srgb,var(--gold) 9%,var(--card)); color:var(--gold-muted); }
+.customer-directory-metric__icon--green { border-color:color-mix(in srgb,var(--success) 25%,var(--border)); background:color-mix(in srgb,var(--success) 9%,var(--card)); color:var(--success); }
+.customer-directory-metric__icon--blue { border-color:color-mix(in srgb,#5682b9 25%,var(--border)); background:color-mix(in srgb,#5682b9 9%,var(--card)); color:#5278a6; }
+.customer-directory-metric p { color:var(--muted-foreground); font-size:9px; }
+.customer-directory-metric b { display:block; margin-top:3px; font-size:17px; }
+.customer-directory-metric small { display:block; margin-top:2px; color:var(--muted-foreground); font-size:8px; }
+.customer-directory-panel { overflow:hidden; border:1px solid var(--border); border-radius:18px; background:var(--card); box-shadow:var(--shadow-soft); }
+.customer-directory-panel__head { display:flex; align-items:center; justify-content:space-between; gap:14px; border-bottom:1px solid var(--border); padding:14px 16px; }
+.customer-directory-search { width:min(100%,340px); }
+.customer-directory-avatar { display:grid; width:35px; height:35px; flex:0 0 35px; place-items:center; border:1px solid color-mix(in srgb,var(--gold) 28%,var(--border)); border-radius:12px; background:color-mix(in srgb,var(--gold) 10%,var(--card)); color:var(--gold-muted); font-family:'Tajawal',sans-serif; font-size:15px; font-weight:800; }
+.customer-directory-table td small { display:block; margin-top:3px; color:var(--muted-foreground); font-size:8px; }
+.customer-directory-contact,.customer-directory-card__contact a { display:inline-flex; align-items:center; gap:5px; color:var(--muted-foreground); font-size:9px; }
+.customer-directory-contact svg,.customer-directory-card__contact svg { color:var(--gold-muted); }
+.customer-directory-count { display:inline-flex; min-height:24px; align-items:center; justify-content:center; border:1px solid color-mix(in srgb,var(--gold) 22%,var(--border)); border-radius:999px; background:color-mix(in srgb,var(--gold) 8%,var(--card)); padding:4px 8px; color:var(--gold-muted); font-size:9px; font-weight:700; white-space:nowrap; }
+.customer-directory-card { border:1px solid var(--border); border-radius:14px; background:var(--card); padding:12px; }
+.customer-directory-card__contact { display:flex; flex-wrap:wrap; gap:8px 14px; margin-top:11px; border-top:1px solid var(--border); border-bottom:1px solid var(--border); padding:9px 0; }
+.customer-directory-empty { display:flex; min-height:150px; flex-direction:column; align-items:center; justify-content:center; gap:7px; padding:20px; text-align:center; color:var(--muted-foreground); }
+.customer-directory-empty>span { display:grid; width:42px; height:42px; place-items:center; border:1px solid color-mix(in srgb,var(--gold) 24%,var(--border)); border-radius:14px; background:color-mix(in srgb,var(--gold) 8%,var(--card)); color:var(--gold-muted); }
+.customer-directory-empty b { color:var(--foreground); font-size:11px; }
+.customer-directory-empty p { font-size:9px; }
+.admin-orders-section__hero { min-height:0; }
+.admin-orders-section__hero>.admin-action { flex:0 0 auto; }
+
+@media (max-width: 700px) {
+  .order-page-hero,.customer-profile-hero { min-height:0; align-items:flex-start; flex-direction:column; gap:14px; border-radius:18px; padding:17px; }
+  .order-page-hero__actions,.customer-profile-hero__actions { width:100%; flex-direction:row; align-items:center; justify-content:space-between; gap:8px; }
+  .order-page-hero__actions>.admin-action,.customer-profile-hero__actions>.admin-action { flex:1; }
+  .order-page-hero__watermark { inset-inline-start:1%; top:-45px; font-size:190px; }
+  .orders-workspace__head,.customer-profile-panel__head { padding:13px; }
+  .orders-toolbar,.admin-orders-toolbar { padding:10px; }
+  .orders-filters { padding-inline:7px; }
+  .orders-filter { padding-inline:8px; }
+  .customer-directory-hero { align-items:flex-start; flex-direction:column; gap:12px; padding:14px; }
+  .customer-directory-hero__seal { align-self:flex-start; }
+  .customer-directory-panel__head { align-items:stretch; flex-direction:column; padding:12px; }
+  .customer-directory-search { width:100%; }
+}
+@media (max-width: 430px) {
+  .order-page-hero__actions,.customer-profile-hero__actions { flex-wrap:wrap; }
+  .order-page-hero__actions>.admin-action,.customer-profile-hero__actions>.admin-action { flex:1 1 130px; }
+  .order-summary-card,.profile-metric,.order-detail-metric { gap:8px; padding:10px; }
+  .order-summary-card__icon,.profile-metric__icon { width:34px; height:34px; flex-basis:34px; border-radius:10px; }
+  .customer-directory-metric { gap:7px; padding:9px; }
+  .customer-directory-metric__icon { width:31px; height:31px; flex-basis:31px; }
+  .customer-directory-metric b { font-size:15px; }
+  .orders-workspace__head { align-items:flex-start; }
+  .orders-count { padding:5px 8px; }
+  .admin-orders-section__hero { align-items:flex-start; flex-direction:column; }
+}
