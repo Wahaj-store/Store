@@ -118,7 +118,7 @@ async function api(url: string, method = 'GET', body?: any) {
 }
 
 export default function AdminManager({ sidebarOpen, setSidebarOpen }: { sidebarOpen: boolean, setSidebarOpen: (open: boolean) => void }) {
-  const [tab, setTab] = useState('products');
+  const [tab, setTab] = useState('analytics');
   const [data, setData] = useState<any[]>([]);
   const [cats, setCats] = useState<any[]>([]);
   const [products, setProducts] = useState<any[]>([]);
@@ -325,7 +325,7 @@ export default function AdminManager({ sidebarOpen, setSidebarOpen }: { sidebarO
   const canCreate = ['products', 'categories', 'offers', 'shipping', 'homepage', 'gift-cards', 'relations', 'faq', 'redirects', 'settings'].includes(tab);
 
   return (
-    <div className="min-h-[calc(100vh-1rem)] bg-[var(--bg)]" dir="rtl">
+    <div className="wahaj-admin min-h-[calc(100vh-1rem)] bg-[var(--bg)]" dir="rtl">
       {/* Mobile navigation backdrop */}
       {sidebarOpen && (
         <button
@@ -337,7 +337,7 @@ export default function AdminManager({ sidebarOpen, setSidebarOpen }: { sidebarO
       )}
 
       {/* Mobile-only global bar. The page title intentionally lives below it. */}
-      <div className="sticky top-0 z-30 px-2 pt-2 lg:hidden sm:px-4">
+      <div className="wahaj-admin__mobile-wrap sticky top-0 z-30 px-2 pt-2 lg:hidden sm:px-4">
         <header className="flex min-h-[64px] items-center justify-between gap-3 rounded-[24px] border border-border/50 bg-[var(--bg)]/95 px-3 shadow-sm backdrop-blur-xl sm:px-4">
           <button
             type="button"
@@ -365,7 +365,7 @@ export default function AdminManager({ sidebarOpen, setSidebarOpen }: { sidebarO
       <div className="mx-auto flex max-w-[1900px] gap-4 px-2 pb-8 pt-2 sm:px-4 lg:gap-5 lg:px-5 lg:pt-4 xl:px-6">
         {/* Right navigation rail */}
         <aside
-          className={`fixed inset-y-2 right-2 z-50 flex flex-col overflow-hidden rounded-[30px] border border-border/50 bg-[var(--bg)] shadow-2xl transition-[transform,width] duration-300 lg:sticky lg:top-4 lg:h-[calc(100vh-2rem)] lg:shrink-0 lg:translate-x-0 lg:shadow-sm ${
+          className={`wahaj-admin__sidebar fixed inset-y-2 right-2 z-50 flex flex-col overflow-hidden rounded-[30px] border border-border/50 bg-[var(--bg)] shadow-2xl transition-[transform,width] duration-300 lg:sticky lg:top-4 lg:h-[calc(100vh-2rem)] lg:shrink-0 lg:translate-x-0 lg:shadow-sm ${
             sidebarOpen ? 'translate-x-0' : 'translate-x-[calc(100%+1rem)]'
           } ${sidebarCollapsed ? 'lg:w-[92px]' : 'w-[306px] lg:w-[306px]'}`}
         >
@@ -481,9 +481,9 @@ export default function AdminManager({ sidebarOpen, setSidebarOpen }: { sidebarO
         </aside>
 
         {/* Main workspace */}
-        <main className="min-w-0 flex-1 space-y-4 lg:space-y-5">
+        <main className="wahaj-admin__main min-w-0 flex-1 space-y-4 lg:space-y-5">
           {/* Desktop global header. No menu button beside the page title. */}
-          <header className="hidden min-h-[68px] items-center justify-between gap-4 rounded-[26px] border border-border/50 bg-[var(--bg)]/95 px-5 shadow-sm backdrop-blur-xl lg:flex xl:px-6">
+          <header className="wahaj-admin__toolbar hidden min-h-[68px] items-center justify-between gap-4 rounded-[26px] border border-border/50 bg-[var(--bg)]/95 px-5 shadow-sm backdrop-blur-xl lg:flex xl:px-6">
             <div className="flex min-w-0 items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--gold)]/10 text-[var(--gold)]">
                 <CurrentTabIcon size={18} />
@@ -510,7 +510,7 @@ export default function AdminManager({ sidebarOpen, setSidebarOpen }: { sidebarO
           </header>
 
           {/* Page header */}
-          <section className="rounded-[30px] border border-border/50 bg-[var(--bg)] p-5 shadow-sm sm:p-6 lg:p-7">
+          <section className="wahaj-admin__section-head rounded-[30px] border border-border/50 bg-[var(--bg)] p-5 shadow-sm sm:p-6 lg:p-7">
             <div className="flex flex-col gap-5">
               <div className="flex items-start gap-4">
                 <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-[var(--gold)]/25 bg-[var(--gold)]/8 text-[var(--gold)] sm:h-14 sm:w-14">
@@ -563,7 +563,7 @@ export default function AdminManager({ sidebarOpen, setSidebarOpen }: { sidebarO
           )}
 
           {/* Content workspace */}
-          <section className="overflow-hidden rounded-[30px] border border-border/50 bg-[var(--bg)] shadow-sm">
+          <section className="wahaj-admin__workspace overflow-hidden rounded-[30px] border border-border/50 bg-[var(--bg)] shadow-sm">
             <div className="flex items-center justify-between gap-3 border-b border-border/35 px-5 py-4 sm:px-6">
               <div className="text-right">
                 <p className="text-xs font-bold text-foreground">مساحة العمل</p>
