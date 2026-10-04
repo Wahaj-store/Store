@@ -11,7 +11,7 @@ export default function AccountDashboardView(props: any) {
   const {
     c, setC, logout, tab, setTab, setSelectedOrder, selectedOrder, recentProducts,
     passwords, setPasswords, msg, setMsg, showAddressForm, setShowAddressForm,
-    addressFormMsg, setAddressFormMsg, load, getTimelineDate,
+    addressFormMsg, setAddressFormMsg, load, getTimelineDate, changePassword,
   } = props;
 
   const [returnRequest, setReturnRequest] = useState<any>(null);
@@ -127,7 +127,7 @@ export default function AccountDashboardView(props: any) {
   const canStartReturn = selectedOrder?.status === 'DELIVERED' && (!returnRequest || ['REJECTED', 'CANCELLED'].includes(returnRequest.status));
 
   return (
-    <main className="min-h-screen py-12 px-4 md:px-8 bg-[var(--bg)] text-foreground transition-colors duration-300" dir="rtl">
+    <main className="wahaj-account-dashboard min-h-screen py-12 px-4 md:px-8 bg-[var(--bg)] text-foreground transition-colors duration-300" dir="rtl">
       <div className="container max-w-6xl mx-auto space-y-8">
         
         {/* الترويسة العلوية */}
@@ -209,7 +209,19 @@ export default function AccountDashboardView(props: any) {
                       className="w-full px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[var(--gold)] transition shadow-xs"
                       value={c.phone || ''}
                       dir="ltr"
-                      onChange={e => setC({ ...c, phone: e.target.value })}
+                      readOnly
+                      aria-describedby="primary-phone-note"
+                    />
+                    <p id="primary-phone-note" className="text-[10px] text-muted-foreground">رقم الهاتف الأساسي مرتبط بالحساب ولا يمكن تغييره من هذه الصفحة.</p>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-medium text-muted-foreground">رقم هاتف إضافي (اختياري)</label>
+                    <input
+                      className="w-full px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[var(--gold)] transition shadow-xs"
+                      value={c.secondaryPhone || ''}
+                      dir="ltr"
+                      onChange={e => setC({ ...c, secondaryPhone: e.target.value })}
                     />
                   </div>
 
@@ -227,11 +239,18 @@ export default function AccountDashboardView(props: any) {
                 <button
                   className="inline-flex items-center gap-2 px-6 py-3.5 rounded-2xl bg-[var(--gold)] text-[var(--gold-contrast)] font-serif font-bold text-sm shadow-md hover:opacity-95 transition"
                   onClick={async () => {
-                    await fetch('/api/customer/me', {
+                    const response = await fetch('/api/customer/me', {
                       method: 'PUT',
                       headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify({ name: c.name, phone: c.phone, email: c.email }),
+                      credentials: 'include',
+                      body: JSON.stringify({ name: c.name, email: c.email, secondaryPhone: c.secondaryPhone }),
                     });
+                    const data = await response.json().catch(() => ({}));
+                    if (!response.ok) {
+                      setMsg(data.error || 'تعذر حفظ التغييرات');
+                      return;
+                    }
+                    setC((current: any) => ({ ...current, ...data }));
                     setMsg('تم حفظ التغييرات بنجاح');
                     setTimeout(() => setMsg(''), 3000);
                   }}
@@ -758,14 +777,20 @@ export default function AccountDashboardView(props: any) {
             {tab === 'security' && (
               <div className="bg-muted/10 border border-border/40 rounded-3xl p-6 md:p-8 shadow-xs space-y-6">
                 <h2 className="text-xl font-serif font-bold border-b border-border/30 pb-4">تغيير كلمة المرور</h2>
-                <form onSubmit={(e) => { 
+                <form onSubmit={async (e) => { 
                   e.preventDefault(); 
                   if (passwords.newPass !== passwords.confirmPass) {
                     setMsg('كلمتا المرور الجديدتان غير متطابقتين');
                     return;
                   }
-                  setMsg('تم تحديث كلمة المرور بنجاح'); 
-                  setTimeout(() => setMsg(''), 3000); 
+                  const result = await changePassword(passwords);
+                  if (result.ok) {
+                    setPasswords({ current: '', newPass: '', confirmPass: '' });
+                    setMsg('تم تحديث كلمة المرور بنجاح');
+                  } else {
+                    setMsg(result.error || 'تعذر تحديث كلمة المرور');
+                  }
+                  setTimeout(() => setMsg(''), 3500);
                 }} className="space-y-4 max-w-xl">
                   <div className="space-y-1.5">
                     <label className="text-xs font-medium text-muted-foreground">كلمة المرور الحالية</label>
