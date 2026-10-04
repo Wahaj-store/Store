@@ -295,7 +295,7 @@ export default function AdminManager({ sidebarOpen, setSidebarOpen }: { sidebarO
 
   return (
     <div className="space-y-6" dir="rtl">
-      <div className="grid gap-8 lg:grid-cols-[280px_1fr] items-start relative">
+      <div className="grid gap-5 lg:grid-cols-[290px_1fr] items-start relative">
         
         {sidebarOpen && (
           <div 
@@ -305,18 +305,27 @@ export default function AdminManager({ sidebarOpen, setSidebarOpen }: { sidebarO
         )}
 
         <aside className={`
-          fixed lg:sticky top-0 lg:top-8 bottom-0 right-0 z-50 w-72 lg:w-auto
-          bg-[var(--bg)] lg:bg-muted/10 border border-border/40 rounded-3xl p-4 
-          space-y-6 shadow-xl lg:shadow-xs max-h-screen lg:max-h-[calc(100vh-4rem)] overflow-y-auto custom-scrollbar
+          fixed lg:sticky top-0 lg:top-6 bottom-0 right-0 z-50 w-[290px] lg:w-auto
+          bg-[var(--bg)] lg:bg-muted/10 border border-border/40 rounded-[28px] p-4
+          space-y-5 shadow-2xl lg:shadow-xs max-h-screen lg:max-h-[calc(100vh-3rem)] overflow-y-auto custom-scrollbar
           transition-transform duration-300 ease-in-out
           ${sidebarOpen ? 'translate-x-0' : 'translate-x-full lg:translate-x-0'}
         `}>
-          
-          <div className="flex items-center justify-between lg:hidden pb-3 border-b border-border/30">
-            <span className="font-serif font-bold text-sm text-[var(--gold)]">قائمة التحكم</span>
-            <button onClick={() => setSidebarOpen(false)} className="p-1.5 rounded-xl bg-muted/20 text-muted-foreground hover:text-foreground cursor-pointer">
-              <X size={18} />
-            </button>
+          <div className="rounded-[22px] border border-border/40 bg-muted/10 px-4 py-4 shadow-xs">
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex min-w-0 items-center gap-3">
+                <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-2xl border border-[var(--gold)]/30 bg-[var(--bg)] p-1.5">
+                  <Image src="/images/wahaj.logo.png" alt="Wahaj Store" fill sizes="48px" className="object-contain" priority />
+                </div>
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-serif font-bold text-foreground">Wahaj Store</p>
+                  <p className="mt-0.5 text-[10px] text-muted-foreground">لوحة التحكم والإدارة</p>
+                </div>
+              </div>
+              <button onClick={() => setSidebarOpen(false)} className="lg:hidden shrink-0 p-2 rounded-xl bg-muted/20 text-muted-foreground hover:text-foreground cursor-pointer" aria-label="إغلاق القائمة">
+                <X size={17} />
+              </button>
+            </div>
           </div>
 
           {menuGroups.map((group, groupIdx) => (
@@ -350,12 +359,17 @@ export default function AdminManager({ sidebarOpen, setSidebarOpen }: { sidebarO
           ))}
         </aside>
 
-        <section className="space-y-6 min-w-0">
-          <div className="flex flex-wrap items-center justify-between gap-4 border-b border-border/30 pb-5">
-            <div>
-              <h2 className="text-2xl font-serif font-bold text-foreground">{getCurrentTabLabel()}</h2>
-              <p className="text-muted-foreground text-xs md:text-sm mt-0.5 font-light">إدارة كاملة لبيانات المتجر والتحكم المباشر.</p>
-            </div>
+        <section className="space-y-5 min-w-0">
+          <div className="rounded-[28px] border border-border/40 bg-muted/10 px-5 py-4 md:px-6 md:py-5 shadow-xs">
+            <div className="flex flex-wrap items-center justify-between gap-4">
+              <div className="min-w-0">
+                <div className="mb-1 flex items-center gap-2">
+                  <span className="h-1.5 w-1.5 rounded-full bg-[var(--gold)]" />
+                  <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-[var(--gold)]">Wahaj Store Admin</span>
+                </div>
+                <h2 className="text-2xl font-serif font-bold text-foreground">{getCurrentTabLabel()}</h2>
+                <p className="text-muted-foreground text-xs md:text-sm mt-0.5 font-light">إدارة كاملة لبيانات المتجر والتحكم المباشر.</p>
+              </div>
             {!editing && ['products', 'categories', 'offers', 'shipping', 'homepage', 'gift-cards', 'relations', 'faq', 'redirects', 'settings'].includes(tab) && (
               <button 
                 className="px-5 py-2.5 rounded-2xl bg-[var(--gold)] text-[var(--gold-contrast)] font-serif font-bold text-xs md:text-sm shadow-sm hover:opacity-95 transition inline-flex items-center gap-2 cursor-pointer" 
@@ -364,6 +378,7 @@ export default function AdminManager({ sidebarOpen, setSidebarOpen }: { sidebarO
                 <Plus size={17} /> إضافة جديدة
               </button>
             )}
+            </div>
           </div>
 
           {msg && <div className="rounded-2xl border border-[var(--gold)]/40 bg-[var(--gold)]/10 p-4 text-xs md:text-sm font-medium text-[var(--gold)] shadow-xs">{msg}</div>}
