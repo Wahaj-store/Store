@@ -615,43 +615,19 @@ function Editor({ tab, value, cats, products, onCancel, onSave, upload }: any) {
     images: value.images || [], 
     variants: value.variants || [] 
   });
-  const [saving, setSaving] = useState(false);
-  const initialSnapshot = JSON.stringify({ ...value, images: value.images || [], variants: value.variants || [] });
-  const currentSnapshot = JSON.stringify(v);
-  const dirty = currentSnapshot !== initialSnapshot;
-
-  useEffect(() => {
-    if (!dirty) return;
-    const onBeforeUnload = (event: BeforeUnloadEvent) => {
-      event.preventDefault();
-      event.returnValue = '';
-    };
-    window.addEventListener('beforeunload', onBeforeUnload);
-    return () => window.removeEventListener('beforeunload', onBeforeUnload);
-  }, [dirty]);
-
-  const save = async () => {
-    setSaving(true);
-    try {
-      await onSave(v);
-    } finally {
-      setSaving(false);
-    }
-  };
 
   const set = (k: string, x: any) => setV((p: any) => ({ ...p, [k]: x }));
   const addVar = () => set('variants', [...v.variants, { name: 'اللون', value: '', stock: 0, price: '' }]);
 
   if (tab === 'settings') return (
     <div className="bg-muted/10 border border-border/40 rounded-3xl p-6 md:p-8 space-y-5 shadow-xs">
-      <EditorToolbar tab={tab} dirty={dirty} saving={saving} onSave={save} onCancel={onCancel} />
       <h3 className="font-serif font-bold text-lg text-[var(--gold)]">إعدادات المتجر العامة</h3>
       <div className="grid gap-4 md:grid-cols-2">
         <Field label="المفتاح (Key)" value={v.key || ''} onChange={(x: any) => set('key', x)} />
         <Field label="القيمة (Value)" value={v.value || ''} onChange={(x: any) => set('value', x)} />
       </div>
       <div className="flex gap-3 pt-3">
-        <button className="px-6 py-3 rounded-2xl bg-[var(--gold)] text-[var(--gold-contrast)] font-serif font-bold text-sm shadow-sm hover:opacity-95 transition inline-flex items-center gap-2 cursor-pointer" onClick={save}><Save size={17} /> حفظ الإعداد</button>
+        <button className="px-6 py-3 rounded-2xl bg-[var(--gold)] text-[var(--gold-contrast)] font-serif font-bold text-sm shadow-sm hover:opacity-95 transition inline-flex items-center gap-2 cursor-pointer" onClick={() => onSave(v)}><Save size={17} /> حفظ الإعداد</button>
         <button className="px-5 py-3 rounded-2xl bg-muted/20 border border-border/60 text-muted-foreground text-sm font-medium hover:bg-muted/30 transition cursor-pointer" onClick={onCancel}>إلغاء</button>
       </div>
     </div>
@@ -659,7 +635,6 @@ function Editor({ tab, value, cats, products, onCancel, onSave, upload }: any) {
 
   if (tab === 'faq') return (
     <div className="bg-muted/10 border border-border/40 rounded-3xl p-6 md:p-8 space-y-5 shadow-xs">
-      <EditorToolbar tab={tab} dirty={dirty} saving={saving} onSave={save} onCancel={onCancel} />
       <h3 className="font-serif font-bold text-lg text-[var(--gold)]">{v.id ? 'تعديل السؤال' : 'إضافة سؤال جديد'}</h3>
       <div className="grid gap-4 md:grid-cols-2">
         <Field label="السؤال" value={v.question || ''} onChange={(x: any) => set('question', x)} />
@@ -681,7 +656,7 @@ function Editor({ tab, value, cats, products, onCancel, onSave, upload }: any) {
         </label>
       </div>
       <div className="flex gap-3 pt-3">
-        <button className="px-6 py-3 rounded-2xl bg-[var(--gold)] text-[var(--gold-contrast)] font-serif font-bold text-sm shadow-sm hover:opacity-95 transition inline-flex items-center gap-2 cursor-pointer" onClick={save}><Save size={17} /> حفظ</button>
+        <button className="px-6 py-3 rounded-2xl bg-[var(--gold)] text-[var(--gold-contrast)] font-serif font-bold text-sm shadow-sm hover:opacity-95 transition inline-flex items-center gap-2 cursor-pointer" onClick={() => onSave(v)}><Save size={17} /> حفظ</button>
         <button className="px-5 py-3 rounded-2xl bg-muted/20 border border-border/60 text-muted-foreground text-sm font-medium hover:bg-muted/30 transition cursor-pointer" onClick={onCancel}>إلغاء</button>
       </div>
     </div>
@@ -689,7 +664,6 @@ function Editor({ tab, value, cats, products, onCancel, onSave, upload }: any) {
 
   if (tab === 'payments') return (
     <div className="bg-muted/10 border border-border/40 rounded-3xl p-6 md:p-8 space-y-5 shadow-xs">
-      <EditorToolbar tab={tab} dirty={dirty} saving={saving} onSave={save} onCancel={onCancel} />
       <div className="grid gap-4 md:grid-cols-2">
         <Field label="اسم الطريقة" value={v.label} onChange={(x: any) => set('label', x)} />
         <Field label="ترتيب الظهور" value={v.displayOrder || 0} onChange={(x: any) => set('displayOrder', x)} type="number" />
@@ -701,7 +675,7 @@ function Editor({ tab, value, cats, products, onCancel, onSave, upload }: any) {
         <label className="flex items-center gap-2.5 text-sm font-light cursor-pointer"><input type="checkbox" className="w-4 h-4 accent-[var(--gold)]" checked={!!v.proofRequired} onChange={e => set('proofRequired', e.target.checked)} /> طلب إثبات دفع</label>
       </div>
       <div className="mt-5 flex gap-3">
-        <button className="px-6 py-3 rounded-2xl bg-[var(--gold)] text-[var(--gold-contrast)] font-serif font-bold text-sm shadow-sm hover:opacity-95 transition inline-flex items-center gap-2 cursor-pointer" onClick={save}><Save size={17} /> حفظ</button>
+        <button className="px-6 py-3 rounded-2xl bg-[var(--gold)] text-[var(--gold-contrast)] font-serif font-bold text-sm shadow-sm hover:opacity-95 transition inline-flex items-center gap-2 cursor-pointer" onClick={() => onSave(v)}><Save size={17} /> حفظ</button>
         <button className="px-5 py-3 rounded-2xl bg-muted/20 border border-border/60 text-muted-foreground text-sm font-medium hover:bg-muted/30 transition cursor-pointer" onClick={onCancel}>إلغاء</button>
       </div>
     </div>
@@ -709,7 +683,6 @@ function Editor({ tab, value, cats, products, onCancel, onSave, upload }: any) {
 
   if (tab === 'gift-cards') return (
     <div className="bg-muted/10 border border-border/40 rounded-3xl p-6 md:p-8 space-y-5 shadow-xs">
-      <EditorToolbar tab={tab} dirty={dirty} saving={saving} onSave={save} onCancel={onCancel} />
       <div className="grid gap-4 md:grid-cols-2">
         <Field
           label="القيمة"
@@ -754,7 +727,7 @@ function Editor({ tab, value, cats, products, onCancel, onSave, upload }: any) {
       )}
 
       <div className="mt-5 flex gap-3 pt-4 border-t border-border/30">
-        <button className="px-6 py-3 rounded-2xl bg-[var(--gold)] text-[var(--gold-contrast)] font-serif font-bold text-sm shadow-sm hover:opacity-95 transition inline-flex items-center gap-2 cursor-pointer" onClick={save}><Save size={17} /> حفظ</button>
+        <button className="px-6 py-3 rounded-2xl bg-[var(--gold)] text-[var(--gold-contrast)] font-serif font-bold text-sm shadow-sm hover:opacity-95 transition inline-flex items-center gap-2 cursor-pointer" onClick={() => onSave(v)}><Save size={17} /> حفظ</button>
         <button className="px-5 py-3 rounded-2xl bg-muted/20 border border-border/60 text-muted-foreground text-sm font-medium hover:bg-muted/30 transition cursor-pointer" onClick={onCancel}>إلغاء</button>
       </div>
     </div>
@@ -771,7 +744,6 @@ function Editor({ tab, value, cats, products, onCancel, onSave, upload }: any) {
 
   if (tab === 'offers') return (
     <div className="bg-muted/10 border border-border/40 rounded-3xl p-6 md:p-8 space-y-5 shadow-xs">
-      <EditorToolbar tab={tab} dirty={dirty} saving={saving} onSave={save} onCancel={onCancel} />
       <div className="grid gap-4 md:grid-cols-2">
         <Field label="اسم العرض" value={v.name || ''} onChange={(x: any) => set('name', x)} />
         <label className="text-xs md:text-sm font-medium text-muted-foreground">نوع العرض
@@ -843,7 +815,7 @@ function Editor({ tab, value, cats, products, onCancel, onSave, upload }: any) {
       </div>
       <p className="text-xs text-muted-foreground leading-relaxed">العروض تُطبّق على السيرفر فقط، وتُراجع الصلاحية والمدة والحد الأقصى للاستخدام أثناء إنشاء الطلب.</p>
       <div className="mt-5 flex gap-3">
-        <button className="px-6 py-3 rounded-2xl bg-[var(--gold)] text-[var(--gold-contrast)] font-serif font-bold text-sm shadow-sm hover:opacity-95 transition inline-flex items-center gap-2 cursor-pointer" onClick={save}><Save size={17} /> حفظ</button>
+        <button className="px-6 py-3 rounded-2xl bg-[var(--gold)] text-[var(--gold-contrast)] font-serif font-bold text-sm shadow-sm hover:opacity-95 transition inline-flex items-center gap-2 cursor-pointer" onClick={() => onSave(v)}><Save size={17} /> حفظ</button>
         <button className="px-5 py-3 rounded-2xl bg-muted/20 border border-border/60 text-muted-foreground text-sm font-medium hover:bg-muted/30 transition cursor-pointer" onClick={onCancel}>إلغاء</button>
       </div>
     </div>
@@ -851,14 +823,13 @@ function Editor({ tab, value, cats, products, onCancel, onSave, upload }: any) {
 
   if (tab === 'redirects') return (
     <div className="bg-muted/10 border border-border/40 rounded-3xl p-6 md:p-8 space-y-5 shadow-xs">
-      <EditorToolbar tab={tab} dirty={dirty} saving={saving} onSave={save} onCancel={onCancel} />
       <div className="grid gap-4 md:grid-cols-2">
         <Field label="المسار القديم" value={v.fromPath || ''} onChange={(x: any) => set('fromPath', x)} />
         <Field label="المسار الجديد" value={v.toPath || ''} onChange={(x: any) => set('toPath', x)} />
         <Field label="كود التحويل" value={v.statusCode || 301} onChange={(x: any) => set('statusCode', x)} type="number" />
       </div>
       <div className="mt-5 flex gap-3">
-        <button className="px-6 py-3 rounded-2xl bg-[var(--gold)] text-[var(--gold-contrast)] font-serif font-bold text-sm shadow-sm hover:opacity-95 transition inline-flex items-center gap-2 cursor-pointer" onClick={save}><Save size={17} /> حفظ</button>
+        <button className="px-6 py-3 rounded-2xl bg-[var(--gold)] text-[var(--gold-contrast)] font-serif font-bold text-sm shadow-sm hover:opacity-95 transition inline-flex items-center gap-2 cursor-pointer" onClick={() => onSave(v)}><Save size={17} /> حفظ</button>
         <button className="px-5 py-3 rounded-2xl bg-muted/20 border border-border/60 text-muted-foreground text-sm font-medium hover:bg-muted/30 transition cursor-pointer" onClick={onCancel}>إلغاء</button>
       </div>
     </div>
@@ -866,7 +837,6 @@ function Editor({ tab, value, cats, products, onCancel, onSave, upload }: any) {
 
   return (
     <div className="bg-muted/10 border border-border/40 rounded-3xl p-6 md:p-8 space-y-6 shadow-xs">
-      <EditorToolbar tab={tab} dirty={dirty} saving={saving} onSave={save} onCancel={onCancel} />
       <div className="grid gap-4 md:grid-cols-2">
         {tab === 'products' ? (
           <>
@@ -957,34 +927,8 @@ function Editor({ tab, value, cats, products, onCancel, onSave, upload }: any) {
       )}
 
       <div className="mt-6 flex gap-3 pt-4 border-t border-border/30">
-        <button className="px-6 py-3 rounded-2xl bg-[var(--gold)] text-[var(--gold-contrast)] font-serif font-bold text-sm shadow-sm hover:opacity-95 transition inline-flex items-center gap-2 cursor-pointer" onClick={save}><Save size={17} /> حفظ</button>
+        <button className="px-6 py-3 rounded-2xl bg-[var(--gold)] text-[var(--gold-contrast)] font-serif font-bold text-sm shadow-sm hover:opacity-95 transition inline-flex items-center gap-2 cursor-pointer" onClick={() => onSave(v)}><Save size={17} /> حفظ</button>
         <button className="px-5 py-3 rounded-2xl bg-muted/20 border border-border/60 text-muted-foreground text-sm font-medium hover:bg-muted/30 transition cursor-pointer" onClick={onCancel}>إلغاء</button>
-      </div>
-    </div>
-  );
-}
-
-function EditorToolbar({ tab, dirty, saving, onSave, onCancel }: any) {
-  const labels: Record<string, string> = {
-    settings: 'إعدادات المتجر العامة', faq: 'الأسئلة الشائعة', payments: 'طريقة الدفع',
-    'gift-cards': 'بطاقة هدايا', offers: 'العرض', redirects: 'إعادة توجيه',
-    products: 'المنتج', categories: 'التصنيف', shipping: 'الشحن', homepage: 'محتوى الصفحة الرئيسية',
-    relations: 'ترشيحات المنتجات', features: 'الميزة', reviews: 'المراجعة', contact: 'رسالة العميل'
-  };
-  return (
-    <div className="sticky top-2 z-20 mb-5 flex flex-col gap-3 rounded-2xl border border-border/50 bg-[var(--bg)]/95 p-3 shadow-lg backdrop-blur md:flex-row md:items-center md:justify-between">
-      <div className="flex min-w-0 items-center gap-3">
-        <div className={`h-2.5 w-2.5 shrink-0 rounded-full ${dirty ? 'bg-amber-500' : 'bg-emerald-500'}`} />
-        <div className="min-w-0">
-          <p className="truncate text-sm font-bold text-foreground">{labels[tab] || 'تحرير البيانات'}</p>
-          <p className="text-xs text-muted-foreground">{dirty ? 'لديك تغييرات غير محفوظة' : 'كل التغييرات محفوظة'}</p>
-        </div>
-      </div>
-      <div className="flex items-center gap-2">
-        <button type="button" onClick={onCancel} className="rounded-xl border border-border/60 bg-muted/10 px-4 py-2 text-sm font-medium text-muted-foreground transition hover:bg-muted/20 cursor-pointer">إلغاء</button>
-        <button type="button" onClick={onSave} disabled={!dirty || saving} className="inline-flex items-center gap-2 rounded-xl bg-[var(--gold)] px-5 py-2 text-sm font-bold text-[var(--gold-contrast)] transition hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer">
-          {saving ? <><RefreshCcw size={15} className="animate-spin" /> جارٍ الحفظ...</> : <><Save size={15} /> حفظ التغييرات</>}
-        </button>
       </div>
     </div>
   );
@@ -1193,11 +1137,6 @@ function Analytics({ data: initialData }: any) {
   const maxSales = Math.max(1, ...daily.map((x: any) => Number(x.sales || 0)));
   const statusLabels: Record<string, string> = { NEW: 'جديد', PROCESSING: 'قيد التجهيز', SHIPPED: 'تم الشحن', DELIVERED: 'تم التسليم', CANCELLED: 'ملغي' };
   const paymentLabels: Record<string, string> = { COD: 'الدفع عند الاستلام', VODAFONE_CASH: 'فودافون كاش', INSTAPAY: 'InstaPay' };
-  const peakDay = daily.reduce((best: any, item: any) => Number(item.sales || 0) > Number(best?.sales || 0) ? item : best, null);
-  const totalPaymentSales = (data.payments || []).reduce((sum: number, item: any) => sum + Number(item.sales || 0), 0);
-  const topPayment = (data.payments || []).reduce((best: any, item: any) => Number(item.sales || 0) > Number(best?.sales || 0) ? item : best, null);
-  const deliveredOrders = (data.statuses || []).find((x: any) => x.status === 'DELIVERED')?.count || 0;
-  const cancelledOrders = (data.statuses || []).find((x: any) => x.status === 'CANCELLED')?.count || 0;
 
   return (
     <div className="space-y-5">
@@ -1232,21 +1171,6 @@ function Analytics({ data: initialData }: any) {
             </div>
           </div>
         ))}
-      </div>
-
-      <div className="grid gap-3 md:grid-cols-3">
-        <div className="rounded-3xl border border-border/40 bg-muted/10 p-4 shadow-xs">
-          <div className="flex items-center justify-between gap-3"><span className="text-[11px] text-muted-foreground">أفضل يوم مبيعات</span><TrendingUp size={15} className="text-[var(--gold)]" /></div>
-          <div className="mt-2 flex items-end justify-between gap-3"><b className="text-sm font-serif">{peakDay?.date ? new Date(`${peakDay.date}T00:00:00`).toLocaleDateString('ar-EG', { weekday: 'long' }) : '—'}</b><span className="text-xs text-muted-foreground">{peakDay ? formatMoney(peakDay.sales) : '—'}</span></div>
-        </div>
-        <div className="rounded-3xl border border-border/40 bg-muted/10 p-4 shadow-xs">
-          <div className="flex items-center justify-between gap-3"><span className="text-[11px] text-muted-foreground">أقوى وسيلة دفع</span><CreditCard size={15} className="text-[var(--gold)]" /></div>
-          <div className="mt-2 flex items-end justify-between gap-3"><b className="text-sm font-serif">{topPayment ? (paymentLabels[topPayment.method] || topPayment.method) : '—'}</b><span className="text-xs text-muted-foreground">{topPayment && totalPaymentSales ? `${Math.round((Number(topPayment.sales || 0) / totalPaymentSales) * 100)}%` : '—'}</span></div>
-        </div>
-        <div className="rounded-3xl border border-border/40 bg-muted/10 p-4 shadow-xs">
-          <div className="flex items-center justify-between gap-3"><span className="text-[11px] text-muted-foreground">توزيع النتائج</span><CheckCircle2 size={15} className="text-[var(--gold)]" /></div>
-          <div className="mt-2 flex items-center justify-between gap-3 text-xs"><span>تم التسليم <b>{deliveredOrders}</b></span><span className="text-red-500">ملغي <b>{cancelledOrders}</b></span></div>
-        </div>
       </div>
 
       <div className="grid gap-4 lg:grid-cols-[1.5fr_1fr]">
@@ -1377,7 +1301,7 @@ function CustomerSegments({ data, onRefresh }: any) {
     <div className="space-y-5">
       <div className="flex flex-wrap items-center justify-between gap-3"><div><h2 className="text-xl md:text-2xl font-serif font-bold">تقسيم العملاء</h2><p className="text-xs text-muted-foreground font-light mt-1">تقسيم تلقائي للعملاء حسب قيمة الشراء، التكرار وحداثة آخر طلب.</p></div><button onClick={onRefresh} className="px-4 py-2.5 rounded-xl bg-[var(--gold)] text-[var(--gold-contrast)] text-xs font-bold cursor-pointer inline-flex items-center gap-2"><RefreshCcw size={15} /> تحديث الشرائح</button></div>
       <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-        {(data.segments || []).map((segment: any) => <button type="button" key={segment.key} onClick={() => selectSegment(segment.key)} className={`w-full text-right bg-muted/10 border rounded-3xl p-5 shadow-xs transition cursor-pointer ${selectedSegment === segment.key ? 'border-[var(--gold)] bg-[var(--gold)]/5 shadow-md' : 'border-border/40 hover:border-[var(--gold)]/40'}`}><div className="flex items-start justify-between gap-2"><div><h3 className="font-serif font-bold text-sm">{segment.name}</h3><p className="text-[10px] text-muted-foreground mt-1 leading-relaxed">{segment.rule}</p></div><span className={`px-2 py-1 rounded-full border text-[10px] ${toneClass[segment.tone] || toneClass.muted}`}>{segment.count}</span></div><div className="mt-4 flex justify-between text-[11px] text-muted-foreground"><span>إجمالي الإنفاق</span><b className="text-foreground">{formatMoney(segment.totalSpend)}</b></div><div className="mt-1 flex justify-between text-[11px] text-muted-foreground"><span>متوسط العميل</span><b className="text-foreground">{formatMoney(segment.avgSpend)}</b></div></div>)}
+        {(data.segments || []).map((segment: any) => <div key={segment.key} className="bg-muted/10 border border-border/40 rounded-3xl p-5 shadow-xs"><div className="flex items-start justify-between gap-2"><div><h3 className="font-serif font-bold text-sm">{segment.name}</h3><p className="text-[10px] text-muted-foreground mt-1 leading-relaxed">{segment.rule}</p></div><span className={`px-2 py-1 rounded-full border text-[10px] ${toneClass[segment.tone] || toneClass.muted}`}>{segment.count}</span></div><div className="mt-4 flex justify-between text-[11px] text-muted-foreground"><span>إجمالي الإنفاق</span><b className="text-foreground">{formatMoney(segment.totalSpend)}</b></div><div className="mt-1 flex justify-between text-[11px] text-muted-foreground"><span>متوسط العميل</span><b className="text-foreground">{formatMoney(segment.avgSpend)}</b></div></div>)}
       </div>
       <div className="bg-muted/10 border border-border/40 rounded-3xl p-5 shadow-xs"><h3 className="font-serif font-bold mb-4">أهم العملاء داخل الشرائح</h3><div className="overflow-x-auto"><table className="w-full text-right text-xs"><thead><tr className="border-b border-border/30 text-muted-foreground"><th className="p-3">العميل</th><th className="p-3">الشريحة</th><th className="p-3">الطلبات</th><th className="p-3">الإنفاق</th><th className="p-3">آخر طلب</th></tr></thead><tbody>{(data.segments || []).flatMap((s: any) => (s.members || []).slice(0, 5).map((m: any) => ({ ...m, segment: s.name, id: `${s.key}-${m.id}` }))).map((m: any) => <tr key={m.id} className="border-b border-border/20 last:border-0"><td className="p-3 font-medium">{m.name}</td><td className="p-3 text-muted-foreground">{m.segment}</td><td className="p-3">{m.orderCount}</td><td className="p-3">{formatMoney(m.spend)}</td><td className="p-3 text-muted-foreground">{m.lastOrder ? new Date(m.lastOrder).toLocaleDateString('ar-EG') : '—'}</td></tr>)}</tbody></table></div></div>
       <div className="bg-muted/10 border border-border/40 rounded-3xl p-5 shadow-xs">
@@ -1398,18 +1322,7 @@ function CustomerSegments({ data, onRefresh }: any) {
           <button type="button" onClick={exportAudience} className="px-3 py-2 rounded-xl border border-border/40 text-xs inline-flex items-center gap-2 cursor-pointer"><FileText size={14} />تصدير CSV</button>
         </div>
         {audienceMsg && <p className="text-[11px] text-[var(--gold)] mb-3">{audienceMsg}</p>}
-        <div className="space-y-2 md:hidden">
-          {(audience.length ? audience : (selectedSegment !== 'all' && Array.isArray(selectedSegmentData?.members) ? selectedSegmentData.members : [])).slice(0, 50).map((m: any) => (
-            <div key={m.id} className="rounded-2xl border border-border/30 bg-[var(--bg)] p-4">
-              <div className="flex items-start justify-between gap-3">
-                <div className="min-w-0"><b className="block truncate text-sm">{m.name}</b><span className="mt-1 block text-[11px] text-muted-foreground" dir="ltr">{m.phone || '—'}</span></div>
-                <span className="shrink-0 rounded-full bg-muted/20 px-2 py-1 text-[10px]">{m.orderCount || 0} طلب</span>
-              </div>
-              <div className="mt-3 grid grid-cols-2 gap-2 text-[11px]"><div><span className="text-muted-foreground">الإنفاق</span><b className="block mt-1">{formatMoney(m.spend)}</b></div><div><span className="text-muted-foreground">آخر طلب</span><b className="block mt-1">{m.lastOrder ? new Date(m.lastOrder).toLocaleDateString('ar-EG') : '—'}</b></div></div>
-            </div>
-          ))}
-        </div>
-        <div className="hidden overflow-x-auto rounded-2xl border border-border/30 md:block">
+        <div className="overflow-x-auto rounded-2xl border border-border/30">
           <table className="w-full text-right text-xs">
             <thead><tr className="border-b border-border/30 text-muted-foreground"><th className="p-3">العميل</th><th className="p-3">الهاتف</th><th className="p-3">الطلبات</th><th className="p-3">الإنفاق</th><th className="p-3">آخر طلب</th></tr></thead>
             <tbody>
