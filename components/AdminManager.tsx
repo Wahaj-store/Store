@@ -306,7 +306,7 @@ export default function AdminManager({ sidebarOpen, setSidebarOpen }: { sidebarO
 
       <div className="grid items-start gap-5 lg:grid-cols-[270px_minmax(0,1fr)] xl:grid-cols-[285px_minmax(0,1fr)]">
         <aside
-          className={`fixed inset-y-3 right-3 z-50 flex w-[275px] flex-col overflow-hidden rounded-[26px] border border-border/50 bg-[var(--bg)] shadow-2xl transition-transform duration-300 lg:sticky lg:top-4 lg:right-auto lg:z-20 lg:h-[calc(100vh-2rem)] lg:w-auto lg:translate-x-0 lg:shadow-sm ${
+          className={`fixed inset-y-3 right-3 z-50 flex w-[292px] flex-col overflow-hidden rounded-[26px] border border-border/50 bg-[var(--bg)] shadow-2xl transition-transform duration-300 lg:sticky lg:top-4 lg:right-auto lg:z-20 lg:h-[calc(100vh-2rem)] lg:w-auto lg:translate-x-0 lg:shadow-sm ${
             sidebarOpen ? 'translate-x-0' : 'translate-x-[calc(100%+1rem)]'
           }`}
         >
@@ -341,18 +341,19 @@ export default function AdminManager({ sidebarOpen, setSidebarOpen }: { sidebarO
 
             <nav className="space-y-5" aria-label="أقسام لوحة الإدارة">
               {menuGroups.map((group, groupIdx) => (
-                <div key={group.title} className="space-y-1.5">
-                  <div className="flex items-center gap-2 px-2.5">
+                <div key={group.title} className="space-y-2">
+                  <div className="flex items-center gap-2 px-2.5" dir="rtl">
+                    <h3 className="shrink-0 text-right text-[10px] font-bold tracking-[0.08em] text-muted-foreground">{group.title}</h3>
                     <span className="h-px flex-1 bg-border/40" />
-                    <h3 className="shrink-0 text-[9px] font-bold tracking-[0.12em] text-muted-foreground">{group.title}</h3>
                   </div>
-                  <div className="space-y-0.5">
+                  <div className="space-y-1">
                     {group.items.map(([k, t, Icon]) => {
                       const active = tab === k;
                       return (
                         <button
                           key={k}
                           type="button"
+                          dir="rtl"
                           onClick={() => { setTab(k); setEditing(null); setMsg(''); setSidebarOpen(false); }}
                           className={`group relative flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-xs transition-all ${
                             active
@@ -362,7 +363,7 @@ export default function AdminManager({ sidebarOpen, setSidebarOpen }: { sidebarO
                         >
                           {active && <span className="absolute inset-y-2 right-0 w-0.5 rounded-full bg-[var(--gold-contrast)]" />}
                           <Icon size={16} className={active ? 'shrink-0' : 'shrink-0 text-[var(--gold)]'} />
-                          <span className="min-w-0 flex-1 text-start">{t}</span>
+                          <span className="min-w-0 flex-1 text-right">{t}</span>
                           {active && <ChevronLeft size={13} className="shrink-0 opacity-80" />}
                         </button>
                       );
@@ -387,24 +388,29 @@ export default function AdminManager({ sidebarOpen, setSidebarOpen }: { sidebarO
         </aside>
 
         <main className="min-w-0 space-y-4">
-          <header className="sticky top-3 z-30 rounded-[24px] border border-border/50 bg-[var(--bg)]/95 px-4 py-3 shadow-sm backdrop-blur-md md:px-5">
-            <div className="flex items-center gap-3">
-              <button
-                type="button"
-                onClick={() => setSidebarOpen(true)}
-                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-border/50 bg-muted/10 text-foreground transition hover:border-[var(--gold)]/40 hover:text-[var(--gold)] lg:hidden"
-                aria-label="فتح القائمة"
-              >
-                <Menu size={19} />
-              </button>
+          <header className="sticky top-3 z-30 rounded-[24px] border border-border/50 bg-[var(--bg)]/95 px-3 py-3 shadow-sm backdrop-blur-md md:px-5">
+            <div className="grid min-h-12 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3" dir="ltr">
+              <div className="justify-self-start" dir="rtl">
+                {!editing && ['products', 'categories', 'offers', 'shipping', 'homepage', 'gift-cards', 'relations', 'faq', 'redirects', 'settings'].includes(tab) && (
+                  <button
+                    type="button"
+                    onClick={() => setEditing(getNewItemTemplate())}
+                    className="inline-flex h-10 shrink-0 items-center gap-1.5 rounded-xl bg-[var(--gold)] px-3.5 text-xs font-bold text-[var(--gold-contrast)] shadow-sm transition hover:opacity-95 md:px-4"
+                  >
+                    <Plus size={16} />
+                    <span className="hidden sm:inline">إضافة جديدة</span>
+                    <span className="sm:hidden">إضافة</span>
+                  </button>
+                )}
+              </div>
 
-              <div className="min-w-0 flex-1">
-                <div className="flex flex-wrap items-center gap-2 text-[10px] text-muted-foreground">
+              <div className="min-w-0 text-center" dir="rtl">
+                <div className="hidden items-center justify-center gap-2 text-[10px] text-muted-foreground sm:flex">
                   <span>Wahaj Store</span>
                   <ChevronLeft size={11} className="rotate-180 opacity-50" />
                   <span className="font-medium text-[var(--gold)]">لوحة الإدارة</span>
                 </div>
-                <div className="mt-0.5 flex items-center gap-2">
+                <div className="mt-0.5 flex items-center justify-center gap-2">
                   <h1 className="truncate text-lg font-serif font-bold text-foreground md:text-xl">{getCurrentTabLabel()}</h1>
                   <span className="hidden rounded-full border border-border/50 bg-muted/10 px-2 py-0.5 text-[9px] text-muted-foreground sm:inline-flex">
                     {data.length} عنصر
@@ -412,17 +418,16 @@ export default function AdminManager({ sidebarOpen, setSidebarOpen }: { sidebarO
                 </div>
               </div>
 
-              {!editing && ['products', 'categories', 'offers', 'shipping', 'homepage', 'gift-cards', 'relations', 'faq', 'redirects', 'settings'].includes(tab) && (
+              <div className="justify-self-end">
                 <button
                   type="button"
-                  onClick={() => setEditing(getNewItemTemplate())}
-                  className="inline-flex h-10 shrink-0 items-center gap-1.5 rounded-xl bg-[var(--gold)] px-3.5 text-xs font-bold text-[var(--gold-contrast)] shadow-sm transition hover:opacity-95 md:px-4"
+                  onClick={() => setSidebarOpen(true)}
+                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-border/50 bg-muted/10 text-foreground transition hover:border-[var(--gold)]/40 hover:text-[var(--gold)] lg:hidden"
+                  aria-label="فتح القائمة"
                 >
-                  <Plus size={16} />
-                  <span className="hidden sm:inline">إضافة جديدة</span>
-                  <span className="sm:hidden">إضافة</span>
+                  <Menu size={19} />
                 </button>
-              )}
+              </div>
             </div>
           </header>
 
