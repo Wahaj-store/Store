@@ -1,274 +1,166 @@
 'use client';
-import { useEffect, useState, use } from 'react';
-import { Clock, CheckCircle2, Truck, XCircle, AlertCircle, Save, FileText } from 'lucide-react';
+
+import { use, useCallback, useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
+import {
+  ArrowDownLeft, ArrowUpLeft, Banknote, CalendarDays, CheckCircle2, CircleAlert,
+  Clock3, FileText, MapPin, Package, RefreshCw, ShieldCheck, ShoppingBag,
+  Truck, UserRound, Phone, X,
+} from 'lucide-react';
+
+type Order = any;
+const orderStatusLabels: Record<string, string> = { NEW: 'جديد', PROCESSING: 'قيد التجهيز', SHIPPED: 'تم الشحن', DELIVERED: 'تم التسليم', CANCELLED: 'ملغي' };
+const paymentStatusLabels: Record<string, string> = { PENDING: 'بانتظار الدفع', CONFIRMED: 'مدفوع', FAILED: 'فشل الدفع' };
+const paymentMethodLabels: Record<string, string> = { COD: 'الدفع عند الاستلام', VODAFONE_CASH: 'فودافون كاش', INSTAPAY: 'إنستاباي' };
+const money = (value: unknown) => `${Number(value || 0).toLocaleString('ar-EG')} ج.م`;
+const formatDateTime = (value: unknown) => value ? new Date(String(value)).toLocaleString('ar-EG', { dateStyle: 'medium', timeStyle: 'short' }) : '—';
+
+function OrderStatus({ status }: { status: string }) {
+  const tone = status === 'DELIVERED' ? 'success' : status === 'CANCELLED' ? 'danger' : status === 'SHIPPED' ? 'blue' : status === 'PROCESSING' ? 'gold' : 'muted';
+  return <span className={`order-status order-status--${tone}`}><i />{orderStatusLabels[status] || status}</span>;
+}
+
+function InfoRow({ label, value, ltr = false }: { label: string; value: string; ltr?: boolean }) {
+  return <div className="order-info-row"><span>{label}</span><b dir={ltr ? 'ltr' : undefined}>{value || '—'}</b></div>;
+}
+
+function DetailMetric({ icon: Icon, label, value, tone = 'gold' }: any) {
+  return <article className="order-detail-metric"><span className={`order-summary-card__icon order-summary-card__icon--${tone}`}><Icon size={18} /></span><div className="min-w-0"><p className="text-[9px] text-muted-foreground sm:text-[10px]">{label}</p><p className="mt-1 truncate text-sm font-bold sm:text-base">{value}</p></div></article>;
+}
 
 export default function OrderDetail({ params }: { params: Promise<{ id: string }> | { id: string } }) {
-  // فك الـ params لضمان التوافق مع Next.js الحديث
   const resolvedParams = params instanceof Promise ? use(params) : params;
   const orderId = resolvedParams.id;
-
-  const [o, setO] = useState<any>(null);
-  const [loading, setLoading] = useState(false);
-  const [fetchError, setFetchError] = useState(false); // أضفنا حالة للخطأ لتجنب التعليق
-  const [msg, setMsg] = useState('');
-  
+  const [order, setOrder] = useState<Order | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [fetching, setFetching] = useState(true);
+  const [fetchError, setFetchError] = useState('');
+  const [message, setMessage] = useState<{ tone: 'error' | 'success'; text: string } | null>(null);
   const [shippingProvider, setShippingProvider] = useState('');
   const [trackingNumber, setTrackingNumber] = useState('');
   const [generalNote, setGeneralNote] = useState('');
 
-  const fetchOrder = async () => {
+  const fetchOrder = useCallback(async () => {
+    setFetching(true);
+    setFetchError('');
     try {
-      setFetchError(false);
-      const res = await fetch(`/api/admin/orders/${orderId}`);
-      if (res.ok) {
-        const data = await res.json();
-        setO(data);
-      } else {
-        setFetchError(true);
-      }
-    } catch (e) {
-      console.error(e);
-      setFetchError(true);
+      const response = await fetch(`/api/admin/orders/${orderId}`, { cache: 'no-store', credentials: 'same-origin' });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(data?.error || 'تعذر تحميل بيانات الطلب.');
+      setOrder(data);
+    } catch (error: any) {
+      setFetchError(error?.message || 'تعذر الاتصال بالخادم.');
+    } finally {
+      setFetching(false);
     }
-  };
-
-  useEffect(() => {
-    if (orderId) fetchOrder();
   }, [orderId]);
 
-  const updateStatus = async (newStatus: string) => {
-    setLoading(true);
-    setMsg('');
+  useEffect(() => { void fetchOrder(); }, [fetchOrder]);
+
+  const items = Array.isArray(order?.items) ? order.items : [];
+  const itemCount = useMemo(() => items.reduce((sum: number, item: any) => sum + Number(item.quantity || 0), 0), [items]);
+  const addressText = order?.shippingGovernorate
+    ? [order.shippingGovernorate, order.shippingCity, order.shippingAddress].filter(Boolean).join(' · ')
+    : order?.customer?.addresses?.[0]
+      ? [order.customer.addresses[0].governorate, order.customer.addresses[0].city, order.customer.addresses[0].address].filter(Boolean).join(' · ')
+      : 'لا يوجد عنوان محفوظ';
+
+  async function updateStatus(newStatus: string) {
+    setSaving(true);
+    setMessage(null);
     try {
-      const res = await fetch(`/api/admin/orders/${orderId}`, {
+      const response = await fetch(`/api/admin/orders/${orderId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           status: newStatus,
           shippingProvider: newStatus === 'SHIPPED' ? shippingProvider : undefined,
           trackingNumber: newStatus === 'SHIPPED' ? trackingNumber : undefined,
-          note: generalNote || `تم تغيير الحالة إلى ${newStatus}`
+          note: generalNote || `تم تغيير الحالة إلى ${newStatus}`,
         }),
       });
-
-      const data = await res.json();
-      if (!res.ok) {
-        setMsg(data.error || 'حدث خطأ أثناء التحديث');
-      } else {
-        setMsg('تم تحديث حالة الطلب بنجاح وتحديث خط سير العميل!');
-        setGeneralNote('');
-        await fetchOrder();
-      }
-    } catch (err) {
-      setMsg('تعذر الاتصال بالخادم');
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(data?.error || 'حدث خطأ أثناء تحديث حالة الطلب.');
+      setGeneralNote('');
+      setMessage({ tone: 'success', text: 'تم تحديث الحالة وتسجيلها في خط سير الطلب.' });
+      await fetchOrder();
+    } catch (error: any) {
+      setMessage({ tone: 'error', text: error?.message || 'تعذر الاتصال بالخادم.' });
     } finally {
-      setLoading(false);
+      setSaving(false);
     }
-  };
-
-  // حماية إضافية: إذا حدث خطأ في الـ API لا تترك الشاشة معلقة للأبد
-  if (fetchError && !o) {
-    return (
-      <main className="container py-10" dir="rtl">
-        <Link href="/admin/orders" className="text-[var(--gold)] hover:underline inline-block mb-4">
-          ‹ العودة لقائمة الطلبات
-        </Link>
-        <div className="p-5 rounded-2xl bg-card border border-red-500/30 text-center space-y-3">
-          <p className="text-red-500 font-semibold">حدث خطأ أثناء جلب بيانات الطلب من الخادم.</p>
-          <button 
-            onClick={fetchOrder}
-            className="px-4 py-2 rounded-xl bg-[var(--gold)] text-black text-xs font-bold cursor-pointer"
-          >
-            إعادة المحاولة
-          </button>
-        </div>
-      </main>
-    );
   }
 
-  if (!o) return <main className="container py-10" dir="rtl">جارٍ التحميل وتحضير بيانات الطلب…</main>;
-
   return (
-    <main className="container py-10" dir="rtl">
-      <Link href="/admin/orders" className="text-[var(--gold)] hover:underline inline-block mb-4">
-        ‹ العودة لقائمة الطلبات
-      </Link>
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-3xl font-semibold">تفاصيل الطلب #{o.number}</h1>
-        <button
-          type="button"
-          onClick={() => window.open(`/api/admin/orders/${orderId}/invoice`, '_blank', 'noopener,noreferrer')}
-          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[var(--gold)] text-black text-xs font-bold hover:opacity-95 transition cursor-pointer"
-          title="فتح الفاتورة للطباعة أو حفظها كملف PDF"
-        >
-          <FileText size={16} />
-          <span>الفاتورة PDF</span>
-        </button>
-      </div>
-      
-      {msg && (
-        <div className="mt-4 p-3 rounded-xl bg-[var(--gold)]/10 border border-[var(--gold)]/30 text-sm text-[var(--gold)] font-medium">
-          {msg}
-        </div>
-      )}
-
-      <div className="mt-7 grid gap-5 lg:grid-cols-3">
-        <section className="space-y-6 lg:col-span-2">
-          
-          <div className="lux-card p-5 space-y-4 bg-card border border-border/60 rounded-2xl shadow-sm">
-            <h2 className="font-semibold flex items-center gap-2">
-              <Clock size={18} className="text-[var(--gold)]" /> خط سير الطلب والحالة الحالية (مربوط بحساب العميل)
-            </h2>
-            
-            <div className="flex flex-wrap items-center justify-between gap-2 p-3 rounded-xl bg-background border border-border/60 text-sm">
-              <span>الحالة الحالية:</span>
-              <span className="px-3 py-1 rounded-full bg-[var(--gold)]/15 text-[var(--gold)] font-bold text-xs">
-                {o.status}
-              </span>
-            </div>
-
-            {o.timeline && o.timeline.length > 0 && (
-              <div className="space-y-2 border-t border-border/40 pt-3">
-                <span className="text-xs font-semibold text-muted-foreground block">سجل التحديثات:</span>
-                <div className="space-y-2 max-h-40 overflow-y-auto text-xs">
-                  {o.timeline.map((t: any, idx: number) => (
-                    <div key={idx} className="flex justify-between items-center p-2 rounded-lg bg-muted/20 border border-border/40">
-                      <div>
-                        <span className="font-bold text-[var(--gold)]">{t.status}</span>
-                        {t.note && <span className="text-muted-foreground block mt-0.5">{t.note}</span>}
-                      </div>
-                      <span className="text-muted-foreground text-[11px]" dir="ltr">
-                        {new Date(t.createdAt).toLocaleString('ar-EG', { dateStyle: 'medium', timeStyle: 'short' })}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {o.status === 'PROCESSING' && (
-              <div className="border-t border-border/40 pt-3 space-y-3">
-                <span className="text-xs font-semibold block">بيانات الشحن الاختيارية (عند الانتقال للشحن):</span>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <input
-                    type="text"
-                    placeholder="شركة الشحن (مثل بوسطة، أرامكس...)"
-                    value={shippingProvider}
-                    onChange={(e) => setShippingProvider(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl bg-background border border-border text-xs focus:outline-none focus:border-[var(--gold)]"
-                  />
-                  <input
-                    type="text"
-                    placeholder="رقم التتبع"
-                    value={trackingNumber}
-                    onChange={(e) => setTrackingNumber(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl bg-background border border-border text-xs focus:outline-none focus:border-[var(--gold)]"
-                    dir="ltr"
-                  />
-                </div>
-              </div>
-            )}
-
-            <div className="pt-2">
-              <input
-                type="text"
-                placeholder="أضف ملاحظة اختيارية للتحديث..."
-                value={generalNote}
-                onChange={(e) => setGeneralNote(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl bg-background border border-border text-xs focus:outline-none focus:border-[var(--gold)]"
-              />
-            </div>
-
-            <div className="flex flex-wrap gap-2 pt-2 border-t border-border/40">
-              {o.status === 'NEW' && (
-                <button
-                  disabled={loading}
-                  onClick={() => updateStatus('PROCESSING')}
-                  className="px-4 py-2.5 rounded-xl bg-[var(--gold)] text-black text-xs font-bold hover:opacity-95 transition disabled:opacity-50 cursor-pointer"
-                >
-                  بدء تجهيز الطلب (Processing)
-                </button>
-              )}
-
-              {o.status === 'PROCESSING' && (
-                <button
-                  disabled={loading}
-                  onClick={() => updateStatus('SHIPPED')}
-                  className="px-4 py-2.5 rounded-xl bg-[var(--gold)] text-black text-xs font-bold hover:opacity-95 transition disabled:opacity-50 cursor-pointer"
-                >
-                  تأكيد الشحن (Shipped)
-                </button>
-              )}
-
-              {o.status === 'SHIPPED' && (
-                <button
-                  disabled={loading}
-                  onClick={() => updateStatus('DELIVERED')}
-                  className="px-4 py-2.5 rounded-xl bg-[var(--gold)] text-black text-xs font-bold hover:opacity-95 transition disabled:opacity-50 cursor-pointer"
-                >
-                  تأكيد التسليم (Delivered)
-                </button>
-              )}
-
-              {['NEW', 'PROCESSING', 'SHIPPED'].includes(o.status) && (
-                <button
-                  disabled={loading}
-                  onClick={() => updateStatus('CANCELLED')}
-                  className="px-4 py-2.5 rounded-xl bg-red-500/10 text-red-500 border border-red-500/20 text-xs font-bold hover:bg-red-500/20 transition disabled:opacity-50 mr-auto cursor-pointer"
-                >
-                  إلغاء الطلب (Cancelled)
-                </button>
-              )}
-            </div>
+    <main className="min-h-screen bg-[var(--bg)] px-3 py-5 text-foreground sm:px-5 sm:py-7 lg:px-8" dir="rtl">
+      <div className="mx-auto w-full max-w-[1440px] space-y-5 sm:space-y-6">
+        <header className="order-page-hero order-detail-hero">
+          <div className="relative z-10 min-w-0"><Link href="/admin/orders" className="order-page-back"><ArrowUpLeft size={14} /> قائمة الطلبات</Link>
+            <div className="mt-4 flex flex-wrap items-center gap-2"><span className="order-page-hero__eyebrow"><Package size={15} /> تفاصيل الطلب</span>{order && <OrderStatus status={order.status} />}</div>
+            <h1 className="mt-2 font-serif text-2xl font-bold tracking-tight sm:text-3xl lg:text-4xl">{order ? `طلب #${order.number}` : 'إدارة الطلب'}</h1>
+            <p className="mt-2 text-xs leading-6 text-muted-foreground sm:text-sm">راجع محتويات الطلب، بيانات العميل، حالة الدفع والشحن، وسجل التحديثات.</p>
+            {order?.createdAt && <span className="mt-3 inline-flex items-center gap-1.5 text-[10px] text-muted-foreground"><CalendarDays size={13} /> أُنشئ في {formatDateTime(order.createdAt)}</span>}
           </div>
+          <div className="order-page-hero__actions"><span className="order-page-hero__secure"><ShieldCheck size={16} /> تغييرات موثّقة</span><button type="button" onClick={() => void fetchOrder()} disabled={fetching} className="admin-action admin-action--secondary"><RefreshCw size={15} className={fetching ? 'animate-spin' : ''} /> تحديث</button><button type="button" onClick={() => window.open(`/api/admin/orders/${orderId}/invoice`, '_blank', 'noopener,noreferrer')} className="admin-action admin-action--gold"><FileText size={15} /> فاتورة PDF</button></div>
+          <span className="order-page-hero__watermark" aria-hidden="true">ط</span>
+        </header>
 
-          <section className="lux-card p-5 space-y-4 bg-card border border-border/60 rounded-2xl shadow-sm">
-            <h2 className="font-semibold">المنتجات</h2>
-            {o.items?.map((x: any) => (
-              <div key={x.id} className="flex justify-between border-b border-border/40 py-4">
-                <div>
-                  <b>{x.product?.name || x.name}</b>
-                  {x.variantName && <p className="text-xs text-muted-foreground mt-0.5">الخيار: {x.variantName}</p>}
-                  <p className="text-muted-foreground text-sm">الكمية: {x.quantity}</p>
-                </div>
-                <span>{Number(x.price).toLocaleString('ar-EG')} ج.م</span>
-              </div>
-            ))}
-            <div className="mt-5 flex justify-between font-semibold text-base pt-2 border-t border-border/40">
-              <span>الإجمالي النهائي</span>
-              <span className="text-[var(--gold)]">{Number(o.total).toLocaleString('ar-EG')} ج.م</span>
-            </div>
+        {message && <div role={message.tone === 'error' ? 'alert' : 'status'} className={`orders-alert orders-alert--${message.tone}`}><span>{message.tone === 'error' ? <CircleAlert size={17} /> : <CheckCircle2 size={17} />}</span><span>{message.text}</span><button type="button" onClick={() => setMessage(null)} aria-label="إغلاق الرسالة"><X size={15} /></button></div>}
+
+        {fetching && !order ? <div className="orders-loading"><span className="orders-spinner" /> جارٍ تحميل بيانات الطلب…</div> : !order ? <section className="orders-empty"><span><CircleAlert size={22} /></span><b>{fetchError || 'تعذر العثور على الطلب'}</b><p>تحقق من الاتصال أو ارجع إلى قائمة الطلبات.</p><button type="button" onClick={() => void fetchOrder()} className="admin-action admin-action--gold mt-2"><RefreshCw size={14} /> إعادة المحاولة</button></section> : <>
+          {fetchError && <div role="alert" className="orders-alert"><CircleAlert size={17} /><span>{fetchError}</span><button type="button" onClick={() => void fetchOrder()} className="text-xs font-bold underline">إعادة المحاولة</button></div>}
+
+          <section className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 sm:gap-3" aria-label="ملخص الطلب">
+            <DetailMetric icon={Banknote} label="الإجمالي النهائي" value={money(order.total)} />
+            <DetailMetric icon={ShoppingBag} label="عدد الوحدات" value={itemCount.toLocaleString('ar-EG')} tone="blue" />
+            <DetailMetric icon={CheckCircle2} label="حالة الدفع" value={paymentStatusLabels[order.paymentStatus] || order.paymentStatus || '—'} tone="green" />
           </section>
 
-        </section>
+          <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1.45fr)_minmax(310px,.75fr)]">
+            <div className="space-y-5">
+              <section className="order-detail-panel">
+                <div className="order-detail-panel__head"><span className="orders-section-icon"><Clock3 size={17} /></span><div><h2 className="font-serif text-base font-bold sm:text-lg">حالة الطلب وخط السير</h2><p className="mt-1 text-[10px] text-muted-foreground">تغيير الحالة يسجل حدثًا ويربط التحديث بالشحنة.</p></div></div>
+                <div className="p-4 sm:p-5">
+                  <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-border/50 bg-[var(--surface)]/65 p-3"><span className="text-xs text-muted-foreground">الحالة الحالية</span><OrderStatus status={order.status} /></div>
+                  {!!order.timeline?.length && <div className="mt-4"><p className="mb-3 text-xs font-semibold">سجل التحديثات</p><div className="order-timeline">{[...order.timeline].reverse().map((entry: any, index: number) => <div key={entry.id || index} className="order-timeline__item"><span className="order-timeline__dot"><CheckCircle2 size={12} /></span><div className="min-w-0 flex-1"><div className="flex flex-wrap items-center justify-between gap-2"><b className="text-xs">{orderStatusLabels[entry.status] || entry.status}</b><time className="text-[9px] text-muted-foreground" dir="ltr">{formatDateTime(entry.createdAt)}</time></div>{entry.note && <p className="mt-1 text-[10px] leading-5 text-muted-foreground">{entry.note}</p>}</div></div>)}</div></div>}
 
-        <aside className="lux-card p-5 space-y-4 bg-card border border-border/60 rounded-2xl shadow-sm">
-          <div>
-            <h2 className="font-semibold">بيانات العميل</h2>
-            <p className="mt-2 font-medium">{o.customer?.name || o.customerNameSnapshot || 'زائر'}</p>
-            <p className="text-muted-foreground text-sm" dir="ltr">{o.customer?.phone || o.customerPhoneSnapshot}</p>
-          </div>
+                  {order.status === 'PROCESSING' && <div className="mt-4 rounded-2xl border border-[var(--gold)]/20 bg-[var(--gold)]/5 p-3 sm:p-4"><p className="text-xs font-semibold">بيانات الشحن عند تأكيد الإرسال</p><div className="mt-3 grid gap-3 sm:grid-cols-2"><label className="order-field">شركة الشحن<input value={shippingProvider} onChange={event => setShippingProvider(event.target.value)} placeholder="مثال: بوسطة أو أرامكس" className="order-input" /></label><label className="order-field">رقم التتبع<input value={trackingNumber} onChange={event => setTrackingNumber(event.target.value)} placeholder="Tracking number" dir="ltr" className="order-input" /></label></div></div>}
 
-          <div className="border-t border-border/40 pt-3 space-y-1.5 text-sm">
-            <p><span className="text-muted-foreground">الحالة:</span> <span className="font-semibold text-[var(--gold)]">{o.status}</span></p>
-            <p><span className="text-muted-foreground">طريقة الدفع:</span> <span className="font-semibold">{o.paymentMethod}</span></p>
-            <p><span className="text-muted-foreground">حالة الدفع:</span> <span className="font-semibold">{o.paymentStatus}</span></p>
-            {o.shippingProvider && <p><span className="text-muted-foreground">شركة الشحن:</span> <span className="font-semibold">{o.shippingProvider}</span></p>}
-            {o.trackingNumber && <p><span className="text-muted-foreground">رقم التتبع:</span> <span className="font-semibold" dir="ltr">{o.trackingNumber}</span></p>}
-          </div>
+                  {['NEW', 'PROCESSING', 'SHIPPED'].includes(order.status) && <label className="order-field mt-4 block">ملاحظة اختيارية للتحديث<input value={generalNote} onChange={event => setGeneralNote(event.target.value)} placeholder="أضف ملاحظة تظهر في سجل الطلب…" className="order-input" /></label>}
 
-          <div className="border-t border-border/40 pt-3 text-xs leading-relaxed">
-            <span className="text-muted-foreground block font-medium mb-1">عنوان الشحن:</span>
-            <p>
-              {o.shippingGovernorate 
-                ? `${o.shippingGovernorate} - ${o.shippingCity} - ${o.shippingAddress}` 
-                : (o.customer?.addresses?.[0] 
-                    ? `${o.customer.addresses[0].governorate} - ${o.customer.addresses[0].city} - ${o.customer.addresses[0].address}` 
-                    : 'لا يوجد عنوان محفوظ')}
-            </p>
+                  <div className="mt-4 flex flex-wrap gap-2 border-t border-border/50 pt-4">
+                    {order.status === 'NEW' && <button type="button" disabled={saving} onClick={() => void updateStatus('PROCESSING')} className="admin-action admin-action--gold"><Package size={15} /> بدء التجهيز</button>}
+                    {order.status === 'PROCESSING' && <button type="button" disabled={saving} onClick={() => void updateStatus('SHIPPED')} className="admin-action admin-action--gold"><Truck size={15} /> تأكيد الشحن</button>}
+                    {order.status === 'SHIPPED' && <button type="button" disabled={saving} onClick={() => void updateStatus('DELIVERED')} className="admin-action admin-action--gold"><CheckCircle2 size={15} /> تأكيد التسليم</button>}
+                    {['NEW', 'PROCESSING', 'SHIPPED'].includes(order.status) && <button type="button" disabled={saving} onClick={() => void updateStatus('CANCELLED')} className="admin-action admin-action--danger mr-auto">إلغاء الطلب</button>}
+                    {saving && <span className="inline-flex items-center gap-2 text-[10px] text-muted-foreground"><span className="orders-spinner orders-spinner--small" /> جارٍ حفظ التحديث…</span>}
+                  </div>
+                </div>
+              </section>
+
+              <section className="order-detail-panel">
+                <div className="order-detail-panel__head"><span className="orders-section-icon"><ShoppingBag size={17} /></span><div><h2 className="font-serif text-base font-bold sm:text-lg">منتجات الطلب</h2><p className="mt-1 text-[10px] text-muted-foreground">تفاصيل الكميات والأسعار كما سُجلت عند إنشاء الطلب.</p></div></div>
+                <div className="divide-y divide-border/50 px-4 sm:px-5">{items.map((item: any) => <article key={item.id} className="order-line-item"><div className="min-w-0"><p className="truncate text-sm font-semibold">{item.product?.name || item.name || 'منتج المتجر'}</p>{item.variantName && <p className="mt-1 text-[10px] text-muted-foreground">الخيار: {item.variantName}</p>}<p className="mt-1 text-[10px] text-muted-foreground">الكمية: {Number(item.quantity || 0).toLocaleString('ar-EG')} × {money(item.price)}</p></div><b className="shrink-0 text-sm text-[var(--gold-muted)]">{money(Number(item.price || 0) * Number(item.quantity || 0))}</b></article>)}{!items.length && <div className="py-8 text-center text-xs text-muted-foreground">لا توجد عناصر مسجلة لهذا الطلب.</div>}</div>
+                <div className="mx-4 mb-4 flex items-center justify-between gap-3 rounded-xl border border-[var(--gold)]/20 bg-[var(--gold)]/5 px-4 py-3 sm:mx-5 sm:mb-5"><span className="text-xs font-semibold">الإجمالي النهائي</span><b className="text-lg text-[var(--gold-muted)]">{money(order.total)}</b></div>
+              </section>
+            </div>
+
+            <aside className="space-y-5">
+              <section className="order-detail-panel">
+                <div className="order-detail-panel__head"><span className="orders-section-icon"><UserRound size={17} /></span><div><h2 className="font-serif text-base font-bold">بيانات العميل</h2><p className="mt-1 text-[10px] text-muted-foreground">بيانات التواصل المسجلة مع الطلب.</p></div></div>
+                <div className="space-y-3 p-4 sm:p-5"><div className="rounded-2xl border border-border/50 bg-[var(--surface)]/55 p-3.5"><div className="flex items-center gap-2"><span className="order-avatar"><UserRound size={15} /></span><b className="text-sm">{order.customer?.name || order.customerNameSnapshot || 'زائر'}</b></div><div className="mt-3 space-y-2">{(order.customer?.phone || order.customerPhoneSnapshot) && <a href={`tel:${order.customer?.phone || order.customerPhoneSnapshot}`} dir="ltr" className="flex items-center justify-end gap-2 text-xs text-muted-foreground"><Phone size={13} />{order.customer?.phone || order.customerPhoneSnapshot}</a>}{order.customer?.email && <a href={`mailto:${order.customer.email}`} dir="ltr" className="flex items-center justify-end gap-2 break-all text-xs text-muted-foreground"><span>{order.customer.email}</span></a>}</div>{order.customer?.id && <Link href={`/admin/customers/${order.customer.id}`} className="order-open-link mt-3">ملف العميل <ArrowDownLeft size={14} /></Link>}</div>
+                  <div className="space-y-2 border-t border-border/50 pt-3"><InfoRow label="حالة الطلب" value={orderStatusLabels[order.status] || order.status} /><InfoRow label="طريقة الدفع" value={paymentMethodLabels[order.paymentMethod] || order.paymentMethod} /><InfoRow label="حالة الدفع" value={paymentStatusLabels[order.paymentStatus] || order.paymentStatus} />{order.shippingProvider && <InfoRow label="شركة الشحن" value={order.shippingProvider} />}{order.trackingNumber && <InfoRow label="رقم التتبع" value={order.trackingNumber} ltr />}</div>
+                </div>
+              </section>
+
+              <section className="order-detail-panel">
+                <div className="order-detail-panel__head"><span className="orders-section-icon"><MapPin size={17} /></span><div><h2 className="font-serif text-base font-bold">عنوان الشحن</h2><p className="mt-1 text-[10px] text-muted-foreground">العنوان المرتبط بهذا الطلب.</p></div></div>
+                <p className="p-4 text-xs leading-6 text-muted-foreground sm:p-5">{addressText}</p>
+              </section>
+            </aside>
           </div>
-        </aside>
+          <p className="flex items-center justify-center gap-2 pb-2 text-center text-[10px] text-muted-foreground"><ShieldCheck size={13} className="text-[var(--gold-muted)]" /> تحديثات الطلب تُحفظ عبر واجهات الإدارة الحالية وتظهر في خط السير.</p>
+        </>}
       </div>
     </main>
   );
