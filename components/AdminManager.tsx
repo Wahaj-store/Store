@@ -984,238 +984,114 @@ function Content({ tab, data, onEdit, onDelete, onRefresh, onReorder }: any) {
   if (tab === 'analytics') return <Analytics data={data[0] || {}} />;
   if (tab === 'customer-segments') return <CustomerSegments data={data[0] || {}} onRefresh={onRefresh} />;
   if (tab === 'media') return <Media data={data} onDelete={onDelete} onRefresh={onRefresh} />;
-  if (tab === 'gift-cards') return (
-    <div className="space-y-4">
-      {data.map((card: any) => {
-        const expired = card.expiresAt && new Date(card.expiresAt) <= new Date();
-        const usable = card.active && !expired && Number(card.balance) > 0;
-        return (
-          <div key={card.id} className="bg-muted/10 border border-border/40 rounded-3xl p-5 md:p-6 shadow-xs">
-            <div className="flex flex-wrap items-start justify-between gap-4">
-              <div className="space-y-2">
-                <div className="flex flex-wrap items-center gap-2">
-                  <b className="font-mono text-sm md:text-base tracking-wider" dir="ltr">{card.code}</b>
-                  <span className={`px-2.5 py-1 rounded-full text-[11px] border ${usable ? 'text-green-600 border-green-500/20 bg-green-500/10' : 'text-muted-foreground border-border/40 bg-muted/20'}`}>{usable ? 'صالحة' : expired ? 'منتهية' : card.active ? 'بدون رصيد' : 'موقوفة'}</span>
-                </div>
-                <div className="flex flex-wrap gap-x-5 gap-y-1 text-xs text-muted-foreground">
-                  <span>القيمة: <b className="text-foreground">{Number(card.amount).toLocaleString('ar-EG')} ج.م</b></span>
-                  <span>الرصيد: <b className="text-[var(--gold)]">{Number(card.balance).toLocaleString('ar-EG')} ج.م</b></span>
-                  <span>الحركات: {card._count?.ledger ?? 0}</span>
-                  {card.expiresAt && <span>الانتهاء: {new Date(card.expiresAt).toLocaleDateString('ar-EG')}</span>}
-                </div>
-              </div>
-              <div className="flex gap-2">
-                <button className="px-4 py-2 rounded-xl bg-muted/20 border border-border/60 text-xs font-medium hover:bg-muted/30 transition cursor-pointer" onClick={() => onEdit(card)}>تعديل</button>
-                <button className="p-2 rounded-xl border border-red-400 text-red-500 hover:bg-red-500/10 transition cursor-pointer" onClick={() => onDelete(card.id)}><Trash2 size={16} /></button>
-              </div>
-            </div>
-          </div>
-        );
-      })}
-      {!data.length && <div className="bg-muted/10 border border-border/40 rounded-3xl p-12 text-center text-muted-foreground text-sm font-light">لا توجد بطاقات هدايا حتى الآن.</div>}
-    </div>
-  );
-  
 
-  if (tab === 'faq') return (
-    <div className="space-y-4">
-      {data.map((faq: any) => (
-        <div key={faq.id} className="bg-muted/10 border border-border/40 rounded-3xl p-6 space-y-3 shadow-xs">
-          <div className="flex justify-between items-start gap-4">
-            <div className="space-y-1">
-              <b className="text-base font-serif font-bold text-foreground">{faq.question}</b>
-              <div className="flex items-center gap-2.5 text-xs text-muted-foreground font-light">
-                <span className="px-2.5 py-0.5 rounded-full bg-muted/20 border border-border/40">{faq.category}</span>
-                <span>•</span>
-                <span>الترتيب: {faq.displayOrder}</span>
-                <span>•</span>
-                <span className={faq.published ? 'text-green-500 font-medium' : 'text-muted-foreground'}>
-                  {faq.published ? 'منشور' : 'مخفي'}
-                </span>
-              </div>
-            </div>
-            <div className="flex gap-2">
-              <button className="px-4 py-2 rounded-xl bg-muted/20 border border-border/60 text-xs font-medium hover:bg-muted/30 transition cursor-pointer" onClick={() => onEdit(faq)}>تعديل</button>
-              <button className="p-2 rounded-xl border border-red-400 text-red-500 hover:bg-red-500/10 transition cursor-pointer" onClick={() => onDelete(faq.id)}><Trash2 size={16} /></button>
-            </div>
-          </div>
-          <p className="text-xs md:text-sm text-muted-foreground/90 bg-[var(--bg)]/60 border border-border/40 p-4 rounded-2xl font-light leading-relaxed">
-            {faq.answer}
-          </p>
-        </div>
-      ))}
-      {!data.length && <div className="bg-muted/10 border border-border/40 rounded-3xl p-12 text-center text-muted-foreground text-sm font-light">لا توجد أسئلة شائعة مضافة حتى الآن.</div>}
-    </div>
-  );
+  const [query, setQuery] = useState('');
 
-  if (tab === 'contact') return (
-    <div className="space-y-4">
-      {data.map((msg: any) => (
-        <div key={msg.id} className="bg-muted/10 border border-border/40 rounded-3xl p-6 space-y-4 shadow-xs">
-          <div className="flex flex-wrap justify-between items-start gap-4 border-b border-border/30 pb-4">
-            <div className="space-y-1">
-              <b className="text-base font-serif font-bold text-foreground">{msg.name}</b>
-              <div className="flex items-center gap-3 text-xs text-muted-foreground font-light">
-                <span dir="ltr">📞 {msg.phone}</span>
-                <span>•</span>
-                <span>{new Date(msg.createdAt).toLocaleString('ar-EG')}</span>
-              </div>
-            </div>
-            <div className="flex items-center gap-3">
-              <span className="px-3 py-1 rounded-full text-xs bg-[var(--gold)]/10 text-[var(--gold)] font-medium border border-[var(--gold)]/20">
-                {msg.subject || 'استفسار عام'}
-              </span>
-              <button className="p-2 rounded-xl border border-red-400 text-red-500 hover:bg-red-500/10 transition cursor-pointer" onClick={() => onDelete(msg.id)} title="حذف الرسالة"><Trash2 size={16} /></button>
-            </div>
-          </div>
-          <p className="text-xs md:text-sm text-foreground/90 bg-[var(--bg)]/60 border border-border/40 p-4 rounded-2xl leading-relaxed whitespace-pre-wrap font-light">
-            {msg.message}
-          </p>
-          <div className="flex justify-end">
-            <a href={`https://wa.me/${msg.phone}`} target="_blank" rel="noopener noreferrer" className="px-5 py-2.5 rounded-xl bg-[var(--gold)] text-[var(--gold-contrast)] text-xs font-serif font-bold shadow-sm hover:opacity-95 transition inline-flex items-center gap-1.5 cursor-pointer">
-              الرد عبر واتساب مباشرة
-            </a>
-          </div>
-        </div>
-      ))}
-      {!data.length && <div className="bg-muted/10 border border-border/40 rounded-3xl p-12 text-center text-muted-foreground text-sm font-light">لا توجد رسائل واردة حتى الآن.</div>}
-    </div>
-  );
+  const rows = Array.isArray(data) ? data : [];
+  const filtered = rows.filter((x: any) => {
+    if (!query.trim()) return true;
+    const haystack = [
+      x.name, x.title, x.code, x.sku, x.slug, x.governorate, x.type, x.key,
+      x.customerNameSnapshot, x.number, x.email
+    ].filter(Boolean).join(' ').toLowerCase();
+    return haystack.includes(query.trim().toLowerCase());
+  });
 
-  if (tab === 'payments') return (
-    <div className="grid gap-3.5">
-      {data.map((x: any) => (
-        <div className="bg-muted/10 border border-border/40 rounded-3xl p-5 shadow-xs space-y-3" key={x.method}>
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <div>
-              <b className="font-serif font-bold text-foreground">{x.label}</b>
-              <p className="text-muted-foreground text-xs font-light mt-0.5">{x.description}</p>
-            </div>
-            <div className="flex gap-2.5">
-              <button className={`px-4 py-2 rounded-xl text-xs font-medium transition cursor-pointer ${x.enabled ? 'bg-[var(--gold)] text-[var(--gold-contrast)] font-bold shadow-xs' : 'bg-muted/20 border border-border/60 text-muted-foreground'}`} onClick={async () => { await api('/api/admin/payments', 'PUT', { ...x, enabled: !x.enabled }); onRefresh(); }}>
-                {x.enabled ? 'مفعل' : 'متوقف'}
-              </button>
-              <button className="px-4 py-2 rounded-xl bg-muted/20 border border-border/60 text-xs font-medium hover:bg-muted/30 transition cursor-pointer" onClick={() => onEdit(x)}>إدارة</button>
-            </div>
-          </div>
-          <p className="text-xs text-muted-foreground font-light pt-2 border-t border-border/30">
-            {x.accountNumber || 'لم يتم ضبط الحساب'} {x.proofRequired ? '• إثبات الدفع مطلوب' : ''}
-          </p>
-        </div>
-      ))}
-    </div>
-  );
+  const isProducts = tab === 'products';
+  const isOrders = tab === 'orders';
 
-  if (tab === 'features') return (
-    <div className="grid gap-3.5">
-      {data.map((x: any) => (
-        <div className="bg-muted/10 border border-border/40 rounded-3xl p-5 flex items-center justify-between shadow-xs" key={x.id}>
-          <div>
-            <b className="font-serif font-bold text-foreground">{x.key}</b>
-            <p className="text-muted-foreground text-xs font-light mt-0.5">{x.description || 'ميزة قابلة للتفعيل'}</p>
-          </div>
-          <button className={`px-5 py-2.5 rounded-2xl text-xs font-medium transition cursor-pointer ${x.enabled ? 'bg-[var(--gold)] text-[var(--gold-contrast)] font-bold shadow-xs' : 'bg-muted/20 border border-border/60 text-muted-foreground'}`} onClick={async () => { await api('/api/admin/features', 'PUT', { key: x.key, enabled: !x.enabled }); onRefresh(); }}>
-            {x.enabled ? 'مفعل' : 'متوقف'}
-          </button>
-        </div>
-      ))}
-      {!data.length && <div className="bg-muted/10 border border-border/40 rounded-3xl p-12 text-center text-muted-foreground text-sm font-light">لا توجد مزايا متاحة.</div>}
-    </div>
-  );
+  const getTitle = (x: any) =>
+    isProducts ? (x.name || 'منتج') :
+    isOrders ? `طلب #${x.number ?? x.id}` :
+    (x.name || x.title || x.code || x.governorate || x.type || x.key || '—');
 
-  if (tab === 'security') return (
-    <div className="space-y-2.5">
-      {(data[0]?.logs || data || []).map((x: any) => (
-        <div className="bg-muted/10 border border-border/40 rounded-2xl p-4 shadow-xs" key={x.id || Math.random()}>
-          <b className="font-serif font-bold text-sm text-foreground">{x.action || 'سجل نشاط'}</b>
-          <span className="text-muted-foreground text-xs mr-3 font-light">{x.entity || ''}</span>
-          <div className="text-muted-foreground text-[11px] mt-1 font-light">{x.createdAt ? new Date(x.createdAt).toLocaleString('ar-EG') : ''}</div>
-        </div>
-      ))}
-      {!data.length && <div className="bg-muted/10 border border-border/40 rounded-3xl p-12 text-center text-muted-foreground text-sm font-light">لا توجد سجلات أمان متاحة.</div>}
-    </div>
-  );
+  const getMeta = (x: any) =>
+    isProducts ? `${x.sku || 'بدون SKU'} • ${Number(x.price || 0).toLocaleString('ar-EG')} ج.م` :
+    isOrders ? `${x.customerNameSnapshot || 'عميل'} • ${formatMoney(x.total)}` :
+    tab === 'categories' ? (x.slug || '') :
+    tab === 'offers' ? `${x.type || ''} • ${x.stackable ? 'قابل للدمج' : 'غير قابل للدمج'} • الأولوية ${x.priority ?? 0}` :
+    tab === 'settings' ? (x.value || '') : '';
 
-  if (tab === 'reviews') return <Reviews data={data} onRefresh={onRefresh} />;
-  if (tab === 'customers') return <Customers data={data} />;
-  
-  if (tab === 'users') return (
-    <div className="space-y-3">
-      {data.map((x: any) => (
-        <div className="bg-muted/10 border border-border/40 rounded-2xl p-4 flex flex-wrap items-center gap-4 shadow-xs" key={x.id}>
-          <div className="flex-1">
-            <b className="font-serif font-bold text-foreground">{x.name || x.email}</b>
-            <p className="text-muted-foreground text-xs font-light mt-0.5">{x.email}</p>
-          </div>
-          <select className="px-3 py-2 rounded-xl bg-[var(--bg)] border border-border/60 text-xs text-foreground focus:outline-none focus:border-[var(--gold)]" value={x.role} onChange={async e => { await api('/api/admin/users', 'PUT', { id: x.id, role: e.target.value, active: x.active }); onRefresh(); }}>
-            {['OWNER', 'ADMIN', 'MANAGER', 'EDITOR', 'ORDER_MANAGER', 'VIEWER'].map(r => <option key={r}>{r}</option>)}
-          </select>
-          <button className={`px-4 py-2 rounded-xl text-xs font-medium transition cursor-pointer ${x.active ? 'bg-[var(--gold)] text-[var(--gold-contrast)] font-bold shadow-xs' : 'bg-muted/20 border border-border/60 text-muted-foreground'}`} onClick={async () => { await api('/api/admin/users', 'PUT', { id: x.id, role: x.role, active: !x.active }); onRefresh(); }}>
-            {x.active ? 'نشط' : 'موقوف'}
-          </button>
-        </div>
-      ))}
-      {!data.length && <div className="bg-muted/10 border border-border/40 rounded-3xl p-12 text-center text-muted-foreground text-sm font-light">لا توجد مستخدمون.</div>}
-    </div>
-  );
-
-  if (tab === 'orders') return <Orders data={data} onRefresh={onRefresh} />;
-  if (tab === 'homepage') return <Sortable data={data} onEdit={onEdit} onDelete={onDelete} onReorder={onReorder} />;
-
-  if (tab === 'offers') return (
-    <div className="grid gap-4">
-      {data.map((offer: any) => {
-        const state = getOfferState(offer);
-        return (
-          <div key={offer.id} className="bg-muted/10 border border-border/40 rounded-3xl p-5 md:p-6 shadow-xs">
-            <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
-              <div className="min-w-0 space-y-2">
-                <div className="flex flex-wrap items-center gap-2">
-                  <b className="font-serif font-bold text-foreground text-base">{offer.name}</b>
-                  <span className={`px-2.5 py-1 rounded-full text-[11px] border ${offerStateClass(state.tone)}`}>{state.label}</span>
-                </div>
-                <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
-                  <span>{offer.type}</span>
-                  <span>الأولوية {offer.priority ?? 0}</span>
-                  <span>الاستخدام {offer.usedCount ?? 0}{offer.maxUses != null ? `/${offer.maxUses}` : ''}</span>
-                  <span>{Array.isArray(offer.segmentKeys) && offer.segmentKeys.length ? `الجمهور: ${offer.segmentKeys.map((key: string) => OFFER_SEGMENTS.find(x => x[0] === key)?.[1] || key).join('، ')}` : 'الجمهور: كل العملاء'}</span>
-                  {offer.startsAt && <span>يبدأ {new Date(offer.startsAt).toLocaleString('ar-EG')}</span>}
-                  {offer.endsAt && <span>ينتهي {new Date(offer.endsAt).toLocaleString('ar-EG')}</span>}
-                </div>
-              </div>
-              <div className="flex flex-wrap gap-2 shrink-0">
-                <button className={`px-4 py-2 rounded-xl text-xs font-medium transition cursor-pointer ${offer.active ? 'bg-muted/20 border border-border/60 text-muted-foreground hover:bg-muted/30' : 'bg-[var(--gold)] text-[var(--gold-contrast)] font-bold hover:opacity-95'}`} onClick={() => toggleOfferActive(offer, onRefresh)}>
-                  {offer.active ? 'إيقاف العرض' : 'تفعيل العرض'}
-                </button>
-                <button className="px-4 py-2 rounded-xl bg-muted/20 border border-border/60 text-xs font-medium hover:bg-muted/30 transition cursor-pointer" onClick={() => onEdit(offer)}>تعديل</button>
-                <button className="p-2 rounded-xl border border-red-400 text-red-500 hover:bg-red-500/10 transition cursor-pointer" onClick={() => onDelete(offer.id)}><Trash2 size={16} /></button>
-              </div>
-            </div>
-          </div>
-        );
-      })}
-      {!data.length && <div className="bg-muted/10 border border-border/40 rounded-3xl p-12 text-center text-muted-foreground text-sm font-light">لا توجد عروض حتى الآن.</div>}
-    </div>
-  );
-  
   return (
-    <div className="space-y-3">
-      {data.map((x: any) => (
-        <div className="bg-muted/10 border border-border/40 rounded-2xl p-4 flex items-center justify-between gap-4 shadow-xs" key={x.id || x.key}>
-          <div>
-            <b className="font-serif font-bold text-foreground text-sm">{x.name || x.title || x.code || x.governorate || x.type || x.key}</b>
-            <p className="text-muted-foreground text-xs font-light mt-1">
-              {tab === 'products' ? `${x.sku || ''} • ${Number(x.price || 0).toLocaleString('ar-EG')} ج.م • مخزون ${x.stock}` : tab === 'categories' ? x.slug : tab === 'offers' ? `${x.type} • ${x.stackable ? 'قابل للدمج' : 'غير قابل للدمج'} • الأولوية ${x.priority ?? 0} • الاستخدام ${x.usedCount ?? 0}${x.maxUses != null ? `/${x.maxUses}` : ''}` : tab === 'settings' ? x.value : ''}
-            </p>
+    <DataWorkspace>
+      <DataToolbar
+        search={query}
+        onSearch={setQuery}
+        placeholder={`البحث في ${tab === 'products' ? 'المنتجات' : tab === 'orders' ? 'الطلبات' : 'البيانات'}...`}
+      >
+        <span className="rounded-xl border border-border/40 bg-muted/10 px-3 py-2 text-xs text-muted-foreground">
+          {filtered.length.toLocaleString('ar-EG')} عنصر
+        </span>
+      </DataToolbar>
+
+      <div className="hidden overflow-x-auto md:block">
+        <table className="w-full min-w-[700px] text-right">
+          <thead>
+            <tr className="border-b border-border/40 bg-muted/10 text-[11px] text-muted-foreground">
+              <th className="px-5 py-3 font-medium">العنصر</th>
+              <th className="px-5 py-3 font-medium">التفاصيل</th>
+              {isProducts && <th className="px-5 py-3 font-medium">المخزون</th>}
+              {isOrders && <th className="px-5 py-3 font-medium">الحالة</th>}
+              <th className="px-5 py-3 font-medium">الإجراءات</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filtered.map((x: any) => (
+              <tr key={x.id || x.key} className="border-b border-border/30 transition hover:bg-muted/10">
+                <td className="px-5 py-4">
+                  <div className="font-serif text-sm font-bold text-foreground">{getTitle(x)}</div>
+                  <div className="mt-1 text-[10px] text-muted-foreground">{x.id || x.key || ''}</div>
+                </td>
+                <td className="px-5 py-4 text-xs text-muted-foreground">{getMeta(x)}</td>
+                {isProducts && <td className="px-5 py-4 text-xs font-medium">{x.stock ?? 0}</td>}
+                {isOrders && (
+                  <td className="px-5 py-4">
+                    <span className="rounded-full border border-[var(--gold)]/20 bg-[var(--gold)]/8 px-2.5 py-1 text-[10px] text-[var(--gold)]">
+                      {x.status || '—'}
+                    </span>
+                  </td>
+                )}
+                <td className="px-5 py-4">
+                  <div className="flex gap-2">
+                    <button className="rounded-xl border border-border/60 bg-muted/20 px-3 py-2 text-xs transition hover:bg-muted/30" onClick={() => onEdit(x)}>تعديل</button>
+                    <button className="rounded-xl border border-red-400 p-2 text-red-500 transition hover:bg-red-500/10" onClick={() => onDelete(x.id)}><Trash2 size={15} /></button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <div className="space-y-2 p-3 md:hidden">
+        {filtered.map((x: any) => (
+          <div key={x.id || x.key} className="rounded-2xl border border-border/40 bg-muted/10 p-4">
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <div className="truncate font-serif text-sm font-bold text-foreground">{getTitle(x)}</div>
+                <div className="mt-1 text-[11px] text-muted-foreground">{getMeta(x)}</div>
+                {isProducts && <div className="mt-2 text-[11px] text-muted-foreground">المخزون: <b className="text-foreground">{x.stock ?? 0}</b></div>}
+                {isOrders && (
+                  <div className="mt-2">
+                    <span className="rounded-full border border-[var(--gold)]/20 bg-[var(--gold)]/8 px-2.5 py-1 text-[10px] text-[var(--gold)]">{x.status || '—'}</span>
+                  </div>
+                )}
+              </div>
+              <div className="flex shrink-0 gap-2">
+                <button className="rounded-xl border border-border/60 bg-muted/20 px-3 py-2 text-xs" onClick={() => onEdit(x)}>تعديل</button>
+                <button className="rounded-xl border border-red-400 p-2 text-red-500" onClick={() => onDelete(x.id)}><Trash2 size={15} /></button>
+              </div>
+            </div>
           </div>
-          <div className="flex gap-2.5">
-            <button className="px-4 py-2 rounded-xl bg-muted/20 border border-border/60 text-xs font-medium hover:bg-muted/30 transition cursor-pointer" onClick={() => onEdit(x)}>تعديل</button>
-            <button className="p-2 rounded-xl border border-red-400 text-red-500 hover:bg-red-500/10 transition cursor-pointer" onClick={() => onDelete(x.id)}><Trash2 size={16} /></button>
-          </div>
+        ))}
+      </div>
+
+      {!filtered.length && (
+        <div className="p-10">
+          <AdminEmpty>{query ? 'لا توجد نتائج مطابقة للبحث.' : 'لا توجد بيانات.'}</AdminEmpty>
         </div>
-      ))}
-      {!data.length && <div className="bg-muted/10 border border-border/40 rounded-3xl p-12 text-center text-muted-foreground text-sm font-light">لا توجد بيانات.</div>}
-    </div>
+      )}
+    </DataWorkspace>
   );
 }
 
