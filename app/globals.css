@@ -2630,3 +2630,204 @@ a:focus-visible {
   .wahaj-offer-detail__facts { grid-template-columns: 1fr 1fr; }
   .wahaj-offer-detail__actions .btn { width: 100%; justify-content: center; }
 }
+
+
+/* =========================================================
+   WAHAJ ADMIN — premium workspace & secure sign-in
+   Scoped to /admin so storefront styling remains untouched.
+   ========================================================= */
+.wahaj-login {
+  --login-ink: #241b1a;
+  --login-ink-soft: #382c29;
+  --login-accent: var(--gold);
+  min-height: 100svh;
+  display: grid;
+  place-items: center;
+  padding: clamp(16px, 4vw, 52px);
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse at 8% 12%, color-mix(in srgb, var(--gold) 13%, transparent), transparent 30%),
+    radial-gradient(ellipse at 94% 90%, color-mix(in srgb, var(--rose) 10%, transparent), transparent 29%),
+    var(--background);
+  color: var(--foreground);
+}
+.dark .wahaj-login { --login-ink: #120e0d; --login-ink-soft: #1c1513; }
+.wahaj-login__frame {
+  display: grid;
+  grid-template-columns: minmax(0, .94fr) minmax(0, 1.06fr);
+  width: min(1080px, 100%);
+  min-height: min(690px, calc(100svh - 48px));
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--gold) 20%, var(--border));
+  border-radius: 28px;
+  background: var(--card);
+  box-shadow: 0 30px 90px rgba(36, 27, 26, .13), 0 4px 16px rgba(36, 27, 26, .04);
+}
+.wahaj-login__brand-panel {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 100%;
+  padding: clamp(28px, 4vw, 52px);
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse at 15% 85%, rgba(198, 164, 106, .18), transparent 38%),
+    radial-gradient(ellipse at 95% 8%, rgba(184, 141, 135, .12), transparent 32%),
+    linear-gradient(145deg, var(--login-ink-soft), var(--login-ink) 70%);
+  color: #f7f2ea;
+}
+.wahaj-login__brand-panel::before,
+.wahaj-login__brand-panel::after { content: ''; position: absolute; z-index: -1; pointer-events: none; border: 1px solid rgba(213, 184, 120, .15); border-radius: 50%; }
+.wahaj-login__brand-panel::before { width: 510px; height: 510px; inset-inline-start: -310px; bottom: -180px; }
+.wahaj-login__brand-panel::after { width: 390px; height: 390px; inset-inline-start: -250px; bottom: -120px; border-color: rgba(213, 184, 120, .10); }
+.wahaj-login__brand-top, .wahaj-login__brand { display: flex; align-items: center; }
+.wahaj-login__brand-top { justify-content: space-between; gap: 18px; }
+.wahaj-login__brand { gap: 12px; color: #f7f2ea; }
+.wahaj-login__brand b, .wahaj-login__mobile-brand b { display: block; font-size: 18px; line-height: 1.15; font-weight: 700; letter-spacing: .03em; }
+.wahaj-login__brand small, .wahaj-login__mobile-brand small { display: block; margin-top: 5px; color: rgba(247, 242, 234, .63); font-size: 10px; }
+.wahaj-login__logo { position: relative; display: block; flex: 0 0 46px; width: 46px; height: 46px; overflow: hidden; border: 1px solid rgba(213, 184, 120, .36); border-radius: 15px; background: #f7f2ea; }
+.wahaj-login__logo img { object-fit: contain; padding: 5px; }
+.wahaj-login__secure { display: inline-flex; align-items: center; gap: 7px; padding: 8px 11px; border: 1px solid rgba(213, 184, 120, .24); border-radius: 999px; color: #d9c18f; font-size: 10px; white-space: nowrap; }
+.wahaj-login__brand-copy { max-width: 430px; padding-block: 62px; }
+.wahaj-login__eyebrow { display: inline-flex; align-items: center; gap: 8px; color: #d9c18f; font-size: 11px; font-weight: 600; }
+.wahaj-login__brand-copy h1 { margin: 21px 0 0; font-size: clamp(35px, 4vw, 52px); font-weight: 600; line-height: 1.48; letter-spacing: -.035em; }
+.wahaj-login__brand-copy h1 em { color: #d9c18f; font-style: normal; }
+.wahaj-login__brand-copy p { max-width: 400px; margin: 16px 0 0; color: rgba(247, 242, 234, .68); font-size: 14px; line-height: 2.05; }
+.wahaj-login__brand-bottom { display: flex; align-items: center; gap: 14px; padding-top: 22px; border-top: 1px solid rgba(247, 242, 234, .14); }
+.wahaj-login__brand-bottom b, .wahaj-login__brand-bottom small { display: block; }
+.wahaj-login__brand-bottom b { font-size: 12px; }
+.wahaj-login__brand-bottom small { margin-top: 5px; color: rgba(247, 242, 234, .57); font-size: 10px; line-height: 1.8; }
+.wahaj-login__brand-mark { position: relative; display: grid; flex: 0 0 46px; width: 46px; height: 46px; place-items: center; border: 1px solid rgba(213, 184, 120, .27); border-radius: 50%; color: #d9c18f; }
+.wahaj-login__brand-mark span { z-index: 1; font-size: 22px; }
+.wahaj-login__brand-mark i { position: absolute; width: 6px; height: 6px; border-radius: 50%; background: #d9c18f; }
+.wahaj-login__brand-mark i:nth-of-type(1) { top: 5px; right: 7px; }.wahaj-login__brand-mark i:nth-of-type(2) { bottom: 7px; right: 3px; }.wahaj-login__brand-mark i:nth-of-type(3) { bottom: 4px; left: 7px; }
+.wahaj-login__form-panel { position: relative; display: flex; flex-direction: column; justify-content: center; min-width: 0; padding: clamp(26px, 5vw, 64px); background: var(--card); }
+.wahaj-login__back { position: absolute; top: 25px; inset-inline-start: 30px; display: inline-flex; align-items: center; gap: 7px; color: var(--muted-foreground); font-size: 11px; transition: color .2s ease; }
+.wahaj-login__back:hover { color: var(--gold-muted); }
+.wahaj-login__form-wrap { width: min(400px, 100%); margin-inline: auto; padding-block: 34px 10px; }
+.wahaj-login__mobile-brand { display: none; }
+.wahaj-login__kicker { color: var(--gold-muted); font-size: 11px; font-weight: 700; }
+.wahaj-login__heading h2 { margin: 10px 0 0; font-size: clamp(28px, 3vw, 36px); font-weight: 700; letter-spacing: -.035em; }
+.wahaj-login__heading p { margin: 9px 0 0; color: var(--muted-foreground); font-size: 13px; line-height: 1.8; }
+.wahaj-login__form { display: grid; gap: 21px; margin-top: 32px; }
+.wahaj-login__field label { display: block; margin-bottom: 9px; color: var(--foreground-secondary); font-size: 12px; font-weight: 600; }
+.wahaj-login__input-wrap { position: relative; display: flex; align-items: center; }
+.wahaj-login__input-wrap > svg { position: absolute; right: 16px; z-index: 1; color: var(--muted-foreground); }
+.wahaj-login__input-wrap input { width: 100%; height: 54px; padding: 0 48px 0 46px; border: 1px solid var(--border); border-radius: 13px; outline: none; background: var(--background); color: var(--foreground); font-size: 13px; transition: border-color .2s ease, box-shadow .2s ease, background .2s ease; }
+.wahaj-login__input-wrap input::placeholder { color: color-mix(in srgb, var(--muted-foreground) 70%, transparent); }
+.wahaj-login__input-wrap input:focus { border-color: var(--gold); background: var(--card); box-shadow: 0 0 0 4px color-mix(in srgb, var(--gold) 12%, transparent); }
+.wahaj-login__show-password { position: absolute; left: 8px; display: grid; width: 36px; height: 36px; place-items: center; border: 0; border-radius: 10px; background: transparent; color: var(--muted-foreground); }
+.wahaj-login__show-password:hover { background: color-mix(in srgb, var(--gold) 10%, transparent); color: var(--gold-muted); }
+.wahaj-login__remember { position: relative; display: flex; align-items: center; gap: 10px; width: fit-content; color: var(--muted-foreground); font-size: 11px; cursor: pointer; user-select: none; }
+.wahaj-login__remember input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+.wahaj-login__check { display: grid; width: 17px; height: 17px; place-items: center; border: 1px solid var(--border-strong); border-radius: 5px; background: var(--background); transition: .18s ease; }
+.wahaj-login__remember input:checked + .wahaj-login__check { border-color: var(--gold); background: var(--gold); }
+.wahaj-login__remember input:checked + .wahaj-login__check::after { content: ''; width: 8px; height: 4px; border-bottom: 1.5px solid var(--gold-contrast); border-left: 1.5px solid var(--gold-contrast); transform: rotate(-45deg) translate(1px, -1px); }
+.wahaj-login__remember input:focus-visible + .wahaj-login__check { outline: 2px solid var(--gold); outline-offset: 3px; }
+.wahaj-login__error { display: flex; align-items: flex-start; gap: 9px; padding: 12px 13px; border: 1px solid color-mix(in srgb, var(--danger) 25%, transparent); border-radius: 12px; background: color-mix(in srgb, var(--danger) 8%, transparent); color: var(--danger); font-size: 11px; line-height: 1.8; }
+.wahaj-login__error svg { flex: 0 0 auto; margin-top: 2px; }
+.wahaj-login__submit { display: flex; align-items: center; justify-content: center; gap: 10px; height: 54px; border: 1px solid var(--gold); border-radius: 13px; background: linear-gradient(135deg, color-mix(in srgb, var(--gold) 92%, white), var(--gold)); color: var(--gold-contrast); font-size: 13px; font-weight: 700; box-shadow: 0 9px 22px color-mix(in srgb, var(--gold) 24%, transparent); transition: transform .2s ease, box-shadow .2s ease, opacity .2s ease; }
+.wahaj-login__submit:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 12px 28px color-mix(in srgb, var(--gold) 30%, transparent); }
+.wahaj-login__submit:disabled { opacity: .65; cursor: not-allowed; }
+.wahaj-login__privacy { display: flex; align-items: flex-start; gap: 9px; margin-top: 27px; padding-top: 19px; border-top: 1px solid var(--border); color: var(--muted-foreground); font-size: 10px; line-height: 1.8; }
+.wahaj-login__privacy svg { flex: 0 0 auto; margin-top: 1px; color: var(--gold-muted); }
+.wahaj-login__footer { display: flex; justify-content: space-between; gap: 12px; margin-top: auto; padding-top: 26px; color: var(--muted-foreground); font-size: 9px; }
+.wahaj-login__footer span:first-child { color: var(--gold-muted); font-weight: 700; letter-spacing: .08em; }
+
+.wahaj-admin-page { min-height: 100vh; padding: 18px clamp(12px, 2.3vw, 34px) 42px; background: var(--background); color: var(--foreground); }
+.wahaj-admin-page__inner { width: min(1880px, 100%); margin-inline: auto; }
+.wahaj-admin-page__bar { display: flex; align-items: center; justify-content: space-between; gap: 20px; min-height: 70px; padding: 10px 18px; border: 1px solid var(--border); border-radius: 18px; background: color-mix(in srgb, var(--card) 93%, transparent); box-shadow: var(--shadow-soft); }
+.wahaj-admin-page__identity { display: flex; align-items: center; gap: 11px; }
+.wahaj-admin-page__logo { position: relative; display: block; width: 42px; height: 42px; overflow: hidden; border: 1px solid color-mix(in srgb, var(--gold) 30%, var(--border)); border-radius: 13px; background: var(--background); }
+.wahaj-admin-page__logo img { object-fit: contain; padding: 4px; }
+.wahaj-admin-page__identity b, .wahaj-admin-page__identity small { display: block; }
+.wahaj-admin-page__identity b { font-size: 15px; font-weight: 700; }
+.wahaj-admin-page__identity small { margin-top: 3px; color: var(--muted-foreground); font-size: 9px; }
+.wahaj-admin-page__bar-actions { display: flex; align-items: center; gap: 10px; }
+.wahaj-admin-page__secure { display: inline-flex; align-items: center; gap: 7px; padding: 8px 10px; color: var(--success); font-size: 10px; }
+.wahaj-admin-page__secure i { width: 7px; height: 7px; border-radius: 50%; background: var(--success); box-shadow: 0 0 0 4px color-mix(in srgb, var(--success) 12%, transparent); }
+.wahaj-admin-page__store-link, .wahaj-admin-page__logout { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 38px; padding: 0 12px; border: 1px solid var(--border); border-radius: 11px; background: var(--card); color: var(--foreground-secondary); font-size: 10px; transition: .2s ease; }
+.wahaj-admin-page__store-link:hover { border-color: color-mix(in srgb, var(--gold) 55%, var(--border)); color: var(--gold-muted); }
+.wahaj-admin-page__logout { border-color: color-mix(in srgb, var(--danger) 22%, var(--border)); color: var(--danger); }
+.wahaj-admin-page__logout:hover { background: color-mix(in srgb, var(--danger) 8%, var(--card)); }
+.wahaj-admin-page__welcome { position: relative; isolation: isolate; display: flex; align-items: center; justify-content: space-between; gap: 22px; min-height: 155px; margin: 16px 0; padding: 25px clamp(20px, 3vw, 38px); overflow: hidden; border: 1px solid color-mix(in srgb, var(--gold) 23%, var(--border)); border-radius: 20px; background: linear-gradient(105deg, color-mix(in srgb, var(--gold) 13%, var(--card)), var(--card) 66%); box-shadow: var(--shadow-soft); }
+.wahaj-admin-page__welcome-copy { position: relative; z-index: 1; }
+.wahaj-admin-page__eyebrow { display: inline-flex; align-items: center; gap: 7px; color: var(--gold-muted); font-size: 10px; font-weight: 700; }
+.wahaj-admin-page__welcome h1 { margin: 10px 0 0; font-size: clamp(21px, 2.5vw, 29px); line-height: 1.45; font-weight: 700; letter-spacing: -.025em; }
+.wahaj-admin-page__welcome h1 span { color: var(--gold-muted); }
+.wahaj-admin-page__welcome p { margin: 6px 0 0; color: var(--muted-foreground); font-size: 11px; }
+.wahaj-admin-page__welcome-actions { position: relative; z-index: 1; display: flex; align-items: center; justify-content: flex-end; flex-wrap: wrap; gap: 8px; }
+.wahaj-admin-page__role { display: inline-flex; align-items: center; gap: 7px; padding: 9px 12px; border: 1px solid color-mix(in srgb, var(--gold) 24%, var(--border)); border-radius: 11px; background: color-mix(in srgb, var(--gold) 8%, var(--card)); color: var(--gold-muted); font-size: 9px; }
+.wahaj-admin-page__role b { color: var(--foreground); }
+.wahaj-admin-page__quick-link { display: inline-flex; align-items: center; gap: 7px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 11px; background: var(--card); color: var(--foreground-secondary); font-size: 10px; transition: .2s ease; }
+.wahaj-admin-page__quick-link svg { color: var(--gold-muted); }
+.wahaj-admin-page__quick-link:hover { border-color: color-mix(in srgb, var(--gold) 45%, var(--border)); transform: translateY(-1px); }
+.wahaj-admin-page__ornament { position: absolute; z-index: -1; inset-inline-start: 27%; top: -67px; color: color-mix(in srgb, var(--gold) 7%, transparent); font-size: 265px; line-height: 1; font-weight: 700; pointer-events: none; }
+.wahaj-admin-loading { display: grid; min-height: 100vh; place-content: center; justify-items: center; gap: 14px; background: var(--background); color: var(--muted-foreground); font-size: 12px; }
+.wahaj-admin-loading__spinner { width: 29px; height: 29px; border: 2px solid var(--border); border-top-color: var(--gold); border-radius: 50%; animation: wahaj-admin-spin .8s linear infinite; }
+@keyframes wahaj-admin-spin { to { transform: rotate(360deg); } }
+
+.wahaj-admin { min-height: auto !important; background: transparent !important; }
+.wahaj-admin__sidebar { border-color: color-mix(in srgb, var(--gold) 16%, var(--border)) !important; border-radius: 20px !important; background: var(--card) !important; box-shadow: 0 14px 38px rgba(36, 27, 26, .07) !important; }
+.wahaj-admin__toolbar { min-height: 62px !important; border-color: var(--border) !important; border-radius: 15px !important; background: var(--card) !important; box-shadow: var(--shadow-soft) !important; }
+.wahaj-admin__section-head { border-color: var(--border) !important; border-radius: 18px !important; background: var(--card) !important; box-shadow: var(--shadow-soft) !important; }
+.wahaj-admin__workspace { border-color: var(--border) !important; border-radius: 18px !important; background: var(--card) !important; box-shadow: var(--shadow-soft) !important; }
+.wahaj-admin__mobile-wrap header { border-color: var(--border) !important; border-radius: 15px !important; background: var(--card) !important; }
+.wahaj-admin [class*="bg-muted/10"], .wahaj-admin [class*="bg-muted/5"] { background-color: color-mix(in srgb, var(--card) 84%, var(--background)) !important; }
+.wahaj-admin [class*="rounded-3xl"] { border-radius: 16px !important; }
+.wahaj-admin [class*="rounded-2xl"] { border-radius: 12px !important; }
+.wahaj-admin [class*="border-border/40"], .wahaj-admin [class*="border-border/50"] { border-color: var(--border) !important; }
+.wahaj-admin aside nav button { min-height: 42px; }
+.wahaj-admin aside nav button[aria-current="page"] { box-shadow: 0 7px 16px color-mix(in srgb, var(--gold) 23%, transparent); }
+.wahaj-admin input:not([type="checkbox"]), .wahaj-admin textarea, .wahaj-admin select { border-radius: 10px !important; }
+.wahaj-admin table { border-collapse: separate; border-spacing: 0; }
+.wahaj-admin th { font-weight: 600; }
+.wahaj-admin td, .wahaj-admin th { vertical-align: middle; }
+.wahaj-admin__main > section + section { margin-top: 16px; }
+
+@media (max-width: 900px) {
+  .wahaj-login__frame { grid-template-columns: minmax(0, .82fr) minmax(0, 1.18fr); }
+  .wahaj-login__brand-panel { padding: 30px; }
+  .wahaj-login__brand-copy h1 { font-size: 39px; }
+  .wahaj-admin-page__welcome { align-items: flex-start; flex-direction: column; }
+  .wahaj-admin-page__welcome-actions { justify-content: flex-start; }
+}
+@media (max-width: 700px) {
+  .wahaj-login { min-height: 100svh; padding: 12px; }
+  .wahaj-login__frame { display: block; min-height: calc(100svh - 24px); border-radius: 21px; }
+  .wahaj-login__brand-panel { display: none; }
+  .wahaj-login__form-panel { min-height: calc(100svh - 24px); padding: 25px clamp(21px, 7vw, 36px) 20px; }
+  .wahaj-login__back { top: 20px; inset-inline-start: 20px; font-size: 10px; }
+  .wahaj-login__form-wrap { padding-block: 36px 20px; }
+  .wahaj-login__mobile-brand { display: flex; align-items: center; gap: 11px; margin-bottom: 36px; }
+  .wahaj-login__mobile-brand b { color: var(--foreground); }
+  .wahaj-login__mobile-brand small { color: var(--muted-foreground); }
+  .wahaj-login__footer { padding-top: 18px; }
+  .wahaj-admin-page { padding: 9px 9px 25px; }
+  .wahaj-admin-page__bar { min-height: 58px; padding: 7px 10px; border-radius: 14px; }
+  .wahaj-admin-page__logo { width: 37px; height: 37px; }
+  .wahaj-admin-page__identity { gap: 8px; }
+  .wahaj-admin-page__identity b { font-size: 13px; }
+  .wahaj-admin-page__identity small { font-size: 8px; }
+  .wahaj-admin-page__bar-actions { gap: 5px; }
+  .wahaj-admin-page__secure { display: none; }
+  .wahaj-admin-page__store-link, .wahaj-admin-page__logout { min-height: 35px; gap: 5px; padding-inline: 8px; font-size: 9px; }
+  .wahaj-admin-page__welcome { gap: 15px; min-height: auto; margin: 10px 0; padding: 17px 16px; border-radius: 15px; }
+  .wahaj-admin-page__welcome h1 { margin-top: 8px; font-size: 21px; }
+  .wahaj-admin-page__welcome p { font-size: 10px; line-height: 1.7; }
+  .wahaj-admin-page__welcome-actions { gap: 6px; }
+  .wahaj-admin-page__role, .wahaj-admin-page__quick-link { padding: 8px 9px; font-size: 9px; }
+  .wahaj-admin-page__ornament { inset-inline-start: 4%; top: -30px; font-size: 180px; }
+  .wahaj-admin__sidebar { inset-block: 7px !important; inset-inline-end: 7px !important; width: min(306px, calc(100vw - 28px)) !important; border-radius: 17px !important; }
+  .wahaj-admin__main { gap: 11px !important; }
+  .wahaj-admin__section-head { padding: 17px !important; }
+  .wahaj-admin__workspace { border-radius: 15px !important; }
+}
+@media (max-width: 390px) {
+  .wahaj-admin-page__store-link span { display: none; }
+  .wahaj-admin-page__store-link { width: 34px; padding: 0; }
+  .wahaj-admin-page__welcome-actions { display: grid; grid-template-columns: 1fr 1fr; width: 100%; }
+  .wahaj-admin-page__role { grid-column: 1 / -1; width: fit-content; }
+}
