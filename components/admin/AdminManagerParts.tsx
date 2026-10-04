@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import {
@@ -11,6 +11,39 @@ import {
 } from 'lucide-react';
 import MediaPicker from '../MediaPicker';
 import { adminApi as api } from '@/lib/admin-api';
+
+
+function AdminPanel({ children, className = '' }: { children: React.ReactNode; className?: string }) {
+  return (
+    <section className={`relative overflow-hidden rounded-[28px] border border-border/50 bg-background/80 shadow-[0_10px_35px_rgba(0,0,0,0.04)] backdrop-blur-sm ${className}`}>
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[var(--gold)]/35 to-transparent" />
+      {children}
+    </section>
+  );
+}
+
+function AdminSectionTitle({ title, description, action }: { title: string; description?: string; action?: React.ReactNode }) {
+  return (
+    <div className="flex flex-col gap-3 border-b border-border/40 px-5 py-4 md:flex-row md:items-center md:justify-between md:px-6">
+      <div className="min-w-0">
+        <h3 className="font-serif text-base font-bold text-foreground md:text-lg">{title}</h3>
+        {description && <p className="mt-1 text-xs leading-5 text-muted-foreground">{description}</p>}
+      </div>
+      {action && <div className="shrink-0">{action}</div>}
+    </div>
+  );
+}
+
+function AdminEmpty({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="rounded-[24px] border border-dashed border-border/70 bg-muted/5 px-6 py-12 text-center">
+      <div className="mx-auto mb-3 flex h-11 w-11 items-center justify-center rounded-2xl bg-[var(--gold)]/10 text-[var(--gold)]">
+        <FileText size={19} />
+      </div>
+      <p className="text-sm text-muted-foreground">{children}</p>
+    </div>
+  );
+}
 
 export function Editor({ tab, value, cats, onCancel, onSave, upload }: any) {
   const [v, setV] = useState({ 
@@ -23,7 +56,7 @@ export function Editor({ tab, value, cats, onCancel, onSave, upload }: any) {
   const addVar = () => set('variants', [...v.variants, { name: 'اللون', value: '', stock: 0, price: '' }]);
 
   if (tab === 'settings') return (
-    <div className="bg-muted/10 border border-border/40 rounded-3xl p-6 md:p-8 space-y-5 shadow-xs transition-all duration-200 hover:border-[var(--gold)]/20">
+    <div className="bg-background/70 border border-border/50 rounded-[28px] p-5 md:p-7 space-y-5 shadow-[0_10px_35px_rgba(0,0,0,0.035)] transition-all duration-200">
       <h3 className="font-serif font-bold text-lg text-[var(--gold)]">إعدادات المتجر العامة</h3>
       <div className="grid gap-4 md:grid-cols-2">
         <Field label="المفتاح (Key)" value={v.key || ''} onChange={(x: any) => set('key', x)} />
@@ -37,7 +70,7 @@ export function Editor({ tab, value, cats, onCancel, onSave, upload }: any) {
   );
 
   if (tab === 'faq') return (
-    <div className="bg-muted/10 border border-border/40 rounded-3xl p-6 md:p-8 space-y-5 shadow-xs transition-all duration-200 hover:border-[var(--gold)]/20">
+    <div className="bg-background/70 border border-border/50 rounded-[28px] p-5 md:p-7 space-y-5 shadow-[0_10px_35px_rgba(0,0,0,0.035)] transition-all duration-200">
       <h3 className="font-serif font-bold text-lg text-[var(--gold)]">{v.id ? 'تعديل السؤال' : 'إضافة سؤال جديد'}</h3>
       <div className="grid gap-4 md:grid-cols-2">
         <Field label="السؤال" value={v.question || ''} onChange={(x: any) => set('question', x)} />
@@ -66,7 +99,7 @@ export function Editor({ tab, value, cats, onCancel, onSave, upload }: any) {
   );
 
   if (tab === 'payments') return (
-    <div className="bg-muted/10 border border-border/40 rounded-3xl p-6 md:p-8 space-y-5 shadow-xs transition-all duration-200 hover:border-[var(--gold)]/20">
+    <div className="bg-background/70 border border-border/50 rounded-[28px] p-5 md:p-7 space-y-5 shadow-[0_10px_35px_rgba(0,0,0,0.035)] transition-all duration-200">
       <div className="grid gap-4 md:grid-cols-2">
         <Field label="اسم الطريقة" value={v.label} onChange={(x: any) => set('label', x)} />
         <Field label="ترتيب الظهور" value={v.displayOrder || 0} onChange={(x: any) => set('displayOrder', x)} type="number" />
@@ -95,7 +128,7 @@ export function Editor({ tab, value, cats, onCancel, onSave, upload }: any) {
   };
 
   if (tab === 'offers') return (
-    <div className="bg-muted/10 border border-border/40 rounded-3xl p-6 md:p-8 space-y-5 shadow-xs transition-all duration-200 hover:border-[var(--gold)]/20">
+    <div className="bg-background/70 border border-border/50 rounded-[28px] p-5 md:p-7 space-y-5 shadow-[0_10px_35px_rgba(0,0,0,0.035)] transition-all duration-200">
       <div className="grid gap-4 md:grid-cols-2">
         <Field label="اسم العرض" value={v.name || ''} onChange={(x: any) => set('name', x)} />
         <label className="text-xs md:text-sm font-medium text-muted-foreground">نوع العرض
@@ -115,7 +148,7 @@ export function Editor({ tab, value, cats, onCancel, onSave, upload }: any) {
   );
 
   if (tab === 'redirects') return (
-    <div className="bg-muted/10 border border-border/40 rounded-3xl p-6 md:p-8 space-y-5 shadow-xs transition-all duration-200 hover:border-[var(--gold)]/20">
+    <div className="bg-background/70 border border-border/50 rounded-[28px] p-5 md:p-7 space-y-5 shadow-[0_10px_35px_rgba(0,0,0,0.035)] transition-all duration-200">
       <div className="grid gap-4 md:grid-cols-2">
         <Field label="المسار القديم" value={v.fromPath || ''} onChange={(x: any) => set('fromPath', x)} />
         <Field label="المسار الجديد" value={v.toPath || ''} onChange={(x: any) => set('toPath', x)} />
@@ -129,7 +162,7 @@ export function Editor({ tab, value, cats, onCancel, onSave, upload }: any) {
   );
 
   return (
-    <div className="bg-muted/10 border border-border/40 rounded-3xl p-6 md:p-8 space-y-6 shadow-xs transition-all duration-200 hover:border-[var(--gold)]/20">
+    <div className="bg-background/70 border border-border/50 rounded-[28px] p-5 md:p-7 space-y-6 shadow-[0_10px_35px_rgba(0,0,0,0.035)] transition-all duration-200">
       <div className="grid gap-4 md:grid-cols-2">
         {tab === 'products' ? (
           <>
@@ -278,7 +311,7 @@ export function Content({ tab, data, onEdit, onDelete, onRefresh, onReorder }: a
           </p>
         </div>
       ))}
-      {!data.length && <div className="bg-muted/10 border border-border/40 rounded-3xl p-12 text-center text-muted-foreground text-sm font-light">لا توجد أسئلة شائعة مضافة حتى الآن.</div>}
+      {!data.length && <AdminEmpty>لا توجد أسئلة شائعة مضافة حتى الآن.</AdminEmpty>}
     </div>
   );
 
@@ -312,14 +345,14 @@ export function Content({ tab, data, onEdit, onDelete, onRefresh, onReorder }: a
           </div>
         </div>
       ))}
-      {!data.length && <div className="bg-muted/10 border border-border/40 rounded-3xl p-12 text-center text-muted-foreground text-sm font-light">لا توجد رسائل واردة حتى الآن.</div>}
+      {!data.length && <AdminEmpty>لا توجد رسائل واردة حتى الآن.</AdminEmpty>}
     </div>
   );
 
   if (tab === 'payments') return (
     <div className="grid gap-3.5">
       {data.map((x: any) => (
-        <div className="bg-muted/10 border border-border/40 rounded-3xl p-5 shadow-xs space-y-3 transition-all duration-200 hover:border-[var(--gold)]/20" key={x.method}>
+        <div className="bg-background/70 border border-border/50 rounded-[24px] p-5 shadow-xs space-y-3 transition-all duration-200 hover:border-[var(--gold)]/20" key={x.method}>
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
               <b className="font-serif font-bold text-foreground">{x.label}</b>
@@ -343,7 +376,7 @@ export function Content({ tab, data, onEdit, onDelete, onRefresh, onReorder }: a
   if (tab === 'features') return (
     <div className="grid gap-3.5">
       {data.map((x: any) => (
-        <div className="bg-muted/10 border border-border/40 rounded-3xl p-5 flex items-center justify-between shadow-xs transition-all duration-200 hover:border-[var(--gold)]/20" key={x.id}>
+        <div className="bg-background/70 border border-border/50 rounded-[24px] p-5 flex items-center justify-between shadow-xs transition-all duration-200 hover:border-[var(--gold)]/20" key={x.id}>
           <div>
             <b className="font-serif font-bold text-foreground">{x.key}</b>
             <p className="text-muted-foreground text-xs font-light mt-0.5">{x.description || 'ميزة قابلة للتفعيل'}</p>
@@ -353,20 +386,20 @@ export function Content({ tab, data, onEdit, onDelete, onRefresh, onReorder }: a
           </button>
         </div>
       ))}
-      {!data.length && <div className="bg-muted/10 border border-border/40 rounded-3xl p-12 text-center text-muted-foreground text-sm font-light">لا توجد مزايا متاحة.</div>}
+      {!data.length && <AdminEmpty>لا توجد مزايا متاحة.</AdminEmpty>}
     </div>
   );
 
   if (tab === 'security') return (
     <div className="space-y-2.5">
       {(data[0]?.logs || data || []).map((x: any) => (
-        <div className="bg-muted/10 border border-border/40 rounded-2xl p-4 shadow-xs transition-all duration-200 hover:border-[var(--gold)]/20" key={x.id || Math.random()}>
+        <div className="bg-background/70 border border-border/50 rounded-[22px] p-4 shadow-xs transition-all duration-200 hover:border-[var(--gold)]/20" key={x.id || Math.random()}>
           <b className="font-serif font-bold text-sm text-foreground">{x.action || 'سجل نشاط'}</b>
           <span className="text-muted-foreground text-xs mr-3 font-light">{x.entity || ''}</span>
           <div className="text-muted-foreground text-[11px] mt-1 font-light">{x.createdAt ? new Date(x.createdAt).toLocaleString('ar-EG') : ''}</div>
         </div>
       ))}
-      {!data.length && <div className="bg-muted/10 border border-border/40 rounded-3xl p-12 text-center text-muted-foreground text-sm font-light">لا توجد سجلات أمان متاحة.</div>}
+      {!data.length && <AdminEmpty>لا توجد سجلات أمان متاحة.</AdminEmpty>}
     </div>
   );
 
@@ -376,7 +409,7 @@ export function Content({ tab, data, onEdit, onDelete, onRefresh, onReorder }: a
   if (tab === 'users') return (
     <div className="space-y-3">
       {data.map((x: any) => (
-        <div className="bg-muted/10 border border-border/40 rounded-2xl p-4 flex flex-wrap items-center gap-4 shadow-xs transition-all duration-200 hover:border-[var(--gold)]/20" key={x.id}>
+        <div className="bg-background/70 border border-border/50 rounded-[22px] p-4 flex flex-wrap items-center gap-4 shadow-xs transition-all duration-200 hover:border-[var(--gold)]/20" key={x.id}>
           <div className="flex-1">
             <b className="font-serif font-bold text-foreground">{x.name || x.email}</b>
             <p className="text-muted-foreground text-xs font-light mt-0.5">{x.email}</p>
@@ -389,7 +422,7 @@ export function Content({ tab, data, onEdit, onDelete, onRefresh, onReorder }: a
           </button>
         </div>
       ))}
-      {!data.length && <div className="bg-muted/10 border border-border/40 rounded-3xl p-12 text-center text-muted-foreground text-sm font-light">لا توجد مستخدمون.</div>}
+      {!data.length && <AdminEmpty>لا توجد مستخدمون.</AdminEmpty>}
     </div>
   );
 
@@ -399,7 +432,7 @@ export function Content({ tab, data, onEdit, onDelete, onRefresh, onReorder }: a
   return (
     <div className="space-y-3">
       {data.map((x: any) => (
-        <div className="bg-muted/10 border border-border/40 rounded-2xl p-4 flex items-center justify-between gap-4 shadow-xs transition-all duration-200 hover:border-[var(--gold)]/20" key={x.id || x.key}>
+        <div className="bg-background/70 border border-border/50 rounded-[22px] p-4 flex items-center justify-between gap-4 shadow-xs transition-all duration-200 hover:border-[var(--gold)]/20" key={x.id || x.key}>
           <div>
             <b className="font-serif font-bold text-foreground text-sm">{x.name || x.title || x.code || x.governorate || x.type || x.key}</b>
             <p className="text-muted-foreground text-xs font-light mt-1">
@@ -412,27 +445,31 @@ export function Content({ tab, data, onEdit, onDelete, onRefresh, onReorder }: a
           </div>
         </div>
       ))}
-      {!data.length && <div className="bg-muted/10 border border-border/40 rounded-3xl p-12 text-center text-muted-foreground text-sm font-light">لا توجد بيانات.</div>}
+      {!data.length && <AdminEmpty>لا توجد بيانات.</AdminEmpty>}
     </div>
   );
 }
 
 export function Analytics({ data }: any) {
   return (
-    <div className="grid gap-4 md:grid-cols-3">
-      <div className="bg-muted/10 border border-border/40 rounded-3xl p-6 shadow-xs space-y-1 transition-all duration-200 hover:border-[var(--gold)]/20">
-        <p className="text-muted-foreground text-xs font-light">إجمالي المبيعات</p>
-        <h3 className="text-2xl font-serif font-bold text-[var(--gold)]">{data.totalSales || 0} ج.م</h3>
+    <AdminPanel>
+      <AdminSectionTitle title="نظرة عامة على الأداء" description="ملخص سريع لأهم مؤشرات المتجر الحالية." />
+      <div className="grid gap-4 p-4 md:grid-cols-3 md:p-5">
+        <div className="relative overflow-hidden rounded-[24px] border border-[var(--gold)]/20 bg-[var(--gold)]/[0.045] p-5 shadow-sm">
+          <div className="absolute -end-8 -top-8 h-24 w-24 rounded-full bg-[var(--gold)]/10 blur-2xl" />
+          <p className="relative text-muted-foreground text-xs font-light">إجمالي المبيعات</p>
+          <h3 className="relative mt-1 text-2xl font-serif font-bold text-[var(--gold)]">{data.totalSales || 0} ج.م</h3>
+        </div>
+        <div className="rounded-[24px] border border-border/50 bg-muted/10 p-5 shadow-sm">
+          <p className="text-muted-foreground text-xs font-light">إجمالي الطلبات</p>
+          <h3 className="mt-1 text-2xl font-serif font-bold text-foreground">{data.totalOrders || 0}</h3>
+        </div>
+        <div className="rounded-[24px] border border-border/50 bg-muted/10 p-5 shadow-sm">
+          <p className="text-muted-foreground text-xs font-light">إجمالي العملاء</p>
+          <h3 className="mt-1 text-2xl font-serif font-bold text-foreground">{data.totalCustomers || 0}</h3>
+        </div>
       </div>
-      <div className="bg-muted/10 border border-border/40 rounded-3xl p-6 shadow-xs space-y-1 transition-all duration-200 hover:border-[var(--gold)]/20">
-        <p className="text-muted-foreground text-xs font-light">إجمالي الطلبات</p>
-        <h3 className="text-2xl font-serif font-bold text-foreground">{data.totalOrders || 0}</h3>
-      </div>
-      <div className="bg-muted/10 border border-border/40 rounded-3xl p-6 shadow-xs space-y-1 transition-all duration-200 hover:border-[var(--gold)]/20">
-        <p className="text-muted-foreground text-xs font-light">إجمالي العملاء</p>
-        <h3 className="text-2xl font-serif font-bold text-foreground">{data.totalCustomers || 0}</h3>
-      </div>
-    </div>
+    </AdminPanel>
   );
 }
 
@@ -440,14 +477,14 @@ export function Customers({ data }: any) {
   return (
     <div className="space-y-2.5">
       {data.map((c: any) => (
-        <div className="bg-muted/10 border border-border/40 rounded-2xl p-4 flex justify-between items-center shadow-xs transition-all duration-200 hover:border-[var(--gold)]/20" key={c.id}>
+        <div className="bg-background/70 border border-border/50 rounded-[22px] p-4 flex justify-between items-center shadow-xs transition-all duration-200 hover:border-[var(--gold)]/20" key={c.id}>
           <div>
             <b className="font-serif font-bold text-foreground">{c.name}</b>
             <p className="text-muted-foreground text-xs font-light mt-0.5">{c.phone} • {c.email || 'بدون إيميل'}</p>
           </div>
         </div>
       ))}
-      {!data.length && <div className="bg-muted/10 border border-border/40 rounded-3xl p-12 text-center text-muted-foreground text-sm font-light">لا توجد عملاء.</div>}
+      {!data.length && <AdminEmpty>لا توجد عملاء.</AdminEmpty>}
     </div>
   );
 }
@@ -456,7 +493,7 @@ export function Orders({ data, onRefresh }: any) {
   return (
     <div className="space-y-2.5">
       {data.map((o: any) => (
-        <div className="bg-muted/10 border border-border/40 rounded-2xl p-4 flex justify-between items-center shadow-xs transition-all duration-200 hover:border-[var(--gold)]/20" key={o.id}>
+        <div className="bg-background/70 border border-border/50 rounded-[22px] p-4 flex justify-between items-center shadow-xs transition-all duration-200 hover:border-[var(--gold)]/20" key={o.id}>
           <div>
             <Link href={`/admin/orders/${o.id}`} className="text-[var(--gold)] font-serif font-bold hover:underline inline-block text-base cursor-pointer">
               طلب #{o.number} 🔗
@@ -470,7 +507,7 @@ export function Orders({ data, onRefresh }: any) {
           </Link>
         </div>
       ))}
-      {!data.length && <div className="bg-muted/10 border border-border/40 rounded-3xl p-12 text-center text-muted-foreground text-sm font-light">لا توجد طلبات.</div>}
+      {!data.length && <AdminEmpty>لا توجد طلبات.</AdminEmpty>}
     </div>
   );
 }
@@ -514,14 +551,20 @@ export function Media({ data, onDelete, onRefresh }: any) {
   }
 
   return (
-    <div className="space-y-4">
-      <label className="px-5 py-3 rounded-2xl bg-[var(--gold)] text-[var(--gold-contrast)] font-serif font-bold text-xs shadow-sm hover:opacity-95 focus:outline-none focus:ring-2 focus:ring-[var(--gold)]/20 transition-all duration-200 inline-flex items-center gap-2 cursor-pointer">
+    <AdminPanel>
+      <AdminSectionTitle
+        title="مكتبة الوسائط"
+        description="إدارة الصور المستخدمة داخل المتجر والمنتجات."
+        action={
+          <label className="px-5 py-3 rounded-2xl bg-[var(--gold)] text-[var(--gold-contrast)] font-serif font-bold text-xs shadow-sm hover:opacity-95 focus:outline-none focus:ring-2 focus:ring-[var(--gold)]/20 transition-all duration-200 inline-flex items-center gap-2 cursor-pointer">
         <Upload size={17} /> {busy ? 'جارٍ الرفع…' : 'رفع صورة'}
         <input hidden type="file" accept="image/*" onChange={e => { const f = e.target.files?.[0]; if (f) upload(f); }} />
       </label>
-      <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+        }
+      />
+      <div className="grid grid-cols-2 gap-4 p-4 md:grid-cols-4 md:p-5">
         {data.map((x: any) => (
-          <div key={x.id} className="bg-muted/10 border border-border/40 rounded-3xl overflow-hidden shadow-xs transition-all duration-200 hover:border-[var(--gold)]/20">
+          <div key={x.id} className="bg-background/70 border border-border/50 rounded-[24px] overflow-hidden shadow-xs transition-all duration-200 hover:border-[var(--gold)]/20">
             <Image src={x.url} width={600} height={600} alt={x.name || "صورة من مكتبة الوسائط"} sizes="(max-width: 768px) 50vw, 25vw" className="aspect-square w-full object-cover" />
             <div className="p-3.5 space-y-2">
               <p className="truncate text-xs text-foreground font-light">{x.name}</p>
@@ -529,9 +572,9 @@ export function Media({ data, onDelete, onRefresh }: any) {
             </div>
           </div>
         ))}
-        {!data.length && <div className="bg-muted/10 border border-border/40 rounded-3xl col-span-full p-12 text-center text-muted-foreground text-sm font-light">لا توجد وسائط.</div>}
+        {!data.length && <div className="col-span-full"><AdminEmpty>لا توجد وسائط.</AdminEmpty></div>}
       </div>
-    </div>
+    </AdminPanel>
   );
 }
 
@@ -539,7 +582,7 @@ export function Reviews({ data, onRefresh }: any) {
   return (
     <div className="space-y-2.5">
       {data.map((x: any) => (
-        <div className="bg-muted/10 border border-border/40 rounded-2xl p-4 flex flex-wrap items-center gap-4 shadow-xs transition-all duration-200 hover:border-[var(--gold)]/20" key={x.id}>
+        <div className="bg-background/70 border border-border/50 rounded-[22px] p-4 flex flex-wrap items-center gap-4 shadow-xs transition-all duration-200 hover:border-[var(--gold)]/20" key={x.id}>
           <div className="flex-1 space-y-1">
             <b className="font-serif font-bold text-foreground text-sm">{x.customer?.name || 'عميل'} — {x.product?.name}</b>
             <p className="text-xs text-foreground font-light">{'★'.repeat(x.rating)} <span className="text-muted-foreground">{x.text || ''}</span></p>
@@ -549,7 +592,7 @@ export function Reviews({ data, onRefresh }: any) {
           </button>
         </div>
       ))}
-      {!data.length && <div className="bg-muted/10 border border-border/40 rounded-3xl p-12 text-center text-muted-foreground text-sm font-light">لا توجد مراجعات.</div>}
+      {!data.length && <AdminEmpty>لا توجد مراجعات.</AdminEmpty>}
     </div>
   );
 }
