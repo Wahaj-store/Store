@@ -1,9 +1,9 @@
-// مسار الملف: app/admin/page.tsx
-
 'use client';
+
 import { useState, useEffect } from 'react';
+import Image from 'next/image';
 import AdminManager from '@/components/AdminManager';
-import { Store, LogOut, ShieldCheck, Sparkles, Menu } from 'lucide-react';
+import { Store, LogOut, ShieldCheck, ArrowUpLeft, Package, Truck } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 export default function Admin() {
@@ -14,7 +14,6 @@ export default function Admin() {
 
   useEffect(() => {
     let mounted = true;
-
     fetch('/api/auth/me', { cache: 'no-store', credentials: 'same-origin' })
       .then(async (response) => {
         const data = await response.json().catch(() => null);
@@ -24,104 +23,45 @@ export default function Admin() {
         }
         if (mounted) setUser(data.user);
       })
-      .catch(() => {
-        router.replace('/admin/login');
-      })
-      .finally(() => {
-        if (mounted) setAuthChecking(false);
-      });
-
+      .catch(() => router.replace('/admin/login'))
+      .finally(() => { if (mounted) setAuthChecking(false); });
     return () => { mounted = false; };
   }, [router]);
 
   if (authChecking || !user) {
-    return (
-      <main className="min-h-screen flex items-center justify-center bg-[var(--bg)] text-foreground" dir="rtl">
-        <div className="text-sm text-muted-foreground">جارٍ التحقق من جلسة الإدارة…</div>
-      </main>
-    );
+    return <main className="wahaj-admin-loading" dir="rtl"><span className="wahaj-admin-loading__spinner" /><p>جارٍ التحقق من جلسة الإدارة…</p></main>;
   }
 
   return (
-    <main className="min-h-screen py-8 px-4 md:px-8 bg-[var(--bg)] text-foreground transition-colors duration-300" dir="rtl">
-      <div className="container max-w-7xl mx-auto space-y-6">
-        
-        {/* شريط هيدر علوي يضع زر "القائمة" في الجهة اليمنى تماماً */}
-        <div className="flex items-center justify-start pb-2">
-          <button 
-            onClick={() => setSidebarOpen(true)}
-            className="flex items-center gap-2 px-5 h-11 rounded-2xl bg-muted/10 border border-border/60 text-xs md:text-sm font-bold text-foreground hover:border-[var(--gold)] transition shadow-xs cursor-pointer"
-          >
-            <Menu size={18} className="text-[var(--gold)]" />
-            <span>القائمة</span>
-          </button>
-        </div>
-
-        {/* ترويسة العنوان الرئيسية مع عرض دور المستخدم الحقيقي */}
-        <header className="flex flex-wrap items-center justify-between gap-4 border-b border-border/30 pb-6">
-          <div className="space-y-1.5">
-            <div className="flex items-center gap-2">
-              <span className="px-3.5 py-1 rounded-full text-xs font-medium bg-[var(--gold)]/10 text-[var(--gold)] border border-[var(--gold)]/30 flex items-center gap-1.5 shadow-xs">
-                <ShieldCheck size={14} />
-                لوحة الإدارة العليا
-              </span>
-              <span className="text-xs text-muted-foreground font-light">
-                • الصلاحية: <strong className="text-foreground">{user?.role}</strong>
-              </span>
-            </div>
-            <h1 className="text-3xl md:text-4xl font-serif font-bold tracking-tight flex items-center gap-2">
-              <Sparkles size={22} className="text-[var(--gold)]" /> متجر وَهَج
-            </h1>
-            <p className="text-muted-foreground text-sm font-light">
-              مرحبًا بك، <span className="text-foreground font-medium">{user?.name || user?.email}</span> — يمكنك إدارة كافة عمليات المتجر بدقة وسلاسة.
-            </p>
-          </div>
-
-          {/* أزرار الإجراءات الأخرى (استعراض المتجر وتسجيل الخروج) */}
-          <div className="flex items-center gap-3 flex-wrap">
-            <a
-              href="/admin/inventory"
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl text-xs md:text-sm font-medium bg-muted/10 border border-border/60 text-foreground hover:border-[var(--gold)] transition shadow-xs"
-            >
-              <span className="text-[var(--gold)]">◈</span>
-              <span>سجل المخزون</span>
-            </a>
-
-            <a
-              href="/admin/logistics"
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl text-xs md:text-sm font-medium bg-muted/10 border border-border/60 text-foreground hover:border-[var(--gold)] transition shadow-xs"
-            >
-              <span className="text-[var(--gold)]">◌</span>
-              <span>الشحن والمرتجعات</span>
-            </a>
-
-            <a 
-              href="/" 
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl text-xs md:text-sm font-medium bg-muted/10 border border-border/60 text-foreground hover:border-[var(--gold)] transition shadow-xs"
-            >
-              <Store size={16} className="text-[var(--gold)]" />
-              <span>استعراض المتجر</span>
-            </a>
-
-            <form action="/api/admin/logout" method="post">
-              <button 
-                type="submit"
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl text-xs md:text-sm font-medium bg-red-500/10 text-red-500 border border-red-500/20 hover:bg-red-500/20 transition shadow-xs cursor-pointer"
-              >
-                <LogOut size={16} />
-                <span>تسجيل الخروج</span>
-              </button>
-            </form>
+    <main className="wahaj-admin-page" dir="rtl">
+      <div className="wahaj-admin-page__inner">
+        <header className="wahaj-admin-page__bar">
+          <a href="/" className="wahaj-admin-page__identity">
+            <span className="wahaj-admin-page__logo"><Image src="/images/wahaj.logo.png" alt="" fill sizes="42px" priority /></span>
+            <span><b>وَهَج</b><small>مساحة إدارة المتجر</small></span>
+          </a>
+          <div className="wahaj-admin-page__bar-actions">
+            <span className="wahaj-admin-page__secure"><i /> النظام يعمل</span>
+            <a href="/" target="_blank" rel="noopener noreferrer" className="wahaj-admin-page__store-link"><Store size={16} /> <span>زيارة المتجر</span><ArrowUpLeft size={13} /></a>
+            <form action="/api/admin/logout" method="post"><button type="submit" className="wahaj-admin-page__logout"><LogOut size={16} /><span>خروج</span></button></form>
           </div>
         </header>
 
-        {/* مدير اللوحة المركزي مع تمرير الدالة الصحيحة */}
-        <div className="bg-muted/10 border border-border/40 rounded-3xl p-6 md:p-8 shadow-sm">
-          <AdminManager sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
-        </div>
+        <section className="wahaj-admin-page__welcome">
+          <div className="wahaj-admin-page__welcome-copy">
+            <span className="wahaj-admin-page__eyebrow"><ShieldCheck size={14} /> لوحة تحكم آمنة</span>
+            <h1>أهلًا بعودتك، <span>{user?.name || user?.email}</span></h1>
+            <p>تابع متجرك وأدر تفاصيله اليومية من مساحة عمل واحدة.</p>
+          </div>
+          <div className="wahaj-admin-page__welcome-actions">
+            <span className="wahaj-admin-page__role"><ShieldCheck size={15} /><span>الصلاحية</span><b>{user?.role}</b></span>
+            <a href="/admin/inventory" className="wahaj-admin-page__quick-link"><Package size={16} /> سجل المخزون</a>
+            <a href="/admin/logistics" className="wahaj-admin-page__quick-link"><Truck size={16} /> الشحن والمرتجعات</a>
+          </div>
+          <span className="wahaj-admin-page__ornament" aria-hidden="true">و</span>
+        </section>
 
+        <AdminManager sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
       </div>
     </main>
   );
