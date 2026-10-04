@@ -294,103 +294,173 @@ export default function AdminManager({ sidebarOpen, setSidebarOpen }: { sidebarO
   };
 
   return (
-    <div className="space-y-6" dir="rtl">
-      <div className="grid gap-5 lg:grid-cols-[290px_1fr] items-start relative">
-        
-        {sidebarOpen && (
-          <div 
-            onClick={() => setSidebarOpen(false)}
-            className="fixed inset-0 bg-black/60 z-40 lg:hidden backdrop-blur-xs transition-opacity"
-          />
-        )}
+    <div className="min-h-[calc(100vh-2rem)]" dir="rtl">
+      {sidebarOpen && (
+        <button
+          type="button"
+          aria-label="إغلاق القائمة"
+          onClick={() => setSidebarOpen(false)}
+          className="fixed inset-0 z-40 bg-black/55 backdrop-blur-[2px] lg:hidden cursor-default"
+        />
+      )}
 
-        <aside className={`
-          fixed lg:sticky top-0 lg:top-6 bottom-0 right-0 z-50 w-[290px] lg:w-auto
-          bg-[var(--bg)] lg:bg-muted/10 border border-border/40 rounded-[28px] p-4
-          space-y-5 shadow-2xl lg:shadow-xs max-h-screen lg:max-h-[calc(100vh-3rem)] overflow-y-auto custom-scrollbar
-          transition-transform duration-300 ease-in-out
-          ${sidebarOpen ? 'translate-x-0' : 'translate-x-full lg:translate-x-0'}
-        `}>
-          <div className="rounded-[22px] border border-border/40 bg-muted/10 px-4 py-4 shadow-xs">
-            <div className="flex items-center justify-between gap-3">
-              <div className="flex min-w-0 items-center gap-3">
-                <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-2xl border border-[var(--gold)]/30 bg-[var(--bg)] p-1.5">
-                  <Image src="/images/wahaj.logo.png" alt="Wahaj Store" fill sizes="48px" className="object-contain" priority />
-                </div>
-                <div className="min-w-0">
-                  <p className="truncate text-sm font-serif font-bold text-foreground">Wahaj Store</p>
-                  <p className="mt-0.5 text-[10px] text-muted-foreground">لوحة التحكم والإدارة</p>
-                </div>
+      <div className="grid items-start gap-5 lg:grid-cols-[270px_minmax(0,1fr)] xl:grid-cols-[285px_minmax(0,1fr)]">
+        <aside
+          className={`fixed inset-y-3 right-3 z-50 flex w-[275px] flex-col overflow-hidden rounded-[26px] border border-border/50 bg-[var(--bg)] shadow-2xl transition-transform duration-300 lg:sticky lg:top-4 lg:right-auto lg:z-20 lg:h-[calc(100vh-2rem)] lg:w-auto lg:translate-x-0 lg:shadow-sm ${
+            sidebarOpen ? 'translate-x-0' : 'translate-x-[calc(100%+1rem)]'
+          }`}
+        >
+          <div className="border-b border-border/40 p-4">
+            <div className="flex items-center gap-3 rounded-2xl bg-muted/10 p-3">
+              <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-xl border border-[var(--gold)]/30 bg-[var(--bg)] p-1.5">
+                <Image src="/images/wahaj.logo.png" alt="Wahaj Store" fill sizes="44px" className="object-contain" priority />
               </div>
-              <button onClick={() => setSidebarOpen(false)} className="lg:hidden shrink-0 p-2 rounded-xl bg-muted/20 text-muted-foreground hover:text-foreground cursor-pointer" aria-label="إغلاق القائمة">
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-sm font-serif font-bold text-foreground">Wahaj Store</p>
+                <p className="mt-0.5 truncate text-[10px] text-muted-foreground">لوحة الإدارة</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setSidebarOpen(false)}
+                className="rounded-xl p-2 text-muted-foreground transition hover:bg-muted/20 hover:text-foreground lg:hidden"
+                aria-label="إغلاق القائمة"
+              >
                 <X size={17} />
               </button>
             </div>
           </div>
 
-          {menuGroups.map((group, groupIdx) => (
-            <div key={groupIdx} className="space-y-1.5">
-              <h3 className="px-3 text-[11px] font-serif font-bold uppercase tracking-wider text-[var(--gold)]/90">
-                {group.title}
-              </h3>
-              <div className="space-y-1 pt-1">
-                {group.items.map((item) => {
-                  const k = item[0];
-                  const t = item[1];
-                  const Icon = item[2];
-                  return (
-                    <button 
-                      key={k} 
-                      onClick={() => { setTab(k); setEditing(null); setMsg(''); setSidebarOpen(false); }} 
-                      className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-xs md:text-sm transition-all cursor-pointer ${
-                        tab === k 
-                          ? 'bg-[var(--gold)] text-[var(--gold-contrast)] font-bold shadow-sm' 
-                          : 'text-muted-foreground hover:text-foreground hover:bg-muted/20 font-light'
-                      }`}
-                    >
-                      <Icon size={16} className={tab === k ? 'text-[var(--gold-contrast)]' : 'text-[var(--gold)]'} />
-                      <span className="flex-1 text-start">{t}</span>
-                      {tab === k && <ChevronLeft size={14} className="text-[var(--gold-contrast)]" />}
-                    </button>
-                  );
-                })}
+          <div className="flex-1 overflow-y-auto px-3 py-4 custom-scrollbar">
+            <div className="mb-4 rounded-2xl border border-[var(--gold)]/15 bg-[var(--gold)]/5 px-3 py-2.5">
+              <div className="flex items-center gap-2 text-[10px] font-bold text-[var(--gold)]">
+                <span className="h-1.5 w-1.5 rounded-full bg-[var(--gold)]" />
+                مساحة الإدارة
               </div>
+              <p className="mt-1 text-[10px] leading-5 text-muted-foreground">إدارة المتجر والمحتوى والعمليات من مكان واحد.</p>
             </div>
-          ))}
-        </aside>
 
-        <section className="space-y-5 min-w-0">
-          <div className="rounded-[28px] border border-border/40 bg-muted/10 px-5 py-4 md:px-6 md:py-5 shadow-xs">
-            <div className="flex flex-wrap items-center justify-between gap-4">
-              <div className="min-w-0">
-                <div className="mb-1 flex items-center gap-2">
-                  <span className="h-1.5 w-1.5 rounded-full bg-[var(--gold)]" />
-                  <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-[var(--gold)]">Wahaj Store Admin</span>
+            <nav className="space-y-5" aria-label="أقسام لوحة الإدارة">
+              {menuGroups.map((group, groupIdx) => (
+                <div key={group.title} className="space-y-1.5">
+                  <div className="flex items-center gap-2 px-2.5">
+                    <span className="h-px flex-1 bg-border/40" />
+                    <h3 className="shrink-0 text-[9px] font-bold tracking-[0.12em] text-muted-foreground">{group.title}</h3>
+                  </div>
+                  <div className="space-y-0.5">
+                    {group.items.map(([k, t, Icon]) => {
+                      const active = tab === k;
+                      return (
+                        <button
+                          key={k}
+                          type="button"
+                          onClick={() => { setTab(k); setEditing(null); setMsg(''); setSidebarOpen(false); }}
+                          className={`group relative flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-xs transition-all ${
+                            active
+                              ? 'bg-[var(--gold)] text-[var(--gold-contrast)] font-bold shadow-sm'
+                              : 'text-muted-foreground hover:bg-muted/15 hover:text-foreground'
+                          }`}
+                        >
+                          {active && <span className="absolute inset-y-2 right-0 w-0.5 rounded-full bg-[var(--gold-contrast)]" />}
+                          <Icon size={16} className={active ? 'shrink-0' : 'shrink-0 text-[var(--gold)]'} />
+                          <span className="min-w-0 flex-1 text-start">{t}</span>
+                          {active && <ChevronLeft size={13} className="shrink-0 opacity-80" />}
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
-                <h2 className="text-2xl font-serif font-bold text-foreground">{getCurrentTabLabel()}</h2>
-                <p className="text-muted-foreground text-xs md:text-sm mt-0.5 font-light">إدارة كاملة لبيانات المتجر والتحكم المباشر.</p>
-              </div>
-            {!editing && ['products', 'categories', 'offers', 'shipping', 'homepage', 'gift-cards', 'relations', 'faq', 'redirects', 'settings'].includes(tab) && (
-              <button 
-                className="px-5 py-2.5 rounded-2xl bg-[var(--gold)] text-[var(--gold-contrast)] font-serif font-bold text-xs md:text-sm shadow-sm hover:opacity-95 transition inline-flex items-center gap-2 cursor-pointer" 
-                onClick={() => setEditing(getNewItemTemplate())}
-              >
-                <Plus size={17} /> إضافة جديدة
-              </button>
-            )}
-            </div>
+              ))}
+            </nav>
           </div>
 
-          {msg && <div className="rounded-2xl border border-[var(--gold)]/40 bg-[var(--gold)]/10 p-4 text-xs md:text-sm font-medium text-[var(--gold)] shadow-xs">{msg}</div>}
+          <div className="border-t border-border/40 p-3">
+            <div className="flex items-center gap-2.5 rounded-xl bg-muted/10 px-3 py-2.5">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--gold)]/10 text-[var(--gold)]">
+                <Shield size={15} />
+              </div>
+              <div className="min-w-0">
+                <p className="text-[10px] font-bold text-foreground">وضع الإدارة</p>
+                <p className="text-[9px] text-muted-foreground">الوصول محمي بالصلاحيات</p>
+              </div>
+            </div>
+          </div>
+        </aside>
+
+        <main className="min-w-0 space-y-4">
+          <header className="sticky top-3 z-30 rounded-[24px] border border-border/50 bg-[var(--bg)]/95 px-4 py-3 shadow-sm backdrop-blur-md md:px-5">
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={() => setSidebarOpen(true)}
+                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-border/50 bg-muted/10 text-foreground transition hover:border-[var(--gold)]/40 hover:text-[var(--gold)] lg:hidden"
+                aria-label="فتح القائمة"
+              >
+                <Menu size={19} />
+              </button>
+
+              <div className="min-w-0 flex-1">
+                <div className="flex flex-wrap items-center gap-2 text-[10px] text-muted-foreground">
+                  <span>Wahaj Store</span>
+                  <ChevronLeft size={11} className="rotate-180 opacity-50" />
+                  <span className="font-medium text-[var(--gold)]">لوحة الإدارة</span>
+                </div>
+                <div className="mt-0.5 flex items-center gap-2">
+                  <h1 className="truncate text-lg font-serif font-bold text-foreground md:text-xl">{getCurrentTabLabel()}</h1>
+                  <span className="hidden rounded-full border border-border/50 bg-muted/10 px-2 py-0.5 text-[9px] text-muted-foreground sm:inline-flex">
+                    {data.length} عنصر
+                  </span>
+                </div>
+              </div>
+
+              {!editing && ['products', 'categories', 'offers', 'shipping', 'homepage', 'gift-cards', 'relations', 'faq', 'redirects', 'settings'].includes(tab) && (
+                <button
+                  type="button"
+                  onClick={() => setEditing(getNewItemTemplate())}
+                  className="inline-flex h-10 shrink-0 items-center gap-1.5 rounded-xl bg-[var(--gold)] px-3.5 text-xs font-bold text-[var(--gold-contrast)] shadow-sm transition hover:opacity-95 md:px-4"
+                >
+                  <Plus size={16} />
+                  <span className="hidden sm:inline">إضافة جديدة</span>
+                  <span className="sm:hidden">إضافة</span>
+                </button>
+              )}
+            </div>
+          </header>
+
+          <div className="flex flex-wrap items-center justify-between gap-3 px-1">
+            <div>
+              <p className="text-xs text-muted-foreground">إدارة محتوى وتشغيل المتجر</p>
+              <p className="mt-0.5 text-[10px] text-muted-foreground/70">التغييرات تُحفظ مباشرة عبر النظام.</p>
+            </div>
+            {loading && (
+              <div className="inline-flex items-center gap-2 rounded-full border border-border/40 bg-muted/10 px-3 py-1.5 text-[10px] text-muted-foreground">
+                <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[var(--gold)]" />
+                جارٍ التحديث…
+              </div>
+            )}
+          </div>
+
+          {msg && (
+            <div className="flex items-center gap-2 rounded-2xl border border-[var(--gold)]/25 bg-[var(--gold)]/8 px-4 py-3 text-xs font-medium text-[var(--gold)] shadow-sm">
+              <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-[var(--gold)]" />
+              <span>{msg}</span>
+            </div>
+          )}
 
           {loading ? (
-            <div className="bg-muted/10 border border-border/40 rounded-3xl p-12 text-center text-muted-foreground text-sm font-light">جارٍ التحميل…</div>
+            <div className="rounded-[26px] border border-border/40 bg-muted/5 p-16 text-center text-sm text-muted-foreground">
+              <div className="mx-auto mb-3 h-7 w-7 animate-spin rounded-full border-2 border-border/50 border-t-[var(--gold)]" />
+              جارٍ تحميل بيانات القسم…
+            </div>
           ) : editing ? (
-            <Editor tab={tab} value={editing} cats={cats} products={products} onCancel={() => setEditing(null)} onSave={save} upload={upload} />
+            <div className="rounded-[26px] border border-border/40 bg-muted/5 p-1 shadow-sm md:p-2">
+              <Editor tab={tab} value={editing} cats={cats} products={products} onCancel={() => setEditing(null)} onSave={save} upload={upload} />
+            </div>
           ) : (
-            <Content tab={tab} data={data} onEdit={setEditing} onDelete={del} onRefresh={load} onReorder={reorder} />
+            <div className="rounded-[26px] border border-border/40 bg-muted/5 p-1 shadow-sm md:p-2">
+              <Content tab={tab} data={data} onEdit={setEditing} onDelete={del} onRefresh={load} onReorder={reorder} />
+            </div>
           )}
-        </section>
+        </main>
       </div>
     </div>
   );
