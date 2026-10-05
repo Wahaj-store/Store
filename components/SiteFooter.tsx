@@ -83,9 +83,6 @@ export default function SiteFooter() {
   return (
     <footer className="wahaj-footer" dir="rtl">
       <div className="container">
-        <div className="wahaj-footer__topline">
-        </div>
-
         <div className="wahaj-footer__main">
           <section className="wahaj-footer__brand" aria-label={`عن ${brandName}`}>
             <Link className="wahaj-footer__logo" href="/" aria-label={`${brandName} — الصفحة الرئيسية`}>
