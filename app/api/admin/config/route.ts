@@ -16,6 +16,9 @@ const DEFAULTS: Record<string, string> = {
   maintenance_mode: 'false',
   seo_title: 'وَهَج | إكسسوارات عصرية',
   seo_description: 'قطع مختارة بعناية لتضيف لمسة من الوهج إلى كل إطلالة.',
+  social_facebook: '',
+  social_instagram: '',
+  social_tiktok: '',
 };
 
 const settingSchema = z.record(z.string().max(500));
