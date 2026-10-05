@@ -3473,3 +3473,42 @@ a:focus-visible {
 .wahaj-terms-shell { width:min(960px,calc(100% - 32px)); }.wahaj-terms-hero { min-height:235px; }.wahaj-terms-hero h1 { font-size:clamp(30px,4.5vw,47px); }.wahaj-terms-intro { display:flex; align-items:flex-start; gap:13px; margin:24px 0 16px; padding:19px 21px; border:1px solid color-mix(in srgb,var(--gold) 27%,var(--border)); border-radius:16px; background:var(--gold-soft); color:var(--muted-foreground); font-size:12px; line-height:2; }.wahaj-terms-intro > svg { flex:0 0 auto; margin-top:3px; color:var(--gold-muted); }.wahaj-terms-intro p { margin:0; }.wahaj-terms-intro strong { color:var(--foreground); }.wahaj-terms-document { display:grid; gap:0; padding:7px 27px; border:1px solid var(--border); border-radius:20px; background:color-mix(in srgb,var(--card) 96%,transparent); box-shadow:var(--shadow-soft); }.wahaj-terms-section { display:grid; grid-template-columns:58px minmax(0,1fr); gap:17px; padding:27px 0; border-bottom:1px dashed var(--border); }.wahaj-terms-section:last-child { border-bottom:0; }.wahaj-terms-number { display:grid; width:43px; height:43px; place-items:center; border:1px solid color-mix(in srgb,var(--gold) 35%,var(--border)); border-radius:13px; background:var(--gold-soft); color:var(--gold-muted); font-size:11px; font-weight:900; }.wahaj-terms-section__title { display:flex; align-items:center; gap:10px; margin-bottom:14px; }.wahaj-terms-section__title > span { display:grid; width:34px; height:34px; place-items:center; border-radius:10px; background:var(--gold-soft); color:var(--gold-muted); }.wahaj-terms-section h2 { margin:0; color:var(--foreground); font-size:16px; }.wahaj-terms-section p { margin:0 0 11px; color:var(--muted-foreground); font-size:13px; line-height:2.15; }.wahaj-terms-section p:last-child { margin-bottom:0; }.wahaj-terms-note { display:flex; align-items:center; gap:12px; margin-top:18px; padding:17px 19px; border:1px dashed color-mix(in srgb,var(--gold) 40%,var(--border)); border-radius:15px; background:var(--gold-soft); color:var(--gold-muted); }.wahaj-terms-note div { display:grid; gap:4px; }.wahaj-terms-note b { color:var(--foreground); font-size:12px; }.wahaj-terms-note p { margin:0; color:var(--muted-foreground); font-size:10px; line-height:1.8; }
 @media (max-width:700px) { .wahaj-about-shell,.wahaj-terms-shell { width:min(100% - 24px,520px); padding-top:27px; }.wahaj-about-hero,.wahaj-terms-hero { align-items:flex-start; min-height:0; padding:25px 20px; border-radius:18px; }.wahaj-about-hero__seal,.wahaj-terms-hero__icon { position:absolute; width:68px; height:68px; inset-inline-start:17px; top:21px; border-radius:20px; }.wahaj-about-hero__seal svg { width:19px; }.wahaj-about-hero__seal span { font-size:10px; }.wahaj-about-hero__seal small { display:none; }.wahaj-about-hero__copy,.wahaj-terms-hero > div { max-width:calc(100% - 70px); }.wahaj-about-hero h1,.wahaj-terms-hero h1 { font-size:28px; }.wahaj-about-hero p,.wahaj-terms-hero p { font-size:11px; }.wahaj-about-story,.wahaj-about-values { grid-template-columns:1fr; gap:15px; padding:19px; border-radius:15px; }.wahaj-about-section-label { padding:0; }.wahaj-about-heading h2 { font-size:19px; }.wahaj-about-copy { font-size:11px; line-height:2; }.wahaj-about-value-grid { grid-template-columns:1fr; }.wahaj-about-value-grid article { padding:14px; }.wahaj-about-promise { padding:20px; border-radius:15px; }.wahaj-about-promise h2 { font-size:18px; }.wahaj-about-promise p { font-size:11px; }.wahaj-terms-intro { font-size:10px; padding:15px; }.wahaj-terms-document { padding:0 17px; border-radius:15px; }.wahaj-terms-section { grid-template-columns:42px minmax(0,1fr); gap:10px; padding:21px 0; }.wahaj-terms-number { width:35px; height:35px; border-radius:10px; font-size:9px; }.wahaj-terms-section h2 { font-size:13px; }.wahaj-terms-section p { font-size:11px; line-height:2; }.wahaj-terms-note { align-items:flex-start; padding:14px; } }
 @media (prefers-reduced-motion:reduce) { .wahaj-about-page,.wahaj-terms-page { animation:none; }.wahaj-about-cta,.wahaj-about-value-grid article { transition:none; }.wahaj-about-cta:hover,.wahaj-about-value-grid article:hover { transform:none; } }
+
+/* ===== وَهَج — Hero overlap correction (RTL/mobile) ===== */
+.wahaj-about-hero__copy,.wahaj-terms-hero > div { min-width:0; }
+@media (max-width:700px) {
+  .wahaj-about-hero__seal,.wahaj-terms-hero__icon { inset-inline-start:auto; inset-inline-end:17px; }
+  .wahaj-about-hero__copy,.wahaj-terms-hero > div { width:calc(100% - 78px); max-width:calc(100% - 78px); }
+  .wahaj-about-hero h1,.wahaj-terms-hero h1,.wahaj-about-hero p,.wahaj-terms-hero p { overflow-wrap:anywhere; }
+}
+
+/* ===== وَهَج — About mobile hero isolated layout ===== */
+@media (max-width:700px) {
+  .wahaj-about-hero {
+    display:flex !important;
+    flex-direction:column !important;
+    align-items:stretch !important;
+    justify-content:flex-start !important;
+    gap:16px !important;
+    min-height:0 !important;
+    padding:20px !important;
+  }
+  .wahaj-about-hero__seal {
+    position:static !important;
+    order:-1 !important;
+    align-self:center !important;
+    width:64px !important;
+    height:64px !important;
+    margin:0 auto 2px !important;
+    transform:none !important;
+  }
+  .wahaj-about-hero__seal svg { width:22px !important; height:22px !important; }
+  .wahaj-about-hero__seal span { font-size:10px !important; }
+  .wahaj-about-hero__seal small { display:none !important; }
+  .wahaj-about-hero__copy {
+    width:100% !important;
+    max-width:none !important;
+    min-width:0 !important;
+    text-align:right;
+  }
+}
