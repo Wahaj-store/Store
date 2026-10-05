@@ -139,7 +139,7 @@ export default function AccountDashboardView(props: any) {
             <h1 className="text-2xl md:text-3xl font-serif font-bold">مرحبًا بكِ، {c.name}</h1>
           </div>
           <button
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-muted/10 border border-border/60 text-foreground hover:border-red-500/50 hover:text-red-500 transition text-sm font-medium shadow-xs"
+            className="wahaj-account-logout inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-muted/10 border border-border/60 text-foreground hover:border-red-500/50 hover:text-red-500 transition text-sm font-medium shadow-xs"
             onClick={logout}
           >
             <LogOut size={16} />
@@ -493,7 +493,7 @@ export default function AccountDashboardView(props: any) {
 
                     <div className="wahaj-order-total flex justify-between items-center border-t border-border/30 pt-4 font-serif font-bold text-base">
                       <span>الإجمالي الكلي</span>
-                      <span className="text-[var(--gold)] text-lg">{Number(selectedOrder.total).toLocaleString('ar-EG')} ج.م</span>
+                      <span className="wahaj-order-total__amount text-[var(--gold)] text-lg">{Number(selectedOrder.total).toLocaleString('ar-EG')} ج.م</span>
                     </div>
                   </div>
                 ) : (
