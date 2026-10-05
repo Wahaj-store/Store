@@ -3416,3 +3416,22 @@ a:focus-visible {
   .wahaj-order-total { align-items:center !important; gap:10px; }
   .wahaj-order-total > span:last-child { font-size:15px !important; padding-inline:10px !important; }
 }
+
+/* ===== وَهَج — Stable welcome action and total layout ===== */
+.wahaj-account-welcome { display:grid !important; grid-template-columns:minmax(0,1fr) auto; align-items:center; column-gap:26px; min-height:154px !important; padding:43px 31px 27px !important; }
+.wahaj-account-welcome::after { top:18px; inset-inline-start:31px; }
+.wahaj-account-welcome > div:first-child { grid-column:1; grid-row:1; min-width:0; }
+.wahaj-account-welcome > button.wahaj-account-logout { position:static !important; grid-column:2; grid-row:1; align-self:center; justify-self:start; min-width:128px; min-height:46px; padding:0 17px !important; border:1px solid color-mix(in srgb,var(--gold) 44%,var(--border)) !important; border-radius:14px !important; background:color-mix(in srgb,var(--card) 68%,transparent) !important; box-shadow:0 8px 22px color-mix(in srgb,var(--gold) 10%,transparent) !important; color:var(--foreground) !important; font-size:12px !important; font-weight:800 !important; white-space:nowrap; }
+.wahaj-account-welcome > button.wahaj-account-logout svg { width:20px; height:20px; color:var(--gold-muted); }
+.wahaj-account-welcome > button.wahaj-account-logout:hover { border-color:var(--gold) !important; background:var(--gold-soft) !important; color:var(--gold-muted) !important; transform:translateY(-2px); }
+.wahaj-order-total { display:grid !important; grid-template-columns:minmax(0,1fr) minmax(94px,auto); align-items:center; gap:18px; width:100%; min-width:0; box-sizing:border-box; overflow:hidden; }
+.wahaj-order-total > span:first-child { min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.wahaj-order-total__amount { display:flex; align-items:center; justify-content:center; width:fit-content; min-width:94px; max-width:100%; min-height:48px; box-sizing:border-box; padding:0 13px !important; overflow:hidden; border:1px solid color-mix(in srgb,var(--gold) 24%,var(--border)); border-radius:13px; background:var(--gold-soft); color:var(--gold-muted) !important; font-size:18px !important; line-height:1; white-space:nowrap; text-overflow:clip; }
+@media (max-width:700px) {
+  .wahaj-account-welcome { grid-template-columns:minmax(0,1fr) auto; column-gap:12px; min-height:139px !important; padding:38px 18px 18px !important; }
+  .wahaj-account-welcome::after { top:15px; inset-inline-start:18px; }
+  .wahaj-account-welcome > button.wahaj-account-logout { min-width:106px; min-height:39px; padding:0 10px !important; border-radius:11px !important; font-size:10px !important; }
+  .wahaj-account-welcome > button.wahaj-account-logout svg { width:17px; height:17px; }
+  .wahaj-order-total { grid-template-columns:minmax(0,1fr) minmax(82px,auto); gap:9px; }
+  .wahaj-order-total__amount { min-width:82px; min-height:43px; padding:0 8px !important; font-size:15px !important; border-radius:11px; }
+}
