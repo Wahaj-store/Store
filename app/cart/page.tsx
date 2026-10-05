@@ -40,7 +40,7 @@ export default function Cart() {
 
   if (!c.length) {
     return (
-      <main className="min-h-screen py-16 px-4 bg-background text-foreground transition-colors duration-300 flex items-center justify-center" dir="rtl">
+      <main className="wahaj-cart-page min-h-screen py-16 px-4 bg-background text-foreground transition-colors duration-300 flex items-center justify-center" dir="rtl">
         <div className="container max-w-md mx-auto text-center space-y-6 bg-card border border-border/60 rounded-3xl p-8 shadow-sm">
           <div className="w-20 h-20 mx-auto rounded-2xl bg-[var(--gold)]/10 text-[var(--gold)] border border-[var(--gold)]/30 flex items-center justify-center shadow-inner">
             <ShoppingBag size={36} />
@@ -58,7 +58,7 @@ export default function Cart() {
   }
 
   return (
-    <main className="min-h-screen py-10 px-4 md:px-8 bg-background text-foreground transition-colors duration-300" dir="rtl">
+    <main className="wahaj-cart-page min-h-screen py-10 px-4 md:px-8 bg-background text-foreground transition-colors duration-300" dir="rtl">
       <div className="container max-w-5xl mx-auto space-y-8">
         
         {/* الترويسة العليا */}
@@ -100,7 +100,7 @@ export default function Cart() {
           <div className="grid gap-4">
             {c.map((x, i) => (
               <div 
-                className="bg-card border border-border/60 flex items-center gap-4 p-4 md:p-6 rounded-3xl transition hover:shadow-md relative overflow-hidden group" 
+                className="wahaj-cart-item bg-card border border-border/60 flex items-center gap-4 p-4 md:p-6 rounded-3xl transition hover:shadow-md relative overflow-hidden group" 
                 key={`${x.productId}:${x.variantId || i}`}
               >
                 <Image
@@ -154,7 +154,7 @@ export default function Cart() {
           </div>
 
           {/* ملخص الطلب الجانبي */}
-          <aside className="bg-card border border-border/60 rounded-3xl p-6 shadow-md sticky top-24 space-y-6">
+          <aside className="wahaj-cart-summary bg-card border border-border/60 rounded-3xl p-6 shadow-md sticky top-24 space-y-6">
             <h2 className="text-xl font-bold border-b border-border/40 pb-4">ملخص الطلب</h2>
 
             {free > 0 && (
