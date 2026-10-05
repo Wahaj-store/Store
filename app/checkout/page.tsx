@@ -325,7 +325,7 @@ function CheckoutContent() {
       notes: formData.notes,
       addressId: selectedAddressId || undefined,
       paymentMethod: pay,
-      couponCode: coupon || undefined,
+      giftCardCode: coupon || undefined,
       idempotencyKey: crypto.randomUUID(),
       paymentReference: e.currentTarget.paymentReference?.value || undefined,
       items: c.map(x => ({ productId: x.productId, variantId: x.variantId, quantity: x.quantity }))
@@ -371,253 +371,58 @@ function CheckoutContent() {
   };
 
   return (
-    <main className="wahaj-checkout-page container max-w-5xl py-12 px-4 md:px-8 bg-[var(--bg)] text-foreground transition-colors duration-300" dir="rtl">
-      
-      {/* رأس الصفحة الفاخر */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-10 border-b border-border/30 pb-6">
-        <div className="space-y-1">
-          <span className="text-[var(--gold)] font-medium text-xs tracking-widest flex items-center gap-1.5 uppercase">
-            <Sparkles size={14} /> متجر وَهَج للأناقة
-          </span>
-          <h1 className="text-3xl md:text-4xl font-serif font-bold tracking-tight">إتمام الطلب</h1>
-          <p className="text-muted-foreground text-sm font-light">تجربة دفع سلسة، آمنة ومصممة خصيصاً لراحتك.</p>
-        </div>
-        <Link 
-          href="/cart" 
-          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-muted/20 border border-border/60 text-foreground hover:bg-[var(--gold)]/10 transition text-xs font-semibold shadow-xs"
-        >
-          <ArrowRight size={16} /> العودة إلى السلة
-        </Link>
+    <main className="wahaj-checkout-page" dir="rtl">
+      <div className="wahaj-commerce-shell">
+        <header className="wahaj-commerce-header">
+          <div>
+            <span className="wahaj-commerce-kicker"><Sparkles size={14} /> تجربة وَهَج</span>
+            <h1>إتمام الطلب</h1>
+            <p>خطوة أخيرة تفصل اختياراتكِ عن وصولها إليكِ.</p>
+          </div>
+          <Link href="/cart" className="wahaj-commerce-ghost"><ArrowRight size={16} /> العودة إلى السلة</Link>
+        </header>
+
+        <nav className="wahaj-order-steps" aria-label="مراحل الطلب">
+          <Link href="/cart"><b>01</b><span>السلة</span></Link><i />
+          <div className="is-active"><b>02</b><span>الشحن والدفع</span></div><i />
+          <div><b>03</b><span>التأكيد</span></div>
+        </nav>
+
+        <form onSubmit={submit} className="wahaj-checkout-layout">
+          <section className="wahaj-checkout-main">
+            <div className="wahaj-checkout-card">
+              <div className="wahaj-checkout-card__heading"><span className="wahaj-checkout-icon"><Truck size={19} /></span><div><span>التوصيل إلى بابكِ</span><h2>بيانات الشحن</h2></div><em>01</em></div>
+              {customer ? <div className="checkout-member-strip"><span>مرحبًا {customer.name || 'بكِ'}، سيتم استخدام بيانات حسابكِ بأمان.</span><Link href="/account">إدارة الحساب</Link></div> : addressAuthState === false ? <div className="checkout-login-hint">سجّلي الدخول لعرض عناوينكِ المحفوظة تلقائيًا، أو أكملي كزائرة بإدخال عنوان جديد.</div> : null}
+              <AddressSelector selectedId={selectedAddressId} onSelectAddress={handleSelectAddress} onAuthState={setAddressAuthState} />
+              <div className="wahaj-form-grid">
+                <label>الاسم بالكامل<input name="name" required value={formData.name} onChange={handleInputChange} placeholder="أدخلي اسمكِ الثلاثي" /></label>
+                <label>رقم الهاتف<input name="phone" required readOnly={Boolean(customer?.phone)} value={formData.phone} onChange={handleInputChange} dir="ltr" placeholder="01xxxxxxxx" />{customer?.phone && <small>رقم الهاتف الأساسي لحسابكِ — غير قابل للتعديل من صفحة الطلب.</small>}</label>
+                <label>المحافظة<select name="governorate" required disabled={Boolean(selectedAddressId)} value={selectedGovernorate} onChange={event => setSelectedGovernorate(event.target.value)}>{shippingZones.map(zone => <option key={zone.id} value={zone.governorate}>{zone.governorate} ({Number(zone.price).toLocaleString('ar-EG')} ج.م)</option>)}</select></label>
+                <label>المدينة / المركز<input name="city" required readOnly={Boolean(selectedAddressId)} value={formData.city} onChange={handleInputChange} placeholder="اسم المدينة أو الحي" /></label>
+              </div>
+              <label className="wahaj-form-field">العنوان بالتفصيل<textarea name="address" required readOnly={Boolean(selectedAddressId)} rows={3} value={formData.address} onChange={handleInputChange} placeholder="اسم الشارع، رقم العمارة، رقم الشقة..." /></label>
+              <div className="wahaj-form-grid wahaj-form-grid--secondary"><label>ملاحظات التوصيل <span>اختياري</span><input name="notes" value={formData.notes} onChange={handleInputChange} placeholder="أي ملاحظات خاصة بالتوصيل..." /></label><label>بطاقة هدية / كود خصم <span>اختياري</span><input value={coupon} onChange={event => setCoupon(event.target.value.toUpperCase())} placeholder="أدخلي الكود" dir="ltr" /></label></div>
+            </div>
+
+            <div className="wahaj-checkout-card">
+              <div className="wahaj-checkout-card__heading"><span className="wahaj-checkout-icon"><CreditCard size={19} /></span><div><span>اختاري ما يناسبكِ</span><h2>طريقة الدفع</h2></div><em>02</em></div>
+              <fieldset className="wahaj-payment-list"><legend className="sr-only">طرق الدفع المتاحة</legend>{methods.map((method: any) => <label key={method.method} className={pay === method.method ? 'is-selected' : ''}><span className="wahaj-payment-radio"><input type="radio" name="payment" checked={pay === method.method} onChange={() => setPay(method.method)} /><i /></span><span className="wahaj-payment-icon">{getPaymentIcon(method.method)}</span><span className="wahaj-payment-copy"><b>{method.label}</b>{method.description && <small>{method.description}</small>}</span>{pay === method.method && <CheckCircle2 className="wahaj-payment-check" size={17} />}</label>)}</fieldset>
+              {selected && (selected.instructions || selected.accountNumber) && <div className="wahaj-payment-instructions"><b>تعليمات الدفع الإلكتروني</b>{selected.accountName && <p>اسم الحساب: {selected.accountName}</p>}{selected.accountNumber && <p dir="ltr">{selected.accountNumber}</p>}{selected.instructions && <p>{selected.instructions}</p>}{selected.proofRequired && <div className="wahaj-proof-fields"><label>رقم عملية التحويل<input name="paymentReference" required dir="ltr" placeholder="رقم العملية أو المرجع" /></label><label className="wahaj-proof-upload">{proofFile ? <CheckCircle2 size={17} /> : <Upload size={17} />}<span>{proofFile ? proofFile.name : 'رفع صورة إيصال التحويل'}</span><small>JPG أو PNG — بحد أقصى 10 ميجابايت</small><input type="file" accept="image/jpeg,image/png,image/webp" onChange={handleFileChange} /></label>{uploadError && <p className="wahaj-upload-error">{uploadError}</p>}{proofPreview && <img src={proofPreview} alt="معاينة إيصال التحويل" className="wahaj-proof-preview" />}</div>}</div>}
+              {msg && <p className="wahaj-checkout-error" role="alert">{msg}</p>}
+            </div>
+          </section>
+
+          <aside className="wahaj-checkout-summary">
+            <div className="wahaj-cart-summary__label">مراجعة نهائية</div><h2>ملخص طلبكِ</h2>
+            <div className="wahaj-checkout-items">{c.map((item: any, index: number) => <div key={`${item.productId}:${item.variantId || index}`}><span><b>{item.quantity}×</b> {item.name}</span><strong>{(Number(item.price) * Number(item.quantity)).toLocaleString('ar-EG')} ج.م</strong></div>)}</div>
+            <div className="wahaj-summary-lines"><div><span>الإجمالي المبدئي</span><b>{subtotal.toLocaleString('ar-EG')} ج.م</b></div>{offerDiscount > 0 && <div className="is-discount"><span>الخصم</span><b>−{offerDiscount.toLocaleString('ar-EG')} ج.م</b></div>}<div><span>الشحن</span><b>{pricing.freeShipping ? <span className="is-gold">مجانًا</span> : `${finalShipping.toLocaleString('ar-EG')} ج.م`}</b></div></div>
+            {pricingMessage && <div className="wahaj-pricing-note">{pricingMessage}</div>}
+            <div className="wahaj-summary-total"><span>الإجمالي النهائي {pricingLoading ? '…' : ''}</span><strong>{finalTotal.toLocaleString('ar-EG')} ج.م</strong></div>
+            <button disabled={busy || !c.length || !methods.length} className="wahaj-commerce-primary wahaj-checkout-submit">{busy ? 'جارٍ إرسال الطلب...' : 'تأكيد وإتمام الطلب'}<CheckCircle2 size={18} /></button>
+            <p className="wahaj-summary-note"><ShieldCheck size={14} /> بياناتكِ وطلبكِ محميان بعناية</p>
+          </aside>
+        </form>
       </div>
-
-      {/* خطوات إتمام الطلب */}
-      <div className="grid grid-cols-3 gap-3 p-3 bg-muted/10 border border-border/40 rounded-3xl shadow-xs mb-10">
-        <div className="flex items-center justify-center gap-2 py-3 rounded-2xl text-xs md:text-sm font-medium text-muted-foreground">
-          <span className="w-5 h-5 rounded-full bg-muted/40 flex items-center justify-center text-xs">1</span>
-          <span>مراجعة السلة</span>
-        </div>
-        <div className="flex items-center justify-center gap-2 py-3 rounded-2xl text-xs md:text-sm font-bold bg-[var(--gold)] text-[var(--gold-contrast)] shadow-md">
-          <span className="w-5 h-5 rounded-full bg-black/10 flex items-center justify-center text-xs">2</span>
-          <span>الشحن والدفع</span>
-        </div>
-        <div className="flex items-center justify-center gap-2 py-3 rounded-2xl text-xs md:text-sm font-medium text-muted-foreground">
-          <span className="w-5 h-5 rounded-full bg-muted/40 flex items-center justify-center text-xs">3</span>
-          <span>تأكيد الطلب</span>
-        </div>
-      </div>
-      
-      <form onSubmit={submit} className="grid gap-8 lg:grid-cols-[1fr_400px] items-start">
-        <section className="space-y-8">
-          
-          {/* قسم بيانات الشحن */}
-          <div className="bg-muted/10 border border-border/40 rounded-3xl p-6 md:p-8 shadow-xs space-y-6">
-            <h2 className="text-xl font-serif font-bold flex items-center gap-3 pb-4 border-b border-border/30 text-[var(--gold)]">
-              <div className="p-2.5 rounded-2xl bg-[var(--gold)]/10 text-[var(--gold)]">
-                <Truck size={20} />
-              </div> 
-              بيانات الشحن والتوصيل
-            </h2>
-
-            {customer && <div className="checkout-member-strip"><span>مرحبًا {customer.name || 'بكِ'}، سيتم استخدام بيانات حسابكِ بأمان.</span><Link href="/account">إدارة الحساب</Link></div>}
-            {addressAuthState === false && <div className="checkout-login-hint">سجّلي الدخول لعرض عناوينكِ المحفوظة تلقائيًا، أو أكملي كزائرة بإدخال عنوان جديد.</div>}
-            <AddressSelector selectedId={selectedAddressId} onSelectAddress={handleSelectAddress} onAuthState={setAddressAuthState} />
-
-            <div className="grid gap-5 md:grid-cols-2">
-              <label className="text-xs font-semibold text-muted-foreground space-y-1.5">الاسم بالكامل
-                <input name="name" required value={formData.name} onChange={handleInputChange} className="w-full mt-1 px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[var(--gold)] transition shadow-xs" placeholder="أدخلي اسمكِ الثلاثي" />
-              </label>
-              <label className="text-xs font-semibold text-muted-foreground space-y-1.5">رقم الهاتف
-                <input name="phone" required readOnly={Boolean(customer?.phone)} value={formData.phone} onChange={handleInputChange} dir="ltr" className="w-full mt-1 px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[var(--gold)] transition shadow-xs text-right read-only:cursor-not-allowed read-only:opacity-70" placeholder="01xxxxxxxx" />
-                {customer?.phone && <small className="mt-1 block text-[10px] text-[var(--gold)]">رقم الهاتف الأساسي لحسابكِ — غير قابل للتعديل من صفحة الطلب.</small>}
-              </label>
-              
-              <label className="text-xs font-semibold text-muted-foreground space-y-1.5">المحافظة
-                <select 
-                  name="governorate" 
-                  required 
-                  disabled={Boolean(selectedAddressId)}
-                  value={selectedGovernorate}
-                  onChange={e => setSelectedGovernorate(e.target.value)}
-                  className="w-full mt-1 px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[var(--gold)] transition shadow-xs"
-                >
-                  {shippingZones.map(zone => (
-                    <option key={zone.id} value={zone.governorate}>
-                      {zone.governorate} ({Number(zone.price).toLocaleString('ar-EG')} ج.م)
-                    </option>
-                  ))}
-                </select>
-              </label>
-
-              <label className="text-xs font-semibold text-muted-foreground space-y-1.5">المدينة / المركز
-                <input name="city" required readOnly={Boolean(selectedAddressId)} value={formData.city} onChange={handleInputChange} className="w-full mt-1 px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[var(--gold)] transition shadow-xs read-only:cursor-not-allowed read-only:opacity-70" placeholder="اسم المدينة أو الحي" />
-              </label>
-            </div>
-
-            <label className="block text-xs font-semibold text-muted-foreground space-y-1.5">العنوان بالتفصيل
-              <textarea name="address" required readOnly={Boolean(selectedAddressId)} rows={2} value={formData.address} onChange={handleInputChange} className="w-full mt-1 px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[var(--gold)] transition shadow-xs read-only:cursor-not-allowed read-only:opacity-70" placeholder="اسم الشارع، رقم العمارة، رقم الشقة..." />
-            </label>
-            
-            <label className="block text-xs font-semibold text-muted-foreground space-y-1.5">ملاحظات (اختياري)
-              <input name="notes" value={formData.notes} onChange={handleInputChange} className="w-full mt-1 px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[var(--gold)] transition shadow-xs" placeholder="أي ملاحظات خاصة بالتوصيل..." />
-            </label>
-            
-            <label className="block text-xs font-semibold text-muted-foreground space-y-1.5">كود الخصم
-              <input value={coupon} onChange={e => setCoupon(e.target.value.toUpperCase())} className="w-full mt-1 px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[var(--gold)] transition shadow-xs" placeholder="اختياري" dir="ltr" />
-            </label>
-          </div>
-
-          {/* قسم طريقة الدفع */}
-          <div className="bg-muted/10 border border-border/40 rounded-3xl p-6 md:p-8 shadow-xs space-y-6">
-            <h2 className="text-xl font-serif font-bold flex items-center gap-3 pb-4 border-b border-border/30 text-[var(--gold)]">
-              <div className="p-2.5 rounded-2xl bg-[var(--gold)]/10 text-[var(--gold)]">
-                <CreditCard size={20} />
-              </div>
-              طريقة الدفع
-            </h2>
-            
-            <fieldset>
-              <div className="grid gap-3.5">
-                {methods.map((m: any) => (
-                  <label 
-                    key={m.method} 
-                    className={`flex items-center justify-between p-4.5 rounded-2xl border cursor-pointer transition-all ${
-                      pay === m.method ? 'border-[var(--gold)] bg-[var(--gold)]/5 shadow-sm' : 'border-border/40 bg-[var(--bg)] hover:border-[var(--gold)]/40'
-                    }`}
-                  >
-                    <div className="flex items-center gap-3.5">
-                      <div className="w-12 h-12 rounded-2xl bg-muted/20 border border-border/40 flex items-center justify-center flex-shrink-0 shadow-xs">
-                        {getPaymentIcon(m.method)}
-                      </div>
-                      <div>
-                        <span className="font-serif font-bold block text-sm md:text-base">{m.label}</span>
-                        {m.description && <span className="mt-0.5 block text-xs text-muted-foreground font-light">{m.description}</span>}
-                      </div>
-                    </div>
-                    <input 
-                      type="radio" 
-                      name="payment" 
-                      checked={pay === m.method} 
-                      onChange={() => setPay(m.method)} 
-                      className="accent-[var(--gold)] w-4 h-4 cursor-pointer"
-                    />
-                  </label>
-                ))}
-              </div>
-            </fieldset>
-
-            {selected && (selected.instructions || selected.accountNumber) && (
-              <div className="mt-4 rounded-2xl border border-[var(--gold)]/40 bg-[var(--gold)]/10 p-5 text-sm space-y-3 shadow-xs">
-                <b className="block text-[var(--gold)] font-serif font-bold">تعليمات الدفع الإلكتروني</b>
-                {selected.accountName && <p className="text-xs font-light">اسم الحساب: {selected.accountName}</p>}
-                {selected.accountNumber && <p dir="ltr" className="font-bold text-sm">{selected.accountNumber}</p>}
-                {selected.instructions && <p className="leading-relaxed text-xs text-muted-foreground font-light">{selected.instructions}</p>}
-                
-                {selected.proofRequired && (
-                  <div className="space-y-4 pt-4 border-t border-[var(--gold)]/20">
-                    <label className="block text-xs font-semibold">رقم عملية التحويل (مرجع التحويل)
-                      <input name="paymentReference" required className="w-full mt-1.5 px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[var(--gold)] transition shadow-xs" dir="ltr" placeholder="أدخل رقم العملية أو مرجع التحويل" />
-                    </label>
-
-                    <div className="space-y-2">
-                      <span className="block text-xs font-semibold">صورة إيصال التحويل (مطلوبة)</span>
-                      
-                      <label className="flex flex-col items-center justify-center border-2 border-dashed border-[var(--gold)]/40 rounded-2xl p-5 bg-[var(--bg)] cursor-pointer hover:bg-[var(--gold)]/5 transition text-center shadow-xs">
-                        <div className="flex items-center gap-2 text-xs font-bold text-[var(--gold)]">
-                          {proofFile ? <CheckCircle2 size={18} /> : <Upload size={18} />}
-                          <span>{proofFile ? proofFile.name : 'اضغط هنا لرفع صورة الإيصال مباشرة'}</span>
-                        </div>
-                        <span className="text-[10px] text-muted-foreground mt-1.5 font-light">يدعم صور (JPG, PNG) بحد أقصى 5 ميجابايت ومحمية بالكامل</span>
-                        <input type="file" accept="image/*" onChange={handleFileChange} className="hidden" />
-                      </label>
-
-                      {uploadError && <p className="text-xs text-red-500 font-medium">{uploadError}</p>}
-
-                      {proofPreview && (
-                        <div className="mt-3 relative w-24 h-24 rounded-2xl overflow-hidden border border-[var(--gold)]/40 bg-black/5 shadow-xs">
-                          <img src={proofPreview} alt="إيصال التحويل" className="w-full h-full object-cover" />
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
-
-            {msg && <p className="text-xs text-red-500 font-medium text-center p-3.5 rounded-2xl bg-red-500/10 border border-red-500/20" role="alert">{msg}</p>}
-          </div>
-        </section>
-
-        {/* ملخص الطلب الجانبي */}
-        <aside className="bg-muted/10 border border-border/40 rounded-3xl p-6 md:p-8 shadow-md sticky top-24 space-y-6">
-          <h2 className="text-xl font-serif font-bold pb-4 border-b border-border/30 text-[var(--gold)]">ملخص الطلب</h2>
-          
-          <div className="space-y-3 max-h-56 overflow-y-auto text-xs pr-1">
-            {c.map((x: any, i: number) => (
-              <div key={i} className="flex justify-between gap-3 text-muted-foreground font-light">
-                <span className="truncate flex-1">{x.name} × {x.quantity}</span>
-                <b className="flex-shrink-0 text-foreground font-semibold">{(Number(x.price) * x.quantity).toLocaleString('ar-EG')} ج.م</b>
-              </div>
-            ))}
-          </div>
-
-          <div className="border-t border-border/30 pt-4 space-y-2.5 text-xs">
-            <div className="flex justify-between text-muted-foreground font-light">
-              <span>الإجمالي المبدئي</span>
-              <span>{subtotal.toLocaleString('ar-EG')} ج.م</span>
-            </div>
-
-            {offerDiscount > 0 && (
-              <div className="flex items-center justify-between rounded-2xl bg-[var(--gold)]/10 border border-[var(--gold)]/20 px-3 py-2.5">
-                <span className="text-[var(--gold)] font-semibold">
-                  {pricing.appliedOffers?.length ? `عرض ${pricing.appliedOffers.map((x: any) => x.name).join(' + ')}` : 'خصم العرض'}
-                </span>
-                <span className="text-[var(--gold)] font-bold">−{offerDiscount.toLocaleString('ar-EG')} ج.م</span>
-              </div>
-            )}
-
-            {pricing.couponCode && (
-              <div className="flex justify-between text-muted-foreground font-light">
-                <span>كود الخصم ({pricing.couponCode})</span>
-                <span>مطبق</span>
-              </div>
-            )}
-
-            <div className="flex justify-between text-muted-foreground font-light">
-              <span>تكلفة الشحن</span>
-              <span>{pricing.freeShipping ? <span className="text-[var(--gold)] font-semibold">مجانًا</span> : `${finalShipping.toLocaleString('ar-EG')} ج.م`}</span>
-            </div>
-          </div>
-
-          {pricing.appliedOffers?.length > 0 && offerDiscount > 0 && (
-            <div className="rounded-2xl border border-[var(--gold)]/30 bg-[var(--gold)]/5 px-3.5 py-3 text-[11px] text-[var(--gold)] font-medium">
-              ✓ تم تطبيق العرض على المنتجات المؤهلة .
-            </div>
-          )}
-
-          {pricingMessage && (
-            <div className="rounded-2xl border border-border/40 bg-muted/10 px-3.5 py-3 text-[11px] text-muted-foreground">
-              {pricingMessage}
-            </div>
-          )}
-
-          <div className="border-t border-border/30 pt-4 flex justify-between items-center">
-            <span className="text-muted-foreground text-xs font-medium">الإجمالي النهائي {pricingLoading ? '…' : ''}</span>
-            <span className="text-[var(--gold)] text-xl font-serif font-bold">{finalTotal.toLocaleString('ar-EG')} ج.م</span>
-          </div>
-
-          <button 
-            disabled={busy || !c.length || !methods.length} 
-            className="w-full py-4 rounded-2xl bg-[var(--gold)] text-[var(--gold-contrast)] font-serif font-bold text-base shadow-lg hover:opacity-95 transition disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer"
-          >
-            <span>{busy ? 'جارٍ إرسال الطلب...' : 'تأكيد وإتمام الطلب'}</span>
-            <CheckCircle2 size={18} />
-          </button>
-
-          <div className="flex items-center justify-center gap-1.5 text-xs text-muted-foreground pt-1 font-light">
-            <ShieldCheck size={14} className="text-[var(--gold)]" /> تسوق آمن ومحمي 100%
-          </div>
-        </aside>
-      </form>
     </main>
   );
 }
