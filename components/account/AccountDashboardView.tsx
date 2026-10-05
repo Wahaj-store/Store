@@ -131,7 +131,7 @@ export default function AccountDashboardView(props: any) {
       <div className="container max-w-6xl mx-auto space-y-8">
         
         {/* الترويسة العلوية */}
-        <div className="flex flex-wrap items-center justify-between gap-4 border-b border-border/40 pb-6">
+        <div className="wahaj-account-welcome flex flex-wrap items-center justify-between gap-4 border-b border-border/40 pb-6">
           <div className="space-y-1">
             <span className="text-[var(--gold)] font-medium text-xs uppercase tracking-widest flex items-center gap-1.5">
               <Sparkles size={16} /> لوحة التحكم 
@@ -255,10 +255,10 @@ export default function AccountDashboardView(props: any) {
             )}
 
             {tab === 'orders' && (
-              <div className="bg-muted/10 border border-border/40 rounded-3xl p-6 md:p-8 shadow-xs space-y-6">
+              <div className="wahaj-orders-panel bg-muted/10 border border-border/40 rounded-3xl p-6 md:p-8 shadow-xs space-y-6">
                 {selectedOrder ? (
-                  <div className="space-y-6">
-                    <div className="flex items-center justify-between border-b border-border/30 pb-4">
+                  <div className="wahaj-order-detail space-y-6">
+                    <div className="wahaj-order-detail__header flex items-center justify-between border-b border-border/30 pb-4">
                       <div>
                         <h2 className="text-xl font-serif font-bold">تفاصيل الطلب: #{selectedOrder.number}</h2>
                         <span className="text-xs text-muted-foreground font-light">حالة الطلب الحالية: <b className="text-[var(--gold)]">{selectedOrder.status}</b></span>
@@ -280,7 +280,7 @@ export default function AccountDashboardView(props: any) {
                       </div>
                     )}
 
-                    <div className="p-5 rounded-2xl bg-[var(--bg)] border border-border/60 space-y-4 shadow-xs">
+                    <div className="wahaj-order-tracking p-5 rounded-2xl bg-[var(--bg)] border border-border/60 space-y-4 shadow-xs">
                       <h3 className="font-serif font-bold text-sm flex items-center gap-2 text-[var(--gold)]">
                         <Clock size={16} /> خط سير ومتابعة الطلب
                       </h3>
@@ -292,7 +292,7 @@ export default function AccountDashboardView(props: any) {
                           <p className="text-xs text-muted-foreground font-light">عذراً، تم إلغاء الطلب من قبل الإدارة أو بناءً على رغبتك.</p>
                         </div>
                       ) : (
-                        <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 text-center text-xs font-medium">
+                        <div className="wahaj-order-timeline grid grid-cols-1 sm:grid-cols-4 gap-3 text-center text-xs font-medium">
                           
                           <div className={`p-3.5 rounded-2xl border flex flex-col items-center justify-center gap-1 shadow-xs ${
                             ['NEW', 'PROCESSING', 'SHIPPED', 'DELIVERED'].includes(selectedOrder.status)
@@ -350,14 +350,14 @@ export default function AccountDashboardView(props: any) {
                       )}
 
                       {(selectedOrder.shippingProvider || selectedOrder.trackingNumber) && (
-                        <div className="p-3.5 rounded-2xl bg-muted/20 border border-border/50 text-xs flex flex-wrap justify-between gap-2 mt-3 shadow-xs">
+                        <div className="wahaj-order-shipping p-3.5 rounded-2xl bg-muted/20 border border-border/50 text-xs flex flex-wrap justify-between gap-2 mt-3 shadow-xs">
                           {selectedOrder.shippingProvider && <span><b>شركة الشحن:</b> {selectedOrder.shippingProvider}</span>}
                           {selectedOrder.trackingNumber && <span dir="ltr"><b>رقم التتبع:</b> {selectedOrder.trackingNumber}</span>}
                         </div>
                       )}
                     </div>
 
-                    <div className="space-y-3">
+                    <div className="wahaj-order-items space-y-3">
                       <h3 className="font-serif font-bold text-sm">المنتجات في هذا الطلب</h3>
                       {(selectedOrder.items || []).map((item: any, idx: number) => (
                         <div key={idx} className="flex justify-between items-center p-3.5 rounded-2xl bg-[var(--bg)] border border-border/60 text-sm shadow-xs">
@@ -497,13 +497,13 @@ export default function AccountDashboardView(props: any) {
                     </div>
                   </div>
                 ) : (
-                  <div className="space-y-6">
+                  <div className="wahaj-orders-list space-y-6">
                     <h2 className="text-xl font-serif font-bold border-b border-border/30 pb-4">سجل الطلبات ومتابعتها</h2>
-                    <div className="grid gap-3">
+                    <div className="wahaj-orders-list__items grid gap-3">
                       {(c.orders || []).map((o: any) => (
                         <div
                           key={o.id}
-                          className="flex flex-wrap items-center justify-between gap-4 p-4.5 rounded-2xl bg-[var(--bg)] border border-border/65 hover:border-[var(--gold)]/50 transition shadow-xs"
+                          className="wahaj-order-row flex flex-wrap items-center justify-between gap-4 p-4.5 rounded-2xl bg-[var(--bg)] border border-border/65 hover:border-[var(--gold)]/50 transition shadow-xs"
                         >
                           <div className="space-y-1">
                             <b className="text-foreground font-serif">طلب #{o.number}</b>
