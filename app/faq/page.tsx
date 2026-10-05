@@ -1,84 +1,12 @@
 'use client';
-import { useState, useEffect } from 'react';
-import { ChevronDown, HelpCircle } from 'lucide-react';
-
+import { useEffect, useMemo, useState } from 'react';
+import { ChevronDown, HelpCircle, Search, Sparkles } from 'lucide-react';
+type FAQ = { id?: string; question: string; answer: string; category?: string };
+const categoryLabels: Record<string, string> = { all: 'كل الأسئلة', shipping: 'الشحن والتوصيل', payment: 'الدفع', returns: 'الاستبدال والاسترجاع', products: 'المنتجات', general: 'أسئلة عامة' };
 export default function FAQPage() {
-  const [faqs, setFaqs] = useState<any[]>([]);
-  const [openIndex, setOpenIndex] = useState<number | null>(0);
-  const [activeTab, setActiveTab] = useState('all');
-
-  useEffect(() => {
-    fetch('/api/faq')
-      .then(res => res.json())
-      .then(data => {
-        if (Array.isArray(data)) setFaqs(data);
-      })
-      .catch(() => {});
-  }, []);
-
-  const filteredFaqs = activeTab === 'all' 
-    ? faqs 
-    : faqs.filter(f => f.category === activeTab);
-
-  return (
-    <main className="container max-w-4xl py-12">
-      <div className="text-center max-w-2xl mx-auto mb-10 space-y-3">
-        <h1 className="text-3xl font-bold">الأسئلة الشائعة</h1>
-        <p className="muted text-sm">إجابات شاملة عن كل ما تود معرفته بخصوص الدفع، الشحن، الاستبدال والمنتجات.</p>
-      </div>
-
-      {/* تصنيفات الأسئلة */}
-      <div className="flex flex-wrap justify-center gap-2 mb-8">
-        {[
-          { key: 'all', label: 'الكل' },
-          { key: 'shipping', label: 'الشحن والتوصيل' },
-          { key: 'payment', label: 'الدفع' },
-          { key: 'returns', label: 'الاستبدال والاسترجاع' },
-          { key: 'products', label: 'المنتجات' },
-        ].map(tab => (
-          <button
-            key={tab.key}
-            onClick={() => setActiveTab(tab.key)}
-            className={`px-4 py-2 rounded-xl text-xs font-medium transition border ${activeTab === tab.key ? 'bg-[var(--gold)] text-[var(--gold-contrast)] border-[var(--gold)]' : 'bg-background border hairline muted hover:text-foreground'}`}
-          >
-            {tab.label}
-          </button>
-        ))}
-      </div>
-
-      {/* قائمة الـ Accordion */}
-      <div className="space-y-3">
-        {filteredFaqs.length === 0 ? (
-          <div className="lux-card p-8 text-center muted text-sm">لا توجد أسئلة مضافة في هذا القسم حالياً.</div>
-        ) : (
-          filteredFaqs.map((faq, idx) => {
-            const isOpen = openIndex === idx;
-            return (
-              <div 
-                key={faq.id || idx} 
-                className="lux-card bg-background border hairline rounded-xl overflow-hidden transition"
-              >
-                <button
-                  onClick={() => setOpenIndex(isOpen ? null : idx)}
-                  className="w-full flex items-center justify-between p-5 text-start font-semibold text-sm gap-4"
-                >
-                  <span className="flex items-center gap-3">
-                    <HelpCircle size={18} className="text-[var(--gold)] flex-shrink-0" />
-                    {faq.question}
-                  </span>
-                  <ChevronDown size={18} className={`transition-transform duration-200 text-[var(--gold)] ${isOpen ? 'rotate-180' : ''}`} />
-                </button>
-                
-                {isOpen && (
-                  <div className="px-5 pb-5 pt-1 text-sm muted border-t hairline leading-relaxed">
-                    {faq.answer}
-                  </div>
-                )}
-              </div>
-            );
-          })
-        )}
-      </div>
-    </main>
-  );
+  const [faqs, setFaqs] = useState<FAQ[]>([]); const [activeCategory, setActiveCategory] = useState('all'); const [openId, setOpenId] = useState<string | null>(null); const [query, setQuery] = useState(''); const [loading, setLoading] = useState(true);
+  useEffect(() => { let mounted = true; fetch('/api/faq').then(res => res.ok ? res.json() : []).then(data => { if (!mounted) return; const items = Array.isArray(data) ? data : []; setFaqs(items); if (items[0]) setOpenId(items[0].id || '0'); }).catch(() => mounted && setFaqs([])).finally(() => mounted && setLoading(false)); return () => { mounted = false; }; }, []);
+  const categories = useMemo(() => ['all', ...Array.from(new Set(faqs.map(item => item.category || 'general')))], [faqs]);
+  const filteredFaqs = useMemo(() => { const normalized = query.trim().toLowerCase(); return faqs.filter(item => { const categoryMatch = activeCategory === 'all' || (item.category || 'general') === activeCategory; const searchMatch = !normalized || `${item.question} ${item.answer}`.toLowerCase().includes(normalized); return categoryMatch && searchMatch; }); }, [activeCategory, faqs, query]);
+  return <main className="wahaj-help-page" dir="rtl"><div className="wahaj-help-shell"><header className="wahaj-help-hero"><div><span className="wahaj-help-kicker"><Sparkles size={15} /> مركز المساعدة</span><h1>إجابات واضحة لأسئلتك</h1><p>تعرفي على تفاصيل الطلب والشحن والدفع والاستبدال من خلال الأسئلة الأكثر شيوعًا.</p></div><span className="wahaj-help-hero__icon" aria-hidden="true"><HelpCircle size={46} strokeWidth={1.25} /></span></header><section className="wahaj-help-toolbar" aria-label="البحث والتصنيف"><label className="wahaj-help-search"><Search size={17} aria-hidden="true" /><input value={query} onChange={event => setQuery(event.target.value)} placeholder="ابحثي في الأسئلة..." aria-label="البحث في الأسئلة" /></label><div className="wahaj-help-tabs" role="tablist" aria-label="تصنيفات الأسئلة">{categories.map(category => <button key={category} type="button" role="tab" aria-selected={activeCategory === category} onClick={() => setActiveCategory(category)} className={activeCategory === category ? 'is-active' : ''}>{categoryLabels[category] || category}</button>)}</div></section><section className="wahaj-help-list" aria-live="polite">{loading ? <div className="wahaj-help-empty"><span className="wahaj-help-spinner" /> جارٍ تحميل الأسئلة...</div> : filteredFaqs.length === 0 ? <div className="wahaj-help-empty"><HelpCircle size={28} /><b>لا توجد أسئلة مطابقة</b><p>جرّبي كلمة بحث أخرى أو اختاري تصنيفًا مختلفًا.</p></div> : filteredFaqs.map((faq, index) => { const id = faq.id || String(index); const isOpen = openId === id; return <article key={id} className={`wahaj-faq-item ${isOpen ? 'is-open' : ''}`}><button type="button" onClick={() => setOpenId(isOpen ? null : id)} aria-expanded={isOpen} className="wahaj-faq-question"><span><i><HelpCircle size={17} /></i>{faq.question}</span><ChevronDown size={18} aria-hidden="true" /></button>{isOpen && <div className="wahaj-faq-answer">{faq.answer}</div>}</article>; })}</section></div></main>;
 }
