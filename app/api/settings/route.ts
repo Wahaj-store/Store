@@ -4,7 +4,7 @@ import { prisma } from '@/lib/prisma';
 // المحتوى العام قابل لإعادة التحقق دوريًا؛ البيانات الحساسة لا تُخزّن هنا.
 export const revalidate = 60;
 
-const PUBLIC_KEYS=['brand_name','brand_tagline','currency','announcement','whatsapp','minimum_order','free_shipping','popup_enabled','seo_title','seo_description','brand_story','header_menu','footer_links','popup_config'];
+const PUBLIC_KEYS=['brand_name','brand_tagline','currency','announcement','whatsapp','minimum_order','free_shipping','popup_enabled','seo_title','seo_description','brand_story','header_menu','footer_links','popup_config','social_facebook','social_instagram','social_tiktok'];
 
 export async function GET(){
  const [rows,payments,theme]=await Promise.all([
