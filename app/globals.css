@@ -3524,3 +3524,43 @@ a:focus-visible {
     transform:rotate(-6deg) !important;
   }
 }
+
+/* ===== وَهَج — Mobile policy/help hero isolation ===== */
+@media (max-width:700px) {
+  .wahaj-policy-hero,.wahaj-help-hero {
+    display:flex !important;
+    flex-direction:row !important;
+    align-items:flex-start !important;
+    justify-content:flex-start !important;
+    gap:0 !important;
+    min-height:0 !important;
+    padding:25px 20px !important;
+  }
+  .wahaj-policy-hero__icon,.wahaj-help-hero__icon {
+    position:absolute !important;
+    inset-inline-start:auto !important;
+    inset-inline-end:auto !important;
+    left:17px !important;
+    right:auto !important;
+    top:21px !important;
+    width:68px !important;
+    height:68px !important;
+    transform:rotate(-6deg) !important;
+  }
+  .wahaj-policy-hero__copy,.wahaj-help-hero > div {
+    width:calc(100% - 78px) !important;
+    max-width:calc(100% - 78px) !important;
+    min-width:0 !important;
+    margin-right:auto !important;
+  }
+}
+
+/* Reserve the physical left icon lane inside mobile policy/help heroes. */
+@media (max-width:700px) {
+  .wahaj-policy-hero__copy,.wahaj-help-hero > div {
+    width:100% !important;
+    max-width:none !important;
+    padding-left:78px !important;
+    margin:0 !important;
+  }
+}
