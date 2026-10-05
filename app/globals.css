@@ -3564,3 +3564,41 @@ a:focus-visible {
     margin:0 !important;
   }
 }
+
+/* ===== وَهَج — About hero matches policy/help mobile cards ===== */
+@media (max-width:700px) {
+  .wahaj-about-hero {
+    display:flex !important;
+    flex-direction:row !important;
+    align-items:flex-start !important;
+    justify-content:flex-start !important;
+    gap:0 !important;
+    min-height:0 !important;
+    padding:25px 20px !important;
+  }
+  .wahaj-about-hero__seal {
+    position:absolute !important;
+    inset-inline-start:auto !important;
+    inset-inline-end:auto !important;
+    left:17px !important;
+    right:auto !important;
+    top:21px !important;
+    align-self:initial !important;
+    width:68px !important;
+    height:68px !important;
+    margin:0 !important;
+    border-radius:20px !important;
+    transform:rotate(-6deg) !important;
+  }
+  .wahaj-about-hero__seal svg { width:32px !important; height:32px !important; }
+  .wahaj-about-hero__seal span { font-size:10px !important; }
+  .wahaj-about-hero__seal small { display:none !important; }
+  .wahaj-about-hero__copy {
+    width:100% !important;
+    max-width:none !important;
+    min-width:0 !important;
+    margin:0 !important;
+    padding-left:78px !important;
+    text-align:right;
+  }
+}
