@@ -1,84 +1,79 @@
-// مسار الملف: app/checkout/success/page.tsx
+'use client';
 
-'use type';
-import { Suspense } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
-import { Sparkles, CheckCircle2, ShoppingBag, PackageCheck } from 'lucide-react';
+import { ArrowLeft, Check, CheckCircle2, Copy, Home, PackageCheck, ShieldCheck, ShoppingBag, Sparkles, Truck } from 'lucide-react';
 
-function SuccessContent({ searchParams }: { searchParams: { order?: string } }) {
+export default function Success({ searchParams }: { searchParams: { order?: string } }) {
   const orderNumber = searchParams?.order || 'WAH-XXXXX';
+  const [copied, setCopied] = useState(false);
+
+  const copyOrderNumber = async () => {
+    try {
+      await navigator.clipboard.writeText(orderNumber);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 1800);
+    } catch {
+      setCopied(false);
+    }
+  };
 
   return (
-    <main className="min-h-screen py-16 px-4 md:px-8 bg-[var(--bg)] text-foreground transition-colors duration-300 flex items-center justify-center" dir="rtl">
-      <div className="container max-w-2xl mx-auto space-y-8">
-        
-        {/* الترويسة العليا */}
-        <div className="text-center space-y-3">
-          <span className="text-[var(--gold)] font-medium text-xs uppercase tracking-widest inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-[var(--gold)]/10 border border-[var(--gold)]/20 shadow-xs">
-            <Sparkles size={14} /> تم تأكيد طلبك بنجاح
-          </span>
-          <h1 className="text-3xl md:text-4xl font-serif font-bold tracking-tight">شكراً لاختيارك وَهَج</h1>
-          <p className="text-muted-foreground text-sm font-light">نحن نقدر ثقتكِ، ويتم الآن تجهيز طلبكِ بكل عناية واهتمام.</p>
-        </div>
+    <main className="wahaj-success-page" dir="rtl">
+      <div className="wahaj-commerce-shell wahaj-success-shell">
+        <header className="wahaj-commerce-header wahaj-success-header">
+          <div>
+            <span className="wahaj-commerce-kicker"><Sparkles size={14} /> وَهَج للأناقة</span>
+            <h1>تم تأكيد طلبكِ</h1>
+            <p>شكرًا لثقتكِ. بدأنا تجهيز اختياراتكِ بعناية لتصل إليكِ كما تحبين.</p>
+          </div>
+          <Link href="/" className="wahaj-commerce-ghost"><Home size={16} /> العودة للرئيسية</Link>
+        </header>
 
-        {/* مؤشر خطوات الطلب التفاعلي (مكتمل كلياً) */}
-        <div className="grid grid-cols-3 gap-3 p-3 bg-muted/10 border border-border/40 rounded-3xl shadow-xs">
-          <div className="flex items-center justify-center gap-2 py-3 rounded-2xl text-xs font-medium text-muted-foreground">
-            <span className="w-5 h-5 rounded-full bg-[var(--gold)] text-[var(--gold-contrast)] flex items-center justify-center text-[10px] font-bold">✓</span>
-            <span>مراجعة السلة</span>
-          </div>
-          <div className="flex items-center justify-center gap-2 py-3 rounded-2xl text-xs font-medium text-muted-foreground">
-            <span className="w-5 h-5 rounded-full bg-[var(--gold)] text-[var(--gold-contrast)] flex items-center justify-center text-[10px] font-bold">✓</span>
-            <span>الشحن والدفع</span>
-          </div>
-          <div className="flex items-center justify-center gap-2 py-3 rounded-2xl text-xs font-bold bg-[var(--gold)] text-[var(--gold-contrast)] shadow-md">
-            <span className="w-5 h-5 rounded-full bg-black/20 flex items-center justify-center text-[10px]">3</span>
-            <span>تأكيد الطلب</span>
-          </div>
-        </div>
+        <nav className="wahaj-order-steps wahaj-success-steps" aria-label="مراحل الطلب">
+          <div className="is-complete"><b><Check size={13} /></b><span>السلة</span></div><i className="is-complete" />
+          <div className="is-complete"><b><Check size={13} /></b><span>الشحن والدفع</span></div><i className="is-complete" />
+          <div className="is-active"><b>03</b><span>التأكيد</span></div>
+        </nav>
 
-        {/* بطاقة النجاح الفاخرة */}
-        <div className="bg-muted/10 border border-border/40 rounded-3xl p-8 md:p-12 shadow-md text-center space-y-6 relative overflow-hidden">
-          <div className="absolute -top-12 -left-12 w-32 h-32 bg-[var(--gold)]/5 rounded-full blur-2xl pointer-events-none" />
-          
-          <div className="w-20 h-20 mx-auto rounded-3xl bg-[var(--gold)]/10 text-[var(--gold)] border border-[var(--gold)]/30 flex items-center justify-center shadow-inner">
-            <CheckCircle2 size={40} />
-          </div>
+        <section className="wahaj-success-layout">
+          <div className="wahaj-success-main">
+            <div className="wahaj-success-hero">
+              <div className="wahaj-success-orbit wahaj-success-orbit--one" />
+              <div className="wahaj-success-orbit wahaj-success-orbit--two" />
+              <div className="wahaj-success-check"><CheckCircle2 size={48} strokeWidth={1.5} /></div>
+              <span className="wahaj-success-eyebrow">تم الاستلام بنجاح</span>
+              <h2>طلبكِ في أيدٍ أمينة</h2>
+              <p>سيقوم فريقنا بمراجعة الطلب وتجهيزه، وسنوافيكِ بأي تحديثات مهمة على حالة الشحنة.</p>
+              <div className="wahaj-success-order-box">
+                <span>رقم الطلب</span>
+                <strong dir="ltr">{orderNumber}</strong>
+                <button type="button" onClick={copyOrderNumber} aria-label="نسخ رقم الطلب">{copied ? <Check size={16} /> : <Copy size={16} />}<small>{copied ? 'تم النسخ' : 'نسخ'}</small></button>
+              </div>
+            </div>
 
-          <div className="space-y-2">
-            <h2 className="text-2xl font-serif font-bold">تم استلام طلبك</h2>
-            <p className="text-muted-foreground text-xs md:text-sm font-light">رقم الطلب الخاص بكِ:</p>
-            <div className="inline-block px-5 py-2.5 rounded-2xl bg-[var(--bg)] border border-[var(--gold)]/40 text-[var(--gold)] font-mono font-bold text-lg tracking-wider shadow-xs" dir="ltr">
-              {orderNumber}
+            <div className="wahaj-success-next">
+              <div className="wahaj-success-next__icon"><PackageCheck size={22} /></div>
+              <div><span>ماذا يحدث الآن؟</span><h3>نجهّز طلبكِ بكل اهتمام</h3><p>سيتم التواصل معكِ عند انتقال الطلب إلى مرحلة الشحن. احتفظي برقم الطلب للرجوع إليه بسهولة.</p></div>
             </div>
           </div>
 
-          <div className="p-5 rounded-2xl bg-[var(--bg)]/60 border border-border/40 text-xs text-muted-foreground space-y-1.5 text-right shadow-xs">
-            <span className="font-serif font-bold text-foreground block flex items-center gap-2 text-sm text-[var(--gold)]">
-              <PackageCheck size={18} /> خطوتنا التالية
-            </span>
-            <p className="font-light leading-relaxed">سيقوم فريقنا بتجهيز قطعكِ المختارة بعناية فائقة وتوصيلها في أقرب وقت.</p>
-          </div>
-
-          <div className="pt-4 border-t border-border/30">
-            <Link 
-              href="/" 
-              className="w-full py-4 rounded-2xl bg-[var(--gold)] text-[var(--gold-contrast)] font-serif font-bold text-base shadow-lg hover:opacity-95 transition inline-flex items-center justify-center gap-2"
-            >
-              <ShoppingBag size={18} /> العودة للمتجر
-            </Link>
-          </div>
-        </div>
-
+          <aside className="wahaj-success-aside">
+            <div className="wahaj-cart-summary__label">رحلة طلبكِ</div>
+            <h2>الخطوة التالية</h2>
+            <div className="wahaj-success-timeline">
+              <div className="is-done"><span><Check size={12} /></span><div><b>تم استلام الطلب</b><small>تم تسجيل بيانات طلبكِ بنجاح</small></div></div>
+              <div className="is-current"><span><PackageCheck size={13} /></span><div><b>جاري التجهيز</b><small>نراجع القطع ونجهزها للتغليف</small></div></div>
+              <div><span><Truck size={13} /></span><div><b>الشحن والتوصيل</b><small>سنرسل لكِ تحديث التتبع عند الشحن</small></div></div>
+            </div>
+            <div className="wahaj-success-actions">
+              <Link href="/track-order" className="wahaj-commerce-primary">تتبع حالة الطلب <ArrowLeft size={17} /></Link>
+              <Link href="/shop" className="wahaj-commerce-ghost"><ShoppingBag size={16} /> مواصلة التسوق</Link>
+            </div>
+            <p className="wahaj-summary-note"><ShieldCheck size={14} /> بيانات طلبكِ محفوظة ومحمية</p>
+          </aside>
+        </section>
       </div>
     </main>
-  );
-}
-
-export default function Success({ searchParams }: { searchParams: { order?: string } }) {
-  return (
-    <Suspense fallback={<main className="min-h-screen py-24 text-center bg-[var(--bg)] text-foreground"><div className="mx-auto max-w-xl bg-muted/10 border border-border/40 rounded-3xl p-10 text-sm font-light">جاري تحميل تفاصيل الطلب...</div></main>}>
-      <SuccessContent searchParams={searchParams} />
-    </Suspense>
   );
 }
