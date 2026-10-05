@@ -832,163 +832,226 @@ a:focus-visible {
   .wahaj-trust__text{ font-size:10px; }
 }
 
-/* WAHaj FOOTER — current globals.css + footer-only visual fix */
-
-.wahaj-footer{
-  margin-top:0;
-  padding:72px 0 24px;
-  background:#241B1A;
-  color:#F7F2EA;
+/* وَهَج — Responsive, theme-aware store footer */
+.wahaj-footer {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  margin-top: 0;
+  padding: 50px 0 22px;
+  border-top: 1px solid color-mix(in srgb, var(--gold) 38%, var(--border));
+  background: color-mix(in srgb, var(--surface) 88%, var(--gold) 12%);
+  color: var(--foreground);
 }
 
-.wahaj-footer__main{
-  display:grid;
-  grid-template-columns:1.5fr 1fr 1fr 1.15fr;
-  gap:48px;
-  padding-bottom:52px;
+.wahaj-footer::before {
+  position: absolute;
+  z-index: -1;
+  inset: 0 0 auto;
+  height: 240px;
+  background: radial-gradient(ellipse at 12% 0%, color-mix(in srgb, var(--gold) 12%, transparent), transparent 66%);
+  content: '';
+  pointer-events: none;
 }
 
-.wahaj-footer__brand{ max-width:330px; }
-
-/* Logo placeholder: add the real logo at public/images/wahaj-logo.svg */
-.wahaj-footer__logo{
-  display:flex;
-  align-items:center;
-  width:max-content;
-  max-width:100%;
-  min-height:58px;
+.wahaj-footer__topline {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding-bottom: 25px;
+  border-bottom: 1px solid var(--border);
 }
 
-.wahaj-footer__logo-image{
-  display:block;
-  width:auto;
-  height:58px;
-  max-width:180px;
-  object-fit:contain;
-  object-position:right center;
+.wahaj-footer__eyebrow {
+  color: var(--gold-muted);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .08em;
 }
 
-.wahaj-footer__bio{
-  margin-top:18px;
-  color:rgba(248,245,239,.65);
-  font-size:13px;
-  line-height:2;
+.wahaj-footer__contact-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 40px;
+  padding: 0 15px;
+  border: 1px solid color-mix(in srgb, var(--gold) 40%, var(--border));
+  border-radius: var(--radius-sm);
+  color: var(--foreground);
+  font-size: 12px;
+  transition: background-color var(--transition), border-color var(--transition), color var(--transition), transform var(--transition);
 }
 
-.wahaj-footer__tagline{
-  margin-top:12px;
-  color:var(--gold);
-  font-size:12px;
+.wahaj-footer__contact-cta:hover {
+  transform: translateY(-1px);
+  border-color: var(--gold);
+  background: var(--gold-soft);
 }
 
-.wahaj-footer__column h3{
-  margin:0 0 18px;
-  color:#F7F2EA;
-  font-size:13px;
-  font-weight:600;
+.wahaj-footer__contact-cta span { color: var(--gold-muted); }
+
+.wahaj-footer__main {
+  display: grid;
+  grid-template-columns: minmax(230px, 1.4fr) repeat(2, minmax(145px, .82fr)) minmax(190px, 1.08fr);
+  gap: clamp(24px, 4vw, 52px);
+  padding: 38px 0 35px;
 }
 
-.wahaj-footer__links{
-  display:grid;
-  gap:11px;
+.wahaj-footer__brand { min-width: 0; max-width: 350px; }
+
+.wahaj-footer__logo {
+  display: inline-flex;
+  align-items: center;
+  width: max-content;
+  max-width: 100%;
+  min-height: 60px;
 }
 
-.wahaj-footer__links a{
-  width:max-content;
-  max-width:100%;
-  color:rgba(248,245,239,.62);
-  font-size:12px;
-  line-height:1.7;
-  transition:color .2s ease;
+.wahaj-footer__logo-image {
+  display: block;
+  width: auto;
+  height: 58px;
+  max-width: 180px;
+  object-fit: contain;
+  object-position: right center;
 }
 
-.wahaj-footer__links a:hover{ color:var(--gold); }
-
-.wahaj-footer__payment-text{
-  margin:0;
-  max-width:220px;
-  color:rgba(248,245,239,.55);
-  font-size:11px;
-  line-height:1.8;
+.wahaj-footer__bio {
+  max-width: 330px;
+  margin: 15px 0 0;
+  color: var(--muted-foreground);
+  font-size: 13px;
+  line-height: 1.95;
 }
 
-/* Payment image: no frame, no background, no shadow */
-.wahaj-footer__payments{
-  display:flex;
-  align-items:center;
-  justify-content:flex-start;
-  gap:0;
-  margin-top:18px;
-  padding:0;
-  border:0;
-  border-radius:0;
-  background:transparent;
-  box-shadow:none;
+.wahaj-footer__tagline {
+  margin: 9px 0 0;
+  color: var(--gold-muted);
+  font-size: 12px;
+  line-height: 1.8;
 }
 
-.wahaj-footer__payments-image{
-  display:block;
-  width:100%;
-  max-width:300px;
-  height:auto;
-  padding:0;
-  object-fit:contain;
-  object-position:right center;
-  border:0 !important;
-  border-radius:0 !important;
-  outline:none !important;
-  background:transparent !important;
-  box-shadow:none !important;
+.wahaj-footer__social-block { margin-top: 23px; }
+.wahaj-footer__social-block h3 {
+  margin: 0 0 11px;
+  color: var(--foreground-secondary);
+  font-size: 12px;
+  font-weight: 600;
 }
 
-.wahaj-footer__payments img{
-  border:0 !important;
-  border-radius:0 !important;
-  background:transparent !important;
-  box-shadow:none !important;
+.wahaj-footer__socials { display: flex; flex-wrap: wrap; gap: 9px; }
+
+.wahaj-footer__social-link {
+  display: grid;
+  width: 39px;
+  height: 39px;
+  place-items: center;
+  border: 1px solid color-mix(in srgb, var(--gold) 28%, var(--border));
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--card) 72%, transparent);
+  color: var(--foreground-secondary);
+  transition: transform var(--transition), background-color var(--transition), border-color var(--transition), color var(--transition), opacity var(--transition);
 }
 
-.wahaj-footer__bottom{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:20px;
-  padding-top:22px;
-  border-top:1px solid rgba(248,245,239,.12);
-  color:rgba(248,245,239,.42);
-  font-size:10px;
-  line-height:1.7;
+.wahaj-footer__social-link svg { width: 18px; height: 18px; }
+.wahaj-footer__social-link[href]:hover {
+  transform: translateY(-2px);
+  border-color: var(--gold);
+  background: var(--gold-soft);
+  color: var(--gold-muted);
+}
+.wahaj-footer__social-link.is-unconfigured { opacity: .55; }
+
+.wahaj-footer__column { min-width: 0; }
+.wahaj-footer__column h2 {
+  margin: 4px 0 17px;
+  color: var(--foreground);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.6;
 }
 
-@media (max-width:800px){
-  .wahaj-footer{ padding:54px 0 80px; }
-  .wahaj-footer__main{
-    grid-template-columns:repeat(2,minmax(0,1fr));
-    gap:36px 24px;
-    padding-bottom:36px;
-  }
-  .wahaj-footer__brand{
-    grid-column:1/-1;
-    max-width:100%;
-  }
-  .wahaj-footer__logo-image{ height:52px; max-width:165px; }
-  .wahaj-footer__payments-image{ max-width:270px; }
+.wahaj-footer__links { display: grid; justify-items: start; gap: 11px; }
+.wahaj-footer__links a {
+  max-width: 100%;
+  color: var(--muted-foreground);
+  font-size: 12px;
+  line-height: 1.7;
+  transition: color var(--transition), transform var(--transition);
 }
 
-@media (max-width:480px){
-  .wahaj-footer{ padding-top:46px; }
-  .wahaj-footer__main{
-    grid-template-columns:1fr 1fr;
-    gap:30px 18px;
-  }
-  .wahaj-footer__logo-image{ height:48px; max-width:150px; }
-  .wahaj-footer__links a{ font-size:11px; }
-  .wahaj-footer__payments-image{ max-width:100%; }
-  .wahaj-footer__bottom{
-    align-items:flex-start;
-    flex-direction:column;
-    gap:7px;
-  }
+.wahaj-footer__links a:hover {
+  transform: translateX(-2px);
+  color: var(--gold-muted);
+}
+
+.wahaj-footer__payment-text {
+  max-width: 235px;
+  margin: -4px 0 0;
+  color: var(--muted-foreground);
+  font-size: 11px;
+  line-height: 1.9;
+}
+
+.wahaj-footer__payments {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  margin-top: 16px;
+}
+
+.wahaj-footer__payments-image {
+  display: block;
+  width: 100%;
+  max-width: 250px;
+  height: auto;
+  object-fit: contain;
+  object-position: right center;
+  mix-blend-mode: multiply;
+}
+
+.dark .wahaj-footer__payments-image { mix-blend-mode: screen; }
+
+.wahaj-footer__bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px 22px;
+  padding-top: 18px;
+  border-top: 1px solid var(--border);
+  color: var(--muted-foreground);
+  font-size: 10px;
+  line-height: 1.8;
+}
+
+.wahaj-footer__bottom a { color: var(--gold-muted); transition: color var(--transition); }
+.wahaj-footer__bottom a:hover { color: var(--foreground); }
+
+@media (max-width: 980px) {
+  .wahaj-footer__main { grid-template-columns: minmax(220px, 1.2fr) repeat(2, minmax(150px, 1fr)); gap: 32px 26px; }
+  .wahaj-footer__brand { grid-column: 1 / -1; max-width: 620px; }
+  .wahaj-footer__bio { max-width: 520px; }
+  .wahaj-footer__payment-column { grid-column: 1 / -1; }
+  .wahaj-footer__payments-image { max-width: 270px; }
+}
+
+@media (max-width: 600px) {
+  .wahaj-footer { padding: 35px 0 82px; }
+  .wahaj-footer__topline { align-items: flex-start; flex-direction: column; gap: 12px; padding-bottom: 20px; }
+  .wahaj-footer__main { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px 18px; padding: 28px 0 25px; }
+  .wahaj-footer__brand { grid-column: 1 / -1; }
+  .wahaj-footer__payment-column { grid-column: 1 / -1; }
+  .wahaj-footer__logo-image { height: 50px; max-width: 160px; }
+  .wahaj-footer__column h2 { margin-bottom: 13px; font-size: 13px; }
+  .wahaj-footer__links { gap: 9px; }
+  .wahaj-footer__links a { font-size: 11px; }
+  .wahaj-footer__bottom { align-items: flex-start; flex-direction: column; gap: 5px; }
+}
+
+@media (max-width: 360px) {
+  .wahaj-footer__main { grid-template-columns: 1fr; }
+  .wahaj-footer__column, .wahaj-footer__payment-column { grid-column: 1; }
 }
 
 /* WAHaj HEADER */
