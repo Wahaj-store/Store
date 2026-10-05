@@ -3602,3 +3602,34 @@ a:focus-visible {
     text-align:right;
   }
 }
+
+/* ===== وَهَج — Customer service mobile hero matches shared cards ===== */
+@media (max-width:600px) {
+  .wahaj-contact-hero {
+    display:flex !important;
+    flex-direction:row !important;
+    align-items:flex-start !important;
+    justify-content:flex-start !important;
+    gap:0 !important;
+    min-height:0 !important;
+    padding:25px 20px !important;
+  }
+  .wahaj-contact-hero__mark {
+    position:absolute !important;
+    inset-inline-start:auto !important;
+    inset-inline-end:auto !important;
+    left:17px !important;
+    right:auto !important;
+    top:21px !important;
+    width:68px !important;
+    height:68px !important;
+    transform:rotate(-6deg) !important;
+  }
+  .wahaj-contact-hero__copy {
+    width:100% !important;
+    max-width:none !important;
+    min-width:0 !important;
+    margin:0 !important;
+    padding-left:78px !important;
+  }
+}
