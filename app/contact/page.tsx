@@ -1,149 +1,205 @@
 'use client';
-import { useState, useEffect } from 'react';
-import { Phone, Mail, MapPin, Clock, Send, CheckCircle2 } from 'lucide-react';
+
+import { FormEvent, useEffect, useState } from 'react';
+import {
+  ArrowLeft,
+  CheckCircle2,
+  Clock3,
+  Mail,
+  MapPin,
+  MessageCircle,
+  Phone,
+  Send,
+  ShieldCheck,
+  Sparkles,
+} from 'lucide-react';
 
 export default function ContactPage() {
-  const [settings, setSettings] = useState<any>({});
+  const [settings, setSettings] = useState<Record<string, any>>({});
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState('');
+  const [messageLength, setMessageLength] = useState(0);
 
   useEffect(() => {
+    let mounted = true;
+
     fetch('/api/settings')
-      .then(res => res.json())
-      .then(data => setSettings(data.settings || {}))
+      .then(res => res.ok ? res.json() : null)
+      .then(data => {
+        if (mounted && data) setSettings(data.settings || {});
+      })
       .catch(() => {});
+
+    return () => {
+      mounted = false;
+    };
   }, []);
 
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
     setLoading(true);
     setError('');
-    
-    const form = e.currentTarget;
+
+    const form = event.currentTarget;
     const formData = {
-      name: (form.elements.namedItem('name') as HTMLInputElement)?.value,
-      phone: (form.elements.namedItem('phone') as HTMLInputElement)?.value,
-      subject: (form.elements.namedItem('subject') as HTMLInputElement)?.value,
-      message: (form.elements.namedItem('message') as HTMLTextAreaElement)?.value,
+      name: (form.elements.namedItem('name') as HTMLInputElement)?.value.trim(),
+      phone: (form.elements.namedItem('phone') as HTMLInputElement)?.value.trim(),
+      subject: (form.elements.namedItem('subject') as HTMLInputElement)?.value.trim(),
+      message: (form.elements.namedItem('message') as HTMLTextAreaElement)?.value.trim(),
     };
 
     try {
-      const res = await fetch('/api/contact', {
+      const response = await fetch('/api/contact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
       });
+      const data = await response.json().catch(() => ({}));
 
-      if (res.ok) {
-        setSuccess(true);
-        form.reset();
-      } else {
-        const j = await res.json();
-        setError(j.error || 'حدث خطأ أثناء إرسال الرسالة، حاول مرة أخرى.');
+      if (!response.ok) {
+        setError(data.error || 'حدث خطأ أثناء إرسال الرسالة، حاولي مرة أخرى.');
+        return;
       }
+
+      setSuccess(true);
+      setMessageLength(0);
+      form.reset();
     } catch {
-      setError('تعذر الاتصال بالخادم.');
+      setError('تعذر الاتصال بالخادم. تحققي من اتصالك وحاولي مرة أخرى.');
     } finally {
       setLoading(false);
     }
   }
 
+  const whatsapp = settings.whatsapp ? String(settings.whatsapp).replace(/\D/g, '') : '';
+
   return (
-    <main className="container max-w-5xl py-12">
-      <div className="text-center max-w-2xl mx-auto mb-12 space-y-3">
-        <h1 className="text-3xl font-bold">تواصل معنا</h1>
-        <p className="muted text-sm">نحن هنا للإجابة على استفساراتك ومساعدتك في أي وقت. لا تتردد في مراسلتنا.</p>
-      </div>
-
-      <div className="grid gap-8 lg:grid-cols-2">
-        {/* معلومات التواصل */}
-        <div className="lux-card p-8 bg-background border hairline rounded-2xl space-y-6 h-fit">
-          <h2 className="text-xl font-semibold border-b hairline pb-4">معلومات الاتصال</h2>
-          
-          <div className="space-y-5 text-sm">
-            {settings.whatsapp && (
-              <a 
-                href={`https://wa.me/${settings.whatsapp}`} 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="flex items-center gap-4 p-3 rounded-xl border hairline hover:border-[var(--gold)] transition"
-              >
-                <div className="w-10 h-10 rounded-lg bg-green-500/10 text-green-600 flex items-center justify-center font-bold">WA</div>
-                <div>
-                  <span className="block muted text-xs">تواصل مباشر عبر واتساب</span>
-                  <span className="font-semibold" dir="ltr">{settings.whatsapp}</span>
-                </div>
-              </a>
-            )}
-
-            <div className="flex items-center gap-4 p-3 rounded-xl border hairline">
-              <div className="w-10 h-10 rounded-lg bg-[var(--gold)]/10 text-[var(--gold)] flex items-center justify-center">
-                <Clock size={20} />
-              </div>
-              <div>
-                <span className="block muted text-xs">ساعات العمل</span>
-                <span className="font-semibold">طوال أيام الأسبوع من 10 صباحاً حتى 10 مسائاً</span>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-4 p-3 rounded-xl border hairline">
-              <div className="w-10 h-10 rounded-lg bg-[var(--gold)]/10 text-[var(--gold)] flex items-center justify-center">
-                <MapPin size={20} />
-              </div>
-              <div>
-                <span className="block muted text-xs">العنوان</span>
-                <span className="font-semibold">جمهورية مصر العربية</span>
-              </div>
+    <main className="wahaj-contact-page" dir="rtl">
+      <div className="wahaj-contact-shell">
+        <header className="wahaj-contact-hero">
+          <div className="wahaj-contact-hero__copy">
+            <span className="wahaj-contact-kicker">
+              <Sparkles size={15} aria-hidden="true" /> خدمة العملاء
+            </span>
+            <h1>يسعدنا أن نسمع منك</h1>
+            <p>
+              لديكِ استفسار عن منتج أو طلب؟ اتركي رسالتك وسيتواصل معك فريق وَهَج بأقرب وقت.
+            </p>
+            <div className="wahaj-contact-hero__trust">
+              <ShieldCheck size={17} aria-hidden="true" />
+              <span>نحافظ على خصوصية بياناتك ونستخدمها للرد على استفسارك فقط.</span>
             </div>
           </div>
-        </div>
+          <div className="wahaj-contact-hero__mark" aria-hidden="true">
+            <MessageCircle size={48} strokeWidth={1.2} />
+          </div>
+        </header>
 
-        {/* نموذج التواصل */}
-        <div className="lux-card p-8 bg-background border hairline rounded-2xl space-y-6">
-          ملء جميع الحقول للتواصل مع الادارة ...
-          <h2 className="text-xl font-semibold border-b hairline pb-4">أرسل رسالة</h2>
-
-          {success ? (
-            <div className="p-6 rounded-xl bg-green-500/10 border border-green-500/30 text-center space-y-3">
-              <CheckCircle2 size={40} className="text-green-600 mx-auto" />
-              <h3 className="font-bold text-green-700">تم إرسال رسالتك بنجاح!</h3>
-              <p className="text-xs muted">سنقوم بالرد عليك في أقرب وقت ممكن.</p>
-              <button 
-                onClick={() => setSuccess(false)} 
-                className="mt-2 text-xs text-[var(--gold)] font-medium underline"
-              >
-                إرسال رسالة أخرى
-              </button>
+        <div className="wahaj-contact-layout">
+          <section className="wahaj-contact-info" aria-labelledby="contact-info-title">
+            <div className="wahaj-contact-section-heading">
+              <span>نحن هنا لمساعدتك</span>
+              <h2 id="contact-info-title">طرق التواصل</h2>
             </div>
-          ) : (
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <label className="block text-sm font-medium">الاسم بالكامل
-                <input name="name" required className="input mt-1 w-full" placeholder="أدخل اسمك" />
-              </label>
 
-              <label className="block text-sm font-medium">رقم الهاتف
-                <input name="phone" required className="input mt-1 w-full" placeholder="01xxxxxxxxx" />
-              </label>
+            <div className="wahaj-contact-info-list">
+              {whatsapp && (
+                <a
+                  href={`https://wa.me/${whatsapp}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="wahaj-contact-info-card wahaj-contact-info-card--whatsapp"
+                >
+                  <span className="wahaj-contact-info-card__icon"><MessageCircle size={21} /></span>
+                  <span className="wahaj-contact-info-card__body">
+                    <small>تواصل مباشر عبر واتساب</small>
+                    <strong dir="ltr">{settings.whatsapp}</strong>
+                  </span>
+                  <ArrowLeft size={17} aria-hidden="true" />
+                </a>
+              )}
 
-              <label className="block text-sm font-medium">موضوع الرسالة
-                <input name="subject" className="input mt-1 w-full" placeholder="استفسار عن طلب، منتج..." />
-              </label>
+              <div className="wahaj-contact-info-card">
+                <span className="wahaj-contact-info-card__icon"><Clock3 size={21} /></span>
+                <span className="wahaj-contact-info-card__body">
+                  <small>ساعات العمل</small>
+                  <strong>طوال أيام الأسبوع من 10 صباحًا حتى 10 مساءً</strong>
+                </span>
+              </div>
 
-              <label className="block text-sm font-medium">النص أو الاستفسار
-                <textarea name="message" required className="input mt-1 min-h-32 w-full" placeholder="اكتب تفاصيل رسالتك هنا..." />
-              </label>
+              <div className="wahaj-contact-info-card">
+                <span className="wahaj-contact-info-card__icon"><MapPin size={21} /></span>
+                <span className="wahaj-contact-info-card__body">
+                  <small>نخدمك من</small>
+                  <strong>جمهورية مصر العربية</strong>
+                </span>
+              </div>
+            </div>
 
-              {error && <p className="text-xs text-red-600 font-medium">{error}</p>}
+            <div className="wahaj-contact-info__note">
+              <Mail size={17} aria-hidden="true" />
+              <span>للاستفسارات العامة، أرسلي رسالتك من النموذج وسنعود إليك بالتفاصيل.</span>
+            </div>
+          </section>
 
-              <button 
-                disabled={loading} 
-                className="btn btn-gold w-full py-3 rounded-xl font-medium flex items-center justify-center gap-2"
-              >
-                <Send size={16} /> {loading ? 'جارٍ الإرسال...' : 'إرسال الرسالة'}
-              </button>
-            </form>
-          )}
+          <section className="wahaj-contact-form-card" aria-labelledby="contact-form-title">
+            <div className="wahaj-contact-section-heading">
+              <span>رسالتك تصلنا مباشرة</span>
+              <h2 id="contact-form-title">أرسلي رسالة</h2>
+            </div>
+
+            {success ? (
+              <div className="wahaj-contact-success" role="status">
+                <span className="wahaj-contact-success__icon"><CheckCircle2 size={31} /></span>
+                <h3>تم إرسال رسالتك بنجاح</h3>
+                <p>شكرًا لتواصلك معنا، سيقوم فريق وَهَج بالرد عليك في أقرب وقت ممكن.</p>
+                <button type="button" onClick={() => setSuccess(false)}>
+                  إرسال رسالة أخرى <ArrowLeft size={15} />
+                </button>
+              </div>
+            ) : (
+              <form onSubmit={handleSubmit} className="wahaj-contact-form">
+                <div className="wahaj-contact-form__grid">
+                  <label>
+                    <span>الاسم بالكامل <b>*</b></span>
+                    <input name="name" required autoComplete="name" placeholder="اكتبي اسمك" />
+                  </label>
+                  <label>
+                    <span>رقم الهاتف <b>*</b></span>
+                    <input name="phone" required autoComplete="tel" inputMode="tel" dir="ltr" placeholder="01xxxxxxxxx" />
+                  </label>
+                </div>
+
+                <label>
+                  <span>موضوع الرسالة <em>اختياري</em></span>
+                  <input name="subject" placeholder="استفسار عن طلب، منتج، أو خدمة..." />
+                </label>
+
+                <label>
+                  <span>النص أو الاستفسار <b>*</b></span>
+                  <textarea
+                    name="message"
+                    required
+                    minLength={5}
+                    maxLength={1200}
+                    rows={6}
+                    placeholder="اكتبي تفاصيل رسالتك هنا..."
+                    onChange={event => setMessageLength(event.target.value.length)}
+                  />
+                  <small className="wahaj-contact-form__counter">{messageLength}/1200</small>
+                </label>
+
+                {error && <p className="wahaj-contact-form__error" role="alert">{error}</p>}
+
+                <button type="submit" disabled={loading} className="wahaj-contact-submit">
+                  <Send size={17} aria-hidden="true" />
+                  {loading ? 'جارٍ إرسال الرسالة...' : 'إرسال الرسالة'}
+                </button>
+                <p className="wahaj-contact-form__hint">بالضغط على الإرسال، ستصل رسالتك إلى فريق خدمة العملاء.</p>
+              </form>
+            )}
+          </section>
         </div>
       </div>
     </main>
