@@ -23,10 +23,22 @@ function parseJson<T>(value: unknown, fallback: T): T {
   }
 }
 
-function safeExternalUrl(value: unknown): string | null {
+function safeExternalUrl(value: unknown, network: SocialNetwork): string | null {
   if (typeof value !== 'string' || !value.trim()) return null;
   try {
-    const url = new URL(value.trim());
+    const input = value.trim();
+    const isKnownProfileUrl = /^(https?:\/\/)?(www\.)?(facebook\.com|instagram\.com|tiktok\.com)\//i.test(input);
+    const isHandle = /^@?[\w.]+$/.test(input) && !isKnownProfileUrl && !/^https?:\/\//i.test(input) && !/^www\./i.test(input);
+    const handle = input.replace(/^@/, '');
+    const profileUrl = network === 'instagram'
+      ? `https://www.instagram.com/${handle}/`
+      : network === 'tiktok'
+        ? `https://www.tiktok.com/@${handle}`
+        : `https://www.facebook.com/${handle}`;
+    const normalized = isHandle
+      ? profileUrl
+      : /^https?:\/\//i.test(input) ? input : `https://${input}`;
+    const url = new URL(normalized);
     return url.protocol === 'https:' || url.protocol === 'http:' ? url.toString() : null;
   } catch {
     return null;
@@ -101,7 +113,7 @@ export default function SiteFooter() {
               <h3>تابعينا على</h3>
               <div className="wahaj-footer__socials" aria-label="حسابات وَهَج على شبكات التواصل الاجتماعي">
                 {SOCIAL_NETWORKS.map(({ key, label, setting }) => {
-                  const href = safeExternalUrl(settings[setting]);
+                  const href = safeExternalUrl(settings[setting], key);
                   const icon = <SocialIcon network={key} />;
                   return href ? (
                     <a
