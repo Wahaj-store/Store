@@ -84,10 +84,6 @@ export default function SiteFooter() {
     <footer className="wahaj-footer" dir="rtl">
       <div className="container">
         <div className="wahaj-footer__topline">
-          <span className="wahaj-footer__eyebrow">وَهَج · تفاصيل تصنع الفرق</span>
-          <Link className="wahaj-footer__contact-cta" href="/contact">
-            نحن هنا لمساعدتك <span aria-hidden="true">←</span>
-          </Link>
         </div>
 
         <div className="wahaj-footer__main">
