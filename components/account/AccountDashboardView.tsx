@@ -127,7 +127,7 @@ export default function AccountDashboardView(props: any) {
   const canStartReturn = selectedOrder?.status === 'DELIVERED' && (!returnRequest || ['REJECTED', 'CANCELLED'].includes(returnRequest.status));
 
   return (
-    <main className="wahaj-account-dashboard min-h-screen py-12 px-4 md:px-8 bg-[var(--bg)] text-foreground transition-colors duration-300" dir="rtl">
+    <main className="wahaj-account-dashboard min-h-screen py-12 px-4 md:px-8 bg-[var(--bg)] text-foreground transition-colors duration-300" data-account-tab={tab} dir="rtl">
       <div className="container max-w-6xl mx-auto space-y-8">
         
         {/* الترويسة العلوية */}
@@ -175,19 +175,10 @@ export default function AccountDashboardView(props: any) {
               </button>
             ))}
 
-            <div className="pt-3 border-t border-border/30">
-              <button
-                onClick={logout}
-                className="w-full flex items-center gap-3 p-3.5 text-start rounded-2xl text-sm font-medium text-red-500 hover:bg-red-500/10 transition"
-              >
-                <LogOut size={18} className="shrink-0" />
-                <span>تسجيل الخروج</span>
-              </button>
-            </div>
           </aside>
 
           {/* محتوى التبويبات */}
-          <section className="w-full space-y-6">
+          <section className="wahaj-account-content w-full space-y-6">
             
             {tab === 'profile' && (
               <div className="bg-muted/10 border border-border/40 rounded-3xl p-6 md:p-8 shadow-xs space-y-6">
