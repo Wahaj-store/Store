@@ -19,7 +19,7 @@ const S = z.object({
   name: z.string().trim().min(2).max(100), phone: z.string().trim().min(8).max(30),
   governorate: z.string().trim().min(2).max(80), city: z.string().trim().min(2).max(100), address: z.string().trim().min(5).max(500), notes: z.string().trim().max(1000).optional(),
   paymentMethod: z.nativeEnum(PaymentMethod), giftCardCode: z.string().trim().max(40).optional(),
-  idempotencyKey: z.string().uuid().optional(), items: z.array(Item).min(1).max(100), paymentReference: z.string().trim().max(100).optional()
+  idempotencyKey: z.string().uuid().optional(), addressId: z.string().min(1).optional(), items: z.array(Item).min(1).max(100), paymentReference: z.string().trim().max(100).optional()
 });
 
 export async function POST(req: Request) {
@@ -40,6 +40,29 @@ export async function POST(req: Request) {
     if (existing) return NextResponse.json({ ok: true, orderNumber: existing.number, total: Number(existing.total), shipping: Number(existing.shipping), discount: Number(existing.discount), replay: true });
 
     const normalizedPhone = normalizePhone(b.phone);
+    let checkoutName = b.name;
+    let checkoutPhone = normalizedPhone;
+    let checkoutGovernorate = b.governorate;
+    let checkoutCity = b.city;
+    let checkoutAddress = b.address;
+    let checkoutNotes = b.notes;
+    let selectedSavedAddress: { id: string } | null = null;
+    if (loggedInCustomer?.id) {
+      const account = await prisma.customer.findUnique({ where: { id: loggedInCustomer.id }, select: { id: true, name: true, phone: true } });
+      if (!account) return NextResponse.json({ error: 'جلسة العضو غير صالحة، يرجى تسجيل الدخول مرة أخرى' }, { status: 401 });
+      checkoutName = account.name?.trim() || checkoutName;
+      checkoutPhone = normalizePhone(account.phone || '');
+      if (!checkoutPhone) return NextResponse.json({ error: 'لا يوجد رقم هاتف أساسي صالح في حساب العضو' }, { status: 400 });
+      if (b.addressId) {
+        const saved = await prisma.address.findFirst({ where: { id: b.addressId, customerId: account.id }, select: { id: true, governorate: true, city: true, address: true, notes: true } });
+        if (!saved) return NextResponse.json({ error: 'العنوان المختار غير موجود في حسابك' }, { status: 400 });
+        selectedSavedAddress = saved;
+        checkoutGovernorate = saved.governorate;
+        checkoutCity = saved.city;
+        checkoutAddress = saved.address;
+        checkoutNotes = saved.notes || b.notes;
+      }
+    }
     const ids = [...new Set(b.items.map(i => i.productId))];
     const products = await prisma.product.findMany({ where: { id: { in: ids }, status: 'PUBLISHED' }, include: { variants: true } });
     if (products.length !== ids.length) return NextResponse.json({ error: 'أحد المنتجات غير متاح حالياً' }, { status: 400 });
@@ -77,7 +100,7 @@ export async function POST(req: Request) {
 
     const now = new Date();
 
-    const zone = await prisma.shippingZone.findFirst({ where: { governorate: b.governorate, active: true, OR: [{ city: b.city }, { city: null }] }, orderBy: { city: 'desc' } });
+    const zone = await prisma.shippingZone.findFirst({ where: { governorate: checkoutGovernorate, active: true, OR: [{ city: checkoutCity }, { city: null }] }, orderBy: { city: 'desc' } });
     if (!zone) return NextResponse.json({ error: 'لا توجد منطقة شحن مفعلة لهذا العنوان' }, { status: 400 });
 
     const existingCustomer = loggedInCustomer?.id
@@ -186,22 +209,24 @@ export async function POST(req: Request) {
         // إذا لم يكن مسجل الدخول، نبحث برقم الهاتف أو ننشئ حساباً جديداً
         c = await tx.customer.findUnique({ where: { phone: normalizedPhone } });
         if (!c) {
-          c = await tx.customer.create({ data: { name: b.name, phone: normalizedPhone } });
+          c = await tx.customer.create({ data: { name: checkoutName, phone: normalizedPhone } });
         }
       } else {
         // تحديث الاسم إذا اختلف
-        if (c.name !== b.name) {
-          await tx.customer.update({ where: { id: c.id }, data: { name: b.name } });
+        if (!loggedInCustomer?.id && c.name !== checkoutName) {
+          await tx.customer.update({ where: { id: c.id }, data: { name: checkoutName } });
         }
       }
 
-      // حفظ العنوان الجديد ضمن عناوين العميل المحفوظة
-      await tx.address.create({ data: { customerId: c.id, governorate: b.governorate, city: b.city, address: b.address, notes: b.notes } });
+      // العنوان المحفوظ تم التحقق من ملكيته؛ لا ننشئ نسخة مكررة عند إعادة الطلب.
+      if (!selectedSavedAddress) {
+        await tx.address.create({ data: { customerId: c.id, name: checkoutName, phone: checkoutPhone, governorate: checkoutGovernorate, city: checkoutCity, address: checkoutAddress, notes: checkoutNotes } });
+      }
 
       const number = `WAH-${crypto.randomUUID().slice(0, 8).toUpperCase()}`;
       const o = await tx.order.create({ data: {
-        number, idempotencyKey, customerId: c.id, customerNameSnapshot: b.name, customerPhoneSnapshot: normalizedPhone,
-        paymentMethod: b.paymentMethod, total: Math.max(0, total - giftCardAmount), shipping, discount, giftCardId, giftCardAmount, notes: b.notes, shippingGovernorate: b.governorate, shippingCity: b.city, shippingAddress: b.address,
+        number, idempotencyKey, customerId: c.id, customerNameSnapshot: checkoutName, customerPhoneSnapshot: checkoutPhone,
+        paymentMethod: b.paymentMethod, total: Math.max(0, total - giftCardAmount), shipping, discount, giftCardId, giftCardAmount, notes: checkoutNotes, shippingGovernorate: checkoutGovernorate, shippingCity: checkoutCity, shippingAddress: checkoutAddress,
         items: { create: requested.map(i => ({ productId: i.p.id, variantId: i.v?.id, variantName: i.v?.name, variantValue: i.v?.value, skuSnapshot: i.v?.sku || i.p.sku, name: i.p.name, quantity: i.quantity, price: new Prisma.Decimal(i.price) })) },
         payments: { create: { method: b.paymentMethod, amount: Math.max(0, total - giftCardAmount), reference: b.paymentReference, proofUrl: uploadedProofUrl } },
         timeline: { create: { status: 'NEW', note: 'تم إنشاء الطلب' } }
