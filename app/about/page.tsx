@@ -1,130 +1,19 @@
 import Link from 'next/link';
-import { Sparkles, Heart, Compass, Gem, ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Compass, Gem, Heart, Sparkles, Star } from 'lucide-react';
 
-export const metadata = {
-  title: 'من نحن — وَهَج',
-};
+export const metadata = { title: 'من نحن — وَهَج', description: 'تعرفي على قصة وفلسفة متجر وَهَج.' };
+
+const values = [
+  { icon: Gem, title: 'اختيارات مدروسة', text: 'نختار قطعًا عصرية بعناية لتمنحك تنوعًا أنيقًا يناسب أسلوبك ولحظاتك المختلفة.' },
+  { icon: Compass, title: 'أناقة بلا تكلّف', text: 'نؤمن أن القطعة الجميلة هي التي تضيف لمسة واضحة دون أن تطغى على شخصيتك.' },
+  { icon: Heart, title: 'تجربة تهتم بكِ', text: 'من اختيار القطعة وحتى وصولها إليكِ، نحرص على أن تكون كل خطوة جزءًا من تجربة وَهَج.' },
+];
 
 export default function AboutPage() {
-  return (
-    <main className="min-h-screen py-16 px-4 md:px-8 bg-background text-foreground transition-colors duration-300" dir="rtl">
-      <div className="container max-w-4xl mx-auto space-y-16">
-        
-        {/* ترويسة الصفحة */}
-        <div className="text-center space-y-4 border-b border-border/40 pb-10">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-[var(--gold)]/10 text-[var(--gold)] border border-[var(--gold)]/30 shadow-sm">
-            <Sparkles size={32} />
-          </div>
-          <h1 className="text-3xl md:text-5xl font-bold tracking-tight">
-            عن وَهَج
-          </h1>
-          <p className="text-[var(--gold)] font-medium text-base md:text-lg max-w-md mx-auto">
-            تفاصيل صغيرة تصنع وهجًا كبيرًا.
-          </p>
-          <p className="text-muted-foreground text-sm md:text-base max-w-lg mx-auto leading-relaxed pt-2">
-            في وَهَج، نؤمن أن الأناقة لا تحتاج إلى مبالغة؛ يكفي أن تختاري التفاصيل التي تشبهك.
-          </p>
-        </div>
-
-        {/* قسم القصة */}
-        <div className="bg-card border border-border/60 rounded-3xl p-6 md:p-12 shadow-lg space-y-6 relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-[var(--gold)]/5 rounded-bl-full pointer-events-none" />
-          
-          <div className="flex items-center gap-3 text-[var(--gold)]">
-            <Gem size={24} />
-            <h2 className="text-2xl font-bold tracking-wide text-foreground">قصتنا</h2>
-          </div>
-          
-          <div className="space-y-4 text-foreground/90 text-base md:text-lg leading-loose font-sans">
-            <p>
-              <strong className="text-[var(--gold)] font-semibold">وَهَج</strong> ليس مجرد إكسسوار، بل لمسة تعبّر عنكِ. وُلد وَهَج من فكرة بسيطة: أن قطعة صغيرة قادرة على تغيير إطلالة كاملة، وأن التفاصيل التي نختارها بعناية قد تكون أكثر ما يعبّر عن شخصيتنا.
-            </p>
-            <p>
-              اخترنا اسم وَهَج لما يحمله من معنى؛ فالوهج هو الإشراق والتألّق واللمعان، وهو الشعور الذي نريد أن تمنحكِ إياه كل قطعة تختارينها.
-            </p>
-            <p>
-              نقدم مجموعة مختارة من الإكسسوارات والمجوهرات الصناعية بتصاميم عصرية وأنيقة، تجمع بين البساطة والتفاصيل اللافتة، لتناسب لحظاتك اليومية ومناسباتك الخاصة.
-            </p>
-            <div className="p-4 rounded-2xl bg-[var(--gold)]/5 border border-[var(--gold)]/20 text-center font-medium text-[var(--gold)] my-6">
-              لأن أناقتك لا تحتاج إلى أن تكون صاخبة… يكفي أن يكون لها وَهَجها الخاص.
-            </div>
-          </div>
-        </div>
-
-        {/* قسم الفلسفة وما يميز وهج */}
-        <div className="grid gap-6 md:grid-cols-2 items-stretch">
-          
-          {/* فلسفتنا (تم تعديل الأيقونة لتصبح بجانب العنوان) */}
-          <div className="bg-card border border-border/60 rounded-3xl p-8 shadow-sm space-y-6 flex flex-col justify-between">
-            <div className="space-y-4">
-              <div className="flex items-center gap-3 text-[var(--gold)]">
-                <Compass size={24} />
-                <h3 className="text-2xl font-bold tracking-wide text-foreground">فلسفتنا</h3>
-              </div>
-              <p className="text-muted-foreground text-sm md:text-base leading-relaxed">
-                نختار التفاصيل بعناية. من التصميم إلى طريقة تقديم القطعة، نهتم بأن تكون تجربة وَهَج مختلفة؛ بسيطة، أنيقة، أنثوية، ومليئة بالتفاصيل التي تشعركِ بأن القطعة صُممت لتكون جزءًا من أسلوبك.
-              </p>
-            </div>
-            <p className="text-sm font-semibold text-[var(--gold)] pt-4 border-t border-border/40">
-              نؤمن أن الفخامة ليست في كثرة التفاصيل، بل في اختيار التفاصيل الصحيحة.
-            </p>
-          </div>
-
-          {/* ما الذي يميز وَهَج؟ */}
-          <div className="bg-card border border-border/60 rounded-3xl p-8 shadow-sm space-y-6">
-            <h3 className="text-2xl font-bold text-foreground">ما الذي يميز وَهَج؟</h3>
-            
-            <div className="space-y-4">
-              <div className="space-y-1">
-                <h4 className="font-semibold text-sm md:text-base text-[var(--gold)]">✦ تصاميم مختارة</h4>
-                <p className="text-muted-foreground text-xs md:text-sm leading-relaxed">قطع عصرية نختارها بعناية لتناسب مختلف الأذواق والإطلالات.</p>
-              </div>
-
-              <div className="space-y-1">
-                <h4 className="font-semibold text-sm md:text-base text-[var(--gold)]">✦ أناقة بلا تكلّف</h4>
-                <p className="text-muted-foreground text-xs md:text-sm leading-relaxed">تصاميم تجمع بين البساطة والفخامة لتكون سهلة التنسيق وملفتة في الوقت نفسه.</p>
-              </div>
-
-              <div className="space-y-1">
-                <h4 className="font-semibold text-sm md:text-base text-[var(--gold)]">✦ تجربة تهتم بكِ</h4>
-                <p className="text-muted-foreground text-xs md:text-sm leading-relaxed">من اختيار القطعة وحتى وصولها إليكِ، نحرص على أن تكون كل خطوة جزءًا من تجربة وَهَج.</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* وعد وَهَج (تم تعديل الأيقونة لتصبح بجانب العنوان) */}
-        <div className="bg-gradient-to-br from-[var(--gold)]/10 via-card to-card border border-[var(--gold)]/30 rounded-3xl p-8 md:p-10 space-y-6 shadow-md">
-          <div className="flex items-center gap-3 text-[var(--gold)]">
-            <Heart size={26} />
-            <h3 className="text-2xl font-bold tracking-wide text-foreground">وعد وَهَج</h3>
-          </div>
-          
-          <div className="space-y-4 text-foreground/90 text-base md:text-lg leading-relaxed">
-            <p>
-              أن تكون كل قطعة تختارينها… إضافة حقيقية إلى أسلوبك. نحن لا نريد أن تكون وَهَج مجرد وجهة لشراء الإكسسوارات، بل مساحة تجدين فيها القطعة التي تشبهك، وتضيف إلى إطلالتك ذلك التفصيل الصغير الذي يصنع الفرق.
-            </p>
-          </div>
-
-          <div className="pt-2 text-center">
-            <p className="text-[var(--gold)] font-bold text-base md:text-lg tracking-wide">
-              وَهَج — لأنكِ تستحقين أن تتألقي بطريقتك.
-            </p>
-          </div>
-        </div>
-
-        {/* زر تسوقي الآن */}
-        <div className="text-center pt-4">
-          <Link
-            href="/shop"
-            className="inline-flex items-center gap-3 px-8 py-4 rounded-2xl bg-[var(--gold)] text-[var(--gold-contrast)] font-bold text-base shadow-lg hover:opacity-90 transition transform hover:-translate-y-0.5"
-          >
-            <span>تسوقي الآن</span>
-            <ArrowLeft size={20} />
-          </Link>
-        </div>
-
-      </div>
-    </main>
-  );
+  return <main className="wahaj-about-page" dir="rtl"><div className="wahaj-about-shell">
+    <header className="wahaj-about-hero"><div className="wahaj-about-hero__copy"><span className="wahaj-about-kicker"><Sparkles size={15} /> وَهَج · قصتنا</span><h1>تفاصيل صغيرة<br /><em>تصنع وهجًا كبيرًا</em></h1><p>في وَهَج، نؤمن أن الأناقة لا تحتاج إلى مبالغة؛ يكفي أن تختاري التفاصيل التي تشبهكِ وتضيف إلى إطلالتكِ ذلك الأثر الخاص.</p><Link href="/shop" className="wahaj-about-cta">اكتشفي مجموعتنا <ArrowLeft size={17} /></Link></div><div className="wahaj-about-hero__seal" aria-hidden="true"><Star size={28} /><span>وَهَج</span><small>shine your way</small></div></header>
+    <section className="wahaj-about-story"><div className="wahaj-about-section-label">01 · الحكاية</div><div><div className="wahaj-about-heading"><span><Gem size={18} /> من فكرة إلى تجربة</span><h2>لماذا وَهَج؟</h2></div><div className="wahaj-about-copy"><p><strong>وَهَج</strong> ليس مجرد إكسسوار، بل لمسة تعبّر عنكِ. وُلد وَهَج من فكرة بسيطة: أن قطعة صغيرة قادرة على تغيير إطلالة كاملة، وأن التفاصيل التي نختارها بعناية قد تكون أكثر ما يعبّر عن شخصيتنا.</p><p>اخترنا اسم وَهَج لما يحمله من معنى؛ فالوهج هو الإشراق والتألّق واللمعان، وهو الشعور الذي نريد أن تمنحكِ إياه كل قطعة تختارينها.</p><p>نقدم مجموعة مختارة من الإكسسوارات والمجوهرات الصناعية بتصاميم عصرية وأنيقة، تجمع بين البساطة والتفاصيل اللافتة لتناسب لحظاتك اليومية ومناسباتك الخاصة.</p></div></div></section>
+    <section className="wahaj-about-values"><div className="wahaj-about-section-label">02 · قيمنا</div><div><div className="wahaj-about-heading"><span><Sparkles size={18} /> ما يميزنا</span><h2>فلسفة وَهَج</h2></div><div className="wahaj-about-value-grid">{values.map(({ icon: Icon, title, text }) => <article key={title}><span><Icon size={21} /></span><h3>{title}</h3><p>{text}</p></article>)}</div></div></section>
+    <section className="wahaj-about-promise"><span className="wahaj-about-promise__icon"><Heart size={25} /></span><div><span className="wahaj-about-kicker">03 · وعد وَهَج</span><h2>قطعة تشبهكِ، وتكمل أسلوبكِ</h2><p>نريد أن تكون وَهَج أكثر من مجرد وجهة لشراء الإكسسوارات؛ مساحة تجدين فيها القطعة التي تشبهكِ وتضيف إلى إطلالتكِ التفصيل الصغير الذي يصنع الفرق.</p><b>وَهَج — لأنكِ تستحقين أن تتألقي بطريقتك.</b></div></section>
+  </div></main>;
 }
