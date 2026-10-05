@@ -838,7 +838,7 @@ a:focus-visible {
   isolation: isolate;
   overflow: hidden;
   margin-top: 0;
-  padding: 50px 0 22px;
+  padding: 42px 0 22px;
   border-top: 1px solid color-mix(in srgb, var(--gold) 38%, var(--border));
   background: color-mix(in srgb, var(--surface) 88%, var(--gold) 12%);
   color: var(--foreground);
@@ -854,48 +854,11 @@ a:focus-visible {
   pointer-events: none;
 }
 
-.wahaj-footer__topline {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 20px;
-  padding-bottom: 25px;
-  border-bottom: 1px solid var(--border);
-}
-
-.wahaj-footer__eyebrow {
-  color: var(--gold-muted);
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: .08em;
-}
-
-.wahaj-footer__contact-cta {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  min-height: 40px;
-  padding: 0 15px;
-  border: 1px solid color-mix(in srgb, var(--gold) 40%, var(--border));
-  border-radius: var(--radius-sm);
-  color: var(--foreground);
-  font-size: 12px;
-  transition: background-color var(--transition), border-color var(--transition), color var(--transition), transform var(--transition);
-}
-
-.wahaj-footer__contact-cta:hover {
-  transform: translateY(-1px);
-  border-color: var(--gold);
-  background: var(--gold-soft);
-}
-
-.wahaj-footer__contact-cta span { color: var(--gold-muted); }
-
 .wahaj-footer__main {
   display: grid;
   grid-template-columns: minmax(230px, 1.4fr) repeat(2, minmax(145px, .82fr)) minmax(190px, 1.08fr);
   gap: clamp(24px, 4vw, 52px);
-  padding: 38px 0 35px;
+  padding: 0 0 35px;
 }
 
 .wahaj-footer__brand { min-width: 0; max-width: 350px; }
@@ -1038,8 +1001,7 @@ a:focus-visible {
 
 @media (max-width: 600px) {
   .wahaj-footer { padding: 35px 0 82px; }
-  .wahaj-footer__topline { align-items: flex-start; flex-direction: column; gap: 12px; padding-bottom: 20px; }
-  .wahaj-footer__main { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px 18px; padding: 28px 0 25px; }
+  .wahaj-footer__main { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px 18px; padding: 0 0 25px; }
   .wahaj-footer__brand { grid-column: 1 / -1; }
   .wahaj-footer__payment-column { grid-column: 1 / -1; }
   .wahaj-footer__logo-image { height: 50px; max-width: 160px; }
