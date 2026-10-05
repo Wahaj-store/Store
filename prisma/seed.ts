@@ -39,6 +39,14 @@ async function upsertSiteSetting(key: string, value: string) {
   });
 }
 
+async function seedSiteSettingIfMissing(key: string, value: string) {
+  await prisma.siteSetting.upsert({
+    where: { key },
+    update: {},
+    create: { key, value },
+  });
+}
+
 async function main() {
   const adminEmail = process.env.ADMIN_EMAIL?.trim().toLowerCase();
   const adminPassword = process.env.ADMIN_PASSWORD;
@@ -193,6 +201,15 @@ async function main() {
     ['contact_email', adminEmail],
   ];
   for (const [key, value] of settings) await upsertSiteSetting(key, value);
+
+  // These remain blank until the store owner supplies the real social profiles.
+  // Unlike other seed settings, they must never replace a value saved from the admin panel.
+  const socialSettings: Array<[string, string]> = [
+    ['social_facebook', ''],
+    ['social_instagram', ''],
+    ['social_tiktok', ''],
+  ];
+  for (const [key, value] of socialSettings) await seedSiteSettingIfMissing(key, value);
 
   // 5) Homepage sections.
   const sections = [
