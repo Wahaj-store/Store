@@ -3246,3 +3246,23 @@ a:focus-visible {
 .wahaj-account-social__logo--google { border:1px solid var(--border); background:var(--background); color:#4285f4; }
 .wahaj-account-social__logo--facebook { background:#1877f2; color:#fff; font-size:16px; }
 @media (prefers-reduced-motion: reduce) { .wahaj-account-social__button { transition:none; } }
+
+/* Cart and checkout experience */
+.wahaj-cart-page,.wahaj-checkout-page { animation: wahaj-commerce-enter .36s cubic-bezier(.2,.65,.2,1) both; }
+.wahaj-cart-page { position:relative; }
+.wahaj-cart-page::before,.wahaj-checkout-page::before { position:absolute; inset-inline:0; top:0; height:230px; pointer-events:none; content:""; background:radial-gradient(circle at 14% 0%,color-mix(in srgb,var(--gold) 11%,transparent),transparent 42%),radial-gradient(circle at 86% 4%,color-mix(in srgb,var(--gold) 7%,transparent),transparent 38%); opacity:.8; }
+.wahaj-cart-page > div,.wahaj-checkout-page > * { position:relative; z-index:1; }
+.wahaj-cart-item { box-shadow:var(--shadow-soft); transition:transform .22s ease,box-shadow .22s ease,border-color .22s ease; }
+.wahaj-cart-item:hover { transform:translateY(-2px); border-color:color-mix(in srgb,var(--gold) 35%,var(--border)); box-shadow:var(--shadow-luxury); }
+.wahaj-cart-summary { border-color:color-mix(in srgb,var(--gold) 24%,var(--border)); box-shadow:var(--shadow-luxury); }
+.wahaj-cart-summary a { transition:transform .2s ease,box-shadow .2s ease,opacity .2s ease; }
+.wahaj-cart-summary a:hover { transform:translateY(-2px); box-shadow:0 12px 28px color-mix(in srgb,var(--gold) 18%,transparent); }
+.checkout-member-strip { display:flex; align-items:center; justify-content:space-between; gap:12px; border:1px solid color-mix(in srgb,var(--gold) 25%,var(--border)); border-radius:16px; background:color-mix(in srgb,var(--gold) 7%,var(--card)); padding:12px 14px; color:var(--muted-foreground); font-size:11px; line-height:1.7; }
+.checkout-member-strip a { flex:0 0 auto; color:var(--gold-muted); font-size:10px; font-weight:700; text-decoration:underline; }
+.checkout-login-hint,.checkout-addresses__empty { border:1px dashed color-mix(in srgb,var(--gold) 38%,var(--border)); border-radius:15px; background:color-mix(in srgb,var(--gold) 5%,var(--card)); padding:12px 14px; color:var(--muted-foreground); font-size:11px; line-height:1.8; }
+.wahaj-checkout-page form > section > div,.wahaj-checkout-page form > aside { box-shadow:var(--shadow-soft); transition:border-color .2s ease,box-shadow .2s ease; }
+.wahaj-checkout-page form > section > div:hover,.wahaj-checkout-page form > aside:hover { border-color:color-mix(in srgb,var(--gold) 24%,var(--border)); box-shadow:var(--shadow-luxury); }
+.wahaj-checkout-page input:read-only { background:color-mix(in srgb,var(--surface) 68%,var(--bg)); }
+@keyframes wahaj-commerce-enter { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
+@media (max-width:700px) { .checkout-member-strip { align-items:flex-start; flex-direction:column; gap:5px; } .wahaj-cart-item { align-items:flex-start; } .wahaj-cart-summary { position:static !important; } }
+@media (prefers-reduced-motion:reduce) { .wahaj-cart-page,.wahaj-checkout-page { animation:none; } .wahaj-cart-item,.wahaj-cart-summary a { transition:none; } }
