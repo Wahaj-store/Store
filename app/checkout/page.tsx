@@ -19,7 +19,9 @@ interface Address {
   isDefault: boolean;
 }
 
-function AddressSelector({ selectedId, onSelectAddress }: { selectedId: string | null, onSelectAddress: (address: Address | null) => void }) {
+interface CustomerSummary { id: string; name?: string | null; phone?: string | null; email?: string | null }
+
+function AddressSelector({ selectedId, onSelectAddress, onAuthState }: { selectedId: string | null, onSelectAddress: (address: Address | null) => void, onAuthState: (authenticated: boolean) => void }) {
   const [addresses, setAddresses] = useState<Address[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -28,6 +30,7 @@ function AddressSelector({ selectedId, onSelectAddress }: { selectedId: string |
       try {
         const res = await fetch('/api/customer/addresses');
         if (res.ok) {
+          onAuthState(true);
           const data = await res.json();
           setAddresses(data);
           if (!selectedId) {
@@ -36,6 +39,8 @@ function AddressSelector({ selectedId, onSelectAddress }: { selectedId: string |
               onSelectAddress(defaultAddr);
             }
           }
+        } else if (res.status === 401) {
+          onAuthState(false);
         }
       } catch (error) {
         console.error('Error fetching addresses:', error);
@@ -47,7 +52,7 @@ function AddressSelector({ selectedId, onSelectAddress }: { selectedId: string |
   }, []);
 
   if (loading) return <div className="text-xs text-muted-foreground py-2 font-light">جاري التحقق من العناوين المحفوظة...</div>;
-  if (addresses.length === 0) return null;
+  if (addresses.length === 0) return <p className="checkout-addresses__empty">لا توجد عناوين محفوظة بعد. يمكنكِ إدخال عنوان جديد أدناه.</p>;
 
   return (
     <div className="space-y-3 mb-6 p-5 rounded-3xl bg-muted/10 border border-border/40 shadow-xs">
@@ -99,6 +104,8 @@ function CheckoutContent() {
   const [pricingMessage, setPricingMessage] = useState('');
   
   const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
+  const [customer, setCustomer] = useState<CustomerSummary | null>(null);
+  const [addressAuthState, setAddressAuthState] = useState<boolean | null>(null);
 
   const [formData, setFormData] = useState({
     name: '',
@@ -118,6 +125,16 @@ function CheckoutContent() {
   useEffect(() => {
     setC(JSON.parse(localStorage.getItem('wahaj_cart') || '[]'));
     setCoupon(sp.get('coupon') || '');
+
+    fetch('/api/customer/auth', { credentials: 'include' })
+      .then(res => res.ok ? res.json() : null)
+      .then(data => {
+        if (data?.id) {
+          setCustomer(data);
+          setFormData(prev => ({ ...prev, name: data.name || prev.name, phone: data.phone || prev.phone }));
+        }
+      })
+      .catch(() => {});
 
     fetch('/api/settings')
       .then(x => x.json())
@@ -163,8 +180,8 @@ function CheckoutContent() {
     if (addr) {
       setSelectedAddressId(addr.id);
       setFormData({
-        name: addr.name || '',
-        phone: addr.phone || '',
+        name: customer?.name || addr.name || '',
+        phone: customer?.phone || addr.phone || '',
         city: addr.city || '',
         address: addr.address || '',
         notes: addr.notes || '',
@@ -181,7 +198,7 @@ function CheckoutContent() {
       }
     } else {
       setSelectedAddressId(null);
-      setFormData({ name: '', phone: '', city: '', address: '', notes: '' });
+      setFormData({ name: customer?.name || '', phone: customer?.phone || '', city: '', address: '', notes: '' });
     }
   };
 
@@ -294,6 +311,11 @@ function CheckoutContent() {
 
     setBusy(true);
     setMsg('');
+    if (customer?.phone && !formData.phone) {
+      setMsg('تعذر قراءة رقم الهاتف الأساسي من حسابكِ');
+      setBusy(false);
+      return;
+    }
     const body = {
       name: formData.name,
       phone: formData.phone,
@@ -301,6 +323,7 @@ function CheckoutContent() {
       city: formData.city,
       address: formData.address,
       notes: formData.notes,
+      addressId: selectedAddressId || undefined,
       paymentMethod: pay,
       couponCode: coupon || undefined,
       idempotencyKey: crypto.randomUUID(),
@@ -348,7 +371,7 @@ function CheckoutContent() {
   };
 
   return (
-    <main className="container max-w-5xl py-12 px-4 md:px-8 bg-[var(--bg)] text-foreground transition-colors duration-300" dir="rtl">
+    <main className="wahaj-checkout-page container max-w-5xl py-12 px-4 md:px-8 bg-[var(--bg)] text-foreground transition-colors duration-300" dir="rtl">
       
       {/* رأس الصفحة الفاخر */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-10 border-b border-border/30 pb-6">
@@ -395,20 +418,24 @@ function CheckoutContent() {
               بيانات الشحن والتوصيل
             </h2>
 
-            <AddressSelector selectedId={selectedAddressId} onSelectAddress={handleSelectAddress} />
+            {customer && <div className="checkout-member-strip"><span>مرحبًا {customer.name || 'بكِ'}، سيتم استخدام بيانات حسابكِ بأمان.</span><Link href="/account">إدارة الحساب</Link></div>}
+            {addressAuthState === false && <div className="checkout-login-hint">سجّلي الدخول لعرض عناوينكِ المحفوظة تلقائيًا، أو أكملي كزائرة بإدخال عنوان جديد.</div>}
+            <AddressSelector selectedId={selectedAddressId} onSelectAddress={handleSelectAddress} onAuthState={setAddressAuthState} />
 
             <div className="grid gap-5 md:grid-cols-2">
               <label className="text-xs font-semibold text-muted-foreground space-y-1.5">الاسم بالكامل
                 <input name="name" required value={formData.name} onChange={handleInputChange} className="w-full mt-1 px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[var(--gold)] transition shadow-xs" placeholder="أدخلي اسمكِ الثلاثي" />
               </label>
               <label className="text-xs font-semibold text-muted-foreground space-y-1.5">رقم الهاتف
-                <input name="phone" required value={formData.phone} onChange={handleInputChange} dir="ltr" className="w-full mt-1 px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[var(--gold)] transition shadow-xs text-right" placeholder="01xxxxxxxx" />
+                <input name="phone" required readOnly={Boolean(customer?.phone)} value={formData.phone} onChange={handleInputChange} dir="ltr" className="w-full mt-1 px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[var(--gold)] transition shadow-xs text-right read-only:cursor-not-allowed read-only:opacity-70" placeholder="01xxxxxxxx" />
+                {customer?.phone && <small className="mt-1 block text-[10px] text-[var(--gold)]">رقم الهاتف الأساسي لحسابكِ — غير قابل للتعديل من صفحة الطلب.</small>}
               </label>
               
               <label className="text-xs font-semibold text-muted-foreground space-y-1.5">المحافظة
                 <select 
                   name="governorate" 
                   required 
+                  disabled={Boolean(selectedAddressId)}
                   value={selectedGovernorate}
                   onChange={e => setSelectedGovernorate(e.target.value)}
                   className="w-full mt-1 px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[var(--gold)] transition shadow-xs"
@@ -422,12 +449,12 @@ function CheckoutContent() {
               </label>
 
               <label className="text-xs font-semibold text-muted-foreground space-y-1.5">المدينة / المركز
-                <input name="city" required value={formData.city} onChange={handleInputChange} className="w-full mt-1 px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[var(--gold)] transition shadow-xs" placeholder="اسم المدينة أو الحي" />
+                <input name="city" required readOnly={Boolean(selectedAddressId)} value={formData.city} onChange={handleInputChange} className="w-full mt-1 px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[var(--gold)] transition shadow-xs read-only:cursor-not-allowed read-only:opacity-70" placeholder="اسم المدينة أو الحي" />
               </label>
             </div>
 
             <label className="block text-xs font-semibold text-muted-foreground space-y-1.5">العنوان بالتفصيل
-              <textarea name="address" required rows={2} value={formData.address} onChange={handleInputChange} className="w-full mt-1 px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[var(--gold)] transition shadow-xs" placeholder="اسم الشارع، رقم العمارة، رقم الشقة..." />
+              <textarea name="address" required readOnly={Boolean(selectedAddressId)} rows={2} value={formData.address} onChange={handleInputChange} className="w-full mt-1 px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[var(--gold)] transition shadow-xs read-only:cursor-not-allowed read-only:opacity-70" placeholder="اسم الشارع، رقم العمارة، رقم الشقة..." />
             </label>
             
             <label className="block text-xs font-semibold text-muted-foreground space-y-1.5">ملاحظات (اختياري)
