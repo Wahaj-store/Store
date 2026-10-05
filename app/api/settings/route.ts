@@ -1,8 +1,9 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
-// المحتوى العام قابل لإعادة التحقق دوريًا؛ البيانات الحساسة لا تُخزّن هنا.
-export const revalidate = 60;
+// إعدادات الروابط تتغير من لوحة الإدارة، لذا يجب أن تعكس الواجهة آخر قيمة محفوظة فورًا.
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 const PUBLIC_KEYS=['brand_name','brand_tagline','currency','announcement','whatsapp','minimum_order','free_shipping','popup_enabled','seo_title','seo_description','brand_story','header_menu','footer_links','popup_config','social_facebook','social_instagram','social_tiktok'];
 
@@ -17,5 +18,5 @@ export async function GET(){
   settings: Object.fromEntries(rows.map(x => [x.key, x.value])),
   payments,
   theme,
- });
+ }, { headers: { 'Cache-Control': 'no-store, max-age=0' } });
 }
