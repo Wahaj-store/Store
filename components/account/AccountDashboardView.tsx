@@ -491,7 +491,7 @@ export default function AccountDashboardView(props: any) {
                       </div>
                     )}
 
-                    <div className="flex justify-between items-center border-t border-border/30 pt-4 font-serif font-bold text-base">
+                    <div className="wahaj-order-total flex justify-between items-center border-t border-border/30 pt-4 font-serif font-bold text-base">
                       <span>الإجمالي الكلي</span>
                       <span className="text-[var(--gold)] text-lg">{Number(selectedOrder.total).toLocaleString('ar-EG')} ج.م</span>
                     </div>
