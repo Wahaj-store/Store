@@ -94,9 +94,11 @@ function QuickView({ p, onClose }: { p: any; onClose: () => void }) {
 export default function ProductCard({
   product,
   compact = false,
+  variant = "default",
 }: {
   product: any;
   compact?: boolean;
+  variant?: "default" | "shop";
 }) {
   const [quickView, setQuickView] = useState(false);
   const price = Number(product.price);
@@ -107,7 +109,7 @@ export default function ProductCard({
 
   return (
     <>
-      <article className={`wahaj-product-card ${compact ? "wahaj-product-card--compact" : ""}`}>
+      <article className={`wahaj-product-card ${compact ? "wahaj-product-card--compact" : ""} ${variant === "shop" ? "wahaj-product-card--shop" : ""}`}>
         <div className="wahaj-product-card__media">
           <a
             href={`/product/${product.slug}`}
@@ -127,6 +129,12 @@ export default function ProductCard({
             <WishlistButton productId={product.id} />
             {discount > 0 && (
               <span className="wahaj-product-card__discount">خصم {discount}%</span>
+            )}
+            {discount === 0 && variant === "shop" && product.newArrival && (
+              <span className="wahaj-product-card__shop-tag">وصل حديثًا</span>
+            )}
+            {discount === 0 && variant === "shop" && !product.newArrival && product.bestSeller && (
+              <span className="wahaj-product-card__shop-tag">الأكثر طلبًا</span>
             )}
           </div>
 
