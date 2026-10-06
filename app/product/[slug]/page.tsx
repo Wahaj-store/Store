@@ -1,35 +1,68 @@
-import { prisma } from '@/lib/prisma';
+import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import {
+  ArrowLeft,
+  Check,
+  ChevronLeft,
+  CreditCard,
+  PackageCheck,
+  RotateCcw,
+  ShieldCheck,
+  Sparkles,
+  Truck,
+} from 'lucide-react';
+import { prisma } from '@/lib/prisma';
+import ProductGallery from '@/components/ProductGallery';
 import ProductPurchase from '@/components/ProductPurchase';
+import ProductCard from '@/components/ProductCard';
 import WishlistButton from '@/components/WishlistButton';
 import ReviewForm from '@/components/ReviewForm';
 import BackInStockForm from '@/components/BackInStockForm';
 import RecentlyViewed from '@/components/RecentlyViewed';
 import ClientRecentTracker from '@/components/ClientRecentTracker';
-import Image from 'next/image';
-import { ShieldCheck, Truck, RotateCcw, ChevronRight } from 'lucide-react';
 
 export const revalidate = 60;
 
 export async function generateMetadata({ params }: { params: { slug: string } }) {
-  const p = await prisma.product.findUnique({
+  const product = await prisma.product.findUnique({
     where: { slug: params.slug },
-    select: { name: true, seoTitle: true, seoDescription: true, description: true, images: true },
+    select: {
+      name: true,
+      seoTitle: true,
+      seoDescription: true,
+      description: true,
+      images: {
+        orderBy: { sortOrder: 'asc' },
+        take: 1,
+        select: { url: true },
+      },
+    },
   });
-  if (!p) return {};
+
+  if (!product) return {};
+
+  const title = product.seoTitle || `${product.name} | وَهَج`;
+  const description = product.seoDescription || product.description || `اكتشفي ${product.name} من وَهَج`;
+
   return {
-    title: p.seoTitle || `${p.name} | وَهَج`,
-    description: p.seoDescription || p.description || `اكتشفي ${p.name} من وَهَج`,
+    title,
+    description,
     openGraph: {
-      title: p.seoTitle || p.name,
-      description: p.seoDescription || p.description || '',
-      images: p.images[0]?.url ? [{ url: p.images[0].url }] : [],
+      title: product.seoTitle || product.name,
+      description: product.seoDescription || product.description || '',
+      images: product.images[0]?.url ? [{ url: product.images[0].url }] : [],
     },
   };
 }
 
+const paymentOptions = [
+  { method: 'COD', label: 'الدفع عند الاستلام', Icon: Truck },
+  { method: 'VODAFONE_CASH', label: 'فودافون كاش', Icon: CreditCard },
+  { method: 'INSTAPAY', label: 'إنستا باي', Icon: ShieldCheck },
+] as const;
+
 export default async function ProductPage({ params }: { params: { slug: string } }) {
-  const [p, payments] = await Promise.all([
+  const [product, payments] = await Promise.all([
     prisma.product.findUnique({
       where: { slug: params.slug },
       include: {
@@ -41,7 +74,14 @@ export default async function ProductPage({ params }: { params: { slug: string }
             type: { in: ['RELATED', 'COMPLEMENTARY', 'UPSELL', 'CROSS_SELL'] },
             toProduct: { status: 'PUBLISHED' },
           },
-          include: { toProduct: { include: { images: true } } },
+          include: {
+            toProduct: {
+              include: {
+                images: { orderBy: { sortOrder: 'asc' }, take: 1 },
+                category: true,
+              },
+            },
+          },
           orderBy: { sortOrder: 'asc' },
           take: 8,
         },
@@ -56,218 +96,211 @@ export default async function ProductPage({ params }: { params: { slug: string }
     prisma.paymentSetting.findMany({ where: { enabled: true } }),
   ]);
 
-  if (!p || p.status !== 'PUBLISHED') notFound();
+  if (!product || product.status !== 'PUBLISHED') notFound();
 
-  const priceNum = Number(p.price);
-  const mainImage = p.images[0]?.url || '/placeholder.svg';
+  const price = Number(product.price);
+  const mainImage = product.images[0]?.url || '/placeholder.svg';
+  const reviews = product.reviews;
+  const averageRating = reviews.length
+    ? reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length
+    : 0;
+  const availablePayments = paymentOptions.filter((option) =>
+    payments.some((payment) => payment.method === option.method),
+  );
 
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Product',
-    name: p.name,
-    description: p.description || '',
-    sku: p.sku,
-    image: p.images.map((x) => x.url),
+    name: product.name,
+    description: product.description || '',
+    sku: product.sku,
+    image: product.images.map((image) => image.url),
     offers: {
       '@type': 'Offer',
-      price: priceNum,
+      price,
       priceCurrency: 'EGP',
-      availability: p.stock > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
-      url: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://wahaj-store.vercel.app'}/product/${p.slug}`,
+      availability: product.stock > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+      url: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://wahaj-store.vercel.app'}/product/${product.slug}`,
     },
   };
 
   return (
-    <main className="container py-16 max-w-6xl" dir="rtl">
-      <ClientRecentTracker 
-        product={{
-          name: p.name,
-          slug: p.slug,
-          price: priceNum,
-          image: mainImage
-        }} 
+    <main className="wahaj-product-page" dir="rtl">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <ClientRecentTracker
+        product={{ name: product.name, slug: product.slug, price, image: mainImage }}
       />
 
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
-      
-      {/* زر العودة العلوي الفاخر */}
-      <a 
-        href="/shop" 
-        className="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl border border-border/60 bg-muted/20 text-xs font-semibold text-[var(--gold)] hover:bg-[var(--gold)]/10 transition-all shadow-xs"
-      >
-        <ChevronRight size={16} /> 
-        <span>العودة للمتجر</span>
-      </a>
+      <div className="container wahaj-product-container">
+        <nav className="wahaj-product-breadcrumb" aria-label="مسار التنقل">
+          <Link href="/">الرئيسية</Link>
+          <ChevronLeft size={14} aria-hidden="true" />
+          <Link href="/shop">المتجر</Link>
+          {product.category ? (
+            <>
+              <ChevronLeft size={14} aria-hidden="true" />
+              <Link href={`/shop?category=${encodeURIComponent(product.category.slug)}`}>
+                {product.category.name}
+              </Link>
+            </>
+          ) : null}
+          <ChevronLeft size={14} aria-hidden="true" />
+          <span aria-current="page">{product.name}</span>
+        </nav>
 
-      <div className="mt-8 grid gap-12 md:grid-cols-2 items-start">
-        
-        {/* 1. معرض الصور (Gallery) */}
-        <div className="space-y-4">
-          <div className="relative aspect-square overflow-hidden rounded-3xl border border-border/30 bg-muted/20 shadow-md">
-            <Image
-              src={mainImage}
-              alt={p.images[0]?.alt || p.name}
-              fill
-              priority
-              sizes="(max-width: 768px) 100vw, 50vw"
-              className="h-full w-full object-cover transition-all duration-700 hover:scale-105"
-            />
+        <section className="wahaj-product-hero" aria-labelledby="product-title">
+          <div className="wahaj-product-visual">
+            <ProductGallery images={product.images} productName={product.name} />
           </div>
 
-          {/* المصغرات (Thumbnails) */}
-          {p.images.length > 1 && (
-            <div className="flex gap-3 overflow-x-auto pb-2">
-              {p.images.map((im, i) => (
-                <div
-                  key={im.id || i}
-                  className="relative aspect-square w-20 flex-shrink-0 overflow-hidden rounded-2xl border-2 border-border/40 hover:border-[var(--gold)] transition-all cursor-pointer shadow-xs"
-                >
-                  <Image
-                    src={im.url}
-                    alt=""
-                    fill
-                    sizes="80px"
-                    className="h-full w-full object-cover"
-                  />
-                </div>
-              ))}
+          <div className="wahaj-product-information">
+            <div className="wahaj-product-eyebrow">
+              <span className="wahaj-product-eyebrow__mark"><Sparkles size={14} /></span>
+              <span>{product.category?.name || 'اختيارات وَهَج'}</span>
+              <span className="wahaj-product-eyebrow__line" aria-hidden="true" />
             </div>
-          )}
-        </div>
 
-        {/* 2. تفاصيل المنتج وعمليات الشراء */}
-        <div className="flex flex-col justify-between">
-          <div>
-            <span className="inline-block text-xs uppercase tracking-widest text-[var(--gold)] font-semibold px-3 py-1 rounded-full bg-[var(--gold)]/10 mb-3">
-              {p.category?.name || 'وَهَج فخامة'}
-            </span>
-            
-            <div className="flex items-center justify-between gap-4">
-              <h1 className="text-3xl md:text-4xl font-serif font-bold tracking-tight">{p.name}</h1>
-              <div className="flex-shrink-0">
-                <WishlistButton productId={p.id} />
+            <div className="wahaj-product-title-row">
+              <div className="wahaj-product-title-copy">
+                <span className="wahaj-product-title-kicker">تفاصيل صغيرة، أثر يدوم</span>
+                <h1 id="product-title">{product.name}</h1>
+              </div>
+              <div className="wahaj-product-wishlist" aria-label="حفظ المنتج في المفضلة">
+                <WishlistButton productId={product.id} />
               </div>
             </div>
 
-            <div className="mt-6">
-              <ProductPurchase product={{ ...p, price: priceNum, images: p.images }} />
-            </div>
-
-            <p className="mt-6 text-sm text-muted-foreground leading-relaxed font-light">{p.description}</p>
-            
-            {p.stock <= 0 && (
-              <div className="mt-6">
-                <BackInStockForm productId={p.id} />
-              </div>
-            )}
-
-            {/* بطاقات وسائل الدفع الآمنة */}
-            <div className="mt-8 rounded-3xl border border-border/40 bg-muted/10 p-5 shadow-xs">
-              <span className="text-xs font-semibold text-muted-foreground block mb-3 text-center tracking-wide">
-                طرق الدفع الآمنة المتاحة
+            <div className="wahaj-product-rating" aria-label={reviews.length ? `متوسط التقييمات المعروضة ${averageRating.toFixed(1)} من 5` : 'لا توجد تقييمات بعد'}>
+              <span className="wahaj-product-rating__stars" aria-hidden="true">
+                {'★'.repeat(Math.round(averageRating))}{'☆'.repeat(5 - Math.round(averageRating))}
               </span>
-              <div className="grid grid-cols-3 gap-3 text-xs font-medium">
-                {payments.some((m) => m.method === 'COD') && (
-                  <div className="flex flex-col items-center justify-center gap-2 bg-[var(--bg)] px-3 py-3.5 rounded-2xl border border-border/40 shadow-xs text-center">
-                    <Truck size={18} className="text-[var(--gold)]" />
-                    <span className="text-[11px]">الدفع عند الاستلام</span>
+              <span>{reviews.length ? `${averageRating.toLocaleString('ar-EG', { maximumFractionDigits: 1 })} من 5` : 'لا توجد تقييمات بعد'}</span>
+              {reviews.length ? <a href="#product-reviews">({reviews.length.toLocaleString('ar-EG')} تقييمات معتمدة معروضة)</a> : null}
+            </div>
+
+            {product.sku ? (
+              <div className="wahaj-product-sku">رمز المنتج <b dir="ltr">{product.sku}</b></div>
+            ) : null}
+
+            {product.description ? <p className="wahaj-product-lead">{product.description}</p> : null}
+
+            <div className="wahaj-product-purchase-panel">
+              <ProductPurchase product={{ ...product, price, images: product.images }} />
+            </div>
+
+            {product.stock <= 0 ? <BackInStockForm productId={product.id} /> : null}
+
+            {availablePayments.length ? (
+              <div className="wahaj-product-payments">
+                <div className="wahaj-product-payments__heading">
+                  <span className="wahaj-product-payments__icon"><ShieldCheck size={16} /></span>
+                  <div>
+                    <b>طرق دفع متاحة</b>
+                    <small>اختاري الطريقة المناسبة عند إتمام الطلب</small>
                   </div>
-                )}
-                {payments.some((m) => m.method === 'VODAFONE_CASH') && (
-                  <div className="flex flex-col items-center justify-center gap-2 bg-[var(--bg)] px-3 py-3.5 rounded-2xl border border-border/40 shadow-xs text-center">
-                    <ShieldCheck size={18} className="text-[var(--gold)]" />
-                    <span className="text-[11px]">Vodafone Cash</span>
-                  </div>
-                )}
-                {payments.some((m) => m.method === 'INSTAPAY') && (
-                  <div className="flex flex-col items-center justify-center gap-2 bg-[var(--bg)] px-3 py-3.5 rounded-2xl border border-border/40 shadow-xs text-center">
-                    <RotateCcw size={18} className="text-[var(--gold)]" />
-                    <span className="text-[11px]">InstaPay</span>
-                  </div>
-                )}
+                </div>
+                <div className="wahaj-product-payments__list">
+                  {availablePayments.map(({ method, label, Icon }) => (
+                    <div className="wahaj-product-payment" key={method}>
+                      <Icon size={17} aria-hidden="true" />
+                      <span>{label}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
+            ) : null}
+
+            <div className="wahaj-product-policies">
+              <Link href="/policies/shipping"><Truck size={15} /> تفاصيل الشحن والاستبدال <ArrowLeft size={13} /></Link>
+              <Link href="/payment-policy"><RotateCcw size={15} /> سياسة الدفع <ArrowLeft size={13} /></Link>
             </div>
-          </div>
-        </div>
-      </div>
-
-      {/* قسم التفاصيل والخامة والعناية */}
-      <div className="mt-20 grid gap-8 md:grid-cols-2 border-t border-border/30 pt-12">
-        <div className="rounded-3xl border border-border/40 p-8 bg-muted/10 shadow-xs">
-          <h2 className="text-xl font-serif font-semibold mb-6 text-[var(--gold)]">التفاصيل والخامة</h2>
-          <ul className="space-y-4 text-sm text-muted-foreground font-light">
-            <li className="flex justify-between border-b border-border/30 pb-3">
-              <span className="font-medium text-foreground">الخامة:</span>
-              <span>{p.material || 'مختارة بعناية فائقة'}</span>
-            </li>
-            <li className="flex justify-between border-b border-border/30 pb-3">
-              <span className="font-medium text-foreground">العناية:</span>
-              <span>{p.careInstructions || 'يُحفظ بعيداً عن الرطوبة والعطور المباشرة.'}</span>
-            </li>
-            <li className="flex justify-between pb-1">
-              <span className="font-medium text-foreground">رمز المنتج (SKU):</span>
-              <span className="font-mono text-xs">{p.sku || 'غير متوفر'}</span>
-            </li>
-          </ul>
-        </div>
-
-        {/* قسم تقييمات العميلات */}
-        <div className="rounded-3xl border border-border/40 p-8 bg-muted/10 shadow-xs">
-          <h2 className="text-xl font-serif font-semibold mb-6 text-[var(--gold)]">تقييمات العميلات</h2>
-          {p.reviews.length > 0 ? (
-            <div className="space-y-4 max-h-60 overflow-y-auto pr-2">
-              {p.reviews.map((r: any) => (
-                <div key={r.id} className="border-b border-border/30 pb-3">
-                  <div className="flex justify-between items-center">
-                    <b className="text-sm font-serif">{r.customer.name}</b>
-                    <span className="text-[var(--gold)] text-xs">{'★'.repeat(r.rating)}</span>
-                  </div>
-                  <p className="mt-1 text-xs text-muted-foreground font-light">{r.text}</p>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p className="text-sm text-muted-foreground mb-4 font-light">كوني أول من يشارك تجربته.</p>
-          )}
-          <div className="mt-6">
-            <ReviewForm productId={p.id} />
-          </div>
-        </div>
-      </div>
-
-      {/* المنتجات المرتبطة */}
-      {p.relationsFrom.length > 0 && (
-        <section className="mt-20 border-t border-border/30 pt-12">
-          <h2 className="text-2xl font-serif font-bold mb-8">قد يعجبك أيضًا</h2>
-          <div className="grid grid-cols-2 gap-4 md:grid-cols-4 md:gap-6">
-            {p.relationsFrom.map((r: any) => (
-              <a
-                key={r.id}
-                href={`/product/${r.toProduct.slug}`}
-                className="group rounded-3xl border border-border/30 bg-[var(--bg)] p-4 shadow-sm transition-all duration-300 hover:shadow-xl hover:border-[var(--gold)]/50"
-              >
-                <div className="overflow-hidden rounded-2xl bg-muted/30 aspect-square">
-                  <Image
-                    src={r.toProduct.images?.[0]?.url || '/placeholder.svg'}
-                    alt={r.toProduct.name}
-                    fill
-                    sizes="(max-width: 768px) 50vw, 25vw"
-                    className="h-full w-full object-cover transition duration-700 group-hover:scale-105"
-                  />
-                </div>
-                <div className="pt-4 px-1">
-                  <h3 className="font-serif font-medium text-base line-clamp-1">{r.toProduct.name}</h3>
-                  <div className="mt-2 font-bold text-base text-[var(--gold)]">
-                    {Number(r.toProduct.price).toLocaleString('ar-EG')} ج.م
-                  </div>
-                </div>
-              </a>
-            ))}
           </div>
         </section>
-      )}
 
-      <RecentlyViewed products={[p]} />
+        <section className="wahaj-product-lower-grid" aria-label="معلومات المنتج وتقييماته">
+          <article className="wahaj-product-specs">
+            <div className="wahaj-product-section-heading">
+              <span className="wahaj-product-section-heading__icon"><PackageCheck size={18} /></span>
+              <div>
+                <span>تفاصيل وَهَج</span>
+                <h2>صُنعت لترافقكِ</h2>
+              </div>
+            </div>
+            {product.description ? <p className="wahaj-product-specs__description">{product.description}</p> : null}
+            <dl className="wahaj-product-spec-list">
+              <div>
+                <dt>الخامة</dt>
+                <dd>{product.material || 'مختارة بعناية فائقة'}</dd>
+              </div>
+              <div>
+                <dt>العناية</dt>
+                <dd>{product.careInstructions || 'يُحفظ بعيدًا عن الرطوبة والعطور المباشرة.'}</dd>
+              </div>
+              <div>
+                <dt>رمز المنتج</dt>
+                <dd dir="ltr">{product.sku || 'غير متوفر'}</dd>
+              </div>
+            </dl>
+            <div className="wahaj-product-specs__note"><Check size={15} /> تفاصيل المنتج ومعلوماته محدثة من متجر وَهَج.</div>
+          </article>
+
+          <section className="wahaj-product-reviews" id="product-reviews" aria-labelledby="reviews-title">
+            <div className="wahaj-product-section-heading">
+              <span className="wahaj-product-section-heading__icon wahaj-product-section-heading__icon--star">★</span>
+              <div>
+                <span>تجارب عميلاتنا</span>
+                <h2 id="reviews-title">تقييمات المنتج</h2>
+              </div>
+              <span className="wahaj-product-reviews__count">{reviews.length.toLocaleString('ar-EG')}</span>
+            </div>
+
+            {reviews.length ? (
+              <div className="wahaj-product-review-list">
+                {reviews.map((review) => {
+                  const reviewer = String(review.customer?.name || '').trim().split(/\s+/)[0] || 'عميلة وَهَج';
+                  return (
+                    <article className="wahaj-product-review" key={review.id}>
+                      <div className="wahaj-product-review__top">
+                        <div className="wahaj-product-review__customer">
+                          <span className="wahaj-product-review__avatar" aria-hidden="true">{reviewer.slice(0, 1)}</span>
+                          <div><b>{reviewer}</b><small>تقييم معتمد</small></div>
+                        </div>
+                        <span className="wahaj-product-review__stars" aria-label={`${review.rating} من 5 نجوم`}>
+                          {'★'.repeat(review.rating)}{'☆'.repeat(Math.max(0, 5 - review.rating))}
+                        </span>
+                      </div>
+                      {review.text ? <p>{review.text}</p> : <p className="wahaj-product-review__empty">شاركت العميلة تقييمها للمنتج.</p>}
+                    </article>
+                  );
+                })}
+              </div>
+            ) : (
+              <p className="wahaj-product-review-empty">لم تُضف تقييمات لهذا المنتج بعد. يسعدنا أن تكوني أول من يشارك تجربته.</p>
+            )}
+
+            <ReviewForm productId={product.id} />
+          </section>
+        </section>
+
+        {product.relationsFrom.length ? (
+          <section className="wahaj-product-related" aria-labelledby="related-products-title">
+            <div className="wahaj-product-related__heading">
+              <div>
+                <span className="wahaj-product-section-heading__eyebrow">اختيارات تكمل إطلالتك</span>
+                <h2 id="related-products-title">قد يعجبكِ أيضًا</h2>
+              </div>
+              <Link href="/shop">اكتشفي المتجر <ArrowLeft size={15} /></Link>
+            </div>
+            <div className="wahaj-product-related__grid">
+              {product.relationsFrom.map((relation) => (
+                <ProductCard key={relation.id} product={relation.toProduct} variant="shop" />
+              ))}
+            </div>
+          </section>
+        ) : null}
+
+        <RecentlyViewed products={[product]} />
+      </div>
     </main>
   );
 }
