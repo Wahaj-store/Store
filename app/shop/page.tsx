@@ -225,7 +225,7 @@ export default async function Shop({ searchParams }: { searchParams: ShopSearchP
         ) : null}
 
         <div className="wahaj-shop-product-grid">
-          {products.map((product) => <ProductCard key={product.id} product={product} />)}
+          {products.map((product) => <ProductCard key={product.id} product={product} variant="shop" />)}
         </div>
 
         {!products.length ? (
