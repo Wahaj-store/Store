@@ -300,7 +300,7 @@ function ProductsSection({
         {products.length > 0 ? (
           <div className="wahaj-product-grid">
             {products.map((p: any) => (
-              <ProductCard key={p.id} product={p} />
+              <ProductCard key={p.id} product={p} variant="shop" />
             ))}
           </div>
         ) : (
