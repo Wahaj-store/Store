@@ -4,6 +4,8 @@ import { ThemeProvider } from 'next-themes';
 import { IBM_Plex_Sans_Arabic } from 'next/font/google';
 import { ReactNode } from 'react';
 
+const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || 'https://wahaj-store.vercel.app').replace(/\/+$/, '');
+
 const wahajFont = IBM_Plex_Sans_Arabic({
   subsets: ['arabic'],
   weight: ['400', '500', '600', '700'],
@@ -13,7 +15,7 @@ const wahajFont = IBM_Plex_Sans_Arabic({
 });
 
 export const metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://example.com'),
+  metadataBase: new URL(SITE_URL),
   title: { default: 'وَهَج | تفاصيل صغيرة تصنع وهجًا كبيرًا', template: '%s | وَهَج' },
   description: 'وَهَج — إكسسوارات عصرية بلمسة عربية راقية.',
   applicationName: 'وَهَج',
