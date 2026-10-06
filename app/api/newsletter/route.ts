@@ -1,3 +1,33 @@
-import {NextResponse} from 'next/server';import {z} from 'zod';import {prisma} from '@/lib/prisma';
-const S=z.object({email:z.string().email().max(254),source:z.string().max(80).optional()});
-export async function POST(req:Request){try{const b=S.parse(await req.json());await prisma.newsletterSubscriber.upsert({where:{email:b.email.toLowerCase()},create:{email:b.email.toLowerCase(),source:b.source},update:{active:true}});return NextResponse.json({ok:true});}catch{return NextResponse.json({error:'البريد الإلكتروني غير صالح'},{status:400});}}
+import { NextResponse } from 'next/server';
+import { z } from 'zod';
+import { prisma } from '@/lib/prisma';
+
+const NewsletterSchema = z.object({
+  email: z.string().trim().email('البريد الإلكتروني غير صالح').max(254).transform(value => value.toLowerCase()),
+  source: z.string().trim().max(80).optional(),
+});
+
+export async function POST(req: Request) {
+  let payload: unknown;
+  try {
+    payload = await req.json();
+  } catch {
+    return NextResponse.json({ error: 'بيانات الاشتراك غير صالحة.' }, { status: 400 });
+  }
+
+  const parsed = NewsletterSchema.safeParse(payload);
+  if (!parsed.success) {
+    return NextResponse.json({ error: parsed.error.issues[0]?.message || 'البريد الإلكتروني غير صالح.' }, { status: 400 });
+  }
+
+  try {
+    await prisma.newsletterSubscriber.upsert({
+      where: { email: parsed.data.email },
+      create: { email: parsed.data.email, source: parsed.data.source },
+      update: { active: true },
+    });
+    return NextResponse.json({ ok: true });
+  } catch {
+    return NextResponse.json({ error: 'تعذّر حفظ الاشتراك الآن. حاولي مرة أخرى لاحقًا.' }, { status: 500 });
+  }
+}
