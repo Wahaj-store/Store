@@ -13,7 +13,7 @@ export default async function Page() {
     prisma.product.findMany({
       where: { status: 'PUBLISHED' },
       include: {
-        images: { orderBy: { sortOrder: 'asc' } },
+        images: { orderBy: { sortOrder: 'asc' }, take: 1 },
         category: true,
         variants: true,
       },
