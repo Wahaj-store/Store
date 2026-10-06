@@ -143,6 +143,16 @@ export default function SiteChrome() {
     { label: 'حسابي', href: '/account' },
     { label: 'السلة', href: '/cart' },
   ].filter(item => !headerMenu.some((configured: any) => configured.href === item.href));
+  const rawWhatsappDigits = String(settings.whatsapp || '').replace(/\D/g, '').replace(/^00/, '');
+  const configuredWhatsapp = rawWhatsappDigits.length === 11 && rawWhatsappDigits.startsWith('01')
+    ? `20${rawWhatsappDigits.slice(1)}`
+    : rawWhatsappDigits.length === 10 && rawWhatsappDigits.startsWith('1')
+      ? `20${rawWhatsappDigits}`
+      : rawWhatsappDigits;
+  const whatsappHref = configuredWhatsapp.length >= 8
+    ? `https://wa.me/${configuredWhatsapp}`
+    : '/contact';
+  const whatsappHasNumber = configuredWhatsapp.length >= 8;
 
   return (
     <>
@@ -368,37 +378,40 @@ export default function SiteChrome() {
 
       {/* شريط التنقل السفلي — Mobile Luxury Navigation */}
       <nav
-        className={`wahaj-mobile-bottom-nav md:hidden${menu ? ' is-menu-open' : ''}`}
+        className={`wahaj-mobile-bottom-nav${menu ? ' is-menu-open' : ''}`}
         aria-label="التنقل الرئيسي للموبايل"
       >
         <div className="wahaj-mobile-bottom-nav__inner">
           <a
             href="/"
-            className={`wahaj-mobile-bottom-nav__item ${pathname === '/' ? 'is-active' : ''}`}
+            className={`wahaj-mobile-bottom-nav__item ${isRouteActive('/') ? 'is-active' : ''}`}
             aria-current={pathname === '/' ? 'page' : undefined}
+            title="الرئيسية"
           >
-            <span className="wahaj-mobile-bottom-nav__icon"><Home size={19} strokeWidth={pathname === '/' ? 2.3 : 1.8} /></span>
+            <span className="wahaj-mobile-bottom-nav__icon"><Home size={19} strokeWidth={isRouteActive('/') ? 2.3 : 1.8} /></span>
             <span className="wahaj-mobile-bottom-nav__label">الرئيسية</span>
           </a>
 
           <a
             href="/shop"
-            className={`wahaj-mobile-bottom-nav__item ${pathname === '/shop' ? 'is-active' : ''}`}
-            aria-current={pathname === '/shop' ? 'page' : undefined}
+            className={`wahaj-mobile-bottom-nav__item ${isRouteActive('/shop') ? 'is-active' : ''}`}
+            aria-current={isRouteActive('/shop') ? 'page' : undefined}
+            title="المتجر"
           >
-            <span className="wahaj-mobile-bottom-nav__icon"><Store size={19} strokeWidth={pathname === '/shop' ? 2.3 : 1.8} /></span>
+            <span className="wahaj-mobile-bottom-nav__icon"><Store size={19} strokeWidth={isRouteActive('/shop') ? 2.3 : 1.8} /></span>
             <span className="wahaj-mobile-bottom-nav__label">المتجر</span>
           </a>
 
           <a
             href="/cart"
-            className={`wahaj-mobile-bottom-nav__item wahaj-mobile-bottom-nav__item--cart ${pathname === '/cart' ? 'is-active' : ''}`}
-            aria-current={pathname === '/cart' ? 'page' : undefined}
+            className={`wahaj-mobile-bottom-nav__item wahaj-mobile-bottom-nav__item--cart ${isRouteActive('/cart') ? 'is-active' : ''}`}
+            aria-current={isRouteActive('/cart') ? 'page' : undefined}
+            title={cartCount > 0 ? `السلة، ${cartCount} منتج` : 'السلة'}
           >
             <span className="wahaj-mobile-bottom-nav__cart-orb">
-              <ShoppingBag size={20} strokeWidth={pathname === '/cart' ? 2.4 : 1.9} />
+              <ShoppingBag size={20} strokeWidth={isRouteActive('/cart') ? 2.4 : 1.9} />
               {cartCount > 0 && (
-                <span className="wahaj-mobile-bottom-nav__badge">{cartCount > 99 ? '99+' : cartCount}</span>
+                <span className="wahaj-mobile-bottom-nav__badge" aria-label={`${cartCount} منتج في السلة`}>{cartCount > 99 ? '99+' : cartCount}</span>
               )}
             </span>
             <span className="wahaj-mobile-bottom-nav__label">السلة</span>
@@ -406,25 +419,31 @@ export default function SiteChrome() {
 
           <a
             href="/account"
-            className={`wahaj-mobile-bottom-nav__item ${pathname === '/account' ? 'is-active' : ''}`}
-            aria-current={pathname === '/account' ? 'page' : undefined}
+            className={`wahaj-mobile-bottom-nav__item ${isRouteActive('/account') ? 'is-active' : ''}`}
+            aria-current={isRouteActive('/account') ? 'page' : undefined}
+            title="حسابي"
           >
-            <span className="wahaj-mobile-bottom-nav__icon"><User size={19} strokeWidth={pathname === '/account' ? 2.3 : 1.8} /></span>
+            <span className="wahaj-mobile-bottom-nav__icon"><User size={19} strokeWidth={isRouteActive('/account') ? 2.3 : 1.8} /></span>
             <span className="wahaj-mobile-bottom-nav__label">حسابي</span>
           </a>
         </div>
       </nav>
 
-      {/* زر واتساب العائم (مفعل ودائم الظهور) */}
+      {/* زر التواصل العائم — يستخدم رقم واتساب المُدار من إعدادات المتجر العامة */}
       <a
-        href="https://wa.me/2010xxxxxxxx"
-        target="_blank"
-        rel="noopener noreferrer"
-        aria-label="واتساب"
-        title="تواصل معنا عبر واتساب"
-        className="wahaj-mobile-whatsapp fixed end-5 z-30 rounded-full bg-[#25D366] p-3.5 text-white shadow-xl hover:scale-105 transition-transform flex items-center justify-center"
+        href={whatsappHref}
+        target={whatsappHasNumber ? '_blank' : undefined}
+        rel={whatsappHasNumber ? 'noopener noreferrer' : undefined}
+        aria-label={whatsappHasNumber ? 'تواصل معنا عبر واتساب' : 'تواصل مع خدمة العملاء'}
+        title={whatsappHasNumber ? 'تواصل معنا عبر واتساب' : 'تواصل مع خدمة العملاء'}
+        className="wahaj-mobile-whatsapp"
       >
-        <MessageCircle size={24} />
+        <span className="wahaj-mobile-whatsapp__icon"><MessageCircle size={20} strokeWidth={2} /></span>
+        <span className="wahaj-mobile-whatsapp__copy">
+          <b>{whatsappHasNumber ? 'تواصلي معنا' : 'نحن هنا لمساعدتك'}</b>
+          <small>{whatsappHasNumber ? 'عبر واتساب' : 'خدمة العملاء'}</small>
+        </span>
+        <span className="wahaj-mobile-whatsapp__online" aria-hidden="true" />
       </a>
     </>
   );
