@@ -1,6 +1,7 @@
 import { MetadataRoute } from 'next';
 import { prisma } from '@/lib/prisma';
-import { SITE_URL } from '@/lib/site';
+
+const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || 'https://wahaj-store.vercel.app').replace(/\/+$/, '');
 
 export const dynamic = 'force-dynamic';
 
