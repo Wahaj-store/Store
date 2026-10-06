@@ -2,28 +2,20 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { CheckCircle2, Minus, Plus, Zap } from 'lucide-react';
 import AddToCart from './AddToCart';
-import { CheckCircle2, Zap } from 'lucide-react';
 
 export default function ProductPurchase({ product }: { product: any }) {
   const router = useRouter();
   const [id, setId] = useState<string | undefined>(product.variants?.[0]?.id);
   const [quantity, setQuantity] = useState(1);
   const [isBuyingNow, setIsBuyingNow] = useState(false);
-  
-  const v = product.variants?.find((x: any) => x.id === id);
-  const price = v?.price != null ? Number(v.price) : Number(product.price);
-  const stock = v ? v.stock : product.stock;
 
-  const handleDecrease = () => {
-    setQuantity((prev) => (prev > 1 ? prev - 1 : 1));
-  };
+  const selectedVariant = product.variants?.find((variant: any) => variant.id === id);
+  const price = selectedVariant?.price != null ? Number(selectedVariant.price) : Number(product.price);
+  const stock = selectedVariant ? selectedVariant.stock : product.stock;
 
-  const handleIncrease = () => {
-    setQuantity((prev) => (stock && prev < stock ? prev + 1 : prev));
-  };
-
-  const handleBuyNow = async () => {
+  const handleBuyNow = () => {
     try {
       setIsBuyingNow(true);
       router.push(`/cart?productId=${product.id}&variantId=${id || ''}&quantity=${quantity}`);
@@ -34,101 +26,85 @@ export default function ProductPurchase({ product }: { product: any }) {
   };
 
   return (
-    <div className="flex flex-col items-end text-right w-full">
-      {/* السعر والسعر القديم في الجهة اليمنى تماماً */}
-      <div className="mt-2 flex items-center justify-end gap-2 w-full flex-row-reverse">
-        <span className="text-2xl md:text-3xl font-extrabold text-[var(--gold)]">
-          {price.toLocaleString('ar-EG')} ج.م
-        </span>
-        {product.comparePrice && Number(product.comparePrice) > price && (
-          <del className="text-sm text-muted-foreground">
-            {Number(product.comparePrice).toLocaleString('ar-EG')} ج.م
-          </del>
-        )}
+    <div className="wahaj-product-purchase" dir="rtl">
+      <div className="wahaj-product-purchase__price-row">
+        <div>
+          <span className="wahaj-product-purchase__price-label">السعر</span>
+          <div className="wahaj-product-purchase__price-line">
+            <strong>{price.toLocaleString('ar-EG')} <small>ج.م</small></strong>
+            {product.comparePrice && Number(product.comparePrice) > price ? (
+              <del>{Number(product.comparePrice).toLocaleString('ar-EG')} ج.م</del>
+            ) : null}
+          </div>
+        </div>
+        {product.comparePrice && Number(product.comparePrice) > price ? (
+          <span className="wahaj-product-purchase__saving">
+            وفرّي {Math.round((1 - price / Number(product.comparePrice)) * 100).toLocaleString('ar-EG')}٪
+          </span>
+        ) : null}
       </div>
 
-      {/* خيارات المنتجات (إن وجدت) */}
-      {product.variants?.length > 0 && (
-        <div className="mt-6 w-full">
-          <h2 className="text-sm font-semibold mb-3 text-right">الخيارات المتاحة</h2>
-          <div className="flex flex-wrap gap-2 justify-end">
-            {product.variants.map((x: any) => (
+      {product.variants?.length ? (
+        <fieldset className="wahaj-product-variants">
+          <legend>اختاري التفاصيل المناسبة</legend>
+          <div className="wahaj-product-variants__list">
+            {product.variants.map((variant: any) => (
               <button
                 type="button"
-                key={x.id}
-                disabled={!x.stock}
-                onClick={() => setId(x.id)}
-                className={`rounded-xl border px-4 py-2 text-xs font-medium transition-all ${
-                  id === x.id
-                    ? 'border-[var(--gold)] bg-[var(--gold)]/15 text-[var(--gold)] shadow-sm'
-                    : 'border-border/60 bg-[var(--bg)] text-foreground/80 hover:border-[var(--gold)]/50'
-                }`}
+                key={variant.id}
+                disabled={!variant.stock}
+                aria-pressed={id === variant.id}
+                onClick={() => setId(variant.id)}
+                className={`wahaj-product-variant ${id === variant.id ? 'is-selected' : ''}`}
               >
-                {x.name}: {x.value}
-                {x.price != null ? ` • ${Number(x.price).toLocaleString('ar-EG')} ج.م` : ''}
+                <span>{variant.name}: {variant.value}</span>
+                {variant.price != null ? <small>{Number(variant.price).toLocaleString('ar-EG')} ج.م</small> : null}
+                {!variant.stock ? <span className="wahaj-product-variant__soldout">نفد</span> : null}
               </button>
             ))}
           </div>
-        </div>
-      )}
+        </fieldset>
+      ) : null}
 
-      {/* المخزون: العلامة الخضراء في أقصى اليمين تماماً ويأتي بعدها النص مباشرة */}
-      <div className="mt-3 flex items-center justify-end w-full">
-        {stock > 0 ? (
-          <div className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400" dir="rtl">
-            <CheckCircle2 size={15} className="flex-shrink-0" />
-            <span className="text-xs font-medium">{stock <= 5 ? `متبقي القليل • ${stock} قطعة فقط` : `متوفر بالمخزون (${stock} قطعة متاحة)`}</span>
-          </div>
-        ) : (
-          <span className="text-rose-500 font-semibold text-xs">غير متوفر حالياً</span>
-        )}
+      <div className={`wahaj-product-availability ${stock > 0 ? 'is-available' : 'is-unavailable'}`}>
+        {stock > 0 ? <CheckCircle2 size={16} aria-hidden="true" /> : <span className="wahaj-product-availability__dot" aria-hidden="true" />}
+        <span>{stock > 0 ? (stock <= 5 ? `متبقي ${stock} قطع فقط` : 'متوفر وجاهز للطلب') : 'غير متوفر حاليًا'}</span>
       </div>
 
-      {/* سطر الأزرار: زر أضيفي إلى السلة يميناً وبجانبه عداد الكمية يساراً */}
-      <div className="mt-6 flex flex-row items-center gap-3 w-full">
-        {/* زر الإضافة للسلة في الجهة اليمنى تماماً */}
-        <div className="flex-1 w-full">
+      <div className="wahaj-product-purchase__actions">
+        <div className="wahaj-product-purchase__add">
           <AddToCart
             product={{ ...product, selectedQuantity: quantity }}
             variantId={id}
             variant="detail"
           />
         </div>
-
-        {/* عداد الكمية في الجهة اليسرى */}
-        <div className="flex items-center justify-between rounded-2xl border border-border/40 bg-muted/10 p-2.5 flex-shrink-0">
-          <div className="flex items-center gap-2 rounded-xl border border-border/60 bg-[var(--bg)] p-1 shadow-2xs">
-            <button
-              type="button"
-              onClick={handleIncrease}
-              className="flex h-7 w-7 items-center justify-center rounded-lg bg-muted/30 text-xs font-bold transition-colors hover:bg-[var(--gold)] hover:text-[var(--gold-contrast)]"
-            >
-              +
-            </button>
-            <span className="w-6 text-center text-xs font-bold">{quantity}</span>
-            <button
-              type="button"
-              onClick={handleDecrease}
-              className="flex h-7 w-7 items-center justify-center rounded-lg bg-muted/30 text-xs font-bold transition-colors hover:bg-[var(--gold)] hover:text-[var(--gold-contrast)]"
-            >
-              -
-            </button>
-          </div>
+        <div className="wahaj-product-quantity" aria-label="اختيار الكمية">
+          <button
+            type="button"
+            onClick={() => setQuantity((current) => Math.max(1, current - 1))}
+            disabled={quantity <= 1}
+            aria-label="تقليل الكمية"
+          ><Minus size={15} /></button>
+          <output aria-live="polite">{quantity.toLocaleString('ar-EG')}</output>
+          <button
+            type="button"
+            onClick={() => setQuantity((current) => (stock && current < stock ? current + 1 : current))}
+            disabled={!stock || quantity >= stock}
+            aria-label="زيادة الكمية"
+          ><Plus size={15} /></button>
         </div>
       </div>
 
-      {/* زر اشتري الآن أسفلهم */}
-      <div className="mt-3 w-full">
-        <button
-          type="button"
-          onClick={handleBuyNow}
-          disabled={stock <= 0 || isBuyingNow}
-          className="w-full py-3.5 px-6 rounded-2xl bg-gradient-to-r from-[var(--gold)] to-[var(--gold-muted)] text-[var(--gold-contrast)] font-bold text-sm shadow-md hover:opacity-95 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
-        >
-          <Zap size={18} className="fill-black" />
-          <span>{isBuyingNow ? "جاري التحويل..." : "اشتري الآن (دفع سريع)"}</span>
-        </button>
-      </div>
+      <button
+        type="button"
+        onClick={handleBuyNow}
+        disabled={stock <= 0 || isBuyingNow}
+        className="wahaj-product-buy-now"
+      >
+        <Zap size={17} aria-hidden="true" />
+        <span>{isBuyingNow ? 'جارٍ التحويل…' : 'اشتري الآن'}</span>
+      </button>
     </div>
   );
 }
