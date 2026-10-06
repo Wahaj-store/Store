@@ -746,6 +746,44 @@ function Editor({ tab, value, cats, products, onCancel, onSave, upload }: any) {
     redirects: [['fromPath', 'المسار القديم'], ['toPath', 'المسار الجديد'], ['statusCode', 'كود التحويل']] 
   };
 
+  if (tab === 'relations') return (
+    <div className="bg-muted/10 border border-border/40 rounded-3xl p-6 md:p-8 space-y-5 shadow-xs">
+      <div>
+        <h3 className="font-serif font-bold text-lg text-[var(--gold)]">{v.id ? 'تعديل ترشيح المنتجات' : 'إضافة ترشيح منتجات'}</h3>
+        <p className="mt-1 text-xs text-muted-foreground">اختاري المنتجات من القوائم؛ سيتم ربطها باستخدام معرّفاتها الصحيحة تلقائيًا.</p>
+      </div>
+      <div className="grid gap-4 md:grid-cols-2">
+        <label className="text-xs md:text-sm font-medium text-muted-foreground">نوع الترشيح
+          <select className="w-full mt-1 px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[var(--gold)]" value={v.type || 'RELATED'} onChange={e => set('type', e.target.value)}>
+            <option value="RELATED">منتجات مشابهة</option>
+            <option value="COMPLEMENTARY">منتجات مكملة</option>
+            <option value="UPSELL">ترقية المنتج</option>
+            <option value="CROSS_SELL">بيع مرتبط</option>
+            <option value="FREQUENTLY_BOUGHT">يُشترى معه غالبًا</option>
+          </select>
+        </label>
+        <Field label="ترتيب الظهور" value={v.sortOrder ?? 0} onChange={(x: any) => set('sortOrder', x)} type="number" />
+        <label className="text-xs md:text-sm font-medium text-muted-foreground">المنتج الأساسي
+          <select required disabled={!products.length} className="w-full mt-1 px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[var(--gold)] disabled:opacity-60" value={v.fromProductId || ''} onChange={e => set('fromProductId', e.target.value)}>
+            <option value="">{products.length ? 'اختاري المنتج الأساسي' : 'جاري تحميل المنتجات…'}</option>
+            {products.map((product: any) => <option key={product.id} value={product.id}>{product.name} — {product.slug}</option>)}
+          </select>
+        </label>
+        <label className="text-xs md:text-sm font-medium text-muted-foreground">المنتج المرشّح
+          <select required disabled={!products.length} className="w-full mt-1 px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[var(--gold)] disabled:opacity-60" value={v.toProductId || ''} onChange={e => set('toProductId', e.target.value)}>
+            <option value="">{products.length ? 'اختاري المنتج المرشّح' : 'جاري تحميل المنتجات…'}</option>
+            {products.map((product: any) => <option key={product.id} value={product.id} disabled={product.id === v.fromProductId}>{product.name} — {product.slug}{product.id === v.fromProductId ? ' (المنتج الأساسي)' : ''}</option>)}
+          </select>
+        </label>
+      </div>
+      {products.length < 2 && <p className="rounded-2xl border border-amber-500/20 bg-amber-500/5 px-4 py-3 text-xs text-amber-700">يلزم وجود منتجين على الأقل لإضافة ترشيح.</p>}
+      <div className="flex flex-wrap gap-3 border-t border-border/30 pt-4">
+        <button disabled={products.length < 2 || !v.fromProductId || !v.toProductId || v.fromProductId === v.toProductId} className="inline-flex items-center gap-2 rounded-2xl bg-[var(--gold)] px-6 py-3 text-sm font-bold text-[var(--gold-contrast)] shadow-sm transition hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-50" onClick={() => onSave(v)}><Save size={17} /> حفظ الترشيح</button>
+        <button className="cursor-pointer rounded-2xl border border-border/60 bg-muted/20 px-5 py-3 text-sm font-medium text-muted-foreground transition hover:bg-muted/30" onClick={onCancel}>إلغاء</button>
+      </div>
+    </div>
+  );
+
   if (tab === 'offers') return (
     <div className="bg-muted/10 border border-border/40 rounded-3xl p-6 md:p-8 space-y-5 shadow-xs">
       <div className="grid gap-4 md:grid-cols-2">
