@@ -7,7 +7,7 @@ import {
   GripVertical, Trash2, Upload, Plus, Save, Image as ImageIcon, Search, ChevronLeft,
   Package, FolderTree, Tag, CreditCard, Truck, LayoutTemplate, 
   MessageSquareQuote, Users, Shield, ShoppingCart, BarChart3, Sliders, 
-  FileText, HelpCircle, Mail, Settings, Gift, RefreshCcw, Share2, Lock, LucideProps, Menu, X, TrendingUp, TrendingDown, PieChart, Bell, Command, Keyboard, CheckCircle2, AlertCircle, Clock
+  FileText, Download, HelpCircle, Mail, Settings, Gift, RefreshCcw, Share2, Lock, LucideProps, Menu, X, TrendingUp, TrendingDown, PieChart, Bell, Command, Keyboard, CheckCircle2, AlertCircle, Clock
 } from 'lucide-react';
 import MediaPicker from './MediaPicker';
 import Image from 'next/image';
@@ -41,6 +41,7 @@ const menuGroups: MenuGroup[] = [
     title: 'التواصل والعملاء',
     items: [
       ['reviews', 'المراجعات', MessageSquareQuote],
+      ['newsletter', 'النشرة البريدية', Mail],
       ['faq', 'الأسئلة الشائعة', HelpCircle],
       ['contact', 'رسائل العملاء', Mail],
     ]
@@ -117,7 +118,7 @@ async function api(url: string, method = 'GET', body?: any) {
   return j;
 }
 
-export default function AdminManager({ sidebarOpen, setSidebarOpen, topContent }: { sidebarOpen: boolean, setSidebarOpen: (open: boolean) => void, topContent?: ReactNode }) {
+export default function AdminManager({ sidebarOpen, setSidebarOpen, topContent, userRole }: { sidebarOpen: boolean, setSidebarOpen: (open: boolean) => void, topContent?: ReactNode, userRole?: string }) {
   const [tab, setTab] = useState('analytics');
   const [data, setData] = useState<any[]>([]);
   const [cats, setCats] = useState<any[]>([]);
@@ -179,6 +180,7 @@ export default function AdminManager({ sidebarOpen, setSidebarOpen, topContent }
         security: '/api/admin/security',
         media: '/api/admin/media',
         reviews: '/api/admin/reviews',
+        newsletter: '/api/admin/newsletter',
         customers: '/api/admin/customers',
         'customer-segments': '/api/admin/customer-segments',
         users: '/api/admin/users',
@@ -577,7 +579,7 @@ export default function AdminManager({ sidebarOpen, setSidebarOpen, topContent }
             </div>
 
             <div className="p-2 sm:p-3 lg:p-4">
-              {loading ? (
+              {loading && tab !== 'newsletter' ? (
                 <div className="rounded-[26px] border border-border/40 bg-muted/5 p-16 text-center text-sm text-muted-foreground">
                   <div className="mx-auto mb-3 h-7 w-7 animate-spin rounded-full border-2 border-border/50 border-t-[var(--gold)]" />
                   جارٍ تحميل بيانات القسم…
@@ -588,7 +590,7 @@ export default function AdminManager({ sidebarOpen, setSidebarOpen, topContent }
                 </div>
               ) : (
                 <div className="rounded-[26px] border border-border/40 bg-[var(--bg)] p-1 shadow-sm md:p-2">
-                  <Content tab={tab} data={data} onEdit={setEditing} onDelete={del} onRefresh={load} onReorder={reorder} />
+                  <Content tab={tab} data={data} onEdit={setEditing} onDelete={del} onRefresh={load} onReorder={reorder} canManageNewsletter={['OWNER', 'ADMIN', 'MANAGER', 'EDITOR'].includes(userRole || '')} />
                 </div>
               )}
             </div>
@@ -982,8 +984,82 @@ async function toggleOfferActive(offer: any, onRefresh: () => void) {
   }
 }
 
-function Content({ tab, data, onEdit, onDelete, onRefresh, onReorder }: any) {
+function NewsletterSubscribers({ data, onRefresh, canManage }: { data: any[]; onRefresh: () => Promise<void>; canManage: boolean }) {
+  const [search, setSearch] = useState('');
+  const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive'>('all');
+  const [busyId, setBusyId] = useState('');
+  const [notice, setNotice] = useState('');
+  const rows = Array.isArray(data) ? data : [];
+  const activeCount = rows.filter(item => item.active).length;
+  const inactiveCount = rows.length - activeCount;
+  const query = search.trim().toLocaleLowerCase();
+  const filtered = rows.filter(item => {
+    const matchesText = !query || `${item.email || ''} ${item.source || ''}`.toLocaleLowerCase().includes(query);
+    const matchesStatus = statusFilter === 'all' || (statusFilter === 'active' ? item.active : !item.active);
+    return matchesText && matchesStatus;
+  });
+
+  async function toggleStatus(subscriber: any) {
+    setBusyId(subscriber.id);
+    setNotice('');
+    try {
+      await api('/api/admin/newsletter', 'PUT', { id: subscriber.id, active: !subscriber.active });
+      setNotice(subscriber.active ? 'تم إيقاف الاشتراك.' : 'تم تفعيل الاشتراك.');
+      await onRefresh();
+    } catch (error: any) {
+      setNotice(error?.message || 'تعذر تحديث حالة الاشتراك.');
+    } finally {
+      setBusyId('');
+    }
+  }
+
+  function exportCsv() {
+    const params = new URLSearchParams({ format: 'csv' });
+    if (search.trim()) params.set('search', search.trim());
+    if (statusFilter !== 'all') params.set('status', statusFilter);
+    window.open(`/api/admin/newsletter?${params.toString()}`, '_blank', 'noopener,noreferrer');
+  }
+
+  const filters: { key: 'all' | 'active' | 'inactive'; label: string; count: number }[] = [
+    { key: 'all', label: 'الكل', count: rows.length },
+    { key: 'active', label: 'نشط', count: activeCount },
+    { key: 'inactive', label: 'موقوف', count: inactiveCount },
+  ];
+
+  return (
+    <div className="space-y-4" dir="rtl">
+      <div className="grid gap-3 sm:grid-cols-3">
+        {[
+          { label: 'إجمالي المشتركين', value: rows.length, tone: 'text-foreground' },
+          { label: 'اشتراكات نشطة', value: activeCount, tone: 'text-green-600' },
+          { label: 'اشتراكات موقوفة', value: inactiveCount, tone: 'text-muted-foreground' },
+        ].map(card => <div key={card.label} className="rounded-2xl border border-border/40 bg-muted/10 p-4"><p className="text-[10px] text-muted-foreground">{card.label}</p><b className={`mt-1 block text-xl font-bold ${card.tone}`}>{card.value.toLocaleString('ar-EG')}</b></div>)}
+      </div>
+      <section className="overflow-hidden rounded-3xl border border-border/40 bg-muted/5 shadow-xs">
+        <div className="flex flex-wrap items-start justify-between gap-3 border-b border-border/30 p-4 sm:p-5"><div><h2 className="font-serif text-base font-bold text-foreground">قائمة المشتركين</h2><p className="mt-1 text-[10px] leading-5 text-muted-foreground">{canManage ? 'ابحثي أو صفّي القائمة، وصدّري النتائج الحالية إلى CSV.' : 'يمكنك عرض القائمة وتصديرها؛ دورك لا يسمح بتغيير حالة الاشتراك.'}</p></div><button type="button" onClick={exportCsv} disabled={!filtered.length} className="inline-flex min-h-10 items-center gap-2 rounded-xl bg-[var(--gold)] px-4 text-xs font-bold text-[var(--gold-contrast)] transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"><Download size={15} /> تصدير CSV</button></div>
+        <div className="flex flex-col gap-3 p-4 sm:p-5">
+          <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+            <label className="relative block w-full lg:max-w-sm"><Search size={15} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground" /><span className="sr-only">البحث بالبريد أو مصدر التسجيل</span><input value={search} onChange={event => setSearch(event.target.value)} placeholder="ابحث بالبريد أو مصدر التسجيل" className="h-10 w-full rounded-xl border border-border/40 bg-[var(--bg)] pr-9 pl-3 text-xs text-foreground outline-none transition placeholder:text-muted-foreground focus:border-[var(--gold)]/60" /></label>
+            <div className="flex flex-wrap gap-2" role="group" aria-label="تصفية حالة الاشتراك">
+              {filters.map(filter => <button key={filter.key} type="button" onClick={() => setStatusFilter(filter.key)} aria-pressed={statusFilter === filter.key} className={`rounded-xl border px-3 py-2 text-[10px] transition ${statusFilter === filter.key ? 'border-[var(--gold)] bg-[var(--gold)] text-[var(--gold-contrast)] font-bold' : 'border-border/40 bg-[var(--bg)] text-muted-foreground hover:border-[var(--gold)]/40'}`}>{filter.label} <span className="mr-1 opacity-75">{filter.count.toLocaleString('ar-EG')}</span></button>)}
+              <button type="button" onClick={() => void onRefresh()} className="inline-flex items-center gap-1.5 rounded-xl border border-border/40 bg-[var(--bg)] px-3 py-2 text-[10px] text-muted-foreground transition hover:border-[var(--gold)]/40"><RefreshCcw size={13} /> تحديث</button>
+            </div>
+          </div>
+          {notice && <p role="status" className="rounded-xl border border-[var(--gold)]/20 bg-[var(--gold)]/5 px-3 py-2 text-[10px] text-[var(--gold)]">{notice}</p>}
+          <div className="overflow-x-auto rounded-2xl border border-border/30"><table className="w-full min-w-[720px] text-right text-xs"><thead><tr className="border-b border-border/30 bg-muted/10 text-muted-foreground"><th className="p-3 font-medium">البريد الإلكتروني</th><th className="p-3 font-medium">مصدر التسجيل</th><th className="p-3 font-medium">تاريخ الاشتراك</th><th className="p-3 font-medium">الحالة</th><th className="p-3 font-medium">الإجراء</th></tr></thead><tbody>
+            {filtered.map(subscriber => <tr key={subscriber.id} className="border-b border-border/20 last:border-0 hover:bg-muted/5"><td className="p-3 font-medium" dir="ltr">{subscriber.email}</td><td className="p-3 text-muted-foreground">{subscriber.source === 'homepage' ? 'الصفحة الرئيسية' : subscriber.source || '—'}</td><td className="p-3 text-muted-foreground">{subscriber.createdAt ? new Date(subscriber.createdAt).toLocaleDateString('ar-EG') : '—'}</td><td className="p-3"><span className={`inline-flex rounded-full border px-2.5 py-1 text-[9px] font-bold ${subscriber.active ? 'border-green-500/20 bg-green-500/10 text-green-600' : 'border-border/40 bg-muted/15 text-muted-foreground'}`}>{subscriber.active ? 'نشط' : 'موقوف'}</span></td><td className="p-3">{canManage ? <button type="button" disabled={busyId === subscriber.id} onClick={() => void toggleStatus(subscriber)} className={`rounded-lg border px-2.5 py-1.5 text-[9px] font-bold transition disabled:opacity-50 ${subscriber.active ? 'border-border/40 bg-muted/10 text-muted-foreground hover:border-red-500/30 hover:text-red-500' : 'border-green-500/20 bg-green-500/10 text-green-600 hover:bg-green-500/15'}`}>{busyId === subscriber.id ? 'جارٍ الحفظ…' : subscriber.active ? 'إيقاف الاشتراك' : 'إعادة التفعيل'}</button> : <span className="text-[9px] text-muted-foreground">عرض فقط</span>}</td></tr>)}
+            {!filtered.length && <tr><td colSpan={5} className="p-10 text-center text-xs text-muted-foreground">{rows.length ? 'لا توجد نتائج تطابق البحث أو التصفية.' : 'لا يوجد مشتركون مسجلون حتى الآن.'}</td></tr>}
+          </tbody></table></div>
+          {!!filtered.length && <p className="text-[9px] text-muted-foreground">يعرض الجدول {filtered.length.toLocaleString('ar-EG')} من أصل {rows.length.toLocaleString('ar-EG')} مشترك. ملف CSV يطابق البحث والتصفية الحالية.</p>}
+        </div>
+      </section>
+    </div>
+  );
+}
+
+function Content({ tab, data, onEdit, onDelete, onRefresh, onReorder, canManageNewsletter }: any) {
   if (tab === 'analytics') return <Analytics data={data[0] || {}} />;
+  if (tab === 'newsletter') return <NewsletterSubscribers data={data} onRefresh={onRefresh} canManage={canManageNewsletter} />;
   if (tab === 'customer-segments') return <CustomerSegments data={data[0] || {}} onRefresh={onRefresh} />;
   if (tab === 'media') return <Media data={data} onDelete={onDelete} onRefresh={onRefresh} />;
   if (tab === 'gift-cards') return (
