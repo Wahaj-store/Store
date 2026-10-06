@@ -1,28 +1,32 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import { useTheme } from 'next-themes';
-import { Menu, X, Search, User, Moon, Sun, ShoppingBag, MessageCircle, Home, Store, Truck, Info } from 'lucide-react';
+import { ArrowLeft, ChevronLeft, CircleHelp, CreditCard, Menu, X, Search, User, Moon, Sun, ShoppingBag, MessageCircle, Home, Store, Truck, Info } from 'lucide-react';
 
 type SettingMap = Record<string, any>;
 
 export default function SiteChrome() {
   const pathname = usePathname();
-  const { theme, setTheme } = useTheme();
+  const { theme, resolvedTheme, setTheme } = useTheme();
 
   const [menu, setMenu] = useState(false);
   const [cartCount, setCartCount] = useState(0);
   const [settings, setSettings] = useState<SettingMap>({});
   const [payments, setPayments] = useState<any[]>([]);
   const [themeSettings, setThemeSettings] = useState<any>(null);
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
+  const menuCloseButtonRef = useRef<HTMLButtonElement>(null);
+  const menuPanelRef = useRef<HTMLElement>(null);
+  const themeIsDark = (resolvedTheme || theme) === 'dark';
 
   useEffect(() => {
     if (pathname?.startsWith('/admin')) return;
 
     let mounted = true;
 
-    fetch('/api/settings')
+    fetch('/api/settings', { cache: 'no-store' })
       .then(r => r.ok ? r.json() : null)
       .then(data => {
         if (!mounted || !data) return;
@@ -53,6 +57,45 @@ export default function SiteChrome() {
   }, [pathname]);
 
   useEffect(() => {
+    if (!menu) return;
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    menuCloseButtonRef.current?.focus();
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        setMenu(false);
+        return;
+      }
+
+      if (event.key !== 'Tab' || !menuPanelRef.current) return;
+      const focusable = Array.from(menuPanelRef.current.querySelectorAll<HTMLElement>(
+        'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])',
+      ));
+      if (focusable.length === 0) return;
+
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener('keydown', handleKeyDown);
+      menuButtonRef.current?.focus();
+    };
+  }, [menu]);
+
+  useEffect(() => {
     if (pathname?.startsWith('/admin')) return;
     if (themeSettings?.primaryColor) {
       document.documentElement.style.setProperty('--brand-gold', themeSettings.primaryColor);
@@ -69,22 +112,37 @@ export default function SiteChrome() {
     catch { return fallback }
   };
 
-  const headerMenu = parse(
+  const defaultHeaderMenu = [
+    { label: 'الرئيسية', href: '/' },
+    { label: 'المتجر', href: '/shop' },
+    { label: 'من نحن', href: '/about' },
+  ];
+  const parsedHeaderMenu = parse(
     settings.header_menu,
-    [
-      { label: 'الرئيسية', href: '/' },
-      { label: 'المتجر', href: '/shop' },
-      { label: 'من نحن', href: '/about' }
-    ]
+    defaultHeaderMenu,
   );
+  const headerMenu = Array.isArray(parsedHeaderMenu)
+    ? parsedHeaderMenu.filter((item: any) => item && typeof item.href === 'string' && typeof item.label === 'string' && item.active !== false)
+    : defaultHeaderMenu;
 
-  // دالة لتحديد الأيقونة المناسبة حسب الرابط أو النص
   const getMenuIcon = (href: string) => {
-    if (href === '/') return <Home size={18} />;
-    if (href === '/shop') return <Store size={18} />;
-    if (href === '/about') return <Info size={18} />;
-    return <Store size={18} />;
+    const iconProps = { size: 19, strokeWidth: 1.8 };
+    if (href === '/') return <Home {...iconProps} />;
+    if (href === '/shop') return <Store {...iconProps} />;
+    if (href === '/about') return <Info {...iconProps} />;
+    if (href === '/track-order') return <Truck {...iconProps} />;
+    if (href === '/account') return <User {...iconProps} />;
+    if (href === '/cart') return <ShoppingBag {...iconProps} />;
+    if (href === '/faq' || href === '/contact') return <CircleHelp {...iconProps} />;
+    if (href === '/payment-policy') return <CreditCard {...iconProps} />;
+    return <Store {...iconProps} />;
   };
+  const isRouteActive = (href: string) => pathname === href || (href !== '/' && !!pathname?.startsWith(`${href}/`));
+  const utilityLinks = [
+    { label: 'تتبع الطلب', href: '/track-order' },
+    { label: 'حسابي', href: '/account' },
+    { label: 'السلة', href: '/cart' },
+  ].filter(item => !headerMenu.some((configured: any) => configured.href === item.href));
 
   return (
     <>
@@ -101,9 +159,13 @@ export default function SiteChrome() {
           <div className="flex items-center gap-3">
             <button
               type="button"
+              ref={menuButtonRef}
               className="wahaj-header__menu md:hidden text-foreground hover:text-[var(--gold)] transition-colors"
               onClick={() => setMenu(true)}
               aria-label="فتح القائمة"
+              aria-haspopup="dialog"
+              aria-expanded={menu}
+              aria-controls="wahaj-mobile-drawer"
             >
               <Menu size={22} />
             </button>
@@ -186,82 +248,119 @@ export default function SiteChrome() {
       {/* القائمة الجانبية للموبايل */}
       {menu && (
         <div
-          className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm"
-          onClick={() => setMenu(false)}
+          className="wahaj-drawer-overlay"
+          onMouseDown={() => setMenu(false)}
+          role="presentation"
         >
           <aside
-            className="h-full w-[82%] bg-[var(--bg)] p-6 shadow-2xl border-e border-[var(--gold)]/20 flex flex-col justify-between"
-            onClick={e => e.stopPropagation()}
+            id="wahaj-mobile-drawer"
+            ref={menuPanelRef}
+            className="wahaj-mobile-drawer"
+            role="dialog"
+            aria-modal="true"
+            aria-label="قائمة التنقل الرئيسية"
+            dir="rtl"
+            onMouseDown={event => event.stopPropagation()}
           >
-            <div>
-              <div className="flex items-center justify-between pb-6 border-b border-border/40">
-                <div className="flex flex-col">
-                  <span className="text-xl font-bold tracking-wider">وَهَج</span>
-                  <span className="text-[10px] text-[var(--gold)] tracking-widest">Wahaj Store</span>
-                </div>
+            <div className="wahaj-mobile-drawer__scroll">
+              <div className="wahaj-mobile-drawer__top">
+                <a href="/" className="wahaj-mobile-drawer__brand" onClick={() => setMenu(false)} aria-label="وَهَج — الصفحة الرئيسية">
+                  <span className="wahaj-mobile-drawer__brand-mark"><ShoppingBag size={21} strokeWidth={1.7} /></span>
+                  <span className="wahaj-mobile-drawer__brand-copy">
+                    <b>{settings.brand_name || 'وَهَج'}</b>
+                    <small>WAHAJ STORE</small>
+                  </span>
+                </a>
                 <button
                   type="button"
+                  ref={menuCloseButtonRef}
                   onClick={() => setMenu(false)}
                   aria-label="إغلاق القائمة"
-                  className="p-2 rounded-full hover:bg-muted transition-colors"
+                  className="wahaj-mobile-drawer__close"
                 >
-                  <X size={20} />
+                  <X size={19} />
                 </button>
               </div>
 
-              <div className="mt-6 grid gap-3 text-base font-medium">
-                {headerMenu
-                  .filter((x: any) => x && x.href && x.label && x.active !== false)
-                  .map((x: any) => (
-                    <a
-                      key={`${x.href}-${x.label}`}
-                      href={x.href}
-                      onClick={() => setMenu(false)}
-                      className={`py-2.5 px-3 rounded-xl transition-all flex items-center gap-3 ${pathname === x.href ? 'bg-[var(--gold)]/15 text-[var(--gold)] font-bold border-s-4 border-[var(--gold)]' : 'hover:bg-muted/50 text-foreground/90'}`}
-                    >
-                      {getMenuIcon(x.href)}
-                      <span>{x.label}</span>
-                    </a>
-                  ))}
-
-                <a 
-                  href="/track-order" 
-                  onClick={() => setMenu(false)} 
-                  className={`py-2.5 px-3 rounded-xl transition-all flex items-center gap-3 ${pathname === '/track-order' ? 'bg-[var(--gold)]/15 text-[var(--gold)] font-bold border-s-4 border-[var(--gold)]' : 'hover:bg-muted/50 text-foreground/90'}`}
-                >
-                  <Truck size={18} />
-                  <span>تتبع الطلب</span>
-                </a>
-
-                <a 
-                  href="/account" 
-                  onClick={() => setMenu(false)} 
-                  className={`py-2.5 px-3 rounded-xl transition-all flex items-center gap-3 ${pathname === '/account' ? 'bg-[var(--gold)]/15 text-[var(--gold)] font-bold border-s-4 border-[var(--gold)]' : 'hover:bg-muted/50 text-foreground/90'}`}
-                >
-                  <User size={18} />
-                  <span>حسابي</span>
-                </a>
-
-                <a 
-                  href="/cart" 
-                  onClick={() => setMenu(false)} 
-                  className={`py-2.5 px-3 rounded-xl transition-all flex items-center justify-between ${pathname === '/cart' ? 'bg-[var(--gold)]/15 text-[var(--gold)] font-bold border-s-4 border-[var(--gold)]' : 'hover:bg-muted/50 text-foreground/90'}`}
-                >
-                  <div className="flex items-center gap-3">
-                    <ShoppingBag size={18} />
-                    <span>السلة</span>
-                  </div>
-                  {cartCount > 0 && (
-                    <span className="px-2 py-0.5 rounded-full bg-[var(--gold)] text-[10px] font-bold text-[var(--gold-contrast)]">
-                      {cartCount}
-                    </span>
-                  )}
+              <div className="wahaj-mobile-drawer__welcome">
+                <span className="wahaj-mobile-drawer__eyebrow">اكتشفي وَهَج</span>
+                <h2>كل ما تحبينه، أقرب إليكِ</h2>
+                <p>تصفّحي المتجر وتابعي طلباتك بسهولة.</p>
+                <a href="/shop" onClick={() => setMenu(false)} className="wahaj-mobile-drawer__shop-link">
+                  اكتشفي المتجر <ArrowLeft size={14} />
                 </a>
               </div>
+
+              <nav className="wahaj-mobile-drawer__nav" aria-label="روابط المتجر">
+                <p className="wahaj-mobile-drawer__section-label">تصفّحي المتجر</p>
+                <div className="wahaj-mobile-drawer__links">
+                  {headerMenu.map((item: any, index: number) => {
+                    const active = isRouteActive(item.href);
+                    return (
+                      <a
+                        key={`${item.href}-${item.label}-${index}`}
+                        href={item.href}
+                        onClick={() => setMenu(false)}
+                        aria-current={active ? 'page' : undefined}
+                        className={`wahaj-mobile-drawer__link${active ? ' is-active' : ''}`}
+                      >
+                        <span className="wahaj-mobile-drawer__link-icon">{getMenuIcon(item.href)}</span>
+                        <span className="wahaj-mobile-drawer__link-label">{item.label}</span>
+                        {active && <span className="wahaj-mobile-drawer__active-dot" aria-hidden="true" />}
+                        {!active && <ChevronLeft size={15} className="wahaj-mobile-drawer__chevron" aria-hidden="true" />}
+                      </a>
+                    );
+                  })}
+                </div>
+
+                {utilityLinks.length > 0 && (
+                  <>
+                    <p className="wahaj-mobile-drawer__section-label wahaj-mobile-drawer__section-label--secondary">خدماتك</p>
+                    <div className="wahaj-mobile-drawer__links">
+                      {utilityLinks.map(item => {
+                        const active = isRouteActive(item.href);
+                        return (
+                          <a
+                            key={item.href}
+                            href={item.href}
+                            onClick={() => setMenu(false)}
+                            aria-current={active ? 'page' : undefined}
+                            className={`wahaj-mobile-drawer__link${active ? ' is-active' : ''}`}
+                          >
+                            <span className="wahaj-mobile-drawer__link-icon">{getMenuIcon(item.href)}</span>
+                            <span className="wahaj-mobile-drawer__link-label">{item.label}</span>
+                            {item.href === '/cart' && cartCount > 0 && (
+                              <span className="wahaj-mobile-drawer__cart-count">{cartCount > 99 ? '99+' : cartCount}</span>
+                            )}
+                            {active && <span className="wahaj-mobile-drawer__active-dot" aria-hidden="true" />}
+                            {!active && item.href !== '/cart' && <ChevronLeft size={15} className="wahaj-mobile-drawer__chevron" aria-hidden="true" />}
+                          </a>
+                        );
+                      })}
+                    </div>
+                  </>
+                )}
+              </nav>
             </div>
 
-            <div className="text-center text-xs text-muted-foreground pb-4">
-              جميع الحقوق محفوظة لمتجر وَهَج © 2026
+            <div className="wahaj-mobile-drawer__footer">
+              <div className="wahaj-mobile-drawer__footer-actions">
+                <button
+                  type="button"
+                  className="wahaj-mobile-drawer__theme"
+                  onClick={() => setTheme(themeIsDark ? 'light' : 'dark')}
+                  aria-label={themeIsDark ? 'تفعيل الوضع النهاري' : 'تفعيل الوضع الليلي'}
+                >
+                  <span className="wahaj-mobile-drawer__footer-icon">
+                    {themeIsDark ? <Sun size={17} /> : <Moon size={17} />}
+                  </span>
+                  <span>{themeIsDark ? 'الوضع النهاري' : 'الوضع الليلي'}</span>
+                </button>
+                <a href="/contact" onClick={() => setMenu(false)} className="wahaj-mobile-drawer__support">
+                  <MessageCircle size={16} /> المساعدة
+                </a>
+              </div>
+              <p className="wahaj-mobile-drawer__copyright">جميع الحقوق محفوظة لمتجر {settings.brand_name || 'وَهَج'} © {new Date().getFullYear()}</p>
             </div>
           </aside>
         </div>
@@ -269,7 +368,7 @@ export default function SiteChrome() {
 
       {/* شريط التنقل السفلي — Mobile Luxury Navigation */}
       <nav
-        className="wahaj-mobile-bottom-nav md:hidden"
+        className={`wahaj-mobile-bottom-nav md:hidden${menu ? ' is-menu-open' : ''}`}
         aria-label="التنقل الرئيسي للموبايل"
       >
         <div className="wahaj-mobile-bottom-nav__inner">
