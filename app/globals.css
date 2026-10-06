@@ -3815,3 +3815,118 @@ a:focus-visible {
 @media (max-width:380px) { .wahaj-mobile-bottom-nav { inset-inline:8px; padding:5px; border-radius:18px; }.wahaj-mobile-bottom-nav__inner { min-height:62px; }.wahaj-mobile-bottom-nav__item { min-height:56px; gap:2px; }.wahaj-mobile-bottom-nav__label { font-size:9px; }.wahaj-mobile-bottom-nav__cart-orb { width:41px; height:41px; border-radius:13px; }.wahaj-mobile-whatsapp { min-height:46px; gap:7px; padding-inline-end:11px; }.wahaj-mobile-whatsapp__icon { width:34px; height:34px; flex-basis:34px; }.wahaj-mobile-whatsapp__copy b { font-size:8px; }.wahaj-mobile-whatsapp__copy small { font-size:7px; } }
 @media (min-width:768px) { .wahaj-mobile-bottom-nav { display:none; } .wahaj-mobile-whatsapp { inset-inline-end:24px; bottom:25px; } }
 @media (prefers-reduced-motion:reduce) { .wahaj-mobile-bottom-nav,.wahaj-mobile-bottom-nav__item,.wahaj-mobile-bottom-nav__icon,.wahaj-mobile-bottom-nav__cart-orb,.wahaj-mobile-whatsapp { transition:none; } }
+
+
+/* ===== وَهَج — Homepage editorial cards redesign ===== */
+.wahaj-storefront .wahaj-story { position:relative; isolation:isolate; padding:clamp(48px,7vw,88px) 0; overflow:hidden; border:0; background:radial-gradient(ellipse at 6% 50%,color-mix(in srgb,var(--gold) 9%,transparent),transparent 36%),var(--background); }
+.wahaj-story__card { position:relative; display:grid; grid-template-columns:minmax(0,.92fr) minmax(0,1.08fr); min-height:430px; overflow:hidden; border:1px solid color-mix(in srgb,var(--gold) 30%,var(--border)); border-radius:3px 34px 3px 34px; background:var(--card); box-shadow:var(--shadow-luxury); }
+.wahaj-story__visual { position:relative; display:grid; min-height:430px; overflow:hidden; place-items:center; background:radial-gradient(circle at 50% 42%,color-mix(in srgb,var(--gold) 24%,var(--surface)),transparent 47%),linear-gradient(145deg,var(--surface),var(--background-secondary)); }
+.wahaj-story__visual img { object-fit:cover; transition:transform .8s cubic-bezier(.2,.65,.2,1); }
+.wahaj-story__card:hover .wahaj-story__visual img { transform:scale(1.04); }
+.wahaj-story__visual-shade { position:absolute; inset:0; background:linear-gradient(180deg,transparent 48%,rgba(18,13,11,.58)); pointer-events:none; }
+.wahaj-story__monogram { display:grid; width:132px; height:132px; place-items:center; border:1px solid color-mix(in srgb,var(--gold) 55%,var(--border)); border-radius:50%; color:var(--gold); font-size:74px; font-weight:500; box-shadow:0 0 0 16px color-mix(in srgb,var(--gold) 5%,transparent),0 0 0 34px color-mix(in srgb,var(--gold) 3%,transparent); }
+.wahaj-story__visual-caption { position:absolute; z-index:1; inset-inline:22px; inset-block-end:19px; display:flex; align-items:center; gap:8px; color:#fff; font-size:10px; font-weight:700; }
+.wahaj-story__visual-caption svg { color:var(--gold); }
+.wahaj-story__content { display:flex; flex-direction:column; align-items:flex-start; justify-content:center; padding:clamp(28px,5vw,64px); }
+.wahaj-story__eyebrow { display:inline-flex; align-items:center; gap:8px; color:var(--gold-muted); font-size:10px; font-weight:800; letter-spacing:.11em; }
+.wahaj-story__eyebrow span { width:22px; height:1px; background:var(--gold); }
+.wahaj-story__content h2 { max-width:560px; margin:13px 0 0; color:var(--foreground); font-size:clamp(26px,3.2vw,42px); font-weight:700; letter-spacing:-.04em; line-height:1.38; text-wrap:balance; }
+.wahaj-story__content > p { max-width:560px; margin:15px 0 0; color:var(--muted); font-size:14px; line-height:2.1; }
+.wahaj-story__values { display:flex; flex-wrap:wrap; gap:9px 18px; margin-top:22px; color:var(--foreground-secondary); }
+.wahaj-story__values span { display:inline-flex; align-items:center; gap:7px; font-size:10px; font-weight:700; }
+.wahaj-story__values svg { color:var(--gold-muted); }
+.wahaj-story__link { display:inline-flex; min-height:44px; align-items:center; gap:10px; margin-top:25px; padding:0 15px; border:1px solid color-mix(in srgb,var(--gold) 42%,var(--border)); border-radius:11px; background:var(--gold-soft); color:var(--gold-muted); font-size:11px; font-weight:800; text-decoration:none; transition:transform .2s ease,border-color .2s ease,background .2s ease; }
+.wahaj-story__link:hover { transform:translateY(-2px); border-color:var(--gold); background:color-mix(in srgb,var(--gold) 18%,var(--card)); }
+.wahaj-offers { background:linear-gradient(180deg,var(--surface),color-mix(in srgb,var(--gold) 3%,var(--background))); }
+.wahaj-offers__shell { border-radius:3px 34px 3px 34px; }
+.wahaj-offers__head { align-items:flex-end; }
+.wahaj-offers__head .wahaj-section-heading { margin-inline:0 auto; }
+.wahaj-offers__grid { gap:16px; margin-top:31px; }
+.wahaj-offer-card { min-height:250px; padding:20px; border-radius:3px 24px 3px 24px; background:linear-gradient(145deg,color-mix(in srgb,var(--gold) 7%,var(--card)),var(--card) 56%); }
+.wahaj-offer-card::before { position:absolute; inset-block-start:-41px; inset-inline-end:-36px; width:118px; height:118px; border:1px solid color-mix(in srgb,var(--gold) 22%,transparent); border-radius:50%; box-shadow:0 0 0 12px color-mix(in srgb,var(--gold) 3%,transparent); content:""; pointer-events:none; }
+.wahaj-offer-card::after { width:116px; height:116px; inset-inline-start:-68px; inset-block-end:-68px; border-color:color-mix(in srgb,var(--gold) 23%,transparent); }
+.wahaj-offer-card:hover { transform:translateY(-5px); border-color:color-mix(in srgb,var(--gold) 55%,var(--border)); box-shadow:var(--shadow-luxury); }
+.wahaj-offer-card__top { position:relative; z-index:1; }
+.wahaj-offer-card__icon { width:40px; height:40px; border-radius:13px; background:var(--gold-soft); }
+.wahaj-offer-card__number { color:var(--muted-foreground); font-size:9px; font-weight:800; }
+.wahaj-offer-card__number span { color:var(--gold-muted); }
+.wahaj-offer-card__main { position:relative; z-index:1; margin-top:17px; }
+.wahaj-offer-card__eyebrow { display:inline-flex; align-items:center; gap:5px; color:var(--gold-muted); font-size:9px; font-weight:800; }
+.wahaj-offer-card h3 { display:-webkit-box; overflow:hidden; margin-top:7px; font-size:16px; font-weight:800; line-height:1.55; white-space:normal; -webkit-box-orient:vertical; -webkit-line-clamp:2; }
+.wahaj-offer-card p.wahaj-offer-card__value { margin-top:6px; color:var(--gold-muted); font-size:14px; font-weight:800; }
+.wahaj-offer-card__bottom { position:relative; z-index:1; display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:10px; margin-top:auto; padding-top:15px; }
+.wahaj-offer-card__expiry { display:inline-flex; align-items:center; gap:5px; color:var(--muted-foreground); font-size:9px; font-weight:600; }
+.wahaj-offer-card__expiry svg { color:var(--gold-muted); }
+.wahaj-offer-card__cta { display:inline-flex; min-height:35px; align-items:center; gap:8px; margin:0; padding:0 11px; border:1px solid color-mix(in srgb,var(--gold) 40%,var(--border)); border-radius:9px; background:var(--gold-soft); color:var(--gold-muted); font-size:9px; font-weight:800; text-decoration:none; }
+.wahaj-offer-card__cta:hover { color:var(--foreground); }
+.wahaj-offers__empty { display:grid; min-height:144px; margin-top:24px; place-items:center; align-content:center; gap:7px; border:1px dashed var(--border-strong); border-radius:16px; background:color-mix(in srgb,var(--surface) 58%,transparent); text-align:center; }
+.wahaj-offers__empty b { color:var(--foreground); font-size:13px; }
+.wahaj-offers__empty p { margin:0; color:var(--muted); font-size:10px; }
+.wahaj-offers__empty a { display:inline-flex; align-items:center; gap:6px; margin-top:4px; color:var(--gold-muted); font-size:10px; font-weight:800; text-decoration:none; }
+.wahaj-testimonials { position:relative; padding:clamp(65px,8vw,106px) 0; overflow:hidden; background:radial-gradient(ellipse at 50% 100%,color-mix(in srgb,var(--gold) 7%,transparent),transparent 42%),var(--background); }
+.wahaj-testimonials__heading { display:flex; align-items:flex-end; justify-content:space-between; gap:20px; margin-bottom:29px; }
+.wahaj-testimonials__heading .wahaj-section-heading { margin-inline:0 auto; }
+.wahaj-testimonials__count { display:inline-flex; align-items:center; gap:7px; padding:8px 11px; border:1px solid var(--border); border-radius:999px; color:var(--gold-muted); font-size:9px; font-weight:800; white-space:nowrap; }
+.wahaj-testimonials__grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:15px; }
+.wahaj-testimonial-card { position:relative; display:flex; min-height:242px; flex-direction:column; padding:21px; overflow:hidden; border:1px solid var(--border); border-radius:3px 22px 3px 22px; background:var(--card); box-shadow:var(--shadow-soft); transition:transform .25s ease,border-color .25s ease,box-shadow .25s ease; }
+.wahaj-testimonial-card::before { position:absolute; inset-block-start:0; inset-inline-end:20px; width:42px; height:2px; background:var(--gold); content:""; }
+.wahaj-testimonial-card:hover { transform:translateY(-4px); border-color:color-mix(in srgb,var(--gold) 43%,var(--border)); box-shadow:var(--shadow-luxury); }
+.wahaj-testimonial-card__top { display:flex; align-items:center; justify-content:space-between; gap:10px; }
+.wahaj-testimonial-card__quote { display:grid; width:36px; height:36px; place-items:center; border:1px solid color-mix(in srgb,var(--gold) 30%,var(--border)); border-radius:12px; background:var(--gold-soft); color:var(--gold-muted); }
+.wahaj-testimonial-card__stars { display:inline-flex; gap:2px; color:var(--gold-muted); }
+.wahaj-testimonial-card__text { flex:1; margin:17px 0 20px; color:var(--foreground-secondary); font-size:12px; font-weight:500; line-height:2; }
+.wahaj-testimonial-card__footer { display:flex; align-items:center; gap:9px; padding-top:13px; border-top:1px solid var(--border); }
+.wahaj-testimonial-card__avatar { display:grid; width:36px; height:36px; flex:0 0 36px; place-items:center; border:1px solid color-mix(in srgb,var(--gold) 34%,var(--border)); border-radius:50%; background:linear-gradient(145deg,var(--gold-soft),var(--surface)); color:var(--gold-muted); font-size:14px; font-weight:800; }
+.wahaj-testimonial-card__identity { display:grid; min-width:0; flex:1; gap:3px; }
+.wahaj-testimonial-card__identity b { overflow:hidden; color:var(--foreground); font-size:10px; font-weight:800; text-overflow:ellipsis; white-space:nowrap; }
+.wahaj-testimonial-card__identity small { display:inline-flex; align-items:center; gap:4px; color:var(--muted-foreground); font-size:8px; }
+.wahaj-testimonial-card__identity small svg { color:var(--success); }
+.wahaj-testimonial-card__product { display:grid; width:32px; height:32px; place-items:center; border:1px solid var(--border); border-radius:10px; color:var(--gold-muted); text-decoration:none; transition:background .2s ease,border-color .2s ease; }
+.wahaj-testimonial-card__product:hover { border-color:var(--gold); background:var(--gold-soft); }
+.wahaj-testimonials__empty { display:grid; min-height:215px; place-items:center; align-content:center; gap:8px; border:1px dashed var(--border-strong); border-radius:18px; background:color-mix(in srgb,var(--card) 72%,transparent); text-align:center; }
+.wahaj-testimonials__empty > span { display:grid; width:42px; height:42px; place-items:center; border-radius:14px; background:var(--gold-soft); color:var(--gold-muted); }
+.wahaj-testimonials__empty b { color:var(--foreground); font-size:13px; }
+.wahaj-testimonials__empty p { margin:0; color:var(--muted); font-size:10px; line-height:1.8; }
+.wahaj-testimonials__empty a { display:inline-flex; align-items:center; gap:6px; margin-top:5px; color:var(--gold-muted); font-size:10px; font-weight:800; text-decoration:none; }
+.wahaj-social-world { padding:clamp(62px,8vw,100px) 0; background:var(--surface); }
+.wahaj-social-world__head { display:flex; align-items:flex-end; justify-content:space-between; gap:20px; margin-bottom:25px; }
+.wahaj-social-world__head .wahaj-section-heading { margin-inline:0 auto; }
+.wahaj-social-world__seal { display:inline-flex; align-items:center; gap:7px; padding:8px 11px; border:1px solid var(--border); border-radius:999px; color:var(--gold-muted); font-size:9px; font-weight:800; white-space:nowrap; }
+.wahaj-social-world__grid { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:12px; align-items:start; }
+.wahaj-social-tile { position:relative; display:block; aspect-ratio:.82; overflow:hidden; border:1px solid color-mix(in srgb,var(--gold) 24%,var(--border)); border-radius:3px 22px 3px 22px; background:var(--card); box-shadow:var(--shadow-soft); }
+.wahaj-social-tile:nth-child(even) { margin-top:28px; }
+.wahaj-social-tile img { object-fit:cover; transition:transform .6s cubic-bezier(.2,.65,.2,1); }
+.wahaj-social-tile:hover img { transform:scale(1.06); }
+.wahaj-social-tile__shade { position:absolute; inset:0; background:linear-gradient(180deg,rgba(15,12,10,.03) 35%,rgba(15,12,10,.7)); }
+.wahaj-social-tile__label { position:absolute; inset-inline:12px; inset-block-end:12px; display:flex; align-items:center; justify-content:space-between; gap:7px; color:white; }
+.wahaj-social-tile__label b { overflow:hidden; font-size:10px; font-weight:700; text-overflow:ellipsis; white-space:nowrap; }
+.wahaj-social-tile__label svg { flex:0 0 auto; color:var(--gold); }
+.wahaj-social-world__empty { display:flex; min-height:150px; align-items:center; justify-content:center; gap:9px; border:1px dashed var(--border-strong); border-radius:16px; color:var(--muted); font-size:11px; }
+.wahaj-social-world__empty svg { color:var(--gold); }
+.wahaj-social-world__bottom { display:flex; align-items:center; justify-content:space-between; gap:18px; margin-top:30px; padding-top:19px; border-top:1px solid var(--border); }
+.wahaj-social-world__bottom p { margin:0; color:var(--muted); font-size:11px; }
+.wahaj-social-world__links { display:flex; flex-wrap:wrap; gap:8px; }
+.wahaj-social-world__links a { display:inline-flex; min-height:36px; align-items:center; gap:7px; padding:0 11px; border:1px solid var(--border); border-radius:10px; background:var(--card); color:var(--foreground-secondary); font-size:9px; font-weight:700; text-decoration:none; transition:transform .2s ease,border-color .2s ease,color .2s ease; }
+.wahaj-social-world__links a:hover { transform:translateY(-2px); border-color:var(--gold); color:var(--gold-muted); }
+.wahaj-newsletter { padding:clamp(55px,7vw,84px) 0; background:var(--background); }
+.wahaj-newsletter__card { position:relative; display:grid; grid-template-columns:minmax(0,1fr) minmax(280px,.9fr); align-items:center; gap:20px 52px; padding:clamp(28px,5vw,54px); overflow:hidden; border:1px solid color-mix(in srgb,var(--gold) 38%,var(--border)); border-radius:3px 32px 3px 32px; background:radial-gradient(ellipse at 0% 100%,color-mix(in srgb,var(--gold) 11%,transparent),transparent 40%),linear-gradient(135deg,var(--card),color-mix(in srgb,var(--gold) 5%,var(--surface))); box-shadow:var(--shadow-luxury); }
+.wahaj-newsletter__ornament { position:absolute; inset-inline-start:-45px; inset-block-start:-53px; display:grid; width:152px; height:152px; place-items:center; border:1px solid color-mix(in srgb,var(--gold) 22%,transparent); border-radius:50%; color:color-mix(in srgb,var(--gold) 55%,transparent); box-shadow:0 0 0 17px color-mix(in srgb,var(--gold) 3%,transparent); pointer-events:none; }
+.wahaj-newsletter__eyebrow { position:relative; display:inline-flex; align-items:center; gap:7px; color:var(--gold-muted); font-size:9px; font-weight:800; }
+.wahaj-newsletter__card h2 { position:relative; margin:10px 0 0; color:var(--foreground); font-size:clamp(23px,3vw,36px); font-weight:800; letter-spacing:-.035em; line-height:1.4; }
+.wahaj-newsletter__card > p:not(.wahaj-newsletter__message) { position:relative; max-width:490px; margin:7px 0 0; color:var(--muted); font-size:12px; line-height:1.9; }
+.wahaj-newsletter__form { position:relative; display:flex; align-items:stretch; gap:7px; padding:6px; border:1px solid var(--border-strong); border-radius:13px; background:var(--card); box-shadow:0 7px 20px color-mix(in srgb,var(--foreground) 5%,transparent); }
+.wahaj-newsletter__email { display:flex; min-width:0; flex:1; align-items:center; gap:9px; padding-inline:10px; color:var(--muted-foreground); }
+.wahaj-newsletter__email input { width:100%; min-width:0; min-height:39px; border:0; outline:0; background:transparent; color:var(--foreground); font-family:var(--font-wahaj),'Tajawal',sans-serif; font-size:11px; }
+.wahaj-newsletter__email input::placeholder { color:var(--muted-foreground); opacity:.8; }
+.wahaj-newsletter__form button { display:inline-flex; min-height:39px; flex:0 0 auto; align-items:center; justify-content:center; gap:8px; padding:0 14px; border:1px solid color-mix(in srgb,var(--gold) 42%,transparent); border-radius:9px; background:linear-gradient(145deg,var(--gold),var(--gold-muted)); color:var(--gold-contrast); font-family:inherit; font-size:10px; font-weight:900; cursor:pointer; transition:transform .2s ease,filter .2s ease; }
+.wahaj-newsletter__form button:hover:not(:disabled) { transform:translateY(-1px); filter:brightness(1.04); }
+.wahaj-newsletter__form button:disabled { cursor:wait; opacity:.72; }
+.wahaj-newsletter__spinner { width:13px; height:13px; border:2px solid color-mix(in srgb,var(--gold-contrast) 25%,transparent); border-top-color:var(--gold-contrast); border-radius:50%; animation:wahaj-newsletter-spin .75s linear infinite; }
+.wahaj-newsletter__message { position:relative; grid-column:2; min-height:16px; margin:0; color:var(--muted-foreground); font-size:8px; line-height:1.6; }
+.wahaj-newsletter__message.is-success { color:var(--success); }
+.wahaj-newsletter__message.is-error { color:var(--danger); }
+@keyframes wahaj-newsletter-spin { to { transform:rotate(360deg); } }
+@media (max-width:900px) { .wahaj-testimonials__grid { grid-template-columns:repeat(2,minmax(0,1fr)); }.wahaj-social-world__grid { grid-template-columns:repeat(3,minmax(0,1fr)); }.wahaj-social-tile:nth-child(even) { margin-top:0; }.wahaj-social-tile:nth-child(3n+2) { margin-top:22px; }.wahaj-newsletter__card { grid-template-columns:1fr; gap:18px; }.wahaj-newsletter__message { grid-column:1; } }
+@media (max-width:700px) { .wahaj-storefront .wahaj-story { padding:48px 0; }.wahaj-story__card { grid-template-columns:1fr; min-height:0; border-radius:3px 25px 3px 25px; }.wahaj-story__visual { min-height:270px; order:0; }.wahaj-story__content { padding:25px 21px 28px; }.wahaj-story__content h2 { margin-top:9px; font-size:25px; }.wahaj-story__content > p { margin-top:10px; font-size:12px; line-height:1.95; }.wahaj-story__values { gap:8px 12px; margin-top:16px; }.wahaj-story__values span { font-size:9px; }.wahaj-story__link { min-height:41px; margin-top:19px; font-size:10px; }.wahaj-offers__shell { padding:22px 16px; border-radius:3px 24px 3px 24px; }.wahaj-offers__head { display:flex; flex-direction:column; align-items:stretch; gap:10px; }.wahaj-offers__head .wahaj-section-heading { width:100%; }.wahaj-offers__all { align-self:flex-start; margin-top:0; }.wahaj-offers__grid { grid-template-columns:1fr; gap:11px; margin-top:22px; }.wahaj-offer-card { min-height:203px; padding:17px; }.wahaj-offer-card h3 { font-size:15px; }.wahaj-offer-card p.wahaj-offer-card__value { font-size:13px; }.wahaj-testimonials__heading,.wahaj-social-world__head { align-items:flex-start; flex-direction:column; gap:11px; }.wahaj-testimonials__heading { margin-bottom:20px; }.wahaj-testimonials__count,.wahaj-social-world__seal { align-self:flex-start; }.wahaj-testimonials__grid { grid-template-columns:1fr; gap:10px; }.wahaj-testimonial-card { min-height:200px; padding:17px; }.wahaj-testimonial-card__text { margin:13px 0 16px; font-size:11px; }.wahaj-social-world__grid { grid-template-columns:repeat(2,minmax(0,1fr)); gap:9px; }.wahaj-social-tile { aspect-ratio:.94; border-radius:3px 17px 3px 17px; }.wahaj-social-tile:nth-child(3n+2) { margin-top:0; }.wahaj-social-tile:nth-child(2n) { margin-top:16px; }.wahaj-social-tile__label { inset-inline:9px; inset-block-end:9px; }.wahaj-social-tile__label b { font-size:9px; }.wahaj-social-world__bottom { align-items:flex-start; flex-direction:column; gap:12px; margin-top:20px; padding-top:15px; }.wahaj-social-world__links { gap:6px; }.wahaj-social-world__links a { min-height:34px; padding-inline:9px; font-size:8px; }.wahaj-newsletter { padding:48px 0; }.wahaj-newsletter__card { gap:13px; padding:25px 18px; border-radius:3px 24px 3px 24px; }.wahaj-newsletter__card h2 { font-size:25px; }.wahaj-newsletter__card > p:not(.wahaj-newsletter__message) { font-size:11px; }.wahaj-newsletter__form { flex-direction:column; gap:5px; padding:7px; }.wahaj-newsletter__email { min-height:41px; }.wahaj-newsletter__email input { font-size:10px; }.wahaj-newsletter__form button { width:100%; min-height:42px; }.wahaj-newsletter__message { min-height:20px; font-size:8px; } }
+@media (max-width:380px) { .wahaj-story__visual { min-height:230px; }.wahaj-story__content { padding-inline:16px; }.wahaj-story__content h2 { font-size:22px; }.wahaj-story__values { flex-direction:column; align-items:flex-start; }.wahaj-social-world__grid { gap:7px; }.wahaj-social-tile { aspect-ratio:.9; }.wahaj-social-world__links { gap:5px; }.wahaj-social-world__links a { gap:5px; padding-inline:7px; }.wahaj-testimonial-card { min-height:190px; }.wahaj-newsletter__card h2 { font-size:22px; } }
+@media (prefers-reduced-motion:reduce) { .wahaj-story__visual img,.wahaj-story__link,.wahaj-offer-card,.wahaj-offer-card__cta,.wahaj-testimonial-card,.wahaj-social-tile img,.wahaj-social-world__links a,.wahaj-newsletter__form button { transition:none !important; }.wahaj-newsletter__spinner { animation:none; } }
