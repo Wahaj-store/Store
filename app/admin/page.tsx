@@ -50,6 +50,7 @@ export default function Admin() {
         <AdminManager
           sidebarOpen={sidebarOpen}
           setSidebarOpen={setSidebarOpen}
+          userRole={user?.role}
           topContent={(
             <section className="wahaj-admin-page__welcome">
               <div className="wahaj-admin-page__welcome-copy">
