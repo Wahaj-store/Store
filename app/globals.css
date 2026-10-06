@@ -3658,3 +3658,75 @@ a:focus-visible {
     padding-left:78px !important;
   }
 }
+
+
+/* ===== وَهَج — Dynamic payment policy ===== */
+.wahaj-payment-page { overflow:hidden; }
+.wahaj-payment-hero__copy { max-width:720px; }
+.wahaj-payment-hero__link { position:relative; z-index:2; display:inline-flex; align-items:center; gap:8px; min-height:40px; margin-top:21px; padding:0 15px; border:1px solid color-mix(in srgb,var(--gold) 44%,var(--border)); border-radius:10px; background:color-mix(in srgb,var(--card) 72%,transparent); color:var(--foreground); font-size:11px; font-weight:800; transition:transform .2s ease,border-color .2s ease,background .2s ease,color .2s ease; }
+.wahaj-payment-hero__link:hover { transform:translateY(-2px); border-color:var(--gold); background:var(--gold-soft); color:var(--gold-muted); }
+.wahaj-payment-overview { display:grid; grid-template-columns:minmax(0,1.5fr) repeat(2,minmax(145px,.7fr)); gap:12px; margin-top:20px; }
+.wahaj-payment-overview__intro,.wahaj-payment-overview__stat { display:flex; align-items:center; gap:12px; min-width:0; padding:17px 18px; border:1px solid var(--border); border-radius:15px; background:color-mix(in srgb,var(--card) 96%,transparent); box-shadow:var(--shadow-soft); }
+.wahaj-payment-overview__intro { border-color:color-mix(in srgb,var(--gold) 27%,var(--border)); background:var(--gold-soft); }
+.wahaj-payment-overview__icon,.wahaj-payment-overview__stat-icon { display:grid; width:39px; height:39px; flex:0 0 auto; place-items:center; border-radius:12px; background:color-mix(in srgb,var(--gold) 12%,var(--card)); color:var(--gold-muted); }
+.wahaj-payment-overview__intro h2 { margin:0 0 4px; color:var(--foreground); font-size:13px; }
+.wahaj-payment-overview__intro p { margin:0; color:var(--muted-foreground); font-size:10px; line-height:1.9; }
+.wahaj-payment-overview__stat div { display:grid; gap:3px; min-width:0; }
+.wahaj-payment-overview__stat b { color:var(--foreground); font-size:16px; line-height:1.2; }
+.wahaj-payment-overview__stat span:last-child { color:var(--muted-foreground); font-size:9px; line-height:1.6; }
+.wahaj-payment-section { margin-top:29px; }
+.wahaj-payment-section > .wahaj-policy-heading { margin-bottom:15px; }
+.wahaj-payment-methods { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; }
+.wahaj-payment-method { min-width:0; padding:21px; border:1px solid var(--border); border-radius:17px; background:color-mix(in srgb,var(--card) 97%,transparent); box-shadow:var(--shadow-soft); transition:transform .22s ease,border-color .22s ease,box-shadow .22s ease,background .22s ease; }
+.wahaj-payment-method:hover { transform:translateY(-3px); border-color:color-mix(in srgb,var(--gold) 44%,var(--border)); box-shadow:var(--shadow-luxury); }
+.wahaj-payment-method__top { display:flex; align-items:center; gap:10px; min-height:44px; }
+.wahaj-payment-method__number { color:color-mix(in srgb,var(--gold-muted) 75%,var(--muted-foreground)); font-size:10px; font-weight:900; letter-spacing:.12em; }
+.wahaj-payment-method__icon { display:grid; width:42px; height:42px; place-items:center; border:1px solid color-mix(in srgb,var(--gold) 28%,var(--border)); border-radius:13px; background:var(--gold-soft); color:var(--gold-muted); }
+.wahaj-payment-method__badge { margin-inline-start:auto; padding:5px 9px; border:1px solid color-mix(in srgb,var(--gold) 27%,var(--border)); border-radius:999px; background:color-mix(in srgb,var(--gold) 7%,var(--card)); color:var(--gold-muted); font-size:9px; font-weight:800; }
+.wahaj-payment-method h3 { margin:15px 0 5px; color:var(--foreground); font-size:17px; font-weight:800; letter-spacing:-.025em; }
+.wahaj-payment-method__description { min-height:41px; margin:0; color:var(--muted-foreground); font-size:11px; line-height:1.9; }
+.wahaj-payment-method__steps { margin-top:17px; padding-top:15px; border-top:1px solid var(--border); }
+.wahaj-payment-method__steps h4 { margin:0 0 11px; color:var(--foreground-secondary); font-size:11px; font-weight:800; }
+.wahaj-payment-method__steps ol { display:grid; gap:10px; margin:0; padding:0; list-style:none; }
+.wahaj-payment-method__steps li { display:flex; align-items:flex-start; gap:9px; }
+.wahaj-payment-method__steps li > span { display:grid; width:20px; height:20px; flex:0 0 auto; margin-top:1px; place-items:center; border-radius:50%; background:var(--gold-soft); color:var(--gold-muted); }
+.wahaj-payment-method__steps p { margin:0; color:var(--muted-foreground); font-size:10px; line-height:1.85; }
+.wahaj-payment-method__note { margin:16px 0 0; padding:10px 12px; border-inline-start:2px solid var(--gold); border-radius:0 9px 9px 0; background:color-mix(in srgb,var(--gold) 6%,var(--background)); color:var(--muted-foreground); font-size:9px; line-height:1.8; }
+.wahaj-payment-empty { display:grid; justify-items:center; gap:8px; min-height:205px; padding:30px 20px; border:1px dashed var(--border-strong); border-radius:17px; background:color-mix(in srgb,var(--card) 72%,transparent); text-align:center; }
+.wahaj-payment-empty__icon { display:grid; width:46px; height:46px; place-items:center; border-radius:15px; background:var(--gold-soft); color:var(--gold-muted); }
+.wahaj-payment-empty h3 { margin:5px 0 0; color:var(--foreground); font-size:14px; }
+.wahaj-payment-empty p { max-width:470px; margin:0; color:var(--muted-foreground); font-size:10px; line-height:1.9; }
+.wahaj-payment-empty > a,.wahaj-payment-empty > button { display:inline-flex; align-items:center; justify-content:center; gap:8px; min-height:38px; margin-top:8px; padding:0 14px; border:1px solid color-mix(in srgb,var(--gold) 38%,var(--border)); border-radius:10px; background:var(--card); color:var(--gold-muted); font:inherit; font-size:10px; font-weight:800; transition:.2s ease; }
+.wahaj-payment-empty > a:hover,.wahaj-payment-empty > button:hover { border-color:var(--gold); background:var(--gold-soft); transform:translateY(-1px); }
+.wahaj-payment-skeleton { min-height:320px; border:1px solid var(--border); border-radius:17px; background:linear-gradient(100deg,var(--card) 25%,color-mix(in srgb,var(--gold) 8%,var(--card)) 42%,var(--card) 60%); background-size:220% 100%; animation:wahaj-payment-shimmer 1.4s ease-in-out infinite; }
+.wahaj-payment-security { display:grid; grid-template-columns:minmax(220px,.8fr) minmax(0,1.4fr); gap:22px; margin-top:19px; padding:22px; border:1px solid color-mix(in srgb,var(--gold) 28%,var(--border)); border-radius:17px; background:linear-gradient(120deg,var(--gold-soft),color-mix(in srgb,var(--card) 94%,transparent)); }
+.wahaj-payment-security__heading { display:flex; align-items:flex-start; gap:12px; }
+.wahaj-payment-security__heading > span { display:grid; width:42px; height:42px; flex:0 0 auto; place-items:center; border-radius:13px; background:var(--gold); color:var(--gold-contrast); }
+.wahaj-payment-security__heading div > span,.wahaj-payment-support__copy > span { color:var(--gold-muted); font-size:9px; font-weight:900; }
+.wahaj-payment-security h2 { margin:5px 0 0; color:var(--foreground); font-size:15px; line-height:1.6; }
+.wahaj-payment-security ul { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:11px 15px; align-content:center; margin:0; padding:0; list-style:none; }
+.wahaj-payment-security li { display:flex; align-items:flex-start; gap:7px; color:var(--muted-foreground); font-size:10px; line-height:1.8; }
+.wahaj-payment-security li svg { flex:0 0 auto; margin-top:2px; color:var(--gold-muted); }
+.wahaj-payment-support { display:flex; align-items:center; gap:15px; margin-top:15px; padding:20px; border:1px solid var(--border); border-radius:16px; background:var(--card); box-shadow:var(--shadow-soft); }
+.wahaj-payment-support__icon { display:grid; width:46px; height:46px; flex:0 0 auto; place-items:center; border:1px solid color-mix(in srgb,var(--gold) 28%,var(--border)); border-radius:14px; background:var(--gold-soft); color:var(--gold-muted); }
+.wahaj-payment-support__copy { flex:1; }
+.wahaj-payment-support__copy h2 { margin:3px 0; color:var(--foreground); font-size:15px; }
+.wahaj-payment-support__copy p { margin:0; color:var(--muted-foreground); font-size:10px; line-height:1.8; }
+.wahaj-payment-support__actions { display:flex; flex-wrap:wrap; gap:8px; }
+.wahaj-payment-support__actions a { display:inline-flex; align-items:center; justify-content:center; gap:7px; min-height:38px; padding:0 12px; border:1px solid var(--border); border-radius:10px; color:var(--foreground-secondary); font-size:9px; font-weight:800; transition:.2s ease; }
+.wahaj-payment-support__actions a:first-child { border-color:var(--gold); background:var(--gold); color:var(--gold-contrast); }
+.wahaj-payment-support__actions a:hover { transform:translateY(-1px); border-color:var(--gold); color:var(--gold-muted); }
+.wahaj-payment-support__actions a:first-child:hover { color:var(--gold-contrast); filter:brightness(1.04); }
+.wahaj-payment-footnote { margin:15px 0 0; color:var(--muted-foreground); font-size:9px; line-height:1.8; text-align:center; }
+@keyframes wahaj-payment-shimmer { to { background-position-x:-220%; } }
+@media (max-width:760px) { .wahaj-payment-overview { grid-template-columns:1fr 1fr; }.wahaj-payment-overview__intro { grid-column:1/-1; }.wahaj-payment-security { grid-template-columns:1fr; gap:15px; } }
+@media (max-width:600px) { .wahaj-payment-hero__copy { max-width:calc(100% - 74px); }.wahaj-payment-hero__link { min-height:36px; margin-top:15px; padding-inline:11px; font-size:9px; }.wahaj-payment-overview { gap:8px; margin-top:13px; }.wahaj-payment-overview__intro,.wahaj-payment-overview__stat { gap:9px; padding:13px 11px; border-radius:12px; }.wahaj-payment-overview__intro { align-items:flex-start; grid-column:1/-1; }.wahaj-payment-overview__icon,.wahaj-payment-overview__stat-icon { width:33px; height:33px; border-radius:10px; }.wahaj-payment-overview__intro h2 { font-size:12px; }.wahaj-payment-overview__intro p { font-size:9px; }.wahaj-payment-overview__stat b { font-size:14px; }.wahaj-payment-overview__stat span:last-child { font-size:8px; }.wahaj-payment-section { margin-top:22px; }.wahaj-payment-methods { grid-template-columns:1fr; gap:10px; }.wahaj-payment-method { padding:17px; border-radius:14px; }.wahaj-payment-method h3 { font-size:15px; }.wahaj-payment-method__description { min-height:0; font-size:10px; }.wahaj-payment-security { gap:13px; margin-top:13px; padding:17px; border-radius:14px; }.wahaj-payment-security h2 { font-size:13px; }.wahaj-payment-security ul { grid-template-columns:1fr; gap:8px; }.wahaj-payment-security li { font-size:9px; }.wahaj-payment-support { align-items:flex-start; flex-wrap:wrap; gap:12px; padding:16px; }.wahaj-payment-support__copy { min-width:calc(100% - 60px); }.wahaj-payment-support__copy h2 { font-size:14px; }.wahaj-payment-support__copy p { font-size:9px; }.wahaj-payment-support__actions { width:100%; }.wahaj-payment-support__actions a { flex:1; }.wahaj-payment-skeleton { min-height:280px; } }
+@media (prefers-reduced-motion:reduce) { .wahaj-payment-method,.wahaj-payment-hero__link,.wahaj-payment-support__actions a,.wahaj-payment-empty > a,.wahaj-payment-empty > button { transition:none; }.wahaj-payment-skeleton { animation:none; } }
+
+.wahaj-payment-source-note { display:flex; align-items:center; gap:10px; margin:0 0 13px; padding:12px 14px; border:1px solid color-mix(in srgb,var(--warning) 30%,var(--border)); border-radius:12px; background:color-mix(in srgb,var(--warning) 7%,var(--card)); color:var(--muted-foreground); }
+.wahaj-payment-source-note > svg { flex:0 0 auto; color:var(--warning); }
+.wahaj-payment-source-note p { flex:1; margin:0; font-size:10px; line-height:1.8; }
+.wahaj-payment-source-note button { display:inline-flex; align-items:center; gap:6px; min-height:32px; padding:0 10px; border:1px solid var(--border); border-radius:8px; background:var(--card); color:var(--foreground-secondary); font-family:inherit; font-size:9px; font-weight:800; transition:.2s ease; }
+.wahaj-payment-source-note button:hover { border-color:var(--gold); color:var(--gold-muted); }
+@media (max-width:600px) { .wahaj-payment-source-note { align-items:flex-start; flex-wrap:wrap; padding:11px; }.wahaj-payment-source-note p { min-width:calc(100% - 32px); font-size:9px; }.wahaj-payment-source-note button { margin-inline-start:27px; } }
+@media (prefers-reduced-motion:reduce) { .wahaj-payment-source-note button { transition:none; } }
