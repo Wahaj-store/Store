@@ -210,7 +210,7 @@ function NewsletterSection({ section }: { section: any }) {
       const result = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(result.error || "تعذّر إتمام الاشتراك الآن.");
       setStatus("success");
-      setMessage("تم تسجيلكِ بنجاح — يسعدنا انضمامك إلى وَهَج.");
+      setMessage("تم تسجيل بريدك الإلكتروني في قائمة وَهَج.");
       setEmail("");
     } catch (error: any) {
       setStatus("error");
@@ -218,39 +218,50 @@ function NewsletterSection({ section }: { section: any }) {
     }
   }
 
+  const configuredSubtitle = String(section.subtitle || "").trim();
+  const subtitle = /آخر العروض والمجموعات الجديدة/.test(configuredSubtitle)
+    ? "سجّلي بريدك الإلكتروني للانضمام إلى قائمة وَهَج."
+    : configuredSubtitle || "انضمي إلى قائمة وَهَج البريدية وسجّلي بريدك لمتابعة جديد المتجر.";
+
   return (
     <section className="wahaj-newsletter">
       <div className="container">
         <div className="wahaj-newsletter__card">
-          <div className="wahaj-newsletter__ornament" aria-hidden="true"><Mail size={30} strokeWidth={1.2} /></div>
-          <span className="wahaj-newsletter__eyebrow"><Sparkles size={13} /> رسائل صغيرة، ولمعات جديدة</span>
-          <h2>{section.title || "انضمي إلى عالم وَهَج"}</h2>
-          <p>{section.subtitle || "احصلي على آخر العروض والمجموعات الجديدة، مباشرة إلى بريدك."}</p>
-          <form className="wahaj-newsletter__form" onSubmit={subscribe}>
-            <label className="wahaj-newsletter__email">
-              <Mail size={17} aria-hidden="true" />
-              <span className="sr-only">البريد الإلكتروني</span>
-              <input
-                type="email"
-                name="email"
-                autoComplete="email"
-                maxLength={254}
-                required
-                value={email}
-                onChange={event => setEmail(event.target.value)}
-                placeholder="بريدك الإلكتروني"
-                aria-describedby={messageId}
-                disabled={status === "loading"}
-              />
-            </label>
-            <button type="submit" disabled={status === "loading"}>
-              {status === "loading" ? "جارٍ التسجيل…" : section.ctaText || "انضمي إلينا"}
-              {status === "loading" ? <span className="wahaj-newsletter__spinner" aria-hidden="true" /> : <Send size={15} />}
-            </button>
-          </form>
-          <p id={messageId} className={`wahaj-newsletter__message is-${status}`} role={status === "error" ? "alert" : "status"} aria-live="polite">
-            {message || "بانضمامكِ، ستصلكِ أخبار وَهَج وعروضها ومجموعاتها الجديدة عبر بريدك الإلكتروني."}
-          </p>
+          <div className="wahaj-newsletter__intro">
+            <div className="wahaj-newsletter__copy">
+              <span className="wahaj-newsletter__eyebrow"><Sparkles size={13} /> وَهَج · القائمة البريدية</span>
+              <h2>{section.title || "انضمي إلى عالم وَهَج"}</h2>
+              <p>{subtitle}</p>
+            </div>
+            <span className="wahaj-newsletter__icon" aria-hidden="true"><Mail size={39} strokeWidth={1.25} /></span>
+          </div>
+          <div className="wahaj-newsletter__subscribe">
+            <form className="wahaj-newsletter__form" onSubmit={subscribe}>
+              <label className="wahaj-newsletter__email">
+                <Mail size={17} aria-hidden="true" />
+                <span className="sr-only">البريد الإلكتروني</span>
+                <input
+                  type="email"
+                  name="email"
+                  autoComplete="email"
+                  maxLength={254}
+                  required
+                  value={email}
+                  onChange={event => setEmail(event.target.value)}
+                  placeholder="بريدك الإلكتروني"
+                  aria-describedby={messageId}
+                  disabled={status === "loading"}
+                />
+              </label>
+              <button type="submit" disabled={status === "loading"}>
+                {status === "loading" ? "جارٍ التسجيل…" : section.ctaText || "انضمي إلينا"}
+                {status === "loading" ? <span className="wahaj-newsletter__spinner" aria-hidden="true" /> : <Send size={15} />}
+              </button>
+            </form>
+            <p id={messageId} className={`wahaj-newsletter__message is-${status}`} role={status === "error" ? "alert" : "status"} aria-live="polite">
+              {message || "عند الاشتراك، يُسجّل بريدك ضمن قائمة وَهَج في قاعدة بيانات المتجر."}
+            </p>
+          </div>
         </div>
       </div>
     </section>
