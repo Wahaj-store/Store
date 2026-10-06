@@ -1,10 +1,11 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
-export const revalidate = 60;
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 export async function GET() {
-  const [sections, products, categories, settings, theme, payments, offers] = await Promise.all([
+  const [sections, products, categories, settings, theme, payments, offers, testimonials] = await Promise.all([
     prisma.homepageSection.findMany({
       where: {
         visible: true,
@@ -51,6 +52,19 @@ export async function GET() {
       },
       orderBy: { createdAt: 'desc' },
     }),
+    prisma.review.findMany({
+      where: { approved: true, text: { not: null }, product: { is: { status: 'PUBLISHED' } } },
+      select: {
+        id: true,
+        rating: true,
+        text: true,
+        verified: true,
+        customer: { select: { name: true } },
+        product: { select: { name: true, slug: true } },
+      },
+      orderBy: { createdAt: 'desc' },
+      take: 6,
+    }),
   ]);
 
   return NextResponse.json({
@@ -61,5 +75,14 @@ export async function GET() {
     theme,
     payments,
     offers,
-  });
+    testimonials: testimonials.map((review) => ({
+      id: review.id,
+      rating: review.rating,
+      text: review.text,
+      verified: review.verified,
+      customerName: String(review.customer.name || '').trim().split(/\s+/)[0] || 'عميلة وَهَج',
+      productName: review.product.name,
+      productSlug: review.product.slug,
+    })),
+  }, { headers: { 'Cache-Control': 'no-store, max-age=0' } });
 }
