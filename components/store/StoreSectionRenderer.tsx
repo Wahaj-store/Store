@@ -5,6 +5,7 @@ import {
 } from "lucide-react";
 import { useState, type FormEvent } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import ProductCard from "../ProductCard";
 
 function SectionHeading({
@@ -292,10 +293,10 @@ function ProductsSection({
           <span className="wahaj-products-section__count">
             {products.length.toLocaleString("ar-EG")} منتجات مختارة
           </span>
-          <a href="/shop" className="wahaj-products-section__link">
+          <Link href="/shop" prefetch={false} className="wahaj-products-section__link">
             اكتشفي المتجر
             <ArrowLeft size={15} />
-          </a>
+          </Link>
         </div>
         {products.length > 0 ? (
           <div className="wahaj-product-grid">
@@ -351,14 +352,14 @@ export default function StoreSectionRenderer({
                         "قطع مختارة بعناية لتضيف لمسة من الوهج والفخامة إلى كل إطلالة."}
                     </p>
                     <div className="wahaj-hero__actions">
-                      <a href={sec.ctaUrl || "/shop"} className="wahaj-hero__primary">
+                      <Link href={sec.ctaUrl || "/shop"} prefetch={false} className="wahaj-hero__primary">
                         {sec.ctaText || "اكتشفي المجموعة"}
                         <ChevronLeft size={18} />
-                      </a>
-                      <a href="/shop" className="wahaj-hero__secondary">
+                      </Link>
+                      <Link href="/shop" prefetch={false} className="wahaj-hero__secondary">
                         تسوقي الآن
                         <ArrowLeft size={16} />
-                      </a>
+                      </Link>
                     </div>
                     <div className="wahaj-hero__meta">
                       <span><Check size={14} /> مختارات بعناية</span>
@@ -433,9 +434,10 @@ export default function StoreSectionRenderer({
                   />
                   <div className="wahaj-collections__grid">
                     {categories.map((c: any, index: number) => (
-                      <a
+                      <Link
                         key={c.id}
                         href={`/shop?category=${c.slug}`}
+                        prefetch={false}
                         className="wahaj-collection"
                       >
                         <Image
@@ -456,7 +458,7 @@ export default function StoreSectionRenderer({
                             <ChevronLeft size={15} />
                           </span>
                         </span>
-                      </a>
+                      </Link>
                     ))}
                   </div>
                 </div>
