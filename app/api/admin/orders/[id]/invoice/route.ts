@@ -197,8 +197,8 @@ export async function GET(_: Request, { params }: { params: Promise<{ id: string
     background: linear-gradient(115deg, #fff 56%, #fbf9f4);
   }
   .brand { display: flex; align-items: center; gap: 15px; min-width: 0; }
-  .brand__logo-wrap { display: grid; width: 126px; height: 70px; flex: 0 0 126px; place-items: center; padding: 7px; border: 1px solid #eee7d9; border-radius: 16px; background: #fff; }
-  .brand__logo { display: block; width: 100%; max-height: 100%; object-fit: contain; }
+  .brand__logo-wrap { position: relative; display: grid; width: 84px; height: 84px; flex: 0 0 84px; place-items: center; overflow: hidden; padding: 6px; border: 1px solid #e8dec8; border-radius: 17px; background: linear-gradient(145deg, #fff, #fbf8f0); box-shadow: 0 5px 14px rgba(42, 35, 24, .06); }
+  .brand__logo { display: block; width: 100%; height: 100%; object-fit: contain; transform: scale(1.05); transform-origin: center; }
   .brand__copy { min-width: 0; }
   .brand__name { margin: 0; color: #29231c; font-size: 18px; font-weight: 900; letter-spacing: -.03em; }
   .brand__caption { margin: 2px 0 0; color: var(--muted); font-size: 9px; }
@@ -289,7 +289,7 @@ export async function GET(_: Request, { params }: { params: Promise<{ id: string
     .screen-actions { justify-content: flex-start; }
     .invoice { width: calc(100% - 16px); min-height: 0; border-radius: 14px; }
     .invoice__header { grid-template-columns: 1fr; gap: 18px; padding: 22px 19px 18px; }
-    .brand__logo-wrap { width: 105px; height: 60px; flex-basis: 105px; }
+    .brand__logo-wrap { width: 72px; height: 72px; flex-basis: 72px; padding: 5px; border-radius: 14px; }
     .invoice-heading { min-width: 0; text-align: right; }
     .invoice-heading h1 { font-size: 23px; }
     .invoice__meta { padding: 12px 19px; }
@@ -311,7 +311,7 @@ export async function GET(_: Request, { params }: { params: Promise<{ id: string
     .invoice__accent { height: 3px; }
     .invoice__header { padding: 7mm 6mm 5mm; gap: 8mm; }
     .brand { gap: 3mm; }
-    .brand__logo-wrap { width: 31mm; height: 18mm; flex-basis: 31mm; padding: 1.5mm; border-radius: 3mm; }
+    .brand__logo-wrap { width: 18mm; height: 18mm; flex-basis: 18mm; padding: 1mm; border-radius: 3mm; box-shadow: none; }
     .brand__name { font-size: 13pt; }
     .brand__caption { font-size: 7pt; }
     .brand__rule { width: 10mm; margin-top: 1.5mm; }
