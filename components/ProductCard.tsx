@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { useState } from "react";
 import { Eye, Heart, ShoppingBag, X } from "lucide-react";
 import AddToCart from "./AddToCart";
@@ -70,12 +71,13 @@ function QuickView({ p, onClose }: { p: any; onClose: () => void }) {
             </p>
 
             <div className="mt-7 grid gap-3">
-              <a
+              <Link
                 href={`/product/${p.slug}`}
+                prefetch={false}
                 className="wahaj-product-modal__details"
               >
                 اكتشفي التفاصيل الكاملة
-              </a>
+              </Link>
               <button
                 type="button"
                 onClick={onClose}
@@ -111,8 +113,9 @@ export default function ProductCard({
     <>
       <article className={`wahaj-product-card ${compact ? "wahaj-product-card--compact" : ""} ${variant === "shop" ? "wahaj-product-card--shop" : ""}`}>
         <div className="wahaj-product-card__media">
-          <a
+          <Link
             href={`/product/${product.slug}`}
+            prefetch={false}
             aria-label={`عرض ${product.name}`}
             className="block h-full"
           >
@@ -123,7 +126,7 @@ export default function ProductCard({
               sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
               className="wahaj-product-card__image"
             />
-          </a>
+          </Link>
 
           <div className="wahaj-product-card__top">
             <WishlistButton productId={product.id} />
@@ -148,14 +151,15 @@ export default function ProductCard({
               <Eye size={16} />
               <span>نظرة سريعة</span>
             </button>
-            <a
+            <Link
               href={`/product/${product.slug}`}
+              prefetch={false}
               className="wahaj-product-card__action"
               aria-label={`تفاصيل ${product.name}`}
             >
               <ShoppingBag size={16} />
               <span>التفاصيل</span>
-            </a>
+            </Link>
           </div>
 
           {soldOut && (
@@ -168,9 +172,9 @@ export default function ProductCard({
             {product.category?.name || "وَهَج"}
           </div>
 
-          <a href={`/product/${product.slug}`} className="block">
+          <Link href={`/product/${product.slug}`} prefetch={false} className="block">
             <h3 className="wahaj-product-card__title">{product.name}</h3>
-          </a>
+          </Link>
 
           <div className="wahaj-product-card__price-row">
             <span className="wahaj-product-card__price">
