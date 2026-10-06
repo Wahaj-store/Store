@@ -5,7 +5,7 @@ export const revalidate = 0; // ضمان تحديث البيانات بشكل ف
 
 export default async function Page() {
   // جلب كافة بيانات المتجر من قاعدة البيانات بشكل متزامن لتحسين الأداء
-  const [sections, products, categories, settings, theme, payments, offers] = await Promise.all([
+  const [sections, products, categories, settings, theme, payments, offers, testimonials] = await Promise.all([
     prisma.homepageSection.findMany({
       where: { visible: true },
       orderBy: { sortOrder: 'asc' },
@@ -28,6 +28,19 @@ export default async function Page() {
     prisma.themeSetting.findFirst(),
     prisma.paymentSetting.findMany({ where: { enabled: true } }),
     prisma.offer.findMany({ where: { active: true }, orderBy: { createdAt: 'desc' } }),
+    prisma.review.findMany({
+      where: { approved: true, text: { not: null }, product: { is: { status: 'PUBLISHED' } } },
+      select: {
+        id: true,
+        rating: true,
+        text: true,
+        verified: true,
+        customer: { select: { name: true } },
+        product: { select: { name: true, slug: true } },
+      },
+      orderBy: { createdAt: 'desc' },
+      take: 6,
+    }),
   ]);
 
   return (
@@ -44,6 +57,15 @@ export default async function Page() {
         theme,
         payments,
         offers,
+        testimonials: testimonials.map((review) => ({
+          id: review.id,
+          rating: review.rating,
+          text: review.text,
+          verified: review.verified,
+          customerName: String(review.customer.name || '').trim().split(/\s+/)[0] || 'عميلة وَهَج',
+          productName: review.product.name,
+          productSlug: review.product.slug,
+        })),
       }}
     />
   );
