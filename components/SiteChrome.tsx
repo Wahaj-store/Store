@@ -1,11 +1,21 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import type { AnchorHTMLAttributes } from 'react';
+import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useTheme } from 'next-themes';
 import { ArrowLeft, ChevronLeft, CircleHelp, CreditCard, Menu, X, Search, User, Moon, Sun, ShoppingBag, MessageCircle, Home, Store, Truck, Info } from 'lucide-react';
 
 type SettingMap = Record<string, any>;
+
+type SiteLinkProps = Omit<AnchorHTMLAttributes<HTMLAnchorElement>, 'href'> & { href: string };
+
+function SiteLink({ href, ...props }: SiteLinkProps) {
+  return href.startsWith('/') && !href.startsWith('//')
+    ? <Link href={href} prefetch={false} {...props} />
+    : <a href={href} {...props} />;
+}
 
 export default function SiteChrome() {
   const pathname = usePathname();
@@ -180,14 +190,14 @@ export default function SiteChrome() {
               <Menu size={22} />
             </button>
 
-            <a
+            <SiteLink
               href="/"
               className="wahaj-header__logo flex flex-col items-start"
               aria-label="وَهَج - الصفحة الرئيسية"
             >
               <span className="font-bold text-lg tracking-wider text-foreground">{settings.brand_name || 'وَهَج'}</span>
               <small className="text-[9px] tracking-widest text-[var(--gold)]">Wahaj Store</small>
-            </a>
+            </SiteLink>
           </div>
 
           <nav
@@ -197,35 +207,35 @@ export default function SiteChrome() {
             {headerMenu
               .filter((x: any) => x && x.href && x.label && x.active !== false)
               .map((x: any) => (
-                <a
+                <SiteLink
                   key={`${x.href}-${x.label}`}
                   href={x.href}
                   className={`transition-colors hover:text-[var(--gold)] ${pathname === x.href ? 'text-[var(--gold)] font-bold border-b-2 border-[var(--gold)] pb-0.5' : 'text-foreground/80'}`}
                 >
                   {x.label}
-                </a>
+                </SiteLink>
               ))}
           </nav>
 
           {/* الأيقونات العلوية النظيفة والمرتبة */}
           <div className="wahaj-header__actions flex items-center gap-4">
-            <a
+            <SiteLink
               href="/shop"
               className="wahaj-header__action text-foreground/80 hover:text-[var(--gold)] transition-colors p-1"
               aria-label="البحث"
               title="البحث"
             >
               <Search size={20} />
-            </a>
+            </SiteLink>
 
-            <a
+            <SiteLink
               href="/account"
               className="wahaj-header__action text-foreground/80 hover:text-[var(--gold)] transition-colors p-1"
               aria-label="حسابي"
               title="حسابي"
             >
               <User size={20} />
-            </a>
+            </SiteLink>
 
             <button
               type="button"
@@ -237,7 +247,7 @@ export default function SiteChrome() {
               {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
             </button>
 
-            <a
+            <SiteLink
               href="/cart"
               className="wahaj-header__action wahaj-header__cart relative text-foreground/80 hover:text-[var(--gold)] transition-colors p-1"
               aria-label="السلة"
@@ -249,7 +259,7 @@ export default function SiteChrome() {
                   {cartCount}
                 </span>
               )}
-            </a>
+            </SiteLink>
           </div>
         </div>
         <div className="wahaj-header__accent h-[1px] bg-gradient-to-r from-transparent via-[var(--gold)]/40 to-transparent" />
@@ -274,13 +284,13 @@ export default function SiteChrome() {
           >
             <div className="wahaj-mobile-drawer__scroll">
               <div className="wahaj-mobile-drawer__top">
-                <a href="/" className="wahaj-mobile-drawer__brand" onClick={() => setMenu(false)} aria-label="وَهَج — الصفحة الرئيسية">
+                <SiteLink href="/" className="wahaj-mobile-drawer__brand" onClick={() => setMenu(false)} aria-label="وَهَج — الصفحة الرئيسية">
                   <span className="wahaj-mobile-drawer__brand-mark"><ShoppingBag size={21} strokeWidth={1.7} /></span>
                   <span className="wahaj-mobile-drawer__brand-copy">
                     <b>{settings.brand_name || 'وَهَج'}</b>
                     <small>WAHAJ STORE</small>
                   </span>
-                </a>
+                </SiteLink>
                 <button
                   type="button"
                   ref={menuCloseButtonRef}
@@ -296,9 +306,9 @@ export default function SiteChrome() {
                 <span className="wahaj-mobile-drawer__eyebrow">اكتشفي وَهَج</span>
                 <h2>كل ما تحبينه، أقرب إليكِ</h2>
                 <p>تصفّحي المتجر وتابعي طلباتك بسهولة.</p>
-                <a href="/shop" onClick={() => setMenu(false)} className="wahaj-mobile-drawer__shop-link">
+                <SiteLink href="/shop" onClick={() => setMenu(false)} className="wahaj-mobile-drawer__shop-link">
                   اكتشفي المتجر <ArrowLeft size={14} />
-                </a>
+                </SiteLink>
               </div>
 
               <nav className="wahaj-mobile-drawer__nav" aria-label="روابط المتجر">
@@ -307,7 +317,7 @@ export default function SiteChrome() {
                   {headerMenu.map((item: any, index: number) => {
                     const active = isRouteActive(item.href);
                     return (
-                      <a
+                      <SiteLink
                         key={`${item.href}-${item.label}-${index}`}
                         href={item.href}
                         onClick={() => setMenu(false)}
@@ -318,7 +328,7 @@ export default function SiteChrome() {
                         <span className="wahaj-mobile-drawer__link-label">{item.label}</span>
                         {active && <span className="wahaj-mobile-drawer__active-dot" aria-hidden="true" />}
                         {!active && <ChevronLeft size={15} className="wahaj-mobile-drawer__chevron" aria-hidden="true" />}
-                      </a>
+                      </SiteLink>
                     );
                   })}
                 </div>
@@ -330,7 +340,7 @@ export default function SiteChrome() {
                       {utilityLinks.map(item => {
                         const active = isRouteActive(item.href);
                         return (
-                          <a
+                          <SiteLink
                             key={item.href}
                             href={item.href}
                             onClick={() => setMenu(false)}
@@ -344,7 +354,7 @@ export default function SiteChrome() {
                             )}
                             {active && <span className="wahaj-mobile-drawer__active-dot" aria-hidden="true" />}
                             {!active && item.href !== '/cart' && <ChevronLeft size={15} className="wahaj-mobile-drawer__chevron" aria-hidden="true" />}
-                          </a>
+                          </SiteLink>
                         );
                       })}
                     </div>
@@ -366,9 +376,9 @@ export default function SiteChrome() {
                   </span>
                   <span>{themeIsDark ? 'الوضع النهاري' : 'الوضع الليلي'}</span>
                 </button>
-                <a href="/contact" onClick={() => setMenu(false)} className="wahaj-mobile-drawer__support">
+                <SiteLink href="/contact" onClick={() => setMenu(false)} className="wahaj-mobile-drawer__support">
                   <MessageCircle size={16} /> المساعدة
-                </a>
+                </SiteLink>
               </div>
               <p className="wahaj-mobile-drawer__copyright">جميع الحقوق محفوظة لمتجر {settings.brand_name || 'وَهَج'} © {new Date().getFullYear()}</p>
             </div>
@@ -382,7 +392,7 @@ export default function SiteChrome() {
         aria-label="التنقل الرئيسي للموبايل"
       >
         <div className="wahaj-mobile-bottom-nav__inner">
-          <a
+          <SiteLink
             href="/"
             className={`wahaj-mobile-bottom-nav__item ${isRouteActive('/') ? 'is-active' : ''}`}
             aria-current={pathname === '/' ? 'page' : undefined}
@@ -390,9 +400,9 @@ export default function SiteChrome() {
           >
             <span className="wahaj-mobile-bottom-nav__icon"><Home size={19} strokeWidth={isRouteActive('/') ? 2.3 : 1.8} /></span>
             <span className="wahaj-mobile-bottom-nav__label">الرئيسية</span>
-          </a>
+          </SiteLink>
 
-          <a
+          <SiteLink
             href="/shop"
             className={`wahaj-mobile-bottom-nav__item ${isRouteActive('/shop') ? 'is-active' : ''}`}
             aria-current={isRouteActive('/shop') ? 'page' : undefined}
@@ -400,9 +410,9 @@ export default function SiteChrome() {
           >
             <span className="wahaj-mobile-bottom-nav__icon"><Store size={19} strokeWidth={isRouteActive('/shop') ? 2.3 : 1.8} /></span>
             <span className="wahaj-mobile-bottom-nav__label">المتجر</span>
-          </a>
+          </SiteLink>
 
-          <a
+          <SiteLink
             href="/cart"
             className={`wahaj-mobile-bottom-nav__item wahaj-mobile-bottom-nav__item--cart ${isRouteActive('/cart') ? 'is-active' : ''}`}
             aria-current={isRouteActive('/cart') ? 'page' : undefined}
@@ -415,9 +425,9 @@ export default function SiteChrome() {
               )}
             </span>
             <span className="wahaj-mobile-bottom-nav__label">السلة</span>
-          </a>
+          </SiteLink>
 
-          <a
+          <SiteLink
             href="/account"
             className={`wahaj-mobile-bottom-nav__item ${isRouteActive('/account') ? 'is-active' : ''}`}
             aria-current={isRouteActive('/account') ? 'page' : undefined}
@@ -425,7 +435,7 @@ export default function SiteChrome() {
           >
             <span className="wahaj-mobile-bottom-nav__icon"><User size={19} strokeWidth={isRouteActive('/account') ? 2.3 : 1.8} /></span>
             <span className="wahaj-mobile-bottom-nav__label">حسابي</span>
-          </a>
+          </SiteLink>
         </div>
       </nav>
 
