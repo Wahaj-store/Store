@@ -5105,3 +5105,97 @@ body {
   .wahaj-storefront .wahaj-product-card,
   .wahaj-shop-redesign .wahaj-product-card { transition: none; }
 }
+
+
+/* =========================================================
+   وَهَج — Performance & Mobile UX Layer
+   ========================================================= */
+html {
+  text-size-adjust: 100%;
+  -webkit-text-size-adjust: 100%;
+}
+
+img {
+  content-visibility: auto;
+}
+
+.wahaj-storefront > main > section:not(.wahaj-hero),
+.wahaj-shop-catalog,
+.wahaj-footer {
+  content-visibility: auto;
+  contain-intrinsic-size: 520px;
+}
+
+.wahaj-storefront .wahaj-hero__image,
+.wahaj-product-gallery__stage img {
+  content-visibility: visible;
+}
+
+@media (max-width: 760px) {
+  /* تجنّب طبقات blur الثقيلة على الأجهزة الصغيرة مع الحفاظ على الإحساس الزجاجي */
+  .wahaj-header--luxury,
+  .wahaj-mobile-whatsapp,
+  .wahaj-newsletter__form,
+  .wahaj-shop-search {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+
+  .wahaj-header--luxury {
+    background: color-mix(in srgb, var(--background) 97%, transparent) !important;
+    box-shadow: 0 4px 16px color-mix(in srgb, var(--foreground) 7%, transparent);
+  }
+
+  .wahaj-storefront .wahaj-hero__visual,
+  .wahaj-storefront .wahaj-story__card,
+  .wahaj-storefront .wahaj-newsletter__card,
+  .wahaj-shop-redesign .wahaj-product-card,
+  .wahaj-storefront .wahaj-product-card {
+    box-shadow: 0 8px 24px color-mix(in srgb, var(--foreground) 7%, transparent);
+  }
+
+  .wahaj-storefront .wahaj-hero__visual:hover .wahaj-hero__image,
+  .wahaj-storefront .wahaj-product-card:hover .wahaj-product-card__image,
+  .wahaj-shop-redesign .wahaj-product-card:hover .wahaj-product-card__image {
+    transform: none;
+    filter: none;
+  }
+
+  .wahaj-storefront .wahaj-collection:hover,
+  .wahaj-storefront .wahaj-product-card:hover,
+  .wahaj-shop-redesign .wahaj-product-card:hover {
+    transform: none;
+  }
+
+  .wahaj-storefront .wahaj-hero__actions a,
+  .wahaj-shop-search__submit,
+  .wahaj-shop-filter-submit,
+  .wahaj-storefront .wahaj-product-card__cart button,
+  .wahaj-shop-redesign .wahaj-product-card__cart button {
+    min-height: 46px;
+  }
+
+  .wahaj-storefront .wahaj-product-card__actions {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-data: reduce) {
+  .wahaj-storefront .wahaj-hero__image,
+  .wahaj-storefront .wahaj-collection__image,
+  .wahaj-storefront .wahaj-story__visual img,
+  .wahaj-storefront .wahaj-social-tile img,
+  .wahaj-shop-redesign .wahaj-product-card__image,
+  .wahaj-storefront .wahaj-product-card__image {
+    filter: none;
+  }
+
+  .wahaj-storefront .wahaj-hero__visual,
+  .wahaj-storefront .wahaj-story__card,
+  .wahaj-storefront .wahaj-newsletter__card,
+  .wahaj-shop-redesign .wahaj-product-card,
+  .wahaj-storefront .wahaj-product-card {
+    box-shadow: none;
+  }
+}
