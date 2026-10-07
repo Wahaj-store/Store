@@ -17,7 +17,7 @@ function nonNegativeNumber(value: string | null) {
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
-  const raw = (searchParams.get('q') || '').trim();
+  const raw = (searchParams.get('q') || '').trim().slice(0, 120);
   const q = normalizeArabic(raw);
   const category = searchParams.get('category')?.trim() || undefined;
   const page = positiveInt(searchParams.get('page'), 1);
