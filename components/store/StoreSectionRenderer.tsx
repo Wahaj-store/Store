@@ -3,7 +3,7 @@
 import {
   ArrowLeft, ArrowUpLeft, ChevronLeft, Check, CheckCircle2, Facebook, Heart, Instagram, Mail, MessageCircle, Music2, Quote, RotateCcw, Send, ShieldCheck, Sparkles, Star, Truck,
 } from "lucide-react";
-import { useState, type FormEvent } from "react";
+import { Fragment, useState, type FormEvent } from "react";
 import dynamic from "next/dynamic";
 import Image from "next/image";
 import Link from "next/link";
@@ -310,6 +310,99 @@ function ProductsSection({
   );
 }
 
+function HomeTrustStrip() {
+  const items = [
+    { icon: Truck, title: "شحن لجميع المحافظات", text: "توصيل آمن حتى بابكِ" },
+    { icon: ShieldCheck, title: "دفع موثوق", text: "اختاري الطريقة المناسبة" },
+    { icon: Sparkles, title: "اختيارات راقية", text: "تفاصيل مختارة بعناية" },
+    { icon: MessageCircle, title: "نحن قريبات منكِ", text: "دعم سريع قبل وبعد الطلب" },
+  ];
+  return (
+    <section className="wahaj-home-trust-strip" aria-label="مزايا التسوق من وَهَج">
+      <div className="container wahaj-home-trust-strip__inner">
+        {items.map(({ icon: Icon, title, text }) => (
+          <div className="wahaj-home-trust-strip__item" key={title}>
+            <span className="wahaj-home-trust-strip__icon"><Icon size={17} strokeWidth={1.7} /></span>
+            <span><b>{title}</b><small>{text}</small></span>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function HomeOfferStrip({ offers }: { offers: any[] }) {
+  const offer = offers?.[0];
+  if (!offer) return null;
+  const value = offer.type === "FREE_SHIPPING"
+    ? "شحن مجاني"
+    : offer.type === "BUY_X_GET_Y"
+      ? "هدية مع مشترياتك"
+      : offer.discountValue
+        ? `خصم ${Number(offer.discountValue).toLocaleString("ar-EG")}${offer.discountType === "FIXED" ? " ج.م" : "%"}`
+        : "عرض خاص لكِ";
+  return (
+    <div className="wahaj-home-offer-strip" role="note" aria-label={`العرض الحالي: ${offer.name}`}>
+      <div className="container wahaj-home-offer-strip__inner">
+        <span className="wahaj-home-offer-strip__mark"><Sparkles size={13} /></span>
+        <span className="wahaj-home-offer-strip__copy"><b>{offer.name}</b><small>{value} · لفترة محدودة</small></span>
+        <Link href={`/offers/${offer.id}`} prefetch={false}>اكتشفي العرض <ArrowLeft size={14} /></Link>
+      </div>
+    </div>
+  );
+}
+
+function MostRequestedSection({ products }: { products: any[] }) {
+  const best = products.filter((product: any) => product?.bestSeller).slice(0, 4);
+  const selected = best.length ? best : products.slice(0, 4);
+  if (!selected.length) return null;
+  return (
+    <section className="wahaj-most-requested" aria-labelledby="most-requested-title">
+      <div className="container">
+        <div className="wahaj-most-requested__head">
+          <div>
+            <span className="wahaj-home-kicker">اختيارات تتكرر محبتها</span>
+            <h2 id="most-requested-title">الأكثر طلبًا</h2>
+            <p>قطع تعود إليها عميلات وَهَج مرة بعد مرة.</p>
+          </div>
+          <Link href="/shop" prefetch={false}>شاهدي المجموعة <ArrowLeft size={15} /></Link>
+        </div>
+        <div className="wahaj-most-requested__grid">
+          {selected.map((product: any) => <ProductCard key={product.id} product={product} variant="shop" />)}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function GiftSection({ categories, products, settings }: { categories: any[]; products: any[]; settings: any }) {
+  const giftCategory = categories.find((category: any) => category?.slug === "gifts");
+  const giftImage = giftCategory?.imageUrl || products.find((product: any) => product?.images?.[0]?.url)?.images?.[0]?.url;
+  if (!giftCategory && !giftImage) return null;
+  return (
+    <section className="wahaj-gift-section" aria-labelledby="gift-section-title">
+      <div className="container">
+        <div className="wahaj-gift-section__card">
+          <div className="wahaj-gift-section__visual">
+            {giftImage ? <Image src={giftImage} alt="هدايا وَهَج" fill sizes="(max-width:700px) 100vw, 42vw" loading="lazy" /> : null}
+            <span aria-hidden="true" />
+            <b>WAHAJ / GIFT EDIT</b>
+          </div>
+          <div className="wahaj-gift-section__copy">
+            <span className="wahaj-home-kicker">للحظات التي تستحق أن تُهدى</span>
+            <h2 id="gift-section-title">هدية تشبهها</h2>
+            <p>{settings.gift_wrap || "اختاري لها تفصيلة تحمل محبتك، ودعي وَهَج يكمّل اللحظة."}</p>
+            <div className="wahaj-gift-section__actions">
+              <Link href={giftCategory ? `/shop?category=${giftCategory.slug}` : "/shop"} prefetch={false}>اكتشفي الهدايا <ArrowLeft size={15} /></Link>
+              <Link href="/contact" prefetch={false}>نساعدكِ في الاختيار</Link>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 
 
 export default function StoreSectionRenderer({
@@ -328,6 +421,7 @@ export default function StoreSectionRenderer({
   const s = settings || {};
   return (
     <div className="wahaj-storefront" dir="rtl">
+      <HomeOfferStrip offers={offers} />
       <main>
         {sections.map((sec: any) => {
           if (sec.type === "hero") {
@@ -335,7 +429,8 @@ export default function StoreSectionRenderer({
               sec.imageUrl || data?.products?.[0]?.images?.[0]?.url || "/placeholder.svg";
 
             return (
-              <section key={sec.id} className="wahaj-hero">
+              <Fragment key={sec.id}>
+                <section className="wahaj-hero">
                 <div className="wahaj-hero__ornament" aria-hidden="true" />
                 <div className="wahaj-hero__inner">
                   <div className="wahaj-hero__content">
@@ -382,7 +477,9 @@ export default function StoreSectionRenderer({
                     </div>
                   </div>
                 </div>
-              </section>
+                </section>
+                <HomeTrustStrip />
+              </Fragment>
             );
           }
 
@@ -419,7 +516,8 @@ export default function StoreSectionRenderer({
 
           if (sec.type === "collections" || sec.type === "categories") {
             return (
-              <section id="collections" key={sec.id} className="wahaj-collections">
+              <Fragment key={sec.id}>
+                <section id="collections" className="wahaj-collections">
                 <div className="container">
                   <div className="wahaj-collections__grid">
                     {categories.map((c: any, index: number) => (
@@ -452,7 +550,14 @@ export default function StoreSectionRenderer({
                     ))}
                   </div>
                 </div>
-              </section>
+                </section>
+                <MostRequestedSection products={Array.isArray(data?.products) ? data.products : []} />
+                <GiftSection
+                  categories={categories}
+                  products={Array.isArray(data?.products) ? data.products : []}
+                  settings={s}
+                />
+              </Fragment>
             );
           }
 
