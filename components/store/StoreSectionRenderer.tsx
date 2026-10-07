@@ -69,9 +69,9 @@ function ReviewCards({ section, reviews }: { section: any; reviews: any[] }) {
                       <small>{review.verified ? <><CheckCircle2 size={12} /> شراء موثّق</> : "من عميلات وَهَج"}</small>
                     </span>
                     {review.productSlug ? (
-                      <a className="wahaj-testimonial-card__product" href={`/product/${review.productSlug}`} aria-label={`اكتشفي ${review.productName || "المنتج"}`}>
+                      <Link className="wahaj-testimonial-card__product" href={`/product/${review.productSlug}`} prefetch={false} aria-label={`اكتشفي ${review.productName || "المنتج"}`}>
                         <ArrowUpLeft size={15} />
-                      </a>
+                      </Link>
                     ) : null}
                   </div>
                 </article>
@@ -83,7 +83,7 @@ function ReviewCards({ section, reviews }: { section: any; reviews: any[] }) {
             <span><Heart size={20} /></span>
             <b>حكايتكِ قد تكون التالية</b>
             <p>ننتظر رأيكِ بعد تجربتكِ لقطعتك المفضلة من وَهَج.</p>
-            <a href="/shop">اكتشفي المتجر <ArrowLeft size={14} /></a>
+            <Link href="/shop" prefetch={false}>اكتشفي المتجر <ArrowLeft size={14} /></Link>
           </div>
         )}
       </div>
@@ -162,11 +162,11 @@ function SocialWorldSection({ section, data }: { section: any; data: any }) {
         {tiles.length ? (
           <div className="wahaj-social-world__grid">
             {tiles.map((tile: any, index: number) => (
-              <a href={tile.href} className={`wahaj-social-tile wahaj-social-tile--${index + 1}`} key={tile.id}>
+              <Link href={tile.href} prefetch={false} className={`wahaj-social-tile wahaj-social-tile--${index + 1}`} key={tile.id}>
                 <Image src={tile.image} alt={tile.name || "من مجموعة وَهَج"} fill sizes="(max-width:700px) 45vw, 22vw" />
                 <span className="wahaj-social-tile__shade" aria-hidden="true" />
                 <span className="wahaj-social-tile__label"><b>{tile.name}</b><ArrowUpLeft size={16} /></span>
-              </a>
+              </Link>
             ))}
           </div>
         ) : (
@@ -181,7 +181,7 @@ function SocialWorldSection({ section, data }: { section: any; data: any }) {
                 <Icon size={16} strokeWidth={1.8} /><span>{name}</span><ArrowUpLeft size={12} />
               </a>
             ))}
-            {!socialLinks.some(item => typeof item.value === "string") && <a href="/shop">تصفّحي المتجر <ArrowLeft size={14} /></a>}
+            {!socialLinks.some(item => typeof item.value === "string") && <Link href="/shop" prefetch={false}>تصفّحي المتجر <ArrowLeft size={14} /></Link>}
           </div>
         </div>
       </div>
@@ -249,22 +249,26 @@ export default function StoreSectionRenderer({
 }) {
   const s = settings || {};
   return (
-    <div className="wahaj-storefront wahaj-home-v2" dir="rtl">
-      <main className="wahaj-home-main">
+    <div className="wahaj-storefront" dir="rtl">
+      <main>
         {sections.map((sec: any) => {
           if (sec.type === "hero") {
-            const image =
-              sec.imageUrl || data?.products?.[0]?.images?.[0]?.url || "/placeholder.svg";
+            const featuredProduct = data?.products?.[0];
+            const image = sec.imageUrl || featuredProduct?.images?.[0]?.url || "/placeholder.svg";
+            const imageAlt = sec.imageUrl
+              ? `${sec.title || "تفاصيل من وَهَج"} — متجر الإكسسوارات`
+              : featuredProduct?.images?.[0]?.alt || featuredProduct?.name || "قطعة مختارة من وَهَج";
 
             return (
-              <section key={sec.id} className="wahaj-hero">
+              <section key={sec.id} className="wahaj-hero" aria-labelledby={`wahaj-home-title-${sec.id}`}>
                 <div className="wahaj-hero__ornament" aria-hidden="true" />
                 <div className="wahaj-hero__inner">
                   <div className="wahaj-hero__content">
                     <span className="wahaj-hero__eyebrow">
+                      <Sparkles size={15} strokeWidth={1.6} aria-hidden="true" />
                       {sec.badge || "وَهَج — تفاصيل تصنع الفرق"}
                     </span>
-                    <h1 className="wahaj-hero__title">
+                    <h1 id={`wahaj-home-title-${sec.id}`} className="wahaj-hero__title">
                       {sec.title || "لأن أناقتك تستحق أن تتألّق"}
                     </h1>
                     <p className="wahaj-hero__description">
@@ -291,13 +295,14 @@ export default function StoreSectionRenderer({
                   <div className="wahaj-hero__visual">
                     <Image
                       src={image}
-                      alt="مجموعة وَهَج"
+                      alt={imageAlt}
                       fill
                       sizes="(max-width: 800px) 100vw, 50vw"
                       priority
                       className="wahaj-hero__image"
                     />
                     <div className="wahaj-hero__frame" aria-hidden="true" />
+                    <span className="wahaj-hero__index" aria-hidden="true">01 <i /> وَهَج</span>
                     <div className="wahaj-hero__badge">
                       <Sparkles size={14} />
                       <span>مصممة لتبقى في الذاكرة</span>
@@ -328,10 +333,10 @@ export default function StoreSectionRenderer({
                         <span><Sparkles size={15} /> قطع مختارة بعناية</span>
                         <span><Heart size={15} /> أسلوب يحمل بصمتك</span>
                       </div>
-                      <a href={sec.ctaUrl || "/about"} className="wahaj-story__link">
+                      <Link href={sec.ctaUrl || "/about"} prefetch={false} className="wahaj-story__link">
                         {sec.ctaText || "تعرّفي على قصة وَهَج"}
                         <ArrowLeft size={16} />
-                      </a>
+                      </Link>
                     </div>
                   </div>
                 </div>
@@ -413,9 +418,9 @@ export default function StoreSectionRenderer({
                         }
                         align="right"
                       />
-                      <a href="/offers" className="wahaj-offers__all">
+                      <Link href="/offers" prefetch={false} className="wahaj-offers__all">
                         كل العروض <ArrowLeft size={15} />
-                      </a>
+                      </Link>
                     </div>
 
                     {offers.length ? <div className="wahaj-offers__grid">
@@ -444,9 +449,9 @@ export default function StoreSectionRenderer({
                             </div>
                             <div className="wahaj-offer-card__bottom">
                               <span className="wahaj-offer-card__expiry"><Sparkles size={12} /> {dateLabel}</span>
-                              <a href={`/offers/${o.id}`} className="wahaj-offer-card__cta" aria-label={`اكتشفي العرض ${o.name}`}>
+                              <Link href={`/offers/${o.id}`} prefetch={false} className="wahaj-offer-card__cta" aria-label={`اكتشفي العرض ${o.name}`}>
                                 اكتشفي العرض <ArrowLeft size={15} />
-                              </a>
+                              </Link>
                             </div>
                           </article>
                         );
@@ -455,7 +460,7 @@ export default function StoreSectionRenderer({
                       <div className="wahaj-offers__empty">
                         <b>نحضّر لكِ عروضًا تليق باختيارك</b>
                         <p>تصفّحي مجموعات وَهَج واكتشفي قطعتك المفضلة.</p>
-                        <a href="/shop">تسوّقي الآن <ArrowLeft size={14} /></a>
+                        <Link href="/shop" prefetch={false}>تسوّقي الآن <ArrowLeft size={14} /></Link>
                       </div>
                     )}
                   </div>
@@ -481,13 +486,13 @@ export default function StoreSectionRenderer({
                   </div>
                   <div className="wahaj-trust__grid">
                     {items.map(({ icon: Icon, title, desc, href }) => (
-                      <a href={href} key={title} className="wahaj-trust__item">
+                      <Link href={href} prefetch={false} key={title} className="wahaj-trust__item">
                         <span className="wahaj-trust__icon"><Icon size={20} strokeWidth={1.6} /></span>
                         <span className="wahaj-trust__copy">
                           <span className="wahaj-trust__title">{title}</span>
                           <span className="wahaj-trust__text">{desc}</span>
                         </span>
-                      </a>
+                      </Link>
                     ))}
                   </div>
                 </div>
@@ -504,7 +509,7 @@ export default function StoreSectionRenderer({
           }
 
           if (sec.type === "newsletter" || sec.type === "subscribe") {
-            return <NewsletterSection key={sec.id} section={sec} />;
+            return <NewsletterSection key={sec.id} section={{ id: sec.id, title: sec.title, subtitle: sec.subtitle, ctaText: sec.ctaText }} />;
           }
 
           return (
