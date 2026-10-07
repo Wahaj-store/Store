@@ -42,13 +42,8 @@ function ReviewCards({ section, reviews }: { section: any; reviews: any[] }) {
   return (
     <section className="wahaj-testimonials">
       <div className="container">
-        <div className="wahaj-testimonials__heading">
-          <SectionHeading
-            eyebrow="تجارب من القلب"
-            title={section.title || "ماذا تقول عميلات وَهَج؟"}
-            subtitle={section.subtitle || "كل حكاية جميلة تبدأ بتفصيلة اختارتها صاحبتها."}
-          />
-          <span className="wahaj-testimonials__count"><Heart size={14} /> آراء عميلاتنا</span>
+        <div className="wahaj-testimonials__heading wahaj-testimonials__heading--center">
+          <h2 className="wahaj-testimonials__title">ماذا تقول عميلات وَهَج؟</h2>
         </div>
 
         {published.length ? (
