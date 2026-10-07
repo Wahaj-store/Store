@@ -4,10 +4,13 @@ import {
   ArrowLeft, ArrowUpLeft, ChevronLeft, Check, CheckCircle2, Facebook, Heart, Instagram, Mail, MessageCircle, Music2, Quote, RotateCcw, Send, ShieldCheck, Sparkles, Star, Truck,
 } from "lucide-react";
 import { useState, type FormEvent } from "react";
+import dynamic from "next/dynamic";
 import Image from "next/image";
 import Link from "next/link";
-import ProductCard from "../ProductCard";
-
+const ProductCard = dynamic(() => import("../ProductCard"), {
+  ssr: true,
+  loading: () => <div className="wahaj-product-card wahaj-product-card--loading" aria-hidden="true" />,
+});
 function SectionHeading({
   eyebrow,
   title,
