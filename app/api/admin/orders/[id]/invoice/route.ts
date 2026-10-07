@@ -115,6 +115,9 @@ export async function GET(_: Request, { params }: { params: Promise<{ id: string
 <meta name="color-scheme" content="light" />
 <meta name="robots" content="noindex,nofollow,noarchive" />
 <title>فاتورة #${esc(order.number)} | وَهَج</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@200;300;400;500;700;800;900&display=swap" rel="stylesheet" />
 <style>
   @page { size: A4 portrait; margin: 10mm; }
   :root {
@@ -137,7 +140,7 @@ export async function GET(_: Request, { params }: { params: Promise<{ id: string
     margin: 0;
     background: #efede8;
     color: var(--ink);
-    font-family: "IBM Plex Sans Arabic", "Noto Sans Arabic", "Segoe UI", Tahoma, Arial, sans-serif;
+    font-family: 'Tajawal', sans-serif;
     font-size: 12px;
     line-height: 1.7;
     -webkit-print-color-adjust: exact;
