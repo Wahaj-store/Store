@@ -421,15 +421,6 @@ export default function StoreSectionRenderer({
             return (
               <section id="collections" key={sec.id} className="wahaj-collections">
                 <div className="container">
-                  <SectionHeading
-                    eyebrow={sec.eyebrow || "اكتشفي عالم وَهَج"}
-                    title={sec.title || "اختاري ما يشبهك"}
-                    subtitle={
-                      sec.subtitle ||
-                      sec.description ||
-                      "مجموعات مختارة بعناية لتمنح كل إطلالة لمستها الخاصة من الرقي والفخامة."
-                    }
-                  />
                   <div className="wahaj-collections__grid">
                     {categories.map((c: any, index: number) => (
                       <Link
