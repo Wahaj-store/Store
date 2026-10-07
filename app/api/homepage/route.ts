@@ -1,88 +1,23 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
+// إعدادات الروابط تتغير من لوحة الإدارة، لذا يجب أن تعكس الواجهة آخر قيمة محفوظة فورًا.
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
-export async function GET() {
-  const [sections, products, categories, settings, theme, payments, offers, testimonials] = await Promise.all([
-    prisma.homepageSection.findMany({
-      where: {
-        visible: true,
-        status: 'PUBLISHED',
-        AND: [
-          { OR: [{ startsAt: null }, { startsAt: { lte: new Date() } }] },
-          { OR: [{ endsAt: null }, { endsAt: { gte: new Date() } }] },
-        ],
-      },
-      orderBy: { sortOrder: 'asc' },
-    }),
-    prisma.product.findMany({
-      where: { status: 'PUBLISHED' },
-      include: { images: { orderBy: { sortOrder: 'asc' } }, category: true },
-      orderBy: { createdAt: 'desc' },
-      take: 12,
-    }),
-    prisma.category.findMany({
-      where: { active: true },
-      orderBy: { sortOrder: 'asc' },
-    }),
-    prisma.siteSetting.findMany(),
-    prisma.themeSetting.findFirst(),
-    prisma.paymentSetting.findMany({
-      where: { enabled: true },
-      select: {
-        method: true,
-        enabled: true,
-        label: true,
-        description: true,
-        iconKey: true,
-        accountName: true,
-        accountNumber: true,
-        instructions: true,
-        proofRequired: true,
-        displayOrder: true,
-      },
-      orderBy: { displayOrder: 'asc' },
-    }),
-    prisma.offer.findMany({
-      where: {
-        active: true,
-        OR: [{ endsAt: null }, { endsAt: { gte: new Date() } }],
-      },
-      orderBy: { createdAt: 'desc' },
-    }),
-    prisma.review.findMany({
-      where: { approved: true, text: { not: null }, product: { is: { status: 'PUBLISHED' } } },
-      select: {
-        id: true,
-        rating: true,
-        text: true,
-        verified: true,
-        customer: { select: { name: true } },
-        product: { select: { name: true, slug: true } },
-      },
-      orderBy: { createdAt: 'desc' },
-      take: 6,
-    }),
-  ]);
+const PUBLIC_KEYS=['brand_name','brand_tagline','currency','announcement','whatsapp','minimum_order','free_shipping','popup_enabled','seo_title','seo_description','brand_story','header_menu','footer_links','popup_config','social_facebook','social_instagram','social_tiktok'];
 
-  return NextResponse.json({
-    sections,
-    products,
-    categories,
-    settings: Object.fromEntries(settings.map((s) => [s.key, s.value])),
-    theme,
-    payments,
-    offers,
-    testimonials: testimonials.map((review) => ({
-      id: review.id,
-      rating: review.rating,
-      text: review.text,
-      verified: review.verified,
-      customerName: String(review.customer.name || '').trim().split(/\s+/)[0] || 'عميلة وَهَج',
-      productName: review.product.name,
-      productSlug: review.product.slug,
-    })),
-  }, { headers: { 'Cache-Control': 'no-store, max-age=0' } });
+export async function GET(){
+ const [rows,payments,theme]=await Promise.all([
+  prisma.siteSetting.findMany({where:{key:{in:PUBLIC_KEYS}}}),
+  prisma.paymentSetting.findMany({where:{enabled:true},select:{method:true,enabled:true,label:true,description:true,iconKey:true,accountName:true,accountNumber:true,instructions:true,proofRequired:true,displayOrder:true},orderBy:{displayOrder:'asc'}}),
+  prisma.themeSetting.findFirst({select:{primaryColor:true,accentColor:true,background:true,textColor:true,logoUrl:true,faviconUrl:true,fontFamily:true,radiusScale:true,darkMode:true}})
+ ]);
+ const publicTheme=theme?{...theme,fontFamily:'Tajawal'}:null;
+
+ return NextResponse.json({
+  settings: Object.fromEntries(rows.map(x => [x.key, x.value])),
+  payments,
+  theme:publicTheme,
+ }, { headers: { 'Cache-Control': 'no-store, max-age=0' } });
 }
