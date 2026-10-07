@@ -32,7 +32,7 @@ export const metadata: Metadata = {
   robots: { index: true, follow: true },
 };
 
-export const revalidate = 0; // ضمان تحديث البيانات بشكل فوري
+export const revalidate = 0; // إبقاء بيانات الصفحة الرئيسية محدثة فورًا
 
 export default async function Page() {
   // جلب البيانات المعروضة فقط بالتوازي، مع إبقاء المحتوى محدثًا فورًا.
