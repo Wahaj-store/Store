@@ -168,8 +168,8 @@ export default function SiteChrome() {
     <>
       {/* إعلان المتجر العلوي */}
       {settings.announcement && (
-        <div className="bg-[#241B1A] py-2 text-center text-xs text-[#F7F2EA] tracking-wider">
-          {settings.announcement}
+        <div className="wahaj-announcement-bar" role="note" aria-label="إعلان المتجر">
+          <span>{settings.announcement}</span>
         </div>
       )}
 
@@ -385,6 +385,22 @@ export default function SiteChrome() {
           </aside>
         </div>
       )}
+
+      <nav className="wahaj-mobile-bottom-nav" aria-label="التنقل السريع">
+        <SiteLink href="/" className={pathname === '/' ? 'is-active' : ''} aria-label="الرئيسية">
+          <Home size={18} /><span>الرئيسية</span>
+        </SiteLink>
+        <SiteLink href="/shop" className={pathname?.startsWith('/shop') ? 'is-active' : ''} aria-label="المتجر">
+          <Store size={18} /><span>المتجر</span>
+        </SiteLink>
+        <SiteLink href="/cart" className={pathname?.startsWith('/cart') ? 'is-active wahaj-mobile-bottom-nav__cart' : 'wahaj-mobile-bottom-nav__cart'} aria-label="السلة">
+          <ShoppingBag size={18} /><span>السلة</span>
+          {cartCount > 0 && <b>{cartCount > 99 ? '99+' : cartCount}</b>}
+        </SiteLink>
+        <SiteLink href="/account" className={pathname?.startsWith('/account') ? 'is-active' : ''} aria-label="حسابي">
+          <User size={18} /><span>حسابي</span>
+        </SiteLink>
+      </nav>
 
       {/* زر التواصل العائم — يستخدم رقم واتساب المُدار من إعدادات المتجر العامة */}
       <a
