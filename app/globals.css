@@ -5199,3 +5199,23 @@ img {
     box-shadow: none;
   }
 }
+
+/* AI-assisted natural-language product search */
+.wahaj-ai-search { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 13px; max-width: 790px; margin-top: 11px; padding: 10px 12px; border: 1px solid color-mix(in srgb, var(--gold) 28%, var(--border)); border-radius: 14px; background: color-mix(in srgb, var(--gold-soft) 42%, var(--card)); }
+.wahaj-ai-search__intro { display: flex; align-items: center; gap: 8px; min-width: 145px; }
+.wahaj-ai-search__icon { display: grid; width: 31px; height: 31px; place-items: center; border-radius: 10px; background: var(--gold); color: var(--gold-contrast); }
+.wahaj-ai-search__intro b,.wahaj-ai-search__intro small { display: block; }
+.wahaj-ai-search__intro b { color: var(--foreground); font-size: 10px; }
+.wahaj-ai-search__intro small { margin-top: 2px; color: var(--muted-foreground); font-size: 8px; }
+.wahaj-ai-search__form { display: flex; min-width: 0; gap: 7px; }
+.wahaj-ai-search__form input { min-width: 0; flex: 1; height: 38px; padding: 0 12px; border: 1px solid var(--border); border-radius: 9px; outline: 0; background: var(--background); color: var(--foreground); font-family: inherit; font-size: 10px; }
+.wahaj-ai-search__form input:focus { border-color: var(--gold); box-shadow: 0 0 0 3px color-mix(in srgb, var(--gold) 11%, transparent); }
+.wahaj-ai-search__form button { display: inline-flex; min-height: 38px; align-items: center; justify-content: center; gap: 6px; padding: 0 13px; border: 0; border-radius: 9px; background: var(--foreground); color: var(--background); font-family: inherit; font-size: 9px; font-weight: 800; }
+.wahaj-ai-search__form button:disabled { cursor: not-allowed; opacity: .45; }
+.wahaj-ai-search__message { grid-column: 2; margin: 0; color: var(--muted-foreground); font-size: 9px; }
+@media (max-width: 650px) {
+  .wahaj-ai-search { grid-template-columns: 1fr; gap: 8px; margin-top: 9px; padding: 10px; }
+  .wahaj-ai-search__intro { min-width: 0; }
+  .wahaj-ai-search__form button { padding-inline: 11px; }
+  .wahaj-ai-search__message { grid-column: auto; }
+}
