@@ -1,8 +1,9 @@
 "use client";
 import { usePathname } from "next/navigation";
+import dynamic from "next/dynamic";
 import { ReactNode } from "react";
 import SiteChrome from "@/components/SiteChrome";
-import SiteFooter from "@/components/SiteFooter";
+const SiteFooter = dynamic(() => import("@/components/SiteFooter"), { ssr: true });
 
 export default function ClientLayout({ children }: { children: ReactNode }) {
   const pathname = usePathname();
