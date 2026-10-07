@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import {
   ArrowLeft,
@@ -23,7 +24,9 @@ import ClientRecentTracker from '@/components/ClientRecentTracker';
 
 export const revalidate = 60;
 
-export async function generateMetadata({ params }: { params: { slug: string } }) {
+const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || 'https://wahaj-store.vercel.app').replace(/\/+$/, '');
+
+export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
   const product = await prisma.product.findUnique({
     where: { slug: params.slug },
     select: {
@@ -42,16 +45,25 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   if (!product) return {};
 
   const title = product.seoTitle || `${product.name} | وَهَج`;
-  const description = product.seoDescription || product.description || `اكتشفي ${product.name} من وَهَج`;
+  const description = (product.seoDescription || product.description || `اكتشفي ${product.name} من وَهَج`).slice(0, 160);
+  const url = `${SITE_URL}/product/${encodeURIComponent(params.slug)}`;
+  const image = product.images[0]?.url;
 
   return {
     title,
     description,
+    alternates: { canonical: url },
     openGraph: {
+      type: 'website',
+      url,
+      siteName: 'وَهَج',
+      locale: 'ar_EG',
       title: product.seoTitle || product.name,
-      description: product.seoDescription || product.description || '',
-      images: product.images[0]?.url ? [{ url: product.images[0].url }] : [],
+      description,
+      images: image ? [{ url: image, alt: product.name }] : [],
     },
+    twitter: { card: 'summary_large_image', title, description, images: image ? [image] : [] },
+    robots: { index: true, follow: true },
   };
 }
 
@@ -108,25 +120,42 @@ export default async function ProductPage({ params }: { params: { slug: string }
     payments.some((payment) => payment.method === option.method),
   );
 
+  const productUrl = `${SITE_URL}/product/${encodeURIComponent(product.slug)}`;
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Product',
+    '@id': `${productUrl}#product`,
     name: product.name,
     description: product.description || '',
     sku: product.sku,
+    brand: { '@type': 'Brand', name: 'وَهَج' },
     image: product.images.map((image) => image.url),
+    ...(reviews.length ? { aggregateRating: { '@type': 'AggregateRating', ratingValue: Number(averageRating.toFixed(1)), reviewCount: reviews.length, bestRating: 5, worstRating: 1 } } : {}),
     offers: {
       '@type': 'Offer',
-      price,
+      price: price.toFixed(2),
       priceCurrency: 'EGP',
       availability: product.stock > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
-      url: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://wahaj-store.vercel.app'}/product/${product.slug}`,
+      itemCondition: 'https://schema.org/NewCondition',
+      url: productUrl,
     },
+  };
+
+  const breadcrumbLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'الرئيسية', item: `${SITE_URL}/` },
+      { '@type': 'ListItem', position: 2, name: 'المتجر', item: `${SITE_URL}/shop` },
+      ...(product.category ? [{ '@type': 'ListItem', position: 3, name: product.category.name, item: `${SITE_URL}/shop?category=${encodeURIComponent(product.category.slug)}` }] : []),
+      { '@type': 'ListItem', position: product.category ? 4 : 3, name: product.name, item: productUrl },
+    ],
   };
 
   return (
     <main className="wahaj-product-page" dir="rtl">
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c') }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd).replace(/</g, '\\u003c') }} />
       <ClientRecentTracker
         product={{ name: product.name, slug: product.slug, price, image: mainImage }}
       />
