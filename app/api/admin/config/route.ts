@@ -44,7 +44,7 @@ async function readConfig() {
     ...Object.fromEntries(rows.map((row) => [row.key, row.value])),
   };
 
-  return { settings, theme, sections, payments };
+  return { settings, theme: theme ? { ...theme, fontFamily: 'Tajawal' } : null, sections, payments };
 }
 
 export async function GET() {
@@ -102,7 +102,7 @@ export async function PUT(req: Request) {
         textColor: themeBody.textColor || '#171513',
         logoUrl: themeBody.logoUrl ?? null,
         faviconUrl: themeBody.faviconUrl ?? null,
-        fontFamily: themeBody.fontFamily ?? null,
+        fontFamily: 'Tajawal',
         radiusScale: themeBody.radiusScale || 'luxury',
         darkMode: themeBody.darkMode !== false,
       };
