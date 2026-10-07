@@ -1,14 +1,14 @@
 import './globals.css';
 import ClientLayout from '@/components/ClientLayout';
 import { ThemeProvider } from 'next-themes';
-import { IBM_Plex_Sans_Arabic } from 'next/font/google';
+import { Tajawal } from 'next/font/google';
 import { ReactNode } from 'react';
 
 const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || 'https://wahaj-store.vercel.app').replace(/\/+$/, '');
 
-const wahajFont = IBM_Plex_Sans_Arabic({
-  subsets: ['arabic'],
-  weight: ['400', '500', '600', '700'],
+const wahajFont = Tajawal({
+  subsets: ['arabic', 'latin'],
+  weight: ['200', '300', '400', '500', '700', '800', '900'],
   display: 'swap',
   variable: '--font-wahaj',
   preload: true,
