@@ -5219,3 +5219,96 @@ img {
   .wahaj-ai-search__form button { padding-inline: 11px; }
   .wahaj-ai-search__message { grid-column: auto; }
 }
+
+
+/* Homepage mobile overflow guard — final override layer */
+.wahaj-storefront,
+.wahaj-storefront main,
+.wahaj-storefront main > section,
+.wahaj-storefront .container,
+.wahaj-storefront .wahaj-hero__inner,
+.wahaj-storefront .wahaj-story__card,
+.wahaj-storefront .wahaj-newsletter__card {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.wahaj-storefront .wahaj-hero__inner,
+.wahaj-storefront .wahaj-story__card,
+.wahaj-storefront .wahaj-newsletter__card,
+.wahaj-storefront .wahaj-products-section__toolbar,
+.wahaj-storefront .wahaj-trust__item,
+.wahaj-storefront .wahaj-social-world__bottom,
+.wahaj-storefront .wahaj-newsletter__intro,
+.wahaj-storefront .wahaj-newsletter__form {
+  min-width: 0;
+}
+
+.wahaj-storefront .wahaj-hero__title,
+.wahaj-storefront .wahaj-hero__description,
+.wahaj-storefront .wahaj-section-heading__title,
+.wahaj-storefront .wahaj-section-heading__subtitle,
+.wahaj-storefront .wahaj-story__content h2,
+.wahaj-storefront .wahaj-story__content > p,
+.wahaj-storefront .wahaj-product-card__title,
+.wahaj-storefront .wahaj-offer-card h3,
+.wahaj-storefront .wahaj-offer-card p,
+.wahaj-storefront .wahaj-testimonial-card__text,
+.wahaj-storefront .wahaj-newsletter__card h2,
+.wahaj-storefront .wahaj-newsletter__copy > p {
+  overflow-wrap: anywhere;
+  word-break: normal;
+}
+
+.wahaj-storefront .wahaj-hero__actions > *,
+.wahaj-storefront .wahaj-products-section__toolbar > *,
+.wahaj-storefront .wahaj-offers__head > *,
+.wahaj-storefront .wahaj-social-world__bottom > *,
+.wahaj-storefront .wahaj-newsletter__intro > * {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.wahaj-storefront .wahaj-trust__item > div:last-child,
+.wahaj-storefront .wahaj-testimonial-card__identity,
+.wahaj-storefront .wahaj-newsletter__copy {
+  min-width: 0;
+}
+
+.wahaj-storefront .wahaj-social-world__links {
+  min-width: 0;
+  max-width: 100%;
+  overflow-x: auto;
+  padding-bottom: 3px;
+  scrollbar-width: none;
+}
+.wahaj-storefront .wahaj-social-world__links::-webkit-scrollbar { display: none; }
+.wahaj-storefront .wahaj-social-world__links a { flex: 0 0 auto; white-space: nowrap; }
+
+@media (max-width: 430px) {
+  .wahaj-storefront .container,
+  .wahaj-storefront .wahaj-hero__inner { width: calc(100% - 24px); }
+  .wahaj-storefront .wahaj-hero__inner { gap: 22px; padding-block: 28px 30px; }
+  .wahaj-storefront .wahaj-hero__title { font-size: clamp(34px, 11vw, 46px); line-height: 1.18; }
+  .wahaj-storefront .wahaj-hero__description { font-size: 13px; }
+  .wahaj-storefront .wahaj-hero__actions { grid-template-columns: 1fr; gap: 8px; }
+  .wahaj-storefront .wahaj-hero__primary,
+  .wahaj-storefront .wahaj-hero__secondary { width: 100%; min-width: 0; }
+  .wahaj-storefront .wahaj-hero__meta { display: grid; grid-template-columns: 1fr; gap: 7px; }
+  .wahaj-storefront .wahaj-hero__visual { width: 100%; aspect-ratio: .94 / 1; border-top-right-radius: 55px; }
+  .wahaj-storefront .wahaj-hero__badge { max-width: calc(100% - 36px); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .wahaj-storefront .wahaj-products-section__toolbar { align-items: flex-start; flex-direction: column; }
+  .wahaj-storefront .wahaj-products-section__link { width: 100%; justify-content: center; }
+  .wahaj-storefront .wahaj-trust__grid { grid-template-columns: 1fr; }
+  .wahaj-storefront .wahaj-newsletter__intro { grid-template-columns: minmax(0, 1fr) 48px; }
+  .wahaj-storefront .wahaj-newsletter__icon { width: 48px; height: 48px; flex-basis: 48px; }
+}
+
+@media (max-width: 340px) {
+  .wahaj-storefront .wahaj-collection__content { right: 10px; left: 10px; bottom: 10px; }
+  .wahaj-storefront .wahaj-collection__name { font-size: 12px; }
+  .wahaj-storefront .wahaj-collection__link { font-size: 8px; }
+  .wahaj-storefront .wahaj-product-grid { gap: 7px; }
+  .wahaj-storefront .wahaj-product-card__body { padding-inline: 8px; }
+  .wahaj-storefront .wahaj-product-card__title { font-size: 12px; }
+}
