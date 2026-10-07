@@ -3643,6 +3643,8 @@ a:focus-visible {
 .wahaj-testimonials__heading { display:flex; align-items:flex-end; justify-content:space-between; gap:20px; margin-bottom:29px; }
 .wahaj-testimonials__heading .wahaj-section-heading { margin-inline:0 auto; }
 .wahaj-testimonials__count { display:inline-flex; align-items:center; gap:7px; padding:8px 11px; border:1px solid var(--border); border-radius:999px; color:var(--gold-muted); font-size:9px; font-weight:800; white-space:nowrap; }
+.wahaj-testimonials__heading--center { align-items:center; justify-content:center; margin-bottom:29px; text-align:center; }
+.wahaj-testimonials__title { margin:0; color:var(--foreground); font-size:clamp(22px,3vw,32px); font-weight:800; letter-spacing:-.035em; line-height:1.35; }
 .wahaj-testimonials__grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:15px; }
 .wahaj-testimonial-card { position:relative; display:flex; min-height:242px; flex-direction:column; padding:21px; overflow:hidden; border:1px solid var(--border); border-radius:3px 22px 3px 22px; background:var(--card); box-shadow:var(--shadow-soft); transition:transform .25s ease,border-color .25s ease,box-shadow .25s ease; }
 .wahaj-testimonial-card::before { position:absolute; inset-block-start:0; inset-inline-end:20px; width:42px; height:2px; background:var(--gold); content:""; }
@@ -4750,4 +4752,22 @@ a:focus-visible {
 }
 @media (prefers-reduced-motion:reduce) {
   .wahaj-product-card,.wahaj-product-card *,.wahaj-header__action,.wahaj-header__menu,.wahaj-product-page *,.wahaj-product-page *::before,.wahaj-product-page *::after { transition-duration:.01ms !important; animation-duration:.01ms !important; }
+}
+
+/* Testimonials heading: one centered editorial title only. */
+.wahaj-storefront .wahaj-testimonials__heading--center {
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  margin-inline: auto;
+  margin-bottom: 29px;
+  text-align: center;
+}
+.wahaj-storefront .wahaj-testimonials__heading--center .wahaj-testimonials__title {
+  margin: 0;
+  color: var(--foreground);
+  text-align: center;
+}
+@media (max-width: 700px) {
+  .wahaj-storefront .wahaj-testimonials__heading--center { align-items: center; }
 }
