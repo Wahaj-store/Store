@@ -4873,3 +4873,508 @@ a:focus-visible {
   .wahaj-storefront *::before,
   .wahaj-storefront *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
 }
+
+
+/* =========================================================
+   وَهَج — Homepage V2
+   Editorial luxury layout / RTL / Light + Dark
+   Scoped to .wahaj-home-v2 so other pages keep their UI.
+   ========================================================= */
+
+.wahaj-home-v2 {
+  --home-max: 1240px;
+  --home-gap: clamp(18px, 2.2vw, 32px);
+  background: var(--background);
+  overflow: clip;
+}
+
+.wahaj-home-v2 .container {
+  width: min(var(--home-max), calc(100% - 40px));
+}
+
+.wahaj-home-v2 .wahaj-home-main > section {
+  content-visibility: auto;
+  contain-intrinsic-size: 1px 720px;
+}
+
+/* Hero */
+.wahaj-home-v2 .wahaj-hero {
+  min-height: auto;
+  border-bottom: 0;
+  background:
+    radial-gradient(circle at 8% 12%, color-mix(in srgb, var(--gold) 10%, transparent), transparent 30%),
+    var(--background);
+}
+
+.wahaj-home-v2 .wahaj-hero::before {
+  background:
+    linear-gradient(90deg, transparent 0 48%, color-mix(in srgb, var(--gold) 5%, transparent)),
+    radial-gradient(circle at 82% 15%, color-mix(in srgb, var(--gold) 11%, transparent), transparent 26%);
+}
+
+.wahaj-home-v2 .wahaj-hero__inner {
+  width: min(var(--home-max), calc(100% - 40px));
+  min-height: clamp(560px, 76vh, 780px);
+  grid-template-columns: minmax(0, .84fr) minmax(0, 1.16fr);
+  gap: clamp(24px, 4vw, 62px);
+  padding-block: clamp(28px, 4vw, 54px);
+}
+
+.wahaj-home-v2 .wahaj-hero__content {
+  max-width: 590px;
+  padding-block: 18px;
+}
+
+.wahaj-home-v2 .wahaj-hero__eyebrow {
+  margin-bottom: 16px;
+  font-size: .72rem;
+  letter-spacing: .14em;
+}
+
+.wahaj-home-v2 .wahaj-hero__title {
+  max-width: 620px;
+  font-size: clamp(2.45rem, 5vw, 5rem);
+  line-height: 1.12;
+  letter-spacing: -.055em;
+}
+
+.wahaj-home-v2 .wahaj-hero__description {
+  max-width: 510px;
+  margin-top: 20px;
+  font-size: clamp(.96rem, 1.25vw, 1.1rem);
+  line-height: 1.95;
+}
+
+.wahaj-home-v2 .wahaj-hero__actions {
+  margin-top: 28px;
+  gap: 9px;
+}
+
+.wahaj-home-v2 .wahaj-hero__primary,
+.wahaj-home-v2 .wahaj-hero__secondary {
+  min-height: 46px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  padding: 11px 18px;
+  border-radius: 5px;
+  transition: transform var(--transition), box-shadow var(--transition), background-color var(--transition);
+}
+
+.wahaj-home-v2 .wahaj-hero__primary {
+  background: var(--gold);
+  color: var(--gold-contrast);
+  border: 1px solid var(--gold);
+  font-weight: 700;
+}
+
+.wahaj-home-v2 .wahaj-hero__secondary {
+  border: 1px solid var(--border-strong);
+  background: color-mix(in srgb, var(--card) 70%, transparent);
+}
+
+.wahaj-home-v2 .wahaj-hero__primary:hover,
+.wahaj-home-v2 .wahaj-hero__secondary:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-soft);
+}
+
+.wahaj-home-v2 .wahaj-hero__meta {
+  gap: 16px;
+  margin-top: 30px;
+  padding-top: 16px;
+  font-size: .76rem;
+}
+
+.wahaj-home-v2 .wahaj-hero__visual {
+  min-height: clamp(500px, 68vh, 720px);
+  border-radius: 2px;
+  box-shadow: var(--shadow-luxury);
+}
+
+.wahaj-home-v2 .wahaj-hero__image {
+  min-height: clamp(500px, 68vh, 720px);
+}
+
+.wahaj-home-v2 .wahaj-hero__frame {
+  inset: 14px;
+}
+
+.wahaj-home-v2 .wahaj-hero__badge {
+  bottom: 22px;
+  inset-inline-start: 22px;
+  border-radius: 4px;
+}
+
+/* Shared editorial heading */
+.wahaj-home-v2 .wahaj-section-heading {
+  max-width: 780px;
+  margin-inline: 0;
+}
+
+.wahaj-home-v2 .wahaj-section-heading--center {
+  margin-inline: auto;
+}
+
+.wahaj-home-v2 .wahaj-section-heading__eyebrow {
+  color: var(--gold);
+  font-size: .7rem;
+  letter-spacing: .12em;
+  font-weight: 700;
+}
+
+.wahaj-home-v2 .wahaj-section-heading__title {
+  font-size: clamp(1.8rem, 3.2vw, 3rem);
+  line-height: 1.22;
+  letter-spacing: -.035em;
+  font-weight: 600;
+}
+
+.wahaj-home-v2 .wahaj-section-heading__subtitle {
+  max-width: 650px;
+  margin-top: 10px;
+  font-size: .94rem;
+  line-height: 1.9;
+}
+
+/* Collections */
+.wahaj-home-v2 .wahaj-collections {
+  padding-block: clamp(58px, 7vw, 92px);
+  background: var(--background);
+}
+
+.wahaj-home-v2 .wahaj-collections__head {
+  margin-bottom: 30px;
+}
+
+.wahaj-home-v2 .wahaj-collections__grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.wahaj-home-v2 .wahaj-collection {
+  min-height: 360px;
+  border-radius: 3px;
+  box-shadow: none;
+  transition: transform 300ms ease, box-shadow 300ms ease;
+}
+
+.wahaj-home-v2 .wahaj-collection:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-luxury);
+}
+
+.wahaj-home-v2 .wahaj-collection__shade {
+  background: linear-gradient(180deg, rgba(20,16,15,.03) 28%, rgba(20,16,15,.72) 100%);
+}
+
+.wahaj-home-v2 .wahaj-collection__number {
+  top: 16px;
+  inset-inline-end: 16px;
+  font-size: .68rem;
+}
+
+.wahaj-home-v2 .wahaj-collection__content {
+  padding: 20px;
+}
+
+.wahaj-home-v2 .wahaj-collection__name {
+  font-size: 1.12rem;
+}
+
+/* Story */
+.wahaj-home-v2 .wahaj-story {
+  padding-block: clamp(56px, 7vw, 96px);
+}
+
+.wahaj-home-v2 .wahaj-story__card {
+  border-radius: 3px;
+  border-color: var(--border);
+  box-shadow: none;
+}
+
+.wahaj-home-v2 .wahaj-story__visual {
+  min-height: 520px;
+}
+
+.wahaj-home-v2 .wahaj-story__content {
+  padding: clamp(28px, 4vw, 58px);
+}
+
+.wahaj-home-v2 .wahaj-story__content h2 {
+  font-size: clamp(1.9rem, 3.4vw, 3.15rem);
+  letter-spacing: -.04em;
+  line-height: 1.25;
+}
+
+/* Products */
+.wahaj-home-v2 .wahaj-products-section {
+  padding-block: clamp(58px, 7vw, 92px);
+  background: var(--surface);
+}
+
+.wahaj-home-v2 .wahaj-products-section__toolbar {
+  margin-top: 24px;
+  padding-bottom: 13px;
+  border-bottom: 1px solid var(--line);
+}
+
+.wahaj-home-v2 .wahaj-products-section__link {
+  color: var(--gold);
+  font-size: .8rem;
+  font-weight: 700;
+}
+
+.wahaj-home-v2 .wahaj-product-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 18px;
+}
+
+/* Offers */
+.wahaj-home-v2 .wahaj-offers {
+  padding-block: clamp(58px, 7vw, 92px);
+}
+
+.wahaj-home-v2 .wahaj-offers__shell {
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  background:
+    radial-gradient(circle at 92% 8%, color-mix(in srgb, var(--gold) 10%, transparent), transparent 28%),
+    var(--card);
+  padding: clamp(24px, 4vw, 48px);
+}
+
+.wahaj-home-v2 .wahaj-offers__head {
+  align-items: end;
+}
+
+.wahaj-home-v2 .wahaj-offers__all {
+  min-height: 40px;
+  border-color: var(--border-strong);
+  border-radius: 4px;
+}
+
+.wahaj-home-v2 .wahaj-offers__grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 28px;
+}
+
+.wahaj-home-v2 .wahaj-offer-card {
+  min-height: 240px;
+  border-radius: 3px;
+  padding: 20px;
+  transition: transform 250ms ease, border-color 250ms ease, box-shadow 250ms ease;
+}
+
+.wahaj-home-v2 .wahaj-offer-card:hover {
+  transform: translateY(-3px);
+  border-color: color-mix(in srgb, var(--gold) 48%, var(--line));
+  box-shadow: var(--shadow-soft);
+}
+
+/* Trust */
+.wahaj-home-v2 .wahaj-trust {
+  padding-block: 22px;
+  border-block: 1px solid var(--line);
+  background: var(--surface);
+}
+
+.wahaj-home-v2 .wahaj-trust__grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0;
+}
+
+.wahaj-home-v2 .wahaj-trust__item {
+  min-height: 86px;
+  padding: 14px 18px;
+  border-inline-start: 1px solid var(--line);
+}
+
+.wahaj-home-v2 .wahaj-trust__item:last-child {
+  border-inline-start: 0;
+}
+
+.wahaj-home-v2 .wahaj-trust__icon {
+  width: 40px;
+  height: 40px;
+}
+
+/* Testimonials */
+.wahaj-home-v2 .wahaj-testimonials {
+  padding-block: clamp(58px, 7vw, 92px);
+}
+
+.wahaj-home-v2 .wahaj-testimonials__grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 28px;
+}
+
+.wahaj-home-v2 .wahaj-testimonial-card {
+  min-height: 235px;
+  border-radius: 3px;
+}
+
+/* Social */
+.wahaj-home-v2 .wahaj-social-world {
+  padding-block: clamp(58px, 7vw, 92px);
+  background: var(--surface);
+}
+
+.wahaj-home-v2 .wahaj-social-world__grid {
+  gap: 8px;
+}
+
+.wahaj-home-v2 .wahaj-social-tile {
+  min-height: 250px;
+  border-radius: 2px;
+}
+
+/* Newsletter */
+.wahaj-home-v2 .wahaj-newsletter {
+  padding-block: clamp(48px, 6vw, 78px);
+}
+
+.wahaj-home-v2 .wahaj-newsletter__card {
+  border-radius: 3px;
+  padding: clamp(24px, 4vw, 44px);
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--gold) 10%, transparent), transparent 50%),
+    var(--card);
+}
+
+/* Mobile / tablet */
+@media (max-width: 1050px) {
+  .wahaj-home-v2 .wahaj-hero__inner {
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+  }
+
+  .wahaj-home-v2 .wahaj-collections__grid,
+  .wahaj-home-v2 .wahaj-product-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .wahaj-home-v2 .wahaj-offers__grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 800px) {
+  .wahaj-home-v2 .container,
+  .wahaj-home-v2 .wahaj-hero__inner {
+    width: calc(100% - 24px);
+  }
+
+  .wahaj-home-v2 .wahaj-hero__inner {
+    grid-template-columns: 1fr;
+    min-height: auto;
+    padding-block: 20px 34px;
+  }
+
+  .wahaj-home-v2 .wahaj-hero__content {
+    padding-top: 8px;
+  }
+
+  .wahaj-home-v2 .wahaj-hero__visual,
+  .wahaj-home-v2 .wahaj-hero__image {
+    min-height: min(72vh, 540px);
+  }
+
+  .wahaj-home-v2 .wahaj-collections__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .wahaj-home-v2 .wahaj-collection {
+    min-height: 300px;
+  }
+
+  .wahaj-home-v2 .wahaj-story__visual {
+    min-height: 380px;
+  }
+
+  .wahaj-home-v2 .wahaj-offers__grid,
+  .wahaj-home-v2 .wahaj-testimonials__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .wahaj-home-v2 .wahaj-trust__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .wahaj-home-v2 .wahaj-trust__item {
+    border-inline-start: 0;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .wahaj-home-v2 .wahaj-trust__item:nth-child(odd) {
+    border-inline-end: 1px solid var(--line);
+  }
+
+  .wahaj-home-v2 .wahaj-trust__item:nth-last-child(-n+2) {
+    border-bottom: 0;
+  }
+}
+
+@media (max-width: 520px) {
+  .wahaj-home-v2 .wahaj-hero__title {
+    font-size: clamp(2.25rem, 12vw, 3.45rem);
+  }
+
+  .wahaj-home-v2 .wahaj-hero__description {
+    font-size: .92rem;
+  }
+
+  .wahaj-home-v2 .wahaj-hero__meta {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    line-height: 1.6;
+  }
+
+  .wahaj-home-v2 .wahaj-collections__grid,
+  .wahaj-home-v2 .wahaj-product-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .wahaj-home-v2 .wahaj-collection {
+    min-height: 230px;
+  }
+
+  .wahaj-home-v2 .wahaj-collection__content {
+    padding: 13px;
+  }
+
+  .wahaj-home-v2 .wahaj-collection__name {
+    font-size: .95rem;
+  }
+
+  .wahaj-home-v2 .wahaj-trust__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .wahaj-home-v2 .wahaj-trust__item,
+  .wahaj-home-v2 .wahaj-trust__item:nth-child(odd) {
+    border-inline-end: 0;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .wahaj-home-v2 .wahaj-trust__item:last-child {
+    border-bottom: 0;
+  }
+
+  .wahaj-home-v2 .wahaj-newsletter__form {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wahaj-home-v2 .wahaj-home-main > section {
+    content-visibility: visible;
+  }
+}
