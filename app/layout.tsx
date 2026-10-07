@@ -8,7 +8,8 @@ const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || 'https://wahaj-store.verce
 
 const wahajFont = Tajawal({
   subsets: ['arabic', 'latin'],
-  weight: ['200', '300', '400', '500', '700', '800', '900'],
+  // الأوزان المستخدمة فعليًا في الواجهة؛ تقليلها يخفّض حجم الخط الأولي.
+  weight: ['400', '500', '700'],
   display: 'swap',
   variable: '--font-wahaj',
   preload: true,
