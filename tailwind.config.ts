@@ -9,8 +9,9 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        arabic: ["Tajawal", "sans-serif"],
-        serif: ["Tajawal", "serif"],
+        sans: ["var(--font-wahaj)", "sans-serif"],
+        arabic: ["var(--font-wahaj)", "sans-serif"],
+        serif: ["var(--font-wahaj)", "serif"],
       },
       colors: {
         background: "var(--background)",
