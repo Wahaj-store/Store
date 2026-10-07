@@ -103,6 +103,7 @@ export default function SiteFooter() {
                 alt={brandName}
                 width={180}
                 height={78}
+                loading="lazy"
                 className="wahaj-footer__logo-image"
               />
             </Link>
@@ -174,6 +175,7 @@ export default function SiteFooter() {
                 alt="طرق الدفع المتاحة في متجر وَهَج"
                 width={300}
                 height={100}
+                loading="lazy"
                 className="wahaj-footer__payments-image"
               />
             </div>
