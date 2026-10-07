@@ -22,7 +22,7 @@ function escapeHtml(value: unknown) {
 }
 
 function brandHtml(content: string) {
-  return `<!doctype html><html lang="ar" dir="rtl"><body style="margin:0;background:#f7f5ef;font-family:Arial,sans-serif;color:#24211d"><div style="max-width:620px;margin:32px auto;padding:0 16px"><div style="background:#171614;color:#d4af37;padding:22px 24px;border-radius:16px 16px 0 0;text-align:center;font-size:24px;font-weight:700">متجر وَهَج</div><div style="background:#fff;padding:28px 24px;border:1px solid #e8e1d5;border-top:0;border-radius:0 0 16px 16px;line-height:1.9">${content}<p style="margin:28px 0 0;color:#888;font-size:12px">هذه رسالة آلية من متجر وَهَج.</p></div></div></body></html>`;
+  return `<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><style>@import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@200;300;400;500;700;800;900&display=swap');</style></head><body style="margin:0;background:#f7f5ef;font-family:'Tajawal',sans-serif;color:#24211d"><div style="max-width:620px;margin:32px auto;padding:0 16px"><div style="background:#171614;color:#d4af37;padding:22px 24px;border-radius:16px 16px 0 0;text-align:center;font-size:24px;font-weight:700">متجر وَهَج</div><div style="background:#fff;padding:28px 24px;border:1px solid #e8e1d5;border-top:0;border-radius:0 0 16px 16px;line-height:1.9">${content}<p style="margin:28px 0 0;color:#888;font-size:12px">هذه رسالة آلية من متجر وَهَج.</p></div></div></body></html>`;
 }
 
 export async function sendBrevoEmail(input: SendEmailInput) {
