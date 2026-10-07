@@ -386,59 +386,6 @@ export default function SiteChrome() {
         </div>
       )}
 
-      {/* شريط التنقل السفلي — Mobile Luxury Navigation */}
-      <nav
-        className={`wahaj-mobile-bottom-nav${menu ? ' is-menu-open' : ''}`}
-        aria-label="التنقل الرئيسي للموبايل"
-      >
-        <div className="wahaj-mobile-bottom-nav__inner">
-          <SiteLink
-            href="/"
-            className={`wahaj-mobile-bottom-nav__item ${isRouteActive('/') ? 'is-active' : ''}`}
-            aria-current={pathname === '/' ? 'page' : undefined}
-            title="الرئيسية"
-          >
-            <span className="wahaj-mobile-bottom-nav__icon"><Home size={19} strokeWidth={isRouteActive('/') ? 2.3 : 1.8} /></span>
-            <span className="wahaj-mobile-bottom-nav__label">الرئيسية</span>
-          </SiteLink>
-
-          <SiteLink
-            href="/shop"
-            className={`wahaj-mobile-bottom-nav__item ${isRouteActive('/shop') ? 'is-active' : ''}`}
-            aria-current={isRouteActive('/shop') ? 'page' : undefined}
-            title="المتجر"
-          >
-            <span className="wahaj-mobile-bottom-nav__icon"><Store size={19} strokeWidth={isRouteActive('/shop') ? 2.3 : 1.8} /></span>
-            <span className="wahaj-mobile-bottom-nav__label">المتجر</span>
-          </SiteLink>
-
-          <SiteLink
-            href="/cart"
-            className={`wahaj-mobile-bottom-nav__item wahaj-mobile-bottom-nav__item--cart ${isRouteActive('/cart') ? 'is-active' : ''}`}
-            aria-current={isRouteActive('/cart') ? 'page' : undefined}
-            title={cartCount > 0 ? `السلة، ${cartCount} منتج` : 'السلة'}
-          >
-            <span className="wahaj-mobile-bottom-nav__cart-orb">
-              <ShoppingBag size={20} strokeWidth={isRouteActive('/cart') ? 2.4 : 1.9} />
-              {cartCount > 0 && (
-                <span className="wahaj-mobile-bottom-nav__badge" aria-label={`${cartCount} منتج في السلة`}>{cartCount > 99 ? '99+' : cartCount}</span>
-              )}
-            </span>
-            <span className="wahaj-mobile-bottom-nav__label">السلة</span>
-          </SiteLink>
-
-          <SiteLink
-            href="/account"
-            className={`wahaj-mobile-bottom-nav__item ${isRouteActive('/account') ? 'is-active' : ''}`}
-            aria-current={isRouteActive('/account') ? 'page' : undefined}
-            title="حسابي"
-          >
-            <span className="wahaj-mobile-bottom-nav__icon"><User size={19} strokeWidth={isRouteActive('/account') ? 2.3 : 1.8} /></span>
-            <span className="wahaj-mobile-bottom-nav__label">حسابي</span>
-          </SiteLink>
-        </div>
-      </nav>
-
       {/* زر التواصل العائم — يستخدم رقم واتساب المُدار من إعدادات المتجر العامة */}
       <a
         href={whatsappHref}
