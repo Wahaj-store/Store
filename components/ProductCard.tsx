@@ -40,6 +40,7 @@ function QuickView({ p, onClose }: { p: any; onClose: () => void }) {
               width={900}
               height={1125}
               sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+              loading="lazy"
             />
           </div>
 
@@ -125,6 +126,7 @@ export default function ProductCard({
               fill
               sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
               className="wahaj-product-card__image"
+              loading="lazy"
             />
           </Link>
 
