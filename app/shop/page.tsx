@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { prisma } from '@/lib/prisma';
 import ProductCard from '@/components/ProductCard';
+import AdvancedSearchAssistant from '@/components/AdvancedSearchAssistant';
 
 export const revalidate = 60;
 
@@ -175,6 +176,7 @@ export default async function Shop({ searchParams }: { searchParams: ShopSearchP
           </label>
           <button type="submit" className="wahaj-shop-search__submit">ابحثي في المتجر <ArrowLeft size={16} /></button>
         </form>
+        <AdvancedSearchAssistant />
       </section>
 
       <section className="wahaj-shop-catalog" aria-label="تصفّح المنتجات">
