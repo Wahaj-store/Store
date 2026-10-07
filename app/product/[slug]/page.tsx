@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import dynamic from 'next/dynamic';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import {
@@ -15,12 +16,13 @@ import {
 import { prisma } from '@/lib/prisma';
 import ProductGallery from '@/components/ProductGallery';
 import ProductPurchase from '@/components/ProductPurchase';
-import ProductCard from '@/components/ProductCard';
 import WishlistButton from '@/components/WishlistButton';
-import ReviewForm from '@/components/ReviewForm';
-import BackInStockForm from '@/components/BackInStockForm';
-import RecentlyViewed from '@/components/RecentlyViewed';
 import ClientRecentTracker from '@/components/ClientRecentTracker';
+
+const ProductCard = dynamic(() => import('@/components/ProductCard'), { ssr: true });
+const ReviewForm = dynamic(() => import('@/components/ReviewForm'), { ssr: true });
+const BackInStockForm = dynamic(() => import('@/components/BackInStockForm'), { ssr: true });
+const RecentlyViewed = dynamic(() => import('@/components/RecentlyViewed'), { ssr: true });
 
 export const revalidate = 60;
 
