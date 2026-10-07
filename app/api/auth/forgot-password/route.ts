@@ -88,7 +88,8 @@ export async function POST(req: Request) {
         to: [{ email, name: customer.name || 'عميلنا العزيز' }],
         subject: 'رمز استعادة كلمة المرور - متجر وَهَج',
         htmlContent: `
-          <div dir="rtl" style="font-family: Arial, sans-serif; padding: 20px; background-color: #f9f9f9; border-radius: 10px;">
+          <style>@import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@200;300;400;500;700;800;900&display=swap');</style>
+          <div dir="rtl" style="font-family: 'Tajawal', sans-serif; padding: 20px; background-color: #f9f9f9; border-radius: 10px;">
             <h2 style="color: #b8860b;">متجر وَهَج للأناقة</h2>
             <p>مرحباً ${safeName},</p>
             <p>لقد طلبت إعادة تعيين كلمة المرور الخاصة بحسابك. استخدم الرمز أدناه لإتمام العملية:</p>
