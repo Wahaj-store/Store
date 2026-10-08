@@ -74,8 +74,13 @@ export default function AdminLoginPage() {
 
           <div className="wahaj-login__brand-copy">
             <span className="wahaj-login__eyebrow"><Sparkles size={14} /> مساحة إدارة المتجر</span>
-            <h1>كل تفاصيل متجرك،<br /><em>في مكان واحد.</em></h1>
-            <p>من الطلبات والمنتجات إلى العملاء والمحتوى — تجربة إدارة واضحة تساعدك على التركيز فيما يصنع الفرق.</p>
+            <h1>إدارة أهدأ،<br /><em>وقرارات أوضح.</em></h1>
+            <p>مركز تحكم واحد يضع منتجات وَهَج وطلباتها وعملاءها أمامك بوضوح — لتبقى كل لمسة تحت السيطرة.</p>
+            <div className="wahaj-login__benefits" aria-label="مزايا لوحة التحكم">
+              <div><span>01</span><b>كل شيء واضح</b><small>لوحة مرتبة للقرارات اليومية</small></div>
+              <div><span>02</span><b>بيانات محمية</b><small>جلسة دخول وصلاحيات آمنة</small></div>
+              <div><span>03</span><b>إيقاع وَهَج</b><small>تفاصيل تليق بعلامتك</small></div>
+            </div>
           </div>
 
           <div className="wahaj-login__brand-bottom">
@@ -91,10 +96,11 @@ export default function AdminLoginPage() {
               <span className="wahaj-login__logo"><Image src="/images/wahaj.logo.png" alt="" fill sizes="48px" priority /></span>
               <span><b>وَهَج</b><small>لوحة الإدارة</small></span>
             </div>
+            <div className="wahaj-login__form-meta"><span>WAHAJ / ADMIN STUDIO</span><span><i /> اتصال آمن</span></div>
             <div className="wahaj-login__heading">
               <span className="wahaj-login__kicker">مرحبًا بعودتك</span>
-              <h2>سجّل الدخول</h2>
-              <p>أدخل بيانات حساب الإدارة للمتابعة إلى مساحة عملك.</p>
+              <h2>إلى مساحة عملك</h2>
+              <p>أدخل بيانات حساب الإدارة لنكمل من حيث توقفت.</p>
             </div>
 
             <form onSubmit={submit} className="wahaj-login__form">
@@ -119,7 +125,7 @@ export default function AdminLoginPage() {
               <label className="wahaj-login__remember">
                 <input type="checkbox" checked={rememberMe} onChange={(e) => setRememberMe(e.target.checked)} />
                 <span className="wahaj-login__check" aria-hidden="true" />
-                <span>تذكرني على هذا الجهاز</span>
+                <span>تذكرني </span>
               </label>
 
               {error && <div className="wahaj-login__error" role="alert"><ShieldCheck size={16} /> <span>{error}</span></div>}
@@ -130,7 +136,7 @@ export default function AdminLoginPage() {
               </button>
             </form>
 
-            <div className="wahaj-login__privacy"><ShieldCheck size={15} /><span>لا تشارك بيانات الدخول، وسجّل الخروج بعد استخدام جهاز مشترك.</span></div>
+            <div className="wahaj-login__privacy"><ShieldCheck size={15} /><span>تُستخدم بياناتك لإنشاء جلسة إدارة آمنة فقط. لا تشاركها مع أي شخص.</span></div>
           </div>
           <footer className="wahaj-login__footer"><span>وَهَج</span><span>مساحة الإدارة · 2026</span></footer>
         </section>
