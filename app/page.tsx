@@ -32,7 +32,8 @@ export const metadata: Metadata = {
   robots: { index: true, follow: true },
 };
 
-export const revalidate = 0; // إبقاء بيانات الصفحة الرئيسية محدثة فورًا
+// تحديث قصير يحافظ على قابلية إدارة المحتوى ويمنع استعلامات قاعدة البيانات عند كل زيارة.
+export const revalidate = 60;
 
 export default async function Page() {
   // جلب البيانات المعروضة فقط بالتوازي، مع إبقاء المحتوى محدثًا فورًا.
