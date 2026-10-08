@@ -5223,3 +5223,78 @@ a:focus-visible {
   .wahaj-product-policy { padding-inline: 6px; }
   .wahaj-product-policy__copy small { white-space: normal; }
 }
+
+
+/* =========================================================
+   WAHAJ ADMIN LOGIN / editorial control room refresh
+   Keeps the existing auth contract and theme tokens intact.
+   ========================================================= */
+.wahaj-login {
+  position: relative;
+  isolation: isolate;
+  background:
+    radial-gradient(circle at 12% 16%, color-mix(in srgb, var(--gold) 15%, transparent), transparent 28%),
+    radial-gradient(circle at 88% 86%, color-mix(in srgb, var(--rose) 11%, transparent), transparent 25%),
+    var(--background);
+}
+.wahaj-login::before { position: absolute; inset: 0; z-index: -1; background: repeating-linear-gradient(90deg, transparent 0, transparent 11.9vw, color-mix(in srgb, var(--gold) 4%, transparent) 12vw); content: ''; pointer-events: none; }
+.wahaj-login__frame { grid-template-columns: minmax(0, 1.08fr) minmax(0, .92fr); width: min(1160px, 100%); min-height: min(720px, calc(100svh - 42px)); border-color: color-mix(in srgb, var(--gold) 29%, var(--border)); border-radius: 32px; box-shadow: 0 36px 110px rgba(36, 27, 26, .16), 0 8px 24px rgba(36, 27, 26, .05); }
+.dark .wahaj-login__frame { box-shadow: 0 36px 110px rgba(0, 0, 0, .38), 0 8px 24px rgba(0, 0, 0, .22); }
+.wahaj-login__brand-panel { justify-content: flex-start; padding: clamp(30px, 4.2vw, 58px); background: radial-gradient(circle at 18% 76%, rgba(198,164,106,.22), transparent 32%), radial-gradient(circle at 92% 7%, rgba(184,141,135,.17), transparent 30%), linear-gradient(147deg, var(--login-ink-soft), var(--login-ink) 72%); }
+.wahaj-login__brand-panel::before { width: 620px; height: 620px; inset-inline-start: -390px; bottom: -240px; border-color: rgba(213,184,120,.18); }
+.wahaj-login__brand-panel::after { width: 470px; height: 470px; inset-inline-start: -286px; bottom: -164px; border-color: rgba(213,184,120,.11); }
+.wahaj-login__brand-copy { max-width: 500px; padding-block: clamp(72px, 11vh, 132px) 0; }
+.wahaj-login__eyebrow { padding: 8px 11px; border: 1px solid rgba(213,184,120,.25); border-radius: 999px; background: rgba(213,184,120,.06); }
+.wahaj-login__brand-copy h1 { margin-top: 24px; font-size: clamp(42px, 5vw, 68px); line-height: 1.32; }
+.wahaj-login__brand-copy p { max-width: 430px; margin-top: 20px; font-size: 14px; line-height: 2.15; }
+.wahaj-login__benefits { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 9px; margin-top: 32px; }
+.wahaj-login__benefits > div { min-width: 0; padding: 14px 12px 13px; border: 1px solid rgba(247,242,234,.14); border-radius: 15px; background: rgba(247,242,234,.055); backdrop-filter: blur(8px); }
+.wahaj-login__benefits span, .wahaj-login__benefits b, .wahaj-login__benefits small { display: block; }
+.wahaj-login__benefits span { color: #d9c18f; font-size: 9px; letter-spacing: .14em; }
+.wahaj-login__benefits b { margin-top: 14px; color: #f7f2ea; font-size: 11px; }
+.wahaj-login__benefits small { margin-top: 5px; color: rgba(247,242,234,.54); font-size: 9px; line-height: 1.7; }
+.wahaj-login__brand-bottom { margin-top: auto; padding-top: 24px; }
+.wahaj-login__form-panel { padding: clamp(28px, 5vw, 74px); background: color-mix(in srgb, var(--card) 96%, var(--background)); }
+.wahaj-login__back { top: 29px; inset-inline-start: clamp(28px, 5vw, 58px); }
+.wahaj-login__form-wrap { width: min(420px, 100%); padding-block: 38px 12px; }
+.wahaj-login__form-meta { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-bottom: 18px; border-bottom: 1px solid var(--border); color: var(--muted-foreground); font-size: 9px; letter-spacing: .12em; }
+.wahaj-login__form-meta span:first-child { color: var(--gold-muted); font-weight: 800; }
+.wahaj-login__form-meta span:last-child { display: inline-flex; align-items: center; gap: 6px; letter-spacing: 0; }
+.wahaj-login__form-meta i { width: 6px; height: 6px; border-radius: 50%; background: var(--success); box-shadow: 0 0 0 4px color-mix(in srgb, var(--success) 13%, transparent); }
+.wahaj-login__heading { margin-top: 34px; }
+.wahaj-login__heading h2 { margin-top: 12px; font-size: clamp(30px, 3.5vw, 42px); line-height: 1.25; }
+.wahaj-login__heading p { margin-top: 11px; font-size: 13px; }
+.wahaj-login__form { gap: 19px; margin-top: 29px; }
+.wahaj-login__field label { margin-bottom: 8px; font-size: 11px; }
+.wahaj-login__input-wrap input { height: 56px; border-radius: 15px; background: color-mix(in srgb, var(--background) 78%, var(--card)); }
+.wahaj-login__input-wrap input:focus { background: var(--card); box-shadow: 0 0 0 4px color-mix(in srgb, var(--gold) 14%, transparent), 0 8px 22px color-mix(in srgb, var(--gold) 7%, transparent); }
+.wahaj-login__submit { height: 56px; border-radius: 15px; }
+.wahaj-login__privacy { margin-top: 26px; padding-top: 17px; }
+.wahaj-login__footer { padding-top: 28px; }
+@media (max-width: 900px) {
+  .wahaj-login__frame { grid-template-columns: minmax(0, .96fr) minmax(0, 1.04fr); }
+  .wahaj-login__brand-copy { padding-block-start: 82px; }
+  .wahaj-login__brand-copy h1 { font-size: 45px; }
+  .wahaj-login__benefits { grid-template-columns: 1fr; max-width: 260px; }
+  .wahaj-login__benefits > div { display: grid; grid-template-columns: 28px minmax(0, 1fr); column-gap: 9px; padding: 10px; }
+  .wahaj-login__benefits span { grid-row: span 2; }
+  .wahaj-login__benefits b { margin-top: 0; }
+  .wahaj-login__benefits small { margin-top: 2px; }
+}
+@media (max-width: 700px) {
+  .wahaj-login { padding: 10px; }
+  .wahaj-login::before { display: none; }
+  .wahaj-login__frame { min-height: calc(100svh - 20px); border-radius: 23px; }
+  .wahaj-login__form-panel { min-height: calc(100svh - 20px); padding: 22px clamp(18px, 6vw, 30px) 18px; }
+  .wahaj-login__back { top: 18px; inset-inline-start: 18px; }
+  .wahaj-login__form-wrap { padding-block: 31px 14px; }
+  .wahaj-login__mobile-brand { margin-bottom: 28px; }
+  .wahaj-login__form-meta { font-size: 8px; }
+  .wahaj-login__heading { margin-top: 27px; }
+  .wahaj-login__heading h2 { font-size: 29px; }
+  .wahaj-login__heading p { font-size: 11px; }
+  .wahaj-login__form { margin-top: 25px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .wahaj-login__submit, .wahaj-login__input-wrap input { transition: none; }
+}
