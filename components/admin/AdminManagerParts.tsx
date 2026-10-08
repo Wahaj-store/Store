@@ -230,6 +230,21 @@ export function Editor({ tab, value, cats, onCancel, onSave, upload }: any) {
               ))}
             </div>
           </>
+        ) : tab === 'homepage' ? (
+          <>
+            <label className="text-xs md:text-sm font-medium text-muted-foreground">نوع القسم
+              <select className="w-full mt-1 px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[var(--gold)]" value={v.type || 'hero'} onChange={e => set('type', e.target.value)}>
+                {['hero', 'products', 'collections', 'offers', 'trust', 'story', 'testimonials', 'social', 'newsletter'].map(type => <option key={type} value={type}>{type}</option>)}
+              </select>
+            </label>
+            <Field label="العنوان الظاهر" value={v.title || ''} onChange={(x: any) => set('title', x)} />
+            <label className="md:col-span-2 text-xs md:text-sm font-medium text-muted-foreground">الوصف الظاهر
+              <textarea className="w-full mt-1 min-h-24 rounded-2xl border border-border/60 bg-[var(--bg)] px-4 py-3 text-sm text-foreground focus:outline-none focus:border-[var(--gold)]" value={v.subtitle || ''} onChange={e => set('subtitle', e.target.value)} />
+            </label>
+            <Field label="نص الزر" value={v.ctaText || ''} onChange={(x: any) => set('ctaText', x)} />
+            <Field label="رابط الزر" value={v.ctaUrl || ''} onChange={(x: any) => set('ctaUrl', x)} />
+            <Field label="ترتيب القسم" type="number" value={v.sortOrder ?? 0} onChange={(x: any) => set('sortOrder', Number(x))} />
+          </>
         ) : (
           common[tab]?.map((f: any) => <Field key={f[0]} label={f[1]} value={v[f[0]] ?? ''} onChange={(x: any) => set(f[0], x)} />)
         )}
