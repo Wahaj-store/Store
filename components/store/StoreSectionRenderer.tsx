@@ -310,7 +310,8 @@ function ProductsSection({
   );
 }
 
-function HomeTrustStrip() {
+function HomeTrustStrip({ section }: { section?: any }) {
+  if (!section || section.visible === false) return null;
   const items = [
     { icon: Truck, title: "شحن لجميع المحافظات", text: "توصيل آمن حتى بابكِ" },
     { icon: ShieldCheck, title: "دفع موثوق", text: "اختاري الطريقة المناسبة" },
@@ -326,50 +327,6 @@ function HomeTrustStrip() {
             <span><b>{title}</b><small>{text}</small></span>
           </div>
         ))}
-      </div>
-    </section>
-  );
-}
-
-function HomeOfferStrip({ offers }: { offers: any[] }) {
-  const offer = offers?.[0];
-  if (!offer) return null;
-  const value = offer.type === "FREE_SHIPPING"
-    ? "شحن مجاني"
-    : offer.type === "BUY_X_GET_Y"
-      ? "هدية مع مشترياتك"
-      : offer.discountValue
-        ? `خصم ${Number(offer.discountValue).toLocaleString("ar-EG")}${offer.discountType === "FIXED" ? " ج.م" : "%"}`
-        : "عرض خاص لكِ";
-  return (
-    <div className="wahaj-home-offer-strip" role="note" aria-label={`العرض الحالي: ${offer.name}`}>
-      <div className="container wahaj-home-offer-strip__inner">
-        <span className="wahaj-home-offer-strip__mark"><Sparkles size={13} /></span>
-        <span className="wahaj-home-offer-strip__copy"><b>{offer.name}</b><small>{value} · لفترة محدودة</small></span>
-        <Link href={`/offers/${offer.id}`} prefetch={false}>اكتشفي العرض <ArrowLeft size={14} /></Link>
-      </div>
-    </div>
-  );
-}
-
-function MostRequestedSection({ products }: { products: any[] }) {
-  const best = products.filter((product: any) => product?.bestSeller).slice(0, 4);
-  const selected = best.length ? best : products.slice(0, 4);
-  if (!selected.length) return null;
-  return (
-    <section className="wahaj-most-requested" aria-labelledby="most-requested-title">
-      <div className="container">
-        <div className="wahaj-most-requested__head">
-          <div>
-            <span className="wahaj-home-kicker">اختيارات تتكرر محبتها</span>
-            <h2 id="most-requested-title">الأكثر طلبًا</h2>
-            <p>قطع تعود إليها عميلات وَهَج مرة بعد مرة.</p>
-          </div>
-          <Link href="/shop" prefetch={false}>شاهدي المجموعة <ArrowLeft size={15} /></Link>
-        </div>
-        <div className="wahaj-most-requested__grid">
-          {selected.map((product: any) => <ProductCard key={product.id} product={product} variant="shop" />)}
-        </div>
       </div>
     </section>
   );
@@ -421,7 +378,6 @@ export default function StoreSectionRenderer({
   const s = settings || {};
   return (
     <div className="wahaj-storefront" dir="rtl">
-      <HomeOfferStrip offers={offers} />
       <main>
         {sections.map((sec: any) => {
           if (sec.type === "hero") {
@@ -478,7 +434,7 @@ export default function StoreSectionRenderer({
                   </div>
                 </div>
                 </section>
-                <HomeTrustStrip />
+                <HomeTrustStrip section={sections.find((item: any) => item.type === "trust")} />
               </Fragment>
             );
           }
@@ -519,6 +475,12 @@ export default function StoreSectionRenderer({
               <Fragment key={sec.id}>
                 <section id="collections" className="wahaj-collections">
                 <div className="container">
+                  <SectionHeading
+                    eyebrow={sec.eyebrow || "مختارات وَهَج"}
+                    title={sec.title === "المجموعات" ? "مجموعات تُشبهك" : (sec.title || "مجموعات تُشبهك")}
+                    subtitle={sec.subtitle || "تصفّحي عوالم مختارة بعناية، وصمّمي تفاصيلك على طريقتك."}
+                    align="right"
+                  />
                   <div className="wahaj-collections__grid">
                     {categories.map((c: any, index: number) => (
                       <Link
@@ -551,7 +513,6 @@ export default function StoreSectionRenderer({
                   </div>
                 </div>
                 </section>
-                <MostRequestedSection products={Array.isArray(data?.products) ? data.products : []} />
                 <GiftSection
                   categories={categories}
                   products={Array.isArray(data?.products) ? data.products : []}
@@ -566,7 +527,7 @@ export default function StoreSectionRenderer({
               <ProductsSection
                 key={sec.id}
                 data={data}
-                title={sec.title || "الأكثر تألقًا"}
+                title={sec.title === "الأكثر تألقًا" ? "الأكثر طلبًا" : (sec.title || "الأكثر طلبًا")}
                 subtitle={sec.subtitle || "اختيارات وَهَج"}
               />
             );
@@ -639,36 +600,7 @@ export default function StoreSectionRenderer({
             );
           }
 
-          if (sec.type === "trust") {
-            const items = [
-              { icon: Truck, title: "شحن داخل مصر", desc: "توصيل سريع لكافة المحافظات", href: "/policies/shipping" },
-              { icon: ShieldCheck, title: "دفع آمن ومتعدد", desc: "طرق دفع تناسب احتياجاتك", href: "/payment-policy" },
-              { icon: RotateCcw, title: "استبدال واسترجاع", desc: "سياسة مرنة خلال 14 يومًا", href: "/policies/returns" },
-              { icon: MessageCircle, title: "دعم سريع", desc: "نحن هنا لمساعدتك دائمًا", href: "/contact" },
-            ];
-
-            return (
-              <section key={sec.id} className="wahaj-trust">
-                <div className="container">
-                  <div className="wahaj-trust__intro">
-                    <span>وَهَج</span>
-                    <p>تجربة راقية من أول اختيار حتى وصول طلبك.</p>
-                  </div>
-                  <div className="wahaj-trust__grid">
-                    {items.map(({ icon: Icon, title, desc, href }) => (
-                      <a href={href} key={title} className="wahaj-trust__item">
-                        <span className="wahaj-trust__icon"><Icon size={20} strokeWidth={1.6} /></span>
-                        <span className="wahaj-trust__copy">
-                          <span className="wahaj-trust__title">{title}</span>
-                          <span className="wahaj-trust__text">{desc}</span>
-                        </span>
-                      </a>
-                    ))}
-                  </div>
-                </div>
-              </section>
-            );
-          }
+          if (sec.type === "trust") return null;
 
           if (sec.type === "testimonials" || sec.type === "reviews") {
             return <ReviewCards key={sec.id} section={sec} reviews={data?.testimonials || []} />;
