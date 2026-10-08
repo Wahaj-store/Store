@@ -4288,10 +4288,6 @@ a:focus-visible {
 .wahaj-product-payments__list { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 13px; }
 .wahaj-product-payment { display: inline-flex; align-items: center; gap: 6px; min-height: 31px; padding: 0 9px; border: 1px solid var(--border); border-radius: 9px; background: var(--background); color: var(--foreground-secondary); font-size: 9px; font-weight: 600; }
 .wahaj-product-payment svg { color: var(--gold-muted); }
-.wahaj-product-policies { display: flex; flex-wrap: wrap; gap: 9px 18px; margin-top: 15px; }
-.wahaj-product-policies a { display: inline-flex; align-items: center; gap: 6px; color: var(--muted-foreground); font-size: 10px; transition: color var(--transition); }
-.wahaj-product-policies a:hover { color: var(--gold-muted); }
-.wahaj-product-policies a svg:first-child { color: var(--gold-muted); }
 .wahaj-product-stock-alert { margin-top: 18px; padding: 18px; border: 1px solid color-mix(in srgb, var(--gold) 25%, var(--border)); border-radius: 17px; background: var(--card); box-shadow: var(--shadow-soft); }
 .wahaj-stock-alert__heading { display: flex; align-items: center; gap: 10px; }
 .wahaj-stock-alert__heading > span { display: grid; width: 36px; height: 36px; place-items: center; border-radius: 11px; background: var(--gold-soft); color: var(--gold-muted); }
@@ -4734,7 +4730,6 @@ a:focus-visible {
   .wahaj-product-purchase__add > button { min-height:50px !important; }
   .wahaj-product-quantity { min-width:104px; }
   .wahaj-product-payments { padding:14px; }
-  .wahaj-product-policies { gap:8px 12px; }
 }
 @media (prefers-reduced-motion:reduce) {
   .wahaj-product-card,.wahaj-product-card *,.wahaj-header__action,.wahaj-header__menu,.wahaj-product-page *,.wahaj-product-page *::before,.wahaj-product-page *::after { transition-duration:.01ms !important; animation-duration:.01ms !important; }
@@ -5173,4 +5168,58 @@ a:focus-visible {
   .wahaj-storefront .wahaj-collection { min-height:215px; }
   .wahaj-storefront .wahaj-collection:first-child { min-height:200px; }
   .wahaj-storefront .wahaj-social-world__grid { grid-auto-rows:165px; gap:7px; }
+}
+
+
+/* Product trust card: payment, shipping, exchange and policy details in one editorial panel. */
+.wahaj-product-payments {
+  margin-top: 19px;
+  padding: 18px;
+  border: 1px solid color-mix(in srgb, var(--gold) 26%, var(--border));
+  border-radius: 18px;
+  background: linear-gradient(145deg, color-mix(in srgb, var(--card) 96%, var(--gold-soft)), var(--card));
+  box-shadow: var(--shadow-soft);
+}
+.wahaj-product-payments__heading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--border);
+}
+.wahaj-product-payments__icon,
+.wahaj-product-policy__icon {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  color: var(--gold-muted);
+}
+.wahaj-product-payments__icon {
+  width: 34px;
+  height: 34px;
+  border: 1px solid color-mix(in srgb, var(--gold) 28%, transparent);
+  border-radius: 11px;
+  background: var(--gold-soft);
+}
+.wahaj-product-payments__heading b,
+.wahaj-product-payments__heading small { display: block; }
+.wahaj-product-payments__heading b { color: var(--foreground-secondary); font-size: 12px; }
+.wahaj-product-payments__heading small { margin-top: 3px; color: var(--muted-foreground); font-size: 9px; line-height: 1.5; }
+.wahaj-product-payments__list { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+.wahaj-product-payment { display: inline-flex; align-items: center; gap: 6px; min-height: 32px; padding: 0 10px; border: 1px solid var(--border); border-radius: 9px; background: var(--background); color: var(--foreground-secondary); font-size: 9px; font-weight: 700; }
+.wahaj-product-payment svg { color: var(--gold-muted); }
+.wahaj-product-payments__empty { margin: 13px 0 0; color: var(--muted-foreground); font-size: 10px; line-height: 1.7; }
+.wahaj-product-policy-list { display: grid; gap: 8px; margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--border); }
+.wahaj-product-policy { display: grid; grid-template-columns: 32px minmax(0, 1fr) auto; align-items: center; gap: 9px; min-width: 0; padding: 9px 8px; border: 1px solid transparent; border-radius: 11px; color: var(--foreground-secondary); transition: background var(--transition), border-color var(--transition), transform var(--transition); }
+.wahaj-product-policy:hover { border-color: color-mix(in srgb, var(--gold) 30%, var(--border)); background: var(--gold-soft); transform: translateX(-2px); }
+.wahaj-product-policy > svg { color: var(--gold-muted); }
+.wahaj-product-policy__icon { width: 32px; height: 32px; border-radius: 9px; background: color-mix(in srgb, var(--gold) 10%, var(--background)); }
+.wahaj-product-policy__copy { display: grid; min-width: 0; gap: 3px; }
+.wahaj-product-policy__copy b { overflow: hidden; color: var(--foreground-secondary); font-size: 10px; text-overflow: ellipsis; white-space: nowrap; }
+.wahaj-product-policy__copy small { overflow: hidden; color: var(--muted-foreground); font-size: 9px; line-height: 1.5; text-overflow: ellipsis; white-space: nowrap; }
+@media (max-width: 520px) {
+  .wahaj-product-payments { padding: 15px; border-radius: 16px; }
+  .wahaj-product-payment { flex: 1 1 calc(50% - 8px); justify-content: center; min-width: 0; }
+  .wahaj-product-policy { padding-inline: 6px; }
+  .wahaj-product-policy__copy small { white-space: normal; }
 }
