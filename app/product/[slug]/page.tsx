@@ -221,16 +221,17 @@ export default async function ProductPage({ params }: { params: { slug: string }
 
             {product.stock <= 0 ? <BackInStockForm productId={product.id} /> : null}
 
-            {availablePayments.length ? (
-              <div className="wahaj-product-payments">
-                <div className="wahaj-product-payments__heading">
-                  <span className="wahaj-product-payments__icon"><ShieldCheck size={16} /></span>
-                  <div>
-                    <b>طرق دفع متاحة</b>
-                    <small>اختاري الطريقة المناسبة عند إتمام الطلب</small>
-                  </div>
+            <div className="wahaj-product-payments" aria-labelledby="product-payment-title">
+              <div className="wahaj-product-payments__heading">
+                <span className="wahaj-product-payments__icon"><ShieldCheck size={16} /></span>
+                <div>
+                  <b id="product-payment-title">طرق الدفع والشحن</b>
+                  <small>خيارات واضحة من لحظة الطلب حتى الاستلام</small>
                 </div>
-                <div className="wahaj-product-payments__list">
+              </div>
+
+              {availablePayments.length ? (
+                <div className="wahaj-product-payments__list" aria-label="طرق الدفع المتاحة">
                   {availablePayments.map(({ method, label, Icon }) => (
                     <div className="wahaj-product-payment" key={method}>
                       <Icon size={17} aria-hidden="true" />
@@ -238,12 +239,28 @@ export default async function ProductPage({ params }: { params: { slug: string }
                     </div>
                   ))}
                 </div>
-              </div>
-            ) : null}
+              ) : (
+                <p className="wahaj-product-payments__empty">تظهر طرق الدفع المتاحة عند إتمام الطلب.</p>
+              )}
 
-            <div className="wahaj-product-policies">
-              <Link href="/policies/shipping"><Truck size={15} /> تفاصيل الشحن والاستبدال <ArrowLeft size={13} /></Link>
-              <Link href="/payment-policy"><RotateCcw size={15} /> سياسة الدفع <ArrowLeft size={13} /></Link>
+              <div className="wahaj-product-policy-list">
+                <Link href="/policies/shipping" className="wahaj-product-policy">
+                  <span className="wahaj-product-policy__icon"><Truck size={16} /></span>
+                  <span className="wahaj-product-policy__copy">
+                    <b>الشحن والاستبدال</b>
+                    <small>توصيل آمن وتعليمات الاستبدال بالتفصيل</small>
+                  </span>
+                  <ArrowLeft size={14} aria-hidden="true" />
+                </Link>
+                <Link href="/payment-policy" className="wahaj-product-policy">
+                  <span className="wahaj-product-policy__icon"><RotateCcw size={16} /></span>
+                  <span className="wahaj-product-policy__copy">
+                    <b>سياسة الدفع</b>
+                    <small>راجعي طرق الدفع والشروط قبل التأكيد</small>
+                  </span>
+                  <ArrowLeft size={14} aria-hidden="true" />
+                </Link>
+              </div>
             </div>
           </div>
         </section>
