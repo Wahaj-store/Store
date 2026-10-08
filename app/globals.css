@@ -5043,3 +5043,28 @@ a:focus-visible {
   .wahaj-storefront .wahaj-social-tile--1 { grid-column:span 2; grid-row:span 1; min-height:205px; }
   .wahaj-storefront .wahaj-social-tile--1 .wahaj-social-tile__label b { font-size:9px; }
 }
+
+/* Final homepage hierarchy and mobile safe-area corrections. */
+.wahaj-storefront .wahaj-collections .wahaj-section-heading {
+  max-width:620px;
+  margin:0 0 28px;
+  padding-inline-start:clamp(4px,2vw,24px);
+}
+.wahaj-storefront .wahaj-collections .wahaj-section-heading__title { font-size:clamp(27px,3.4vw,45px); }
+.wahaj-storefront .wahaj-collections .wahaj-section-heading__subtitle { max-width:500px; }
+.wahaj-mobile-whatsapp { z-index:70; }
+.wahaj-footer { position:relative; z-index:1; }
+@media (max-width:620px) {
+  .wahaj-storefront .wahaj-collections .wahaj-section-heading { margin-bottom:20px; padding-inline:0; }
+  .wahaj-storefront .wahaj-collections .wahaj-section-heading__title { font-size:26px; }
+  .wahaj-mobile-whatsapp {
+    z-index:70;
+    bottom:calc(72px + env(safe-area-inset-bottom) + 12px);
+    inset-inline-end:14px;
+  }
+  .wahaj-footer { padding-bottom:calc(94px + env(safe-area-inset-bottom)); }
+}
+@media (max-width:380px) {
+  .wahaj-mobile-whatsapp { bottom:calc(70px + env(safe-area-inset-bottom) + 10px); inset-inline-end:11px; }
+  .wahaj-footer { padding-bottom:calc(90px + env(safe-area-inset-bottom)); }
+}
