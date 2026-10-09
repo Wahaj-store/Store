@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma';
 import { hashPassword } from '@/lib/auth';
 import { getClientKey, rateLimit } from '@/lib/rate-limit';
 import { hashIdentifier, timingSafeEqualText } from '@/lib/security';
+import { cookies } from 'next/headers';
 
 const OTP_RATE_WINDOW_MS = 10 * 60 * 1000;
 
@@ -65,6 +66,7 @@ export async function POST(req: Request) {
         resetTokenExpiry: null,
       },
     });
+    cookies().delete('wahaj_customer');
 
     return NextResponse.json({ success: true, message: 'تم تحديث كلمة المرور بنجاح' });
   } catch (error: any) {
