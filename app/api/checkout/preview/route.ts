@@ -4,6 +4,7 @@ import { getCustomer } from '@/lib/customer-auth';
 import { getCustomerSegmentKey } from '@/lib/customer-segment';
 import { calculatePricing } from '@/lib/pricing';
 import { giftCardIsUsable, hashGiftCardCode, normalizeGiftCardCode } from '@/lib/gift-card';
+import { normalizePhone } from '@/lib/security';
 
 function normalizeNullableNumber(value: unknown) {
   return value === null || value === undefined ? null : Number(value);
@@ -57,7 +58,7 @@ export async function POST(req: Request) {
 
     const now = new Date();
     const loggedInCustomer = await getCustomer();
-    const phone = String(body?.phone || '').trim();
+    const phone = normalizePhone(String(body?.phone || '').trim());
     const customer = loggedInCustomer?.id
       ? await prisma.customer.findUnique({ where: { id: loggedInCustomer.id }, select: { id: true, orders: { select: { total: true, status: true, createdAt: true }, orderBy: { createdAt: 'asc' } } } })
       : phone
