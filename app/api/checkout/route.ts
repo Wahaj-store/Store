@@ -13,6 +13,7 @@ import { notifyOrderCreated } from '@/lib/whatsapp';
 import { notifyOrderCreatedByEmail } from '@/lib/email';
 import { markLatestCartRecovered } from '@/lib/abandoned-cart';
 import { hashGiftCardCode, normalizeGiftCardCode } from '@/lib/gift-card';
+import { getClientKey, rateLimit } from '@/lib/rate-limit';
 
 const Item = z.object({ productId: z.string().min(1), variantId: z.string().optional(), quantity: z.number().int().positive().max(50) });
 const S = z.object({
@@ -26,6 +27,14 @@ export async function POST(req: Request) {
   let idempotencyKey = '';
   let uploadedProofUrl: string | undefined;
   try {
+    const requestLimit = rateLimit(`checkout:${getClientKey(req)}`, 12, 10 * 60 * 1000);
+    if (!requestLimit.ok) {
+      return NextResponse.json(
+        { error: 'تم تجاوز عدد محاولات إتمام الطلب. يرجى المحاولة مرة أخرى بعد قليل.' },
+        { status: 429, headers: { 'Cache-Control': 'no-store', 'Retry-After': '600' } },
+      );
+    }
+
     // جلب العميل المسجل حالياً في الجلسة (ان وجد)
     const loggedInCustomer = await getCustomer();
 
