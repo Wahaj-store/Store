@@ -1,1 +1,15 @@
-{}
+{
+  "components/ClientLayout.tsx -> @/components/SiteFooter": {
+    "id": 3023,
+    "files": [
+      "static/chunks/3145-36306e0ce2af6b1c.js",
+      "static/chunks/3023.dd146690460f1673.js"
+    ]
+  },
+  "components/store/StoreSectionRenderer.tsx -> ../ProductCard": {
+    "id": 3030,
+    "files": [
+      "static/chunks/3030-5f52d19bbbb9c791.js"
+    ]
+  }
+}
