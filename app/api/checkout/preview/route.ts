@@ -5,6 +5,7 @@ import { getCustomerSegmentKey } from '@/lib/customer-segment';
 import { calculatePricing } from '@/lib/pricing';
 import { giftCardIsUsable, hashGiftCardCode, normalizeGiftCardCode } from '@/lib/gift-card';
 import { normalizePhone } from '@/lib/security';
+import { getClientKey, rateLimit } from '@/lib/rate-limit';
 
 function normalizeNullableNumber(value: unknown) {
   return value === null || value === undefined ? null : Number(value);
@@ -12,6 +13,14 @@ function normalizeNullableNumber(value: unknown) {
 
 export async function POST(req: Request) {
   try {
+    const limit = rateLimit(`checkout-preview:${getClientKey(req)}`, 30, 10 * 60 * 1000);
+    if (!limit.ok) {
+      return NextResponse.json(
+        { error: 'تم تجاوز عدد محاولات تحديث السلة. يرجى المحاولة مرة أخرى بعد قليل.' },
+        { status: 429, headers: { 'Retry-After': '600', 'Cache-Control': 'no-store' } },
+      );
+    }
+
     const body = await req.json();
     const items = Array.isArray(body?.items) ? body.items : [];
     if (!items.length) {
