@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { getCustomer } from '@/lib/customer-auth';
 import { hashPassword, verifyPassword } from '@/lib/auth';
 import { rateLimit, getClientKey } from '@/lib/rate-limit';
+import { cookies } from 'next/headers';
 
 export async function POST(req: Request) {
   try {
@@ -25,6 +26,7 @@ export async function POST(req: Request) {
       where: { id: customer.id },
       data: { passwordHash: await hashPassword(newPassword) },
     });
+    cookies().delete('wahaj_customer');
     return NextResponse.json({ ok: true, message: 'تم تحديث كلمة المرور بنجاح' });
   } catch (error: any) {
     if (error?.message === 'كلمة المرور يجب أن تكون 8 أحرف على الأقل') {
