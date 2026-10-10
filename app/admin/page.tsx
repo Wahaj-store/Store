@@ -91,7 +91,7 @@ export default function Admin() {
   }, [router]);
 
   if (authChecking || !user || !initialTabReady) {
-    return <main className="wahaj-admin-loading" dir="rtl"><span className="wahaj-admin-loading__spinner" /><p>جارٍ التحقق من جلسة الإدارة…</p></main>;
+    return <main className="wahaj-admin-loading" dir="rtl"><span className="wahaj-admin-loading__spinner" /><p>جارٍ التحقق من بيانات الإدارة…</p></main>;
   }
 
   return (
@@ -101,20 +101,20 @@ export default function Admin() {
           userRole={user?.role}
           initialTab={initialTab}
           hideSidebar
-          topContent={(<>
+          topContent={(
             <section className="wahaj-admin-page__welcome">
               <div className="wahaj-admin-page__welcome-copy">
                 <span className="wahaj-admin-page__eyebrow"><ShieldCheck size={14} /> لوحة تحكم آمنة</span>
                 <h1>أهلًا بعودتك، <span>{user?.name || user?.email}</span></h1>
-                <p>تابع متجرك وأدر تفاصيله اليومية من لوحة تحكم احترافيه.</p>
+                <p>تابع متجرك وأدر تفاصيله اليومية من لوحه التحكم الاحترافيه.</p>
               </div>
               <div className="wahaj-admin-page__welcome-actions">
                 <span className="wahaj-admin-page__role"><ShieldCheck size={15} /><span>الصلاحية</span><b>{user?.role}</b></span>
               </div>
               <span className="wahaj-admin-page__ornament" aria-hidden="true">و</span>
             </section>
-            <OperationsCenter />
-          </>)}
+          )}
+          overviewContent={<OperationsCenter />}
         />
   );
 }
