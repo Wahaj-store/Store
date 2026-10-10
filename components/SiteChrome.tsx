@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useTheme } from 'next-themes';
 import { ArrowLeft, ChevronLeft, CircleHelp, CreditCard, Menu, X, Search, User, Moon, Sun, ShoppingBag, MessageCircle, Home, Store, Truck, Info } from 'lucide-react';
+import StorePopup from '@/components/store/StorePopup';
 
 type SettingMap = Record<string, any>;
 
@@ -418,6 +419,7 @@ export default function SiteChrome() {
         </span>
         <span className="wahaj-mobile-whatsapp__online" aria-hidden="true" />
       </a>
+      <StorePopup enabled={settings.popup_enabled} config={settings.popup_config} visitKey={pathname || '/'} />
     </>
   );
 }
