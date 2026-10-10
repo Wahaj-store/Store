@@ -11,7 +11,7 @@ const NewsletterSchema = z.object({
 
 export async function POST(req: Request) {
   const clientKey = getClientKey(req);
-  const limit = rateLimit(`newsletter:ip:${clientKey}`, 5, 15 * 60 * 1000);
+  const limit = await rateLimit(`newsletter:ip:${clientKey}`, 5, 15 * 60 * 1000);
   if (!limit.ok) {
     return NextResponse.json(
       { error: 'تم تجاوز عدد المحاولات. حاولي مرة أخرى لاحقًا.' },
@@ -31,7 +31,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: parsed.error.issues[0]?.message || 'البريد الإلكتروني غير صالح.' }, { status: 400 });
   }
 
-  const emailLimit = rateLimit(`newsletter:email:${hashIdentifier(parsed.data.email)}`, 2, 60 * 60 * 1000);
+  const emailLimit = await rateLimit(`newsletter:email:${hashIdentifier(parsed.data.email)}`, 2, 60 * 60 * 1000);
   if (!emailLimit.ok) {
     return NextResponse.json({ ok: true, message: 'تم تسجيل الاشتراك مسبقًا.' }, { headers: { 'Cache-Control': 'no-store' } });
   }
