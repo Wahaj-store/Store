@@ -6,10 +6,24 @@ import { syncShipmentFromOrderStatus } from '@/lib/shipment-sync';
 import { notifyShipment } from '@/lib/whatsapp';
 import { notifyOrderStatusByEmail, notifyShipmentByEmail } from '@/lib/email';
 import { refundGiftCardForOrder } from '@/lib/gift-card';
+import { getClientKey, rateLimit } from '@/lib/rate-limit';
+import { getPaymentProofUrl, isPrivatePaymentProofPath } from '@/lib/payment-proof';
+
+const ORDER_READ_ROLES = ['OWNER', 'ADMIN', 'MANAGER', 'ORDER_MANAGER', 'VIEWER'];
+const PAYMENT_PROOF_ROLES = ['OWNER', 'ADMIN', 'MANAGER', 'ORDER_MANAGER'];
+
 // 1. جلب تفاصيل الطلب مع خط السير
-export async function GET(_: Request, { params }: { params: Promise<{ id: string }> }) {
-  const u = await requireUser(['OWNER', 'ADMIN', 'MANAGER', 'ORDER_MANAGER', 'VIEWER']);
+export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
+  const u = await requireUser(ORDER_READ_ROLES);
   if (!u) return NextResponse.json({ error: 'غير مصرح' }, { status: 403 });
+
+  const limit = await rateLimit(`admin-order-detail:${u.id}:${getClientKey(req)}`, 120, 10 * 60 * 1000);
+  if (!limit.ok) {
+    return NextResponse.json(
+      { error: 'تم تجاوز عدد المحاولات. حاول مرة أخرى لاحقًا.' },
+      { status: 429, headers: { 'Retry-After': String(Math.max(1, Math.ceil((limit.reset - Date.now()) / 1000))), 'Cache-Control': 'private, no-store' } },
+    );
+  }
   
   try {
     const { id } = await params;
@@ -26,10 +40,28 @@ export async function GET(_: Request, { params }: { params: Promise<{ id: string
     });
     
     if (!o) return NextResponse.json({ error: 'الطلب غير موجود' }, { status: 404 });
-    return NextResponse.json(o);
-  } catch (error: any) {
-    console.error('GET Order Error:', error);
-    return NextResponse.json({ error: 'حدث خطأ في جلب الطلب: ' + error.message }, { status: 500 });
+
+    const canAccessPaymentProof = PAYMENT_PROOF_ROLES.includes(u.role);
+    const payments = await Promise.all(o.payments.map(async (payment) => {
+      const { proofUrl: storedProofPath, ...safePayment } = payment;
+      if (!canAccessPaymentProof || !storedProofPath) return safePayment;
+      if (!isPrivatePaymentProofPath(storedProofPath)) return { ...safePayment, proofUrl: null };
+
+      try {
+        return { ...safePayment, proofUrl: await getPaymentProofUrl(storedProofPath) };
+      } catch (error) {
+        console.error('PAYMENT_PROOF_SIGN_ERROR:', error instanceof Error ? error.message : 'unknown');
+        return { ...safePayment, proofUrl: null };
+      }
+    }));
+
+    return NextResponse.json(
+      { ...o, payments },
+      { headers: { 'Cache-Control': 'private, no-store, max-age=0' } },
+    );
+  } catch (error) {
+    console.error('GET_ORDER_ERROR:', error instanceof Error ? error.message : 'unknown');
+    return NextResponse.json({ error: 'تعذر جلب تفاصيل الطلب حاليًا.' }, { status: 500, headers: { 'Cache-Control': 'no-store' } });
   }
 }
 
