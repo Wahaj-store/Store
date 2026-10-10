@@ -32,8 +32,9 @@ export const metadata: Metadata = {
   robots: { index: true, follow: true },
 };
 
-// تحديث قصير يحافظ على قابلية إدارة المحتوى ويمنع استعلامات قاعدة البيانات عند كل زيارة.
-export const revalidate = 60;
+// تعتمد الصفحة على محتوى قابل للتغيير من قاعدة البيانات؛ تُرندر وقت الطلب
+// حتى لا يفشل Build أو يتم تخزين بيانات متجر قديمة داخل ناتج البناء.
+export const dynamic = 'force-dynamic';
 
 export default async function Page() {
   // جلب البيانات المعروضة فقط بالتوازي، مع إبقاء المحتوى محدثًا فورًا.
