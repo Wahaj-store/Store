@@ -121,9 +121,9 @@ async function api(url: string, method = 'GET', body?: any) {
   return j;
 }
 
-export default function AdminManager({ sidebarOpen, setSidebarOpen, topContent, userRole }: { sidebarOpen: boolean, setSidebarOpen: (open: boolean) => void, topContent?: ReactNode, userRole?: string }) {
+export default function AdminManager({ sidebarOpen, setSidebarOpen, topContent, userRole, initialTab = 'analytics' }: { sidebarOpen: boolean, setSidebarOpen: (open: boolean) => void, topContent?: ReactNode, userRole?: string, initialTab?: string }) {
   const router = useRouter();
-  const [tab, setTab] = useState('analytics');
+  const [tab, setTab] = useState(initialTab);
   const [data, setData] = useState<any[]>([]);
   const [cats, setCats] = useState<any[]>([]);
   const [products, setProducts] = useState<any[]>([]);
@@ -143,6 +143,10 @@ export default function AdminManager({ sidebarOpen, setSidebarOpen, topContent, 
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
   }, []);
+
+  useEffect(() => {
+    setTab(initialTab);
+  }, [initialTab]);
 
   const commandItems = menuGroups.flatMap(group => group.items.map(([key, label, Icon]) => ({ key, label, Icon, group: group.title })));
   const filteredCommandItems = commandItems.filter(item => {
@@ -1519,6 +1523,8 @@ function CustomerSegments({ data, onRefresh }: any) {
       setAudienceLoading(false);
     }
   }
+
+  useEffect(() => { void loadAudience('all'); }, []);
 
   function selectSegment(key: string) {
     setSelectedSegment(key);
