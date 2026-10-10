@@ -10,6 +10,7 @@ import {
   FileText, Download, HelpCircle, Mail, Settings, Gift, RefreshCcw, Share2, Lock, LucideProps, Menu, X, TrendingUp, TrendingDown, PieChart, Bell, Command, Keyboard, CheckCircle2, AlertCircle, Clock
 } from 'lucide-react';
 import MediaPicker from './MediaPicker';
+import PopupSettingsEditor from './admin/PopupSettingsEditor';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 
@@ -305,6 +306,17 @@ export default function AdminManager({ sidebarOpen, setSidebarOpen, topContent, 
     }
   }
 
+  async function savePopupSettings(settings: Record<string, string>) {
+    try {
+      await api('/api/admin/config', 'PUT', { settings });
+      setMsg('تم حفظ إعدادات النافذة المنبثقة.');
+      await load();
+    } catch (e: any) {
+      setMsg(e?.message || 'تعذر حفظ إعدادات النافذة المنبثقة.');
+      throw e;
+    }
+  }
+
   async function del(id: string) {
     if (!confirm('هل أنت متأكد من الحذف؟')) return;
     try {
@@ -375,7 +387,7 @@ export default function AdminManager({ sidebarOpen, setSidebarOpen, topContent, 
 
       {/* Mobile-only global bar. The page title intentionally lives below it. */}
       {!hideSidebar && (
-      <div className="wahaj-admin__mobile-wrap z-30 px-2 pt-2 lg:hidden sm:px-4">
+      <div className="wahaj-admin__mobile-wrap admin-scroll-header-wrap z-30 px-2 pt-2 lg:hidden sm:px-4">
         <header className="flex min-h-[64px] items-center justify-between gap-3 rounded-[24px] border border-border/50 bg-[var(--bg)]/95 px-3 shadow-sm backdrop-blur-xl sm:px-4">
           <button
             type="button"
@@ -628,7 +640,7 @@ export default function AdminManager({ sidebarOpen, setSidebarOpen, topContent, 
                 </div>
               ) : (
                 <div className="rounded-[26px] border border-border/40 bg-[var(--bg)] p-1 shadow-sm md:p-2">
-                  <Content tab={tab} data={data} onEdit={setEditing} onDelete={del} onRefresh={load} onReorder={reorder} canManageNewsletter={['OWNER', 'ADMIN', 'MANAGER', 'EDITOR'].includes(userRole || '')} />
+                  <Content tab={tab} data={data} onEdit={setEditing} onDelete={del} onRefresh={load} onReorder={reorder} onSavePopup={savePopupSettings} canManageNewsletter={['OWNER', 'ADMIN', 'MANAGER', 'EDITOR'].includes(userRole || '')} />
                 </div>
               )}
             </div>
@@ -1133,7 +1145,29 @@ function NewsletterSubscribers({ data, onRefresh, canManage }: { data: any[]; on
   );
 }
 
-function Content({ tab, data, onEdit, onDelete, onRefresh, onReorder, canManageNewsletter }: any) {
+function Content({ tab, data, onEdit, onDelete, onRefresh, onReorder, onSavePopup, canManageNewsletter }: any) {
+  if (tab === 'settings') {
+    const settings = Object.fromEntries((Array.isArray(data) ? data : []).map((item: any) => [item.key, item.value]));
+    const otherSettings = (Array.isArray(data) ? data : []).filter((item: any) => !['popup_enabled', 'popup_config'].includes(item.key));
+    return (
+      <div className="space-y-5">
+        <PopupSettingsEditor enabledValue={settings.popup_enabled ?? 'false'} configValue={settings.popup_config ?? ''} onSave={onSavePopup} />
+        <section className="space-y-3 rounded-3xl border border-border/40 bg-muted/5 p-5 md:p-6">
+          <div>
+            <h3 className="font-serif font-bold text-base text-foreground">إعدادات عامة أخرى</h3>
+            <p className="mt-1 text-xs leading-6 text-muted-foreground">تظل الإعدادات الأخرى قابلة للتحرير من هنا. إعدادات النافذة المنبثقة تُدار من المحرر المخصص أعلاه.</p>
+          </div>
+          {otherSettings.map((item: any) => (
+            <div key={item.id || item.key} className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-border/40 bg-[var(--bg)] p-4">
+              <div className="min-w-0"><b className="break-all text-sm font-bold text-foreground">{item.key}</b><p className="mt-1 break-all text-xs text-muted-foreground">{item.value}</p></div>
+              <div className="flex shrink-0 gap-2"><button type="button" className="rounded-xl border border-border/60 bg-muted/20 px-4 py-2 text-xs font-medium" onClick={() => onEdit(item)}>تعديل</button><button type="button" aria-label={`حذف الإعداد ${item.key}`} className="rounded-xl border border-red-400 px-3 py-2 text-xs text-red-500" onClick={() => onDelete(item.id)}>حذف</button></div>
+            </div>
+          ))}
+          {!otherSettings.length ? <p className="rounded-xl bg-[var(--bg)] p-4 text-xs text-muted-foreground">لا توجد إعدادات عامة إضافية حاليًا.</p> : null}
+        </section>
+      </div>
+    );
+  }
   if (tab === 'analytics') return <Analytics data={data[0] || {}} />;
   if (tab === 'newsletter') return <NewsletterSubscribers data={data} onRefresh={onRefresh} canManage={canManageNewsletter} />;
   if (tab === 'customer-segments') return <CustomerSegments data={data[0] || {}} onRefresh={onRefresh} />;
@@ -1262,7 +1296,8 @@ function Content({ tab, data, onEdit, onDelete, onRefresh, onReorder, canManageN
 
   if (tab === 'features') return (
     <div className="grid gap-3.5">
-      {data.map((x: any) => (
+      <p className="rounded-2xl border border-border/40 bg-muted/5 p-4 text-xs leading-6 text-muted-foreground">تفعيل النافذة المنبثقة ومحتواها يُدار من <b className="text-foreground">الإعدادات العامة</b> عبر المحرر المخصص.</p>
+      {data.filter((x: any) => x.key !== 'popup').map((x: any) => (
         <div className="bg-muted/10 border border-border/40 rounded-3xl p-5 flex items-center justify-between shadow-xs" key={x.id}>
           <div>
             <b className="font-serif font-bold text-foreground">{x.key}</b>
@@ -1273,7 +1308,7 @@ function Content({ tab, data, onEdit, onDelete, onRefresh, onReorder, canManageN
           </button>
         </div>
       ))}
-      {!data.length && <div className="bg-muted/10 border border-border/40 rounded-3xl p-12 text-center text-muted-foreground text-sm font-light">لا توجد مزايا متاحة.</div>}
+      {!data.some((x: any) => x.key !== 'popup') && <div className="bg-muted/10 border border-border/40 rounded-3xl p-12 text-center text-muted-foreground text-sm font-light">لا توجد مزايا متاحة.</div>}
     </div>
   );
 
