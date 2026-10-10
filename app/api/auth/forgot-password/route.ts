@@ -20,7 +20,15 @@ function escapeHtml(value: string) {
     .replace(/'/g, '&#039;');
 }
 
+function genericResetResponse() {
+  return NextResponse.json({
+    success: true,
+    message: 'إذا كان البريد الإلكتروني مسجلًا لدينا، فستصلك تعليمات استعادة كلمة المرور.',
+  }, { headers: { 'Cache-Control': 'no-store' } });
+}
+
 export async function POST(req: Request) {
+  let resetCustomerId: string | null = null;
   try {
     const body = await req.json().catch(() => null);
     const email = normalizeEmail(body?.email);
@@ -30,8 +38,8 @@ export async function POST(req: Request) {
     }
 
     const clientKey = getClientKey(req);
-    const ipLimit = rateLimit(`forgot-password:ip:${clientKey}`, 5, RATE_WINDOW_MS);
-    const emailLimit = rateLimit(`forgot-password:email:${hashIdentifier(email)}`, 3, RATE_WINDOW_MS);
+    const ipLimit = await rateLimit(`forgot-password:ip:${clientKey}`, 5, RATE_WINDOW_MS);
+    const emailLimit = await rateLimit(`forgot-password:email:${hashIdentifier(email)}`, 3, RATE_WINDOW_MS);
 
     if (!ipLimit.ok || !emailLimit.ok) {
       return NextResponse.json(
@@ -42,20 +50,16 @@ export async function POST(req: Request) {
 
     const customer = await prisma.customer.findUnique({ where: { email } });
 
-    // لا نكشف ما إذا كان البريد مسجلًا أم لا.
-    if (!customer) {
-      return NextResponse.json({
-        success: true,
-        message: 'إذا كان البريد الإلكتروني مسجلًا لدينا، فسيتم إرسال رمز التحقق إليه.',
-      });
-    }
+    // Give identical status, body, and cache behavior whether or not the account exists.
+    if (!customer) return genericResetResponse();
+    resetCustomerId = customer.id;
 
     const brevoApiKey = process.env.BREVO_API_KEY;
     const senderEmail = process.env.SENDER_EMAIL;
 
     if (!brevoApiKey || !senderEmail) {
       console.error('Forgot password email is not configured: BREVO_API_KEY/SENDER_EMAIL missing');
-      return NextResponse.json({ error: 'تعذر إرسال البريد الإلكتروني حاليًا' }, { status: 500 });
+      return genericResetResponse();
     }
 
     const otp = crypto.randomInt(100000, 1000000).toString();
@@ -109,15 +113,18 @@ export async function POST(req: Request) {
         where: { id: customer.id },
         data: { resetToken: null, resetTokenExpiry: null },
       }).catch((cleanupError) => console.error('Forgot-password cleanup failed:', cleanupError));
-      return NextResponse.json({ error: 'تعذر إرسال البريد الإلكتروني حاليًا' }, { status: 500 });
+      return genericResetResponse();
     }
 
-    return NextResponse.json({
-      success: true,
-      message: 'تم إرسال رمز التحقق إلى بريدك الإلكتروني',
-    });
+    return genericResetResponse();
   } catch (error) {
     console.error('FORGOT_PASSWORD_ERROR:', error);
-    return NextResponse.json({ error: 'حدث خطأ أثناء إرسال البريد' }, { status: 500 });
+    if (resetCustomerId) {
+      await prisma.customer.update({
+        where: { id: resetCustomerId },
+        data: { resetToken: null, resetTokenExpiry: null },
+      }).catch((cleanupError) => console.error('Forgot-password cleanup failed:', cleanupError));
+    }
+    return genericResetResponse();
   }
 }
