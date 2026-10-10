@@ -3,8 +3,9 @@ import { ReactNode, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import {
-  BarChart3, Boxes, ChevronLeft, CircleHelp, CreditCard, Gift, Image as ImageIcon,
-  LayoutDashboard, Mail, Menu, Package, Settings, Shield, ShoppingCart, Sliders,
+  BarChart3, Boxes, ChevronLeft, CircleHelp, CreditCard, FolderTree, Gift,
+  Image as ImageIcon, LayoutDashboard, LayoutTemplate, Lock, Mail, Menu,
+  MessageSquareQuote, Package, RefreshCw, Settings, Shield, ShoppingCart, Sliders,
   Tag, Truck, Users, X,
 } from 'lucide-react';
 import AdminTopbar from '@/components/AdminTopbar';
@@ -15,27 +16,35 @@ const groups: NavGroup[] = [
   { label: 'إدارة المتجر', items: [
     { label: 'نظرة عامة', tab: 'analytics', icon: LayoutDashboard },
     { label: 'المنتجات', tab: 'products', icon: Package },
+    { label: 'التصنيفات', tab: 'categories', icon: FolderTree },
     { label: 'الطلبات', tab: 'orders', icon: ShoppingCart },
     { label: 'سجل المخزون', tab: 'inventory', icon: Boxes },
     { label: 'العملاء', tab: 'customers', icon: Users },
     { label: 'تقسيم العملاء', tab: 'customer-segments', icon: Users },
   ] },
   { label: 'المحتوى والعروض', items: [
+    { label: 'إدارة الصفحة الرئيسية', tab: 'homepage', icon: LayoutTemplate },
     { label: 'العروض', tab: 'offers', icon: Tag },
     { label: 'بطاقات الهدايا', tab: 'gift-cards', icon: Gift },
-    { label: 'مكتبة الوسائط', tab: 'media', icon: ImageIcon },
+    { label: 'ترشيحات المنتجات', tab: 'relations', icon: RefreshCw },
   ] },
-  { label: 'التواصل والشحن', items: [
-    { label: 'رسائل العملاء', tab: 'contact', icon: Mail },
+  { label: 'التواصل والعملاء', items: [
+    { label: 'المراجعات', tab: 'reviews', icon: MessageSquareQuote },
+    { label: 'النشرة البريدية', tab: 'newsletter', icon: Mail },
     { label: 'الأسئلة الشائعة', tab: 'faq', icon: CircleHelp },
+    { label: 'رسائل العملاء', tab: 'contact', icon: Mail },
+  ] },
+  { label: 'الشحن والدفع', items: [
+    { label: 'طرق الدفع', tab: 'payments', icon: CreditCard },
     { label: 'الشحن والتوصيل', tab: 'shipping', icon: Truck },
     { label: 'الشحن والمرتجعات', tab: 'logistics', icon: Truck },
-    { label: 'طرق الدفع', tab: 'payments', icon: CreditCard },
   ] },
-  { label: 'النظام', items: [
-    { label: 'التحليلات', tab: 'analytics', icon: BarChart3 },
+  { label: 'الإعدادات والنظام', items: [
+    { label: 'مكتبة الوسائط', tab: 'media', icon: ImageIcon },
     { label: 'المستخدمون والصلاحيات', tab: 'users', icon: Shield },
     { label: 'المزايا', tab: 'features', icon: Sliders },
+    { label: 'إعادة التوجيه', tab: 'redirects', icon: RefreshCw },
+    { label: 'الأمان والسجل', tab: 'security', icon: Lock },
     { label: 'الإعدادات', tab: 'settings', icon: Settings },
   ] },
 ];
@@ -58,7 +67,8 @@ export default function AdminRouteShell({ children }: { children: ReactNode }) {
   const [authenticated, setAuthenticated] = useState(false);
   const [checking, setChecking] = useState(true);
   const [menuOpen, setMenuOpen] = useState(false);
-  const isStandaloneShell = pathname !== '' && pathname !== '/admin' && pathname !== '/admin/login';
+  const [activeAdminTab, setActiveAdminTab] = useState('analytics');
+  const isStandaloneShell = pathname !== '' && pathname !== '/admin/login';
 
   useEffect(() => {
     if (!isStandaloneShell) {
@@ -82,6 +92,29 @@ export default function AdminRouteShell({ children }: { children: ReactNode }) {
   }, [isStandaloneShell, pathname, router]);
 
   useEffect(() => { setMenuOpen(false); }, [pathname]);
+
+  useEffect(() => {
+    const syncActiveTab = () => {
+      if (pathname === '/admin') {
+        setActiveAdminTab(new URLSearchParams(window.location.search).get('tab') || 'analytics');
+      } else {
+        const activeTab = pathname.startsWith('/admin/orders/') ? 'orders' : pathname.startsWith('/admin/customers/') ? 'customers' : routeTabs[pathname];
+        setActiveAdminTab(activeTab || '');
+      }
+    };
+    syncActiveTab();
+    window.addEventListener('popstate', syncActiveTab);
+    return () => window.removeEventListener('popstate', syncActiveTab);
+  }, [pathname]);
+
+  useEffect(() => {
+    const handleTabChange = (event: Event) => {
+      const tab = (event as CustomEvent<string>).detail;
+      if (typeof tab === 'string') setActiveAdminTab(tab);
+    };
+    window.addEventListener('wahaj-admin-tab-change', handleTabChange);
+    return () => window.removeEventListener('wahaj-admin-tab-change', handleTabChange);
+  }, []);
 
   if (!isStandaloneShell) return <>{children}</>;
   if (checking || !authenticated) {
@@ -111,9 +144,8 @@ export default function AdminRouteShell({ children }: { children: ReactNode }) {
                   <div className="space-y-1">
                     {group.items.map(({ label, tab, icon: Icon }) => {
                       const href = tab === 'logistics' ? '/admin/logistics' : `/admin?tab=${encodeURIComponent(tab)}`;
-                      const activeTab = pathname.startsWith('/admin/orders/') ? 'orders' : pathname.startsWith('/admin/customers/') ? 'customers' : routeTabs[pathname];
-                      const active = activeTab === tab;
-                      return <Link key={`${group.label}-${tab}`} href={href} onClick={() => setMenuOpen(false)} aria-current={active ? 'page' : undefined} className={`flex min-h-10 items-center gap-2.5 rounded-xl px-3 text-xs transition ${active ? 'bg-[var(--gold)] font-bold text-[var(--gold-contrast)]' : 'text-foreground/80 hover:bg-muted/15 hover:text-[var(--gold)]'}`}>
+                      const active = activeAdminTab === tab;
+                      return <Link key={`${group.label}-${tab}`} href={href} onClick={() => { setActiveAdminTab(tab); setMenuOpen(false); window.dispatchEvent(new CustomEvent('wahaj-admin-tab-change', { detail: tab })); }} aria-current={active ? 'page' : undefined} className={`flex min-h-10 items-center gap-2.5 rounded-xl px-3 text-xs transition ${active ? 'bg-[var(--gold)] font-bold text-[var(--gold-contrast)]' : 'text-foreground/80 hover:bg-muted/15 hover:text-[var(--gold)]'}`}>
                         <Icon size={16} className={active ? '' : 'text-[var(--gold)]'} /><span className="flex-1">{label}</span><ChevronLeft size={13} className="opacity-60" />
                       </Link>;
                     })}
