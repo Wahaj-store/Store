@@ -121,7 +121,7 @@ async function api(url: string, method = 'GET', body?: any) {
   return j;
 }
 
-export default function AdminManager({ sidebarOpen, setSidebarOpen, topContent, userRole, initialTab = 'analytics', hideSidebar = false }: { sidebarOpen: boolean, setSidebarOpen: (open: boolean) => void, topContent?: ReactNode, userRole?: string, initialTab?: string, hideSidebar?: boolean }) {
+export default function AdminManager({ sidebarOpen, setSidebarOpen, topContent, overviewContent, userRole, initialTab = 'analytics', hideSidebar = false }: { sidebarOpen: boolean, setSidebarOpen: (open: boolean) => void, topContent?: ReactNode, overviewContent?: ReactNode, userRole?: string, initialTab?: string, hideSidebar?: boolean }) {
   const router = useRouter();
   const [tab, setTab] = useState(initialTab);
   const [data, setData] = useState<any[]>([]);
@@ -402,6 +402,7 @@ export default function AdminManager({ sidebarOpen, setSidebarOpen, topContent, 
       )}
 
       {topContent}
+      {tab === 'analytics' && overviewContent}
 
       <div className="mx-auto flex max-w-[1900px] gap-4 px-2 pb-8 pt-2 sm:px-4 lg:gap-5 lg:px-5 lg:pt-4 xl:px-6">
         {/* Right navigation rail */}
