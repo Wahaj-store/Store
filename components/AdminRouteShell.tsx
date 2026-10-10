@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import {
   BarChart3, Boxes, ChevronLeft, CircleHelp, CreditCard, FolderTree, Gift,
-  Image as ImageIcon, LayoutDashboard, LayoutTemplate, Lock, Mail, Menu,
+  Image as ImageIcon, LayoutDashboard, LayoutTemplate, Lock, Mail,
   MessageSquareQuote, Package, RefreshCw, Settings, Shield, ShoppingCart, Sliders,
   Tag, Truck, Users, X,
 } from 'lucide-react';
@@ -124,15 +124,10 @@ export default function AdminRouteShell({ children }: { children: ReactNode }) {
   return (
     <div className="wahaj-admin-page" dir="rtl">
       <div className="wahaj-admin-page__inner">
-        <div className="flex items-center gap-2">
-          <button type="button" className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-border bg-card text-foreground md:hidden" onClick={() => setMenuOpen(true)} aria-label="فتح قائمة الإدارة" aria-expanded={menuOpen}>
-            <Menu size={18} />
-          </button>
-          <div className="min-w-0 flex-1"><AdminTopbar /></div>
-        </div>
+        <AdminTopbar onMenuClick={() => setMenuOpen(true)} menuOpen={menuOpen} />
         <div className="mt-4 flex min-h-[calc(100vh-130px)] items-start gap-4">
           {menuOpen && <button type="button" className="fixed inset-0 z-40 bg-black/45 md:hidden" onClick={() => setMenuOpen(false)} aria-label="إغلاق القائمة" />}
-          <aside className={`wahaj-admin__sidebar fixed inset-y-3 right-3 z-50 flex max-h-[calc(100dvh-1.5rem)] w-[min(300px,calc(100vw-24px))] flex-col overflow-hidden border bg-card p-3 shadow-xl transition-transform md:static md:inset-y-auto md:right-auto md:top-auto md:z-10 md:max-h-none md:w-[245px] md:shrink-0 md:self-start md:translate-x-0 md:overflow-visible md:rounded-2xl md:shadow-sm ${menuOpen ? 'translate-x-0' : 'translate-x-[115%] md:translate-x-0'}`} aria-label="أقسام لوحة الإدارة">
+          <aside id="admin-navigation" className={`wahaj-admin__sidebar fixed inset-y-3 right-3 z-50 flex max-h-[calc(100dvh-1.5rem)] w-[min(300px,calc(100vw-24px))] flex-col overflow-hidden border bg-card p-3 shadow-xl transition-transform md:static md:inset-y-auto md:right-auto md:top-auto md:z-10 md:max-h-none md:w-[245px] md:shrink-0 md:self-start md:translate-x-0 md:overflow-visible md:rounded-2xl md:shadow-sm ${menuOpen ? 'translate-x-0' : 'translate-x-[115%] md:translate-x-0'}`} aria-label="أقسام لوحة الإدارة">
             <div className="mb-3 flex items-center justify-between border-b border-border/50 px-2 pb-3">
               <div><b className="block text-sm">لوحة الإدارة</b><span className="text-[10px] text-muted-foreground">مساحة عمل المتجر</span></div>
               <button type="button" onClick={() => setMenuOpen(false)} className="rounded-lg p-2 text-muted-foreground hover:bg-muted/20 md:hidden" aria-label="إغلاق القائمة"><X size={17} /></button>
