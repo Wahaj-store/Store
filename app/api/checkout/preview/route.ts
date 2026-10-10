@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getCustomer } from '@/lib/customer-auth';
 import { getCustomerSegmentKey } from '@/lib/customer-segment';
+import { findActiveShippingZone } from '@/lib/shipping';
 import { calculatePricing } from '@/lib/pricing';
 import { giftCardIsUsable, hashGiftCardCode, normalizeGiftCardCode } from '@/lib/gift-card';
 import { normalizePhone } from '@/lib/security';
@@ -85,14 +86,7 @@ export async function POST(req: Request) {
     const governorate = String(body?.governorate || '').trim();
     const city = String(body?.city || '').trim();
     if (governorate) {
-      const zone = await prisma.shippingZone.findFirst({
-        where: {
-          governorate,
-          active: true,
-          OR: [{ city }, { city: null }],
-        },
-        orderBy: { city: 'desc' },
-      });
+      const zone = await findActiveShippingZone(governorate, city);
       if (zone) {
         shippingPrice = Number(zone.price);
         shippingFreeAbove = normalizeNullableNumber(zone.freeAbove);
