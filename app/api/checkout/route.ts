@@ -27,7 +27,7 @@ export async function POST(req: Request) {
   let idempotencyKey = '';
   let uploadedProofUrl: string | undefined;
   try {
-    const requestLimit = rateLimit(`checkout:${getClientKey(req)}`, 12, 10 * 60 * 1000);
+    const requestLimit = await rateLimit(`checkout:${getClientKey(req)}`, 12, 10 * 60 * 1000);
     if (!requestLimit.ok) {
       return NextResponse.json(
         { error: 'تم تجاوز عدد محاولات إتمام الطلب. يرجى المحاولة مرة أخرى بعد قليل.' },
