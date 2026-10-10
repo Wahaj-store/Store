@@ -11,7 +11,7 @@ const schema = z.object({
   .refine(value => !value.phone || value.phone.replace(/\D/g, '').length >= 8, { message: 'رقم الهاتف غير صالح' });
 
 export async function POST(req: Request, { params }: { params: { id: string } }) {
-  const limit = rateLimit(`stock:${params.id}:${getClientKey(req)}`, 5, 10 * 60 * 1000);
+  const limit = await rateLimit(`stock:${params.id}:${getClientKey(req)}`, 5, 10 * 60 * 1000);
   if (!limit.ok) {
     return NextResponse.json(
       { error: 'محاولات كثيرة، حاولي لاحقًا' },
