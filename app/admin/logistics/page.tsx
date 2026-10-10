@@ -230,7 +230,7 @@ export default function LogisticsPage() {
                 {filteredOrders.map(order => <article key={order.id} className="logistics-record">
                   <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                     <div className="min-w-0 flex-1">
-                      <div className="flex flex-wrap items-center gap-2"><span className="logistics-order-id">{order.number}</span><span className="logistics-inline-status"><Clock3 size={12} /> بانتظار إسناد الشحن</span></div>
+                      <div className="flex flex-wrap items-center gap-2"><Link href={`/admin/orders/${order.id}`} className="logistics-order-id hover:text-[var(--gold)]">{order.number}</Link><span className="logistics-inline-status"><Clock3 size={12} /> بانتظار إسناد الشحن</span></div>
                       <p className="mt-2 text-sm font-semibold">{order.customerNameSnapshot || 'عميل المتجر'}</p>
                       <div className="mt-2 flex flex-wrap gap-x-4 gap-y-2 text-[11px] text-muted-foreground">
                         <span className="inline-flex items-center gap-1.5"><MapPin size={13} className="text-[var(--gold-muted)]" />{[order.shippingGovernorate, order.shippingCity].filter(Boolean).join('، ') || 'لا توجد مدينة'}</span>
@@ -266,7 +266,7 @@ export default function LogisticsPage() {
                   <table className="w-full min-w-[820px] text-right text-xs">
                     <thead><tr className="bg-[var(--surface)] text-muted-foreground"><th className="p-4 font-semibold">الطلب / العميل</th><th className="p-4 font-semibold">شركة الشحن</th><th className="p-4 font-semibold">رقم التتبع</th><th className="p-4 font-semibold">الحالة</th><th className="p-4 font-semibold">تحديث الحالة</th><th className="p-4 font-semibold">الأحداث</th></tr></thead>
                     <tbody>{filteredShipments.map(item => <tr key={item.id} className="border-t border-border/50 transition hover:bg-[var(--surface)]/55">
-                      <td className="p-4"><b>{item.order?.number || '—'}</b><span className="mt-1 block text-[10px] text-muted-foreground">{item.order?.customerNameSnapshot || 'عميل المتجر'}</span></td>
+                      <td className="p-4"><Link href={item.order?.id ? `/admin/orders/${item.order.id}` : '/admin/orders'} className="font-bold hover:text-[var(--gold)]">{item.order?.number || '—'}</Link><span className="mt-1 block text-[10px] text-muted-foreground">{item.order?.customerNameSnapshot || 'عميل المتجر'}</span></td>
                       <td className="p-4">{item.provider || '—'}</td><td className="p-4 font-mono" dir="ltr">{item.trackingNumber || '—'}</td>
                       <td className="p-4"><StatusBadge status={item.status} label={shipmentLabels[item.status] || item.status} /></td>
                       <td className="p-4"><select aria-label={`تحديث حالة الشحنة ${item.order?.number || ''}`} disabled={saving === item.id} value={item.status} onChange={event => void updateShipment(item.id, event.target.value)} className={`${fieldClass} mt-0 min-w-[150px] py-0`}><option value="">اختر الحالة</option>{shipmentOptions.map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></td>
@@ -277,7 +277,7 @@ export default function LogisticsPage() {
                 </div>
                 <div className="grid gap-3 md:hidden">
                   {filteredShipments.map(item => <article key={item.id} className="logistics-record">
-                    <div className="flex items-start justify-between gap-3"><div><p className="text-[10px] text-muted-foreground">رقم الطلب</p><p className="mt-1 font-bold">{item.order?.number || '—'}</p></div><StatusBadge status={item.status} label={shipmentLabels[item.status] || item.status} /></div>
+                    <div className="flex items-start justify-between gap-3"><div><p className="text-[10px] text-muted-foreground">رقم الطلب</p><Link href={item.order?.id ? `/admin/orders/${item.order.id}` : '/admin/orders'} className="mt-1 block font-bold hover:text-[var(--gold)]">{item.order?.number || '—'}</Link></div><StatusBadge status={item.status} label={shipmentLabels[item.status] || item.status} /></div>
                     <p className="mt-2 text-xs text-muted-foreground">{item.order?.customerNameSnapshot || 'عميل المتجر'}</p>
                     <div className="logistics-info-grid"><Info label="شركة الشحن" value={item.provider || '—'} /><Info label="رقم التتبع" value={item.trackingNumber || '—'} ltr /></div>
                     <label className="logistics-field mt-3">تحديث الحالة<select disabled={saving === item.id} value={item.status} onChange={event => void updateShipment(item.id, event.target.value)} className={fieldClass}>{shipmentOptions.map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></label>
@@ -294,7 +294,7 @@ export default function LogisticsPage() {
                     <thead><tr className="bg-[var(--surface)] text-muted-foreground"><th className="p-4 font-semibold">رقم المرتجع</th><th className="p-4 font-semibold">الطلب / العميل</th><th className="p-4 font-semibold">السبب</th><th className="p-4 font-semibold">الحالة</th><th className="p-4 font-semibold">الإجراء</th></tr></thead>
                     <tbody>{filteredReturns.map(item => <tr key={item.id} className="border-t border-border/50 transition hover:bg-[var(--surface)]/55">
                       <td className="p-4 font-bold">{item.number || '—'}<span className="mt-1 block text-[10px] text-muted-foreground">{item.items?.length || 0} صنف</span></td>
-                      <td className="p-4"><b>{item.order?.number || '—'}</b><span className="mt-1 block text-[10px] text-muted-foreground">{item.order?.customerNameSnapshot || 'عميل المتجر'}</span></td>
+                      <td className="p-4"><Link href={item.order?.id ? `/admin/orders/${item.order.id}` : '/admin/orders'} className="font-bold hover:text-[var(--gold)]">{item.order?.number || '—'}</Link><span className="mt-1 block text-[10px] text-muted-foreground">{item.order?.customerNameSnapshot || 'عميل المتجر'}</span></td>
                       <td className="max-w-[220px] p-4 leading-5 text-muted-foreground">{item.reason || '—'}</td>
                       <td className="p-4"><StatusBadge status={item.status} label={returnLabels[item.status] || item.status} /></td>
                       <td className="p-4"><select aria-label={`تحديث حالة المرتجع ${item.number || ''}`} disabled={saving === item.id} value={item.status} onChange={event => void updateReturn(item.id, event.target.value)} className={`${fieldClass} mt-0 min-w-[150px] py-0`}>{returnOptions.map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></td>
@@ -305,7 +305,7 @@ export default function LogisticsPage() {
                 <div className="grid gap-3 md:hidden">
                   {filteredReturns.map(item => <article key={item.id} className="logistics-record">
                     <div className="flex items-start justify-between gap-2"><div><p className="text-[10px] text-muted-foreground">رقم المرتجع</p><p className="mt-1 font-bold">{item.number || '—'}</p></div><StatusBadge status={item.status} label={returnLabels[item.status] || item.status} /></div>
-                    <div className="mt-3 rounded-xl border border-border/50 bg-[var(--surface)]/70 p-3"><p className="text-[10px] text-muted-foreground">الطلب والعميل</p><p className="mt-1 text-xs font-semibold">{item.order?.number || '—'} · {item.order?.customerNameSnapshot || 'عميل المتجر'}</p></div>
+                    <div className="mt-3 rounded-xl border border-border/50 bg-[var(--surface)]/70 p-3"><p className="text-[10px] text-muted-foreground">الطلب والعميل</p><Link href={item.order?.id ? `/admin/orders/${item.order.id}` : '/admin/orders'} className="mt-1 block text-xs font-semibold hover:text-[var(--gold)]">{item.order?.number || '—'} · {item.order?.customerNameSnapshot || 'عميل المتجر'}</Link></div>
                     <p className="mt-3 text-xs leading-5 text-muted-foreground">{item.reason || 'لا يوجد سبب مسجل'} <span className="mr-1 text-[10px]">· {item.items?.length || 0} صنف</span></p>
                     <label className="logistics-field mt-3">تحديث الحالة<select disabled={saving === item.id} value={item.status} onChange={event => void updateReturn(item.id, event.target.value)} className={fieldClass}>{returnOptions.map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></label>
                   </article>)}
