@@ -29,8 +29,8 @@ export async function POST(req: Request) {
 
     // Track Order is intentionally public, so protect it against enumeration.
     const clientKey = getClientKey(req);
-    const ipLimit = rateLimit(`track-order:ip:${clientKey}`, 5, 10 * 60 * 1000);
-    const credentialLimit = rateLimit(
+    const ipLimit = await rateLimit(`track-order:ip:${clientKey}`, 5, 10 * 60 * 1000);
+    const credentialLimit = await rateLimit(
       `track-order:credential:${hashIdentifier(`${orderNumber}:${phone}`)}`,
       5,
       10 * 60 * 1000,
