@@ -99,7 +99,7 @@ export default function AdminRouteShell({ children }: { children: ReactNode }) {
         </div>
         <div className="mt-4 flex min-h-[calc(100vh-130px)] items-start gap-4">
           {menuOpen && <button type="button" className="fixed inset-0 z-40 bg-black/45 md:hidden" onClick={() => setMenuOpen(false)} aria-label="إغلاق القائمة" />}
-          <aside className={`wahaj-admin__sidebar fixed inset-y-3 right-3 z-50 flex w-[min(300px,calc(100vw-24px))] flex-col border bg-card p-3 shadow-xl transition-transform md:sticky md:top-4 md:z-10 md:w-[245px] md:shrink-0 md:translate-x-0 md:rounded-2xl md:shadow-sm ${menuOpen ? 'translate-x-0' : 'translate-x-[115%] md:translate-x-0'}`} aria-label="أقسام لوحة الإدارة">
+          <aside className={`wahaj-admin__sidebar fixed inset-y-3 right-3 z-50 flex max-h-[calc(100dvh-1.5rem)] w-[min(300px,calc(100vw-24px))] flex-col overflow-hidden border bg-card p-3 shadow-xl transition-transform md:sticky md:inset-y-auto md:right-auto md:top-4 md:z-10 md:max-h-[calc(100dvh-2rem)] md:w-[245px] md:shrink-0 md:self-start md:translate-x-0 md:rounded-2xl md:shadow-sm ${menuOpen ? 'translate-x-0' : 'translate-x-[115%] md:translate-x-0'}`} aria-label="أقسام لوحة الإدارة">
             <div className="mb-3 flex items-center justify-between border-b border-border/50 px-2 pb-3">
               <div><b className="block text-sm">لوحة الإدارة</b><span className="text-[10px] text-muted-foreground">مساحة عمل المتجر</span></div>
               <button type="button" onClick={() => setMenuOpen(false)} className="rounded-lg p-2 text-muted-foreground hover:bg-muted/20 md:hidden" aria-label="إغلاق القائمة"><X size={17} /></button>
