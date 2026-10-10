@@ -31,7 +31,8 @@ export async function POST(req: Request) {
   if (!(file instanceof File)) return NextResponse.json({ error: 'لم يتم اختيار ملف' }, { status: 400 });
   if (!ALLOWED_TYPES.has(file.type)) return NextResponse.json({ error: 'يسمح بصور JPG أو PNG أو WebP فقط' }, { status: 400 });
   if (file.size <= 0 || file.size > MAX_FILE_SIZE) return NextResponse.json({ error: 'حجم الصورة يجب أن يكون بين 1 بايت و8MB' }, { status: 400 });
-  if (!process.env.BLOB_READ_WRITE_TOKEN) return NextResponse.json({ error: 'أضف BLOB_READ_WRITE_TOKEN في Vercel لاستخدام رفع الصور.' }, { status: 503 });
+  const publicBlobToken = process.env.BLOB_PUBLIC_READ_WRITE_TOKEN;
+  if (!publicBlobToken) return NextResponse.json({ error: 'أضف BLOB_PUBLIC_READ_WRITE_TOKEN لمخزن الوسائط العامة في Vercel.' }, { status: 503 });
 
   const bytes = new Uint8Array(await file.arrayBuffer());
   const kind = detectImageKind(bytes);
@@ -43,7 +44,7 @@ export async function POST(req: Request) {
   try {
     const blob = await put(`wahaj/media/${crypto.randomUUID()}-${safeName}`, file, {
       access: 'public',
-      token: process.env.BLOB_READ_WRITE_TOKEN,
+      token: publicBlobToken,
       contentType: file.type,
       addRandomSuffix: false,
     });
@@ -52,7 +53,7 @@ export async function POST(req: Request) {
     return NextResponse.json(media);
   } catch (error) {
     if (blobUrl) {
-      await del(blobUrl, { token: process.env.BLOB_READ_WRITE_TOKEN }).catch((cleanupError) => {
+      await del(blobUrl, { token: publicBlobToken }).catch((cleanupError) => {
         console.error('MEDIA_UPLOAD_CLEANUP_ERROR:', cleanupError instanceof Error ? cleanupError.message : 'unknown');
       });
     }
@@ -68,12 +69,13 @@ export async function DELETE(req: Request) {
   if (!body?.id || typeof body.id !== 'string') return NextResponse.json({ error: 'معرف الوسيط غير صالح' }, { status: 400 });
   const media = await prisma.media.findUnique({ where: { id: body.id }, select: { url: true } });
   if (!media) return NextResponse.json({ error: 'الوسيط غير موجود' }, { status: 404 });
-  if (!process.env.BLOB_READ_WRITE_TOKEN) {
-    return NextResponse.json({ error: 'خدمة التخزين غير مهيأة. لم يتم حذف سجل الوسيط.' }, { status: 503 });
+  const publicBlobToken = process.env.BLOB_PUBLIC_READ_WRITE_TOKEN;
+  if (!publicBlobToken) {
+    return NextResponse.json({ error: 'مخزن الوسائط العامة غير مهيأ. لم يتم حذف سجل الوسيط.' }, { status: 503 });
   }
   try {
     // Keep the database record if storage deletion fails so the operation can be retried.
-    await del(media.url, { token: process.env.BLOB_READ_WRITE_TOKEN });
+    await del(media.url, { token: publicBlobToken });
   } catch (error) {
     console.error('MEDIA_DELETE_STORAGE_ERROR:', error instanceof Error ? error.message : 'unknown');
     return NextResponse.json({ error: 'تعذر حذف الملف من التخزين. لم يتم حذف سجل الوسيط، ويمكن إعادة المحاولة.' }, { status: 502 });
