@@ -1,10 +1,10 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import Image from 'next/image';
 import Link from 'next/link';
 import AdminManager from '@/components/AdminManager';
-import { Store, LogOut, ShieldCheck, ArrowUpLeft, Package, Truck, RotateCcw, RefreshCw, CircleAlert, CheckCircle2 } from 'lucide-react';
+import AdminTopbar from '@/components/AdminTopbar';
+import { ShieldCheck, ArrowUpLeft, Package, Truck, RotateCcw, RefreshCw, CircleAlert, CheckCircle2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 function OperationsCenter() {
@@ -65,6 +65,15 @@ export default function Admin() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [user, setUser] = useState<any>(null);
   const [authChecking, setAuthChecking] = useState(true);
+  const [initialTab, setInitialTab] = useState('analytics');
+  const [initialTabReady, setInitialTabReady] = useState(false);
+
+  useEffect(() => {
+    const requestedTab = new URLSearchParams(window.location.search).get('tab');
+    const allowedTabs = new Set(['analytics', 'products', 'categories', 'orders', 'inventory', 'customers', 'customer-segments', 'homepage', 'offers', 'gift-cards', 'relations', 'reviews', 'newsletter', 'faq', 'contact', 'payments', 'shipping', 'media', 'users', 'features', 'redirects', 'security', 'settings']);
+    if (requestedTab && allowedTabs.has(requestedTab)) setInitialTab(requestedTab);
+    setInitialTabReady(true);
+  }, []);
 
   useEffect(() => {
     let mounted = true;
@@ -82,29 +91,20 @@ export default function Admin() {
     return () => { mounted = false; };
   }, [router]);
 
-  if (authChecking || !user) {
+  if (authChecking || !user || !initialTabReady) {
     return <main className="wahaj-admin-loading" dir="rtl"><span className="wahaj-admin-loading__spinner" /><p>جارٍ التحقق من جلسة الإدارة…</p></main>;
   }
 
   return (
     <main className="wahaj-admin-page" dir="rtl">
       <div className="wahaj-admin-page__inner">
-        <header className="wahaj-admin-page__bar">
-          <a href="/" className="wahaj-admin-page__identity">
-            <span className="wahaj-admin-page__logo"><Image src="/images/wahaj.logo.png" alt="" fill sizes="42px" priority /></span>
-            <span><b>وَهَج</b><small>لوحة تحكم المتجر</small></span>
-          </a>
-          <div className="wahaj-admin-page__bar-actions">
-            <span className="wahaj-admin-page__secure"><i /> النظام يعمل</span>
-            <a href="/" target="_blank" rel="noopener noreferrer" className="wahaj-admin-page__store-link"><Store size={16} /> <span>زيارة المتجر</span><ArrowUpLeft size={13} /></a>
-            <form action="/api/admin/logout" method="post"><button type="submit" className="wahaj-admin-page__logout"><LogOut size={16} /><span>خروج</span></button></form>
-          </div>
-        </header>
+        <AdminTopbar />
 
         <AdminManager
           sidebarOpen={sidebarOpen}
           setSidebarOpen={setSidebarOpen}
           userRole={user?.role}
+          initialTab={initialTab}
           topContent={(<>
             <section className="wahaj-admin-page__welcome">
               <div className="wahaj-admin-page__welcome-copy">
