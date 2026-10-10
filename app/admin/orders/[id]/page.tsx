@@ -3,7 +3,7 @@
 import { use, useCallback, useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import {
-  ArrowDownLeft, ArrowUpLeft, Banknote, CalendarDays, CheckCircle2, CircleAlert,
+  ArrowDownLeft, ArrowUpLeft, Banknote, CalendarDays, CheckCircle2, CircleAlert, Eye,
   Clock3, FileText, MapPin, Package, RefreshCw, ShieldCheck, ShoppingBag,
   Truck, UserRound, Phone, X,
 } from 'lucide-react';
@@ -58,6 +58,9 @@ export default function OrderDetail({ params }: { params: Promise<{ id: string }
   useEffect(() => { void fetchOrder(); }, [fetchOrder]);
 
   const items = Array.isArray(order?.items) ? order.items : [];
+  const paymentProofAvailable = Array.isArray(order?.payments) && order.payments.some(
+    (payment: any) => typeof payment?.proofUrl === 'string' && payment.proofUrl.length > 0,
+  );
   const itemCount = useMemo(() => items.reduce((sum: number, item: any) => sum + Number(item.quantity || 0), 0), [items]);
   const addressText = order?.shippingGovernorate
     ? [order.shippingGovernorate, order.shippingCity, order.shippingAddress].filter(Boolean).join(' · ')
@@ -152,6 +155,35 @@ export default function OrderDetail({ params }: { params: Promise<{ id: string }
                   <div className="space-y-2 border-t border-border/50 pt-3"><InfoRow label="حالة الطلب" value={orderStatusLabels[order.status] || order.status} /><InfoRow label="طريقة الدفع" value={paymentMethodLabels[order.paymentMethod] || order.paymentMethod} /><InfoRow label="حالة الدفع" value={paymentStatusLabels[order.paymentStatus] || order.paymentStatus} />{order.shippingProvider && <InfoRow label="شركة الشحن" value={order.shippingProvider} />}{order.trackingNumber && <InfoRow label="رقم التتبع" value={order.trackingNumber} ltr />}</div>
                 </div>
               </section>
+
+              {paymentProofAvailable && <section className="order-detail-panel">
+                <div className="order-detail-panel__head"><span className="orders-section-icon"><Eye size={17} /></span><div><h2 className="font-serif text-base font-bold">إثبات الدفع</h2><p className="mt-1 text-[10px] text-muted-foreground">معاينة خاصة متاحة للمستخدمين المخوّلين فقط.</p></div></div>
+                <div className="space-y-3 p-4 sm:p-5">
+                  <a
+                    href={`/api/admin/orders/${orderId}/payment-proof`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="admin-action admin-action--gold"
+                  >
+                    <Eye size={15} /> فتح الإثبات بالحجم الكامل
+                  </a>
+                  <a
+                    href={`/api/admin/orders/${orderId}/payment-proof`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="فتح إثبات الدفع بالحجم الكامل"
+                    className="block overflow-hidden rounded-xl border border-border/60 bg-[var(--surface)]"
+                  >
+                    <img
+                      src={`/api/admin/orders/${orderId}/payment-proof`}
+                      alt="إثبات الدفع المرفق بالطلب"
+                      loading="lazy"
+                      referrerPolicy="no-referrer"
+                      className="max-h-[420px] w-full object-contain"
+                    />
+                  </a>
+                </div>
+              </section>}
 
               <section className="order-detail-panel">
                 <div className="order-detail-panel__head"><span className="orders-section-icon"><MapPin size={17} /></span><div><h2 className="font-serif text-base font-bold">عنوان الشحن</h2><p className="mt-1 text-[10px] text-muted-foreground">العنوان المرتبط بهذا الطلب.</p></div></div>
