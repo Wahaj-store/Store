@@ -122,7 +122,7 @@ export async function GET(req: Request, { params }: { params: { provider: string
   const provider = providerFromParam(params.provider);
   if (!provider) return NextResponse.json({ error: 'مزود تسجيل غير مدعوم' }, { status: 404 });
   const url = new URL(req.url);
-  const limit = rateLimit(`customer-oauth:${provider}:${getClientKey(req)}`, 10, 15 * 60 * 1000);
+  const limit = await rateLimit(`customer-oauth:${provider}:${getClientKey(req)}`, 10, 15 * 60 * 1000);
   if (!limit.ok) return finish(req, 'rate_limited');
 
   if (url.searchParams.get('error')) return finish(req, 'cancelled');
@@ -142,7 +142,7 @@ export async function GET(req: Request, { params }: { params: { provider: string
     } else {
       customer = await prisma.customer.update({ where: { id: customer.id }, data: { lastLoginAt: new Date(), name: customer.name || profile.name } });
     }
-    await createCustomerSession(customer.id, true);
+    await createCustomerSession(customer.id, true, customer.sessionVersion);
     return NextResponse.redirect(new URL('/account?social=success', siteUrl(req)));
   } catch (error: any) {
     console.error('CUSTOMER_OAUTH_ERROR:', error?.message || error);
