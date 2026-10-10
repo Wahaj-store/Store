@@ -58,6 +58,7 @@ export default function OrderDetail({ params }: { params: Promise<{ id: string }
   useEffect(() => { void fetchOrder(); }, [fetchOrder]);
 
   const items = Array.isArray(order?.items) ? order.items : [];
+  const payments = Array.isArray(order?.payments) ? order.payments : [];
   const paymentProofAvailable = Array.isArray(order?.payments) && order.payments.some(
     (payment: any) => typeof payment?.proofUrl === 'string' && payment.proofUrl.length > 0,
   );
@@ -155,6 +156,20 @@ export default function OrderDetail({ params }: { params: Promise<{ id: string }
                   <div className="space-y-2 border-t border-border/50 pt-3"><InfoRow label="حالة الطلب" value={orderStatusLabels[order.status] || order.status} /><InfoRow label="طريقة الدفع" value={paymentMethodLabels[order.paymentMethod] || order.paymentMethod} /><InfoRow label="حالة الدفع" value={paymentStatusLabels[order.paymentStatus] || order.paymentStatus} />{order.shippingProvider && <InfoRow label="شركة الشحن" value={order.shippingProvider} />}{order.trackingNumber && <InfoRow label="رقم التتبع" value={order.trackingNumber} ltr />}</div>
                 </div>
               </section>
+
+              {!!payments.length && <section className="order-detail-panel">
+                <div className="order-detail-panel__head"><span className="orders-section-icon"><Banknote size={17} /></span><div><h2 className="font-serif text-base font-bold sm:text-lg">بيانات الدفع</h2><p className="mt-1 text-[10px] text-muted-foreground">بيانات الدفع المسجلة مع الطلب.</p></div></div>
+                <div className="space-y-2 p-4 sm:p-5">
+                  {payments.map((payment: any, index: number) => <div key={payment.id || index} className="rounded-xl border border-border/50 bg-[var(--surface)]/55 p-3">
+                    <div className="space-y-2">
+                      <InfoRow label="طريقة الدفع" value={paymentMethodLabels[payment.method] || payment.method} />
+                      <InfoRow label="رقم عملية التحويل" value={payment.reference || 'غير مسجل'} ltr />
+                      <InfoRow label="مبلغ الدفع" value={money(payment.amount)} />
+                      <InfoRow label="حالة العملية" value={paymentStatusLabels[payment.status] || payment.status || '—'} />
+                    </div>
+                  </div>)}
+                </div>
+              </section>}
 
               {paymentProofAvailable && <section className="order-detail-panel">
                 <div className="order-detail-panel__head"><span className="orders-section-icon"><Eye size={17} /></span><div><h2 className="font-serif text-base font-bold">إثبات الدفع</h2><p className="mt-1 text-[10px] text-muted-foreground">معاينة خاصة متاحة للمستخدمين المخوّلين فقط.</p></div></div>
