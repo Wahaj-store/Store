@@ -12,8 +12,17 @@ function secret() {
   return new TextEncoder().encode(s);
 }
 
-export async function createCustomerSession(id: string, rememberMe = false) {
-  const token = await new SignJWT({ sub: id, aud: 'customer', typ: 'customer-session' })
+export async function createCustomerSession(id: string, rememberMe = false, expectedVersion?: number) {
+  const customer = await prisma.customer.findUnique({
+    where: { id },
+    select: { sessionVersion: true },
+  });
+  if (!customer) throw new Error('حساب العميل غير موجود');
+  if (expectedVersion !== undefined && customer.sessionVersion !== expectedVersion) {
+    throw new Error('تعذر إنشاء الجلسة؛ سجّلي الدخول مرة أخرى');
+  }
+
+  const token = await new SignJWT({ sub: id, aud: 'customer', typ: 'customer-session', sv: customer.sessionVersion })
     .setProtectedHeader({ alg: 'HS256' })
     .setIssuedAt()
     .setExpirationTime('30d')
@@ -34,7 +43,11 @@ export async function getCustomer() {
   try {
     const { payload } = await jwtVerify(token, secret(), { audience: 'customer' });
     if (!payload.sub) return null;
-    return prisma.customer.findUnique({ where: { id: String(payload.sub) } });
+    const tokenVersion = payload.sv === undefined ? 0 : payload.sv;
+    if (typeof tokenVersion !== 'number' || !Number.isInteger(tokenVersion)) return null;
+    const customer = await prisma.customer.findUnique({ where: { id: String(payload.sub) } });
+    if (!customer || customer.sessionVersion !== tokenVersion) return null;
+    return customer;
   } catch {
     return null;
   }
@@ -54,7 +67,7 @@ export async function customerRegister(data: { name: string; phone: string; emai
     },
   });
   
-  await createCustomerSession(c.id, Boolean(data.rememberMe));
+  await createCustomerSession(c.id, Boolean(data.rememberMe), c.sessionVersion);
   return c;
 }
 
@@ -92,6 +105,6 @@ export async function customerLogin(identifier: string, password: string, rememb
     data: { lastLoginAt: new Date() },
   });
 
-  await createCustomerSession(c.id, rememberMe);
+  await createCustomerSession(c.id, rememberMe, c.sessionVersion);
   return c;
 }
