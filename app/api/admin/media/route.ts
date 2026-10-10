@@ -51,7 +51,11 @@ export async function POST(req: Request) {
     const media = await prisma.media.create({ data: { url: blob.url, name: file.name, type: file.type, size: file.size } });
     return NextResponse.json(media);
   } catch (error) {
-    if (blobUrl) await del(blobUrl, { token: process.env.BLOB_READ_WRITE_TOKEN }).catch(() => undefined);
+    if (blobUrl) {
+      await del(blobUrl, { token: process.env.BLOB_READ_WRITE_TOKEN }).catch((cleanupError) => {
+        console.error('MEDIA_UPLOAD_CLEANUP_ERROR:', cleanupError instanceof Error ? cleanupError.message : 'unknown');
+      });
+    }
     console.error('MEDIA_UPLOAD_ERROR:', error instanceof Error ? error.message : 'unknown');
     return NextResponse.json({ error: 'تعذر حفظ الصورة حاليًا' }, { status: 500 });
   }
@@ -64,9 +68,16 @@ export async function DELETE(req: Request) {
   if (!body?.id || typeof body.id !== 'string') return NextResponse.json({ error: 'معرف الوسيط غير صالح' }, { status: 400 });
   const media = await prisma.media.findUnique({ where: { id: body.id }, select: { url: true } });
   if (!media) return NextResponse.json({ error: 'الوسيط غير موجود' }, { status: 404 });
-  await prisma.media.delete({ where: { id: body.id } });
-  if (process.env.BLOB_READ_WRITE_TOKEN) {
-    await del(media.url, { token: process.env.BLOB_READ_WRITE_TOKEN }).catch(() => undefined);
+  if (!process.env.BLOB_READ_WRITE_TOKEN) {
+    return NextResponse.json({ error: 'خدمة التخزين غير مهيأة. لم يتم حذف سجل الوسيط.' }, { status: 503 });
   }
+  try {
+    // Keep the database record if storage deletion fails so the operation can be retried.
+    await del(media.url, { token: process.env.BLOB_READ_WRITE_TOKEN });
+  } catch (error) {
+    console.error('MEDIA_DELETE_STORAGE_ERROR:', error instanceof Error ? error.message : 'unknown');
+    return NextResponse.json({ error: 'تعذر حذف الملف من التخزين. لم يتم حذف سجل الوسيط، ويمكن إعادة المحاولة.' }, { status: 502 });
+  }
+  await prisma.media.delete({ where: { id: body.id } });
   return NextResponse.json({ ok: true });
 }
