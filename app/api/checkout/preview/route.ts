@@ -13,7 +13,7 @@ function normalizeNullableNumber(value: unknown) {
 
 export async function POST(req: Request) {
   try {
-    const limit = rateLimit(`checkout-preview:${getClientKey(req)}`, 30, 10 * 60 * 1000);
+    const limit = await rateLimit(`checkout-preview:${getClientKey(req)}`, 30, 10 * 60 * 1000);
     if (!limit.ok) {
       return NextResponse.json(
         { error: 'تم تجاوز عدد محاولات تحديث السلة. يرجى المحاولة مرة أخرى بعد قليل.' },
