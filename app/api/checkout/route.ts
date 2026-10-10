@@ -13,6 +13,7 @@ import { notifyOrderCreated } from '@/lib/whatsapp';
 import { notifyOrderCreatedByEmail } from '@/lib/email';
 import { markLatestCartRecovered } from '@/lib/abandoned-cart';
 import { hashGiftCardCode, normalizeGiftCardCode } from '@/lib/gift-card';
+import { findActiveShippingZone } from '@/lib/shipping';
 import { getClientKey, rateLimit } from '@/lib/rate-limit';
 import {
   createPaymentProofPath,
@@ -99,7 +100,7 @@ export async function POST(req: Request) {
 
     const now = new Date();
 
-    const zone = await prisma.shippingZone.findFirst({ where: { governorate: checkoutGovernorate, active: true, OR: [{ city: checkoutCity }, { city: null }] }, orderBy: { city: 'desc' } });
+    const zone = await findActiveShippingZone(checkoutGovernorate, checkoutCity);
     if (!zone) return NextResponse.json({ error: 'لا توجد منطقة شحن مفعلة لهذا العنوان' }, { status: 400 });
 
     const existingCustomer = loggedInCustomer?.id
