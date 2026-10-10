@@ -1,7 +1,7 @@
 // مسار الملف: app/checkout/page.tsx
 
 'use client';
-import { useEffect, useState, Suspense } from 'react';
+import { useEffect, useRef, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Truck, CreditCard, ShieldCheck, ArrowRight, Upload, CheckCircle2, Sparkles } from 'lucide-react';
@@ -91,6 +91,7 @@ function AddressSelector({ selectedId, onSelectAddress, onAuthState }: { selecte
 }
 
 function CheckoutContent() {
+  const idempotencyKeyRef = useRef<string | null>(null);
   const [c, setC] = useState<any[]>([]);
   const [pay, setPay] = useState('COD');
   const [methods, setMethods] = useState<any[]>([]);
@@ -316,7 +317,7 @@ function CheckoutContent() {
       setBusy(false);
       return;
     }
-    const body = {
+    const checkoutIntent = {
       name: formData.name,
       phone: formData.phone,
       governorate: selectedGovernorate,
@@ -326,10 +327,29 @@ function CheckoutContent() {
       addressId: selectedAddressId || undefined,
       paymentMethod: pay,
       giftCardCode: coupon || undefined,
-      idempotencyKey: crypto.randomUUID(),
       paymentReference: e.currentTarget.paymentReference?.value || undefined,
       items: c.map(x => ({ productId: x.productId, variantId: x.variantId, quantity: x.quantity }))
     };
+    const intentFingerprint = JSON.stringify(checkoutIntent);
+    let idempotencyKey = idempotencyKeyRef.current;
+
+    try {
+      const savedFingerprint = sessionStorage.getItem('wahaj_checkout_fingerprint');
+      const savedKey = sessionStorage.getItem('wahaj_checkout_idempotency_key');
+      if (savedFingerprint === intentFingerprint && savedKey) {
+        idempotencyKey = savedKey;
+      } else {
+        idempotencyKey = crypto.randomUUID();
+        sessionStorage.setItem('wahaj_checkout_fingerprint', intentFingerprint);
+        sessionStorage.setItem('wahaj_checkout_idempotency_key', idempotencyKey);
+      }
+    } catch {
+      idempotencyKey = idempotencyKey || crypto.randomUUID();
+    }
+
+    const stableIdempotencyKey = idempotencyKey || crypto.randomUUID();
+    idempotencyKeyRef.current = stableIdempotencyKey;
+    const body = { ...checkoutIntent, idempotencyKey: stableIdempotencyKey };
 
     try {
       const uploadData = new FormData();
@@ -342,6 +362,11 @@ function CheckoutContent() {
       });
       const j = await x.json();
       if (x.ok) {
+        idempotencyKeyRef.current = null;
+        try {
+          sessionStorage.removeItem('wahaj_checkout_fingerprint');
+          sessionStorage.removeItem('wahaj_checkout_idempotency_key');
+        } catch {}
         localStorage.removeItem('wahaj_cart');
         window.dispatchEvent(new Event('wahaj-cart-change'));
         r.push(`/checkout/success?order=${j.orderNumber}`);
