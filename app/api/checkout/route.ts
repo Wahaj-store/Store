@@ -86,15 +86,6 @@ export async function POST(req: Request) {
     if (!pay?.enabled) return NextResponse.json({ error: 'طريقة الدفع غير متاحة حالياً' }, { status: 400 });
     if (pay.proofRequired && !hasProofFile) return NextResponse.json({ error: 'إثبات الدفع مطلوب لهذه الطريقة' }, { status: 400 });
 
-    if (hasProofFile) {
-      if (!process.env.BLOB_READ_WRITE_TOKEN) return NextResponse.json({ error: 'خدمة رفع إثبات الدفع غير مفعلة حالياً' }, { status: 503 });
-      if (proofFile.size > PAYMENT_PROOF_MAX_BYTES) return NextResponse.json({ error: 'حجم صورة الإيصال كبير جداً' }, { status: 400 });
-      const { extension } = await validatePaymentProof(proofFile);
-      const pathname = createPaymentProofPath(extension);
-      const blob = await put(pathname, proofFile, { access: 'private', token: process.env.BLOB_READ_WRITE_TOKEN, contentType: proofFile.type, addRandomSuffix: false });
-      uploadedProofPath = blob.pathname;
-    }
-
     const requested = b.items.map(i => {
       const p = products.find(x => x.id === i.productId)!;
       const v = i.variantId ? p.variants.find(x => x.id === i.variantId) : undefined;
@@ -172,6 +163,17 @@ export async function POST(req: Request) {
     const siteMin = await prisma.siteSetting.findUnique({ where: { key: 'minimum_order' } });
     const minimumOrder = Number(siteMin?.value || 0);
     if (minimumOrder > 0 && subtotal - discount < minimumOrder) return NextResponse.json({ error: `الحد الأدنى للطلب هو ${minimumOrder.toLocaleString('ar-EG')} ج.م` }, { status: 400 });
+
+    // لا نرفع الملف إلا بعد اجتياز عمليات التحقق التي قد تنهي الطلب مبكرًا.
+    // وإذا فشلت المعاملة بعد الرفع، يتولى catch حذف الملف الخاص.
+    if (hasProofFile) {
+      if (!process.env.BLOB_READ_WRITE_TOKEN) return NextResponse.json({ error: 'خدمة رفع إثبات الدفع غير مفعلة حالياً' }, { status: 503 });
+      if (proofFile.size > PAYMENT_PROOF_MAX_BYTES) return NextResponse.json({ error: 'حجم صورة الإيصال كبير جداً' }, { status: 400 });
+      const { extension } = await validatePaymentProof(proofFile);
+      const pathname = createPaymentProofPath(extension);
+      const blob = await put(pathname, proofFile, { access: 'private', token: process.env.BLOB_READ_WRITE_TOKEN, contentType: proofFile.type, addRandomSuffix: false });
+      uploadedProofPath = blob.pathname;
+    }
 
     const order = await prisma.$transaction(async tx => {
       let giftCardId: string | null = null;
