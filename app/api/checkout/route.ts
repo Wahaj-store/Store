@@ -5,7 +5,7 @@ import { prisma } from '@/lib/prisma';
 import { normalizePhone } from '@/lib/security';
 import { getCustomer } from '@/lib/customer-auth';
 import { Prisma, PaymentMethod } from '@prisma/client';
-import { del, put } from '@vercel/blob';
+import { put } from '@vercel/blob';
 import { getCustomerSegmentKey } from '@/lib/customer-segment';
 import { calculatePricing, type OfferPricing } from '@/lib/pricing';
 import { recordInventoryEntry } from '@/lib/inventory';
@@ -14,13 +14,19 @@ import { notifyOrderCreatedByEmail } from '@/lib/email';
 import { markLatestCartRecovered } from '@/lib/abandoned-cart';
 import { hashGiftCardCode, normalizeGiftCardCode } from '@/lib/gift-card';
 import { getClientKey, rateLimit } from '@/lib/rate-limit';
+import {
+  createPaymentProofPath,
+  deletePaymentProof,
+  PAYMENT_PROOF_MAX_BYTES,
+  validatePaymentProof,
+} from '@/lib/payment-proof';
 
 const Item = z.object({ productId: z.string().min(1), variantId: z.string().optional(), quantity: z.number().int().positive().max(50) });
 const S = z.object({
   name: z.string().trim().min(2).max(100), phone: z.string().trim().min(8).max(30),
   governorate: z.string().trim().min(2).max(80), city: z.string().trim().min(2).max(100), address: z.string().trim().min(5).max(500), notes: z.string().trim().max(1000).optional(),
   paymentMethod: z.nativeEnum(PaymentMethod), giftCardCode: z.string().trim().max(40).optional(),
-  idempotencyKey: z.string().uuid().optional(), addressId: z.string().min(1).optional(), items: z.array(Item).min(1).max(100), paymentReference: z.string().trim().max(100).optional()
+  idempotencyKey: z.string().uuid(), addressId: z.string().min(1).optional(), items: z.array(Item).min(1).max(100), paymentReference: z.string().trim().max(100).optional()
 });
 
 export async function POST(req: Request) {
@@ -44,7 +50,7 @@ export async function POST(req: Request) {
     const b = S.parse(JSON.parse(rawData));
     const proofFile = formData.get('proof');
     const hasProofFile = proofFile instanceof File && proofFile.size > 0;
-    idempotencyKey = b.idempotencyKey || crypto.randomUUID();
+    idempotencyKey = b.idempotencyKey;
     const existing = await prisma.order.findUnique({ where: { idempotencyKey }, select: { number: true, total: true, shipping: true, discount: true } });
     if (existing) return NextResponse.json({ ok: true, orderNumber: existing.number, total: Number(existing.total), shipping: Number(existing.shipping), discount: Number(existing.discount), replay: true });
 
@@ -82,17 +88,10 @@ export async function POST(req: Request) {
 
     if (hasProofFile) {
       if (!process.env.BLOB_READ_WRITE_TOKEN) return NextResponse.json({ error: 'خدمة رفع إثبات الدفع غير مفعلة حالياً' }, { status: 503 });
-      if (proofFile.size > 10 * 1024 * 1024) return NextResponse.json({ error: 'حجم صورة الإيصال كبير جداً' }, { status: 400 });
-      const allowedTypes = new Set(['image/jpeg', 'image/png', 'image/webp']);
-      if (!allowedTypes.has(proofFile.type)) return NextResponse.json({ error: 'صيغة صورة الإيصال غير مدعومة' }, { status: 400 });
-      const bytes = new Uint8Array(await proofFile.arrayBuffer());
-      const isJpeg = bytes.length >= 3 && bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff;
-      const isPng = bytes.length >= 8 && bytes[0] === 0x89 && bytes[1] === 0x50 && bytes[2] === 0x4e && bytes[3] === 0x47 && bytes[4] === 0x0d && bytes[5] === 0x0a && bytes[6] === 0x1a && bytes[7] === 0x0a;
-      const isWebp = bytes.length >= 12 && String.fromCharCode(...bytes.slice(0, 4)) === 'RIFF' && String.fromCharCode(...bytes.slice(8, 12)) === 'WEBP';
-      if (!isJpeg && !isPng && !isWebp) return NextResponse.json({ error: 'محتوى صورة الإيصال غير صالح' }, { status: 400 });
-
-      const ext = proofFile.type === 'image/png' ? 'png' : proofFile.type === 'image/webp' ? 'webp' : 'jpg';
-      const blob = await put(`wahaj/payment-proofs/${crypto.randomUUID()}.${ext}`, proofFile, { access: 'private', token: process.env.BLOB_READ_WRITE_TOKEN, contentType: proofFile.type, addRandomSuffix: false });
+      if (proofFile.size > PAYMENT_PROOF_MAX_BYTES) return NextResponse.json({ error: 'حجم صورة الإيصال كبير جداً' }, { status: 400 });
+      const { extension } = await validatePaymentProof(proofFile);
+      const pathname = createPaymentProofPath(extension);
+      const blob = await put(pathname, proofFile, { access: 'private', token: process.env.BLOB_READ_WRITE_TOKEN, contentType: proofFile.type, addRandomSuffix: false });
       uploadedProofUrl = blob.pathname;
     }
 
@@ -287,7 +286,11 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: true, orderNumber: order.number, subtotal, shipping, discount, total });
   } catch (e: any) {
     if (uploadedProofUrl) {
-      try { await del(uploadedProofUrl, { token: process.env.BLOB_READ_WRITE_TOKEN }); } catch {}
+      try {
+        await deletePaymentProof(uploadedProofUrl);
+      } catch (cleanupError) {
+        console.error('CHECKOUT_PROOF_CLEANUP_ERROR:', cleanupError instanceof Error ? cleanupError.message : 'unknown');
+      }
     }
     if (e?.code === 'P2002' && Array.isArray(e?.meta?.target) && e.meta.target.includes('idempotencyKey')) {
       const replay = await prisma.order.findUnique({ where: { idempotencyKey }, select: { number: true, total: true, shipping: true, discount: true } });
