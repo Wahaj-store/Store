@@ -37,6 +37,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
         payments: true,
         timeline: { orderBy: { createdAt: 'desc' } },
         shipments: { orderBy: { createdAt: 'desc' }, include: { events: { orderBy: { createdAt: 'asc' } } } },
+        returnRequests: { orderBy: { requestedAt: 'desc' }, include: { items: { include: { orderItem: true } } } },
       },
     });
     
