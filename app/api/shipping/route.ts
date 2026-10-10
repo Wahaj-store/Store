@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+
+export const dynamic = "force-dynamic";
 export const revalidate = 60;
 // Public read-only shipping data used by the storefront checkout.
 // Administrative mutations remain protected under /api/admin/shipping.
