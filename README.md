@@ -31,7 +31,17 @@
 ## متطلبات البيئة
 
 ضع القيم في Vercel Environment Variables ولا تضعها داخل GitHub:
-`PRISMA_DATABASE_URL`, `PRISMA_DIRECT_URL`, `AUTH_SECRET`, `ADMIN_EMAIL`, `ADMIN_PASSWORD`.
+`PRISMA_DATABASE_URL`, `PRISMA_DIRECT_URL`, `AUTH_SECRET`, `RATE_LIMIT_SECRET`, `ADMIN_EMAIL`, `ADMIN_PASSWORD`.
+
+للبيئة الإنتاجية أضف أيضًا:
+
+- `UPSTASH_REDIS_REST_URL` و`UPSTASH_REDIS_REST_TOKEN` لتحديد المعدل عبر جميع Serverless Instances.
+
+- `BLOB_READ_WRITE_TOKEN` لمخزن Blob خاص بإثباتات الدفع.
+
+- `BLOB_PUBLIC_READ_WRITE_TOKEN` لمخزن Blob عام منفصل لصور المنتجات والبنرات.
+
+- لا تستخدم Token المخزن الخاص مع مسار الوسائط العامة.
 
 ## تشغيل محلي
 
@@ -61,6 +71,8 @@ npm run build
 
 - Added missing placeholder/icon assets.
 
-- Added checkout payment-proof URL support when enabled.
+- Added private checkout payment-proof storage with protected admin access.
+
+- Added a separate public media Blob token to keep product images public without weakening payment-proof privacy.
 
 - Static TypeScript/TSX syntax scan passes; full dependency install/Prisma/build still requires running in GitHub/Vercel because this environment cannot download npm packages.
