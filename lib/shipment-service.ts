@@ -34,6 +34,7 @@ export function assertShipmentTransition(from: ShipmentStatus, to: ShipmentStatu
 
 export type CreateShipmentInput = {
   orderId: string;
+  status?: ShipmentStatus;
   provider?: string | null;
   trackingNumber?: string | null;
   estimatedMinDays?: number | null;
@@ -51,6 +52,9 @@ export async function createShipment(tx: Transaction, input: CreateShipmentInput
   });
   if (existing) return existing;
 
+  const status = input.status || 'PENDING';
+  assertShipmentTransition('PENDING', status);
+  const now = new Date();
   const shipment = await tx.shipment.create({
     data: {
       orderId: input.orderId,
@@ -59,17 +63,29 @@ export async function createShipment(tx: Transaction, input: CreateShipmentInput
       estimatedMinDays: input.estimatedMinDays ?? null,
       estimatedMaxDays: input.estimatedMaxDays ?? null,
       notes: input.notes?.trim() || null,
-      status: 'PENDING',
+      status,
+      shippedAt: ['SHIPPED', 'IN_TRANSIT', 'OUT_FOR_DELIVERY', 'DELIVERED'].includes(status) ? now : null,
+      deliveredAt: status === 'DELIVERED' ? now : null,
     },
   });
 
   await tx.shipmentEvent.create({
     data: {
       shipmentId: shipment.id,
-      status: 'PENDING',
+      status,
       note: input.notes?.trim() || 'تم إنشاء الشحنة',
     },
   });
+
+  const orderStatus = status === 'DELIVERED' ? OrderStatus.DELIVERED : ['SHIPPED', 'IN_TRANSIT', 'OUT_FOR_DELIVERY'].includes(status) ? OrderStatus.SHIPPED : null;
+  if (orderStatus) {
+    const parent = await tx.order.findUnique({ where: { id: input.orderId }, select: { id: true, status: true } });
+    if (parent && parent.status !== orderStatus) {
+      assertOrderTransition(parent.status, orderStatus);
+      await tx.order.update({ where: { id: parent.id }, data: { status: orderStatus, shippingProvider: shipment.provider, trackingNumber: shipment.trackingNumber } });
+      await tx.orderTimeline.create({ data: { orderId: parent.id, status: orderStatus, note: 'تم تحديث حالة الطلب تلقائيًا عند إنشاء الشحنة' } });
+    }
+  }
 
   return shipment;
 }
