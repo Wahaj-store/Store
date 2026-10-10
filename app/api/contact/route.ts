@@ -12,7 +12,7 @@ const ContactSchema = z.object({
 
 export async function POST(request: Request) {
   try {
-    const limit = rateLimit(`contact:${getClientKey(request)}`, 5, 10 * 60 * 1000);
+    const limit = await rateLimit(`contact:${getClientKey(request)}`, 5, 10 * 60 * 1000);
     if (!limit.ok) return NextResponse.json({ error: 'محاولات كثيرة. حاولي لاحقًا.' }, { status: 429 });
     const { name, phone, subject, message } = ContactSchema.parse(await request.json());
 
