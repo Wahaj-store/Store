@@ -141,6 +141,7 @@ model Customer {
   secondaryPhone     String?             // رقم هاتف احتياطي يمكن للعميل إضافته وتعديله
   email              String?             @unique
   passwordHash       String?
+  sessionVersion     Int                 @default(0)
   lastLoginAt        DateTime?
   resetToken         String?
   resetTokenExpiry   DateTime?
@@ -842,6 +843,15 @@ model FaqItem {
   updatedAt    DateTime @updatedAt
 
   @@index([published, displayOrder])
+}
+
+model RateLimitBucket {
+  keyHash   String   @id
+  count     Int      @default(0)
+  expiresAt DateTime
+  updatedAt DateTime @updatedAt
+
+  @@index([expiresAt])
 }
 
 
