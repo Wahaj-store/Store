@@ -1,9 +1,8 @@
 import { NextResponse } from 'next/server';
-import { get } from '@vercel/blob';
 import { requireUser } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { getClientKey, rateLimit } from '@/lib/rate-limit';
-import { isPrivatePaymentProofPath } from '@/lib/payment-proof';
+import { getPaymentProofUrl, isPrivatePaymentProofPath } from '@/lib/payment-proof';
 
 const ALLOWED_ROLES = [
   'OWNER',
@@ -68,38 +67,25 @@ export async function GET(
       );
     }
 
-    const pathname = payment.proofUrl;
-
-    // لا تسمح بقراءة أي مسار خارج مجلد إثباتات الدفع.
-    if (!isPrivatePaymentProofPath(pathname)) {
+    if (!isPrivatePaymentProofPath(payment.proofUrl)) {
       return NextResponse.json(
         { error: 'إثبات الدفع غير متاح في التخزين الخاص' },
         { status: 404 },
       );
     }
 
-    const blob = await get(pathname, {
-      access: 'private',
-      token: process.env.BLOB_READ_WRITE_TOKEN,
-    });
-
-    if (!blob || blob.statusCode !== 200 || !blob.stream) {
+    const signedUrl = await getPaymentProofUrl(payment.proofUrl);
+    if (!signedUrl) {
       return NextResponse.json(
         { error: 'تعذر قراءة إثبات الدفع' },
         { status: 404 },
       );
     }
 
-    return new NextResponse(blob.stream, {
-      status: 200,
+    return NextResponse.redirect(signedUrl, {
+      status: 302,
       headers: {
-        'Content-Type': blob.blob.contentType || 'application/octet-stream',
-        'Content-Length': String(blob.blob.size || ''),
-        'Content-Disposition': 'inline',
         'Cache-Control': 'private, no-store, max-age=0',
-        'X-Content-Type-Options': 'nosniff',
-        'Content-Security-Policy': "default-src 'none'; img-src 'self' data:;",
-        ETag: blob.blob.etag,
       },
     });
   } catch (error) {
