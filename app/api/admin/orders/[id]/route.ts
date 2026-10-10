@@ -8,6 +8,7 @@ import { notifyOrderStatusByEmail, notifyShipmentByEmail } from '@/lib/email';
 import { refundGiftCardForOrder } from '@/lib/gift-card';
 import { getClientKey, rateLimit } from '@/lib/rate-limit';
 import { getPaymentProofUrl, isPrivatePaymentProofPath } from '@/lib/payment-proof';
+import { updateOrderStatus } from '@/lib/order-service';
 
 const ORDER_READ_ROLES = ['OWNER', 'ADMIN', 'MANAGER', 'ORDER_MANAGER', 'VIEWER'];
 const PAYMENT_PROOF_ROLES = ['OWNER', 'ADMIN', 'MANAGER', 'ORDER_MANAGER'];
@@ -85,35 +86,19 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
     }
 
     const result = await prisma.$transaction(async tx => {
-      const old = await tx.order.findUnique({ where: { id } });
-      if (!old) throw new Error('الطلب غير موجود');
-      if (old.status === 'DELIVERED' && status === 'CANCELLED') throw new Error('لا يمكن إلغاء طلب تم تسليمه');
-
-      const updatedOrder = await tx.order.update({
-        where: { id },
-        data: {
-          status: status as OrderStatus,
-          ...(shippingProvider !== undefined ? { shippingProvider } : {}),
-          ...(trackingNumber !== undefined ? { trackingNumber } : {}),
-        },
+      const updatedOrder = await updateOrderStatus(tx, {
+        orderId: id,
+        status: status as OrderStatus,
+        actorName: u.name || u.email,
+        note,
+        shippingProvider: shippingProvider !== undefined ? shippingProvider : undefined,
+        trackingNumber: trackingNumber !== undefined ? trackingNumber : undefined,
       });
-
-      if (status === 'CANCELLED' && old.status !== 'CANCELLED') await refundGiftCardForOrder(tx, old);
-
-      await tx.orderTimeline.create({
-        data: {
-          orderId: id,
-          status: status,
-          note: note || `تم تحديث حالة الطلب إلى ${status} بواسطة ${u.name || u.email || 'المسؤول'}`,
-        },
-      });
-
       const shipment = await syncShipmentFromOrderStatus(tx, id, status as OrderStatus, {
-        provider: shippingProvider !== undefined ? shippingProvider : old.shippingProvider,
-        trackingNumber: trackingNumber !== undefined ? trackingNumber : old.trackingNumber,
-        note: note || `تمت مزامنة الشحنة مع حالة الطلب بواسطة ${u.name || u.email || 'المسؤول'}`,
+        provider: shippingProvider !== undefined ? shippingProvider : undefined,
+        trackingNumber: trackingNumber !== undefined ? trackingNumber : undefined,
+        note: note || `تمت مزامنة الشحنة مع حالة الطلب بواسطة ${u.name || u.email}`,
       });
-
       return { updatedOrder, shipment };
     }, { isolationLevel: Prisma.TransactionIsolationLevel.Serializable, maxWait: 5000, timeout: 15000 });
 
