@@ -375,7 +375,7 @@ export default function AdminManager({ sidebarOpen, setSidebarOpen, topContent, 
 
       {/* Mobile-only global bar. The page title intentionally lives below it. */}
       {!hideSidebar && (
-      <div className="wahaj-admin__mobile-wrap sticky top-0 z-30 px-2 pt-2 lg:hidden sm:px-4">
+      <div className="wahaj-admin__mobile-wrap z-30 px-2 pt-2 lg:hidden sm:px-4">
         <header className="flex min-h-[64px] items-center justify-between gap-3 rounded-[24px] border border-border/50 bg-[var(--bg)]/95 px-3 shadow-sm backdrop-blur-xl sm:px-4">
           <button
             type="button"
