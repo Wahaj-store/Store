@@ -31,7 +31,7 @@ const S = z.object({
 
 export async function POST(req: Request) {
   let idempotencyKey = '';
-  let uploadedProofUrl: string | undefined;
+  let uploadedProofPath: string | undefined;
   try {
     const requestLimit = await rateLimit(`checkout:${getClientKey(req)}`, 12, 10 * 60 * 1000);
     if (!requestLimit.ok) {
@@ -92,7 +92,7 @@ export async function POST(req: Request) {
       const { extension } = await validatePaymentProof(proofFile);
       const pathname = createPaymentProofPath(extension);
       const blob = await put(pathname, proofFile, { access: 'private', token: process.env.BLOB_READ_WRITE_TOKEN, contentType: proofFile.type, addRandomSuffix: false });
-      uploadedProofUrl = blob.pathname;
+      uploadedProofPath = blob.pathname;
     }
 
     const requested = b.items.map(i => {
@@ -236,7 +236,7 @@ export async function POST(req: Request) {
         number, idempotencyKey, customerId: c.id, customerNameSnapshot: checkoutName, customerPhoneSnapshot: checkoutPhone,
         paymentMethod: b.paymentMethod, total: Math.max(0, total - giftCardAmount), shipping, discount, giftCardId, giftCardAmount, notes: checkoutNotes, shippingGovernorate: checkoutGovernorate, shippingCity: checkoutCity, shippingAddress: checkoutAddress,
         items: { create: requested.map(i => ({ productId: i.p.id, variantId: i.v?.id, variantName: i.v?.name, variantValue: i.v?.value, skuSnapshot: i.v?.sku || i.p.sku, name: i.p.name, quantity: i.quantity, price: new Prisma.Decimal(i.price) })) },
-        payments: { create: { method: b.paymentMethod, amount: Math.max(0, total - giftCardAmount), reference: b.paymentReference, proofUrl: uploadedProofUrl } },
+        payments: { create: { method: b.paymentMethod, amount: Math.max(0, total - giftCardAmount), reference: b.paymentReference, proofUrl: uploadedProofPath } },
         timeline: { create: { status: 'NEW', note: 'تم إنشاء الطلب' } }
       } });
 
@@ -285,9 +285,9 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ ok: true, orderNumber: order.number, subtotal, shipping, discount, total });
   } catch (e: any) {
-    if (uploadedProofUrl) {
+    if (uploadedProofPath) {
       try {
-        await deletePaymentProof(uploadedProofUrl);
+        await deletePaymentProof(uploadedProofPath);
       } catch (cleanupError) {
         console.error('CHECKOUT_PROOF_CLEANUP_ERROR:', cleanupError instanceof Error ? cleanupError.message : 'unknown');
       }
