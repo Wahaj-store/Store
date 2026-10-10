@@ -32,8 +32,8 @@ export async function POST(req: Request) {
 
     // حماية من تخمين الـOTP: 5 محاولات لكل IP + بريد خلال 10 دقائق.
     const clientKey = getClientKey(req);
-    const ipLimit = rateLimit(`reset-password:ip:${clientKey}`, 10, OTP_RATE_WINDOW_MS);
-    const emailLimit = rateLimit(`reset-password:email:${hashIdentifier(email)}`, 5, OTP_RATE_WINDOW_MS);
+    const ipLimit = await rateLimit(`reset-password:ip:${clientKey}`, 10, OTP_RATE_WINDOW_MS);
+    const emailLimit = await rateLimit(`reset-password:email:${hashIdentifier(email)}`, 5, OTP_RATE_WINDOW_MS);
 
     if (!ipLimit.ok || !emailLimit.ok) {
       return NextResponse.json(
@@ -55,23 +55,35 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'رمز التحقق غير صحيح أو انتهت صلاحيته' }, { status: 400 });
     }
 
+    if (newPassword.length < 8 || newPassword.length > 200) {
+      return NextResponse.json({ error: 'كلمة المرور يجب أن تكون بين 8 و200 حرف' }, { status: 400 });
+    }
+
     // hashPassword يتحقق أيضًا من الحد الأدنى لطول كلمة المرور.
     const hashedPassword = await hashPassword(newPassword);
 
-    await prisma.customer.update({
-      where: { id: customer.id },
+    const updated = await prisma.customer.updateMany({
+      where: {
+        id: customer.id,
+        resetToken: customer.resetToken,
+        resetTokenExpiry: { gt: new Date() },
+      },
       data: {
         passwordHash: hashedPassword,
         resetToken: null,
         resetTokenExpiry: null,
+        sessionVersion: { increment: 1 },
       },
     });
+    if (updated.count !== 1) {
+      return NextResponse.json({ error: 'رمز التحقق غير صحيح أو انتهت صلاحيته' }, { status: 400 });
+    }
     cookies().delete('wahaj_customer');
 
     return NextResponse.json({ success: true, message: 'تم تحديث كلمة المرور بنجاح' });
   } catch (error: any) {
     if (error?.message === 'كلمة المرور يجب أن تكون 8 أحرف على الأقل') {
-      return NextResponse.json({ error: error.message }, { status: 400 });
+      return NextResponse.json({ error: 'كلمة المرور يجب أن تكون بين 8 و200 حرف' }, { status: 400 });
     }
 
     console.error('RESET_PASSWORD_ERROR:', error);
