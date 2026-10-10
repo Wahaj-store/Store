@@ -12,6 +12,8 @@ type Order = any;
 const orderStatusLabels: Record<string, string> = { NEW: 'جديد', PROCESSING: 'قيد التجهيز', SHIPPED: 'تم الشحن', DELIVERED: 'تم التسليم', CANCELLED: 'ملغي' };
 const paymentStatusLabels: Record<string, string> = { PENDING: 'بانتظار الدفع', CONFIRMED: 'مدفوع', FAILED: 'فشل الدفع' };
 const paymentMethodLabels: Record<string, string> = { COD: 'الدفع عند الاستلام', VODAFONE_CASH: 'فودافون كاش', INSTAPAY: 'إنستاباي' };
+const shipmentStatusLabels: Record<string, string> = { PENDING: 'بانتظار التجهيز', PROCESSING: 'قيد التجهيز', SHIPPED: 'تم الشحن', IN_TRANSIT: 'في الطريق', OUT_FOR_DELIVERY: 'خرج للتوصيل', DELIVERED: 'تم التسليم', FAILED: 'تعذر التسليم', RETURNED: 'مرتجع', CANCELLED: 'ملغي' };
+const returnStatusLabels: Record<string, string> = { REQUESTED: 'تم الطلب', APPROVED: 'تمت الموافقة', REJECTED: 'مرفوض', RECEIVED: 'تم الاستلام', REFUNDED: 'تم رد المبلغ', CANCELLED: 'ملغي' };
 const money = (value: unknown) => `${Number(value || 0).toLocaleString('ar-EG')} ج.م`;
 const formatDateTime = (value: unknown) => value ? new Date(String(value)).toLocaleString('ar-EG', { dateStyle: 'medium', timeStyle: 'short' }) : '—';
 
@@ -59,6 +61,8 @@ export default function OrderDetail({ params }: { params: Promise<{ id: string }
 
   const items = Array.isArray(order?.items) ? order.items : [];
   const payments = Array.isArray(order?.payments) ? order.payments : [];
+  const shipments = Array.isArray(order?.shipments) ? order.shipments : [];
+  const returns = Array.isArray(order?.returnRequests) ? order.returnRequests : [];
   const paymentProofAvailable = Array.isArray(order?.payments) && order.payments.some(
     (payment: any) => typeof payment?.proofUrl === 'string' && payment.proofUrl.length > 0,
   );
@@ -146,6 +150,26 @@ export default function OrderDetail({ params }: { params: Promise<{ id: string }
                 <div className="order-detail-panel__head"><span className="orders-section-icon"><ShoppingBag size={17} /></span><div><h2 className="font-serif text-base font-bold sm:text-lg">منتجات الطلب</h2><p className="mt-1 text-[10px] text-muted-foreground">تفاصيل الكميات والأسعار كما سُجلت عند إنشاء الطلب.</p></div></div>
                 <div className="divide-y divide-border/50 px-4 sm:px-5">{items.map((item: any) => <article key={item.id} className="order-line-item"><div className="min-w-0"><p className="truncate text-sm font-semibold">{item.product?.name || item.name || 'منتج المتجر'}</p>{item.variantName && <p className="mt-1 text-[10px] text-muted-foreground">الخيار: {item.variantName}</p>}<p className="mt-1 text-[10px] text-muted-foreground">الكمية: {Number(item.quantity || 0).toLocaleString('ar-EG')} × {money(item.price)}</p></div><b className="shrink-0 text-sm text-[var(--gold-muted)]">{money(Number(item.price || 0) * Number(item.quantity || 0))}</b></article>)}{!items.length && <div className="py-8 text-center text-xs text-muted-foreground">لا توجد عناصر مسجلة لهذا الطلب.</div>}</div>
                 <div className="mx-4 mb-4 flex items-center justify-between gap-3 rounded-xl border border-[var(--gold)]/20 bg-[var(--gold)]/5 px-4 py-3 sm:mx-5 sm:mb-5"><span className="text-xs font-semibold">الإجمالي النهائي</span><b className="text-lg text-[var(--gold-muted)]">{money(order.total)}</b></div>
+              </section>
+
+              <section className="order-detail-panel">
+                <div className="order-detail-panel__head"><span className="orders-section-icon"><Truck size={17} /></span><div><h2 className="font-serif text-base font-bold sm:text-lg">الشحن والتوصيل</h2><p className="mt-1 text-[10px] text-muted-foreground">حالة الشحنة وأحداثها من مركز الطلب.</p></div></div>
+                <div className="space-y-3 p-4 sm:p-5">
+                  {!shipments.length && <p className="rounded-xl border border-dashed border-border/60 p-4 text-center text-xs text-muted-foreground">لم يتم إنشاء شحنة لهذا الطلب بعد.</p>}
+                  {shipments.map((shipment: any, index: number) => <article key={shipment.id || index} className="rounded-xl border border-border/50 bg-[var(--surface)]/55 p-3">
+                    <div className="flex flex-wrap items-center justify-between gap-2"><b className="text-xs">{shipment.provider || 'شركة الشحن غير محددة'}</b><span className="order-status order-status--blue"><i />{shipmentStatusLabels[shipment.status] || shipment.status}</span></div>
+                    <div className="mt-3 space-y-2"><InfoRow label="رقم التتبع" value={shipment.trackingNumber || 'غير مسجل'} ltr /><InfoRow label="تاريخ الإنشاء" value={formatDateTime(shipment.createdAt)} /></div>
+                    {!!shipment.events?.length && <div className="mt-3 border-t border-border/50 pt-3"><p className="mb-2 text-[10px] font-semibold">آخر أحداث الشحنة</p><div className="space-y-2">{[...shipment.events].reverse().slice(0, 4).map((event: any, eventIndex: number) => <div key={event.id || eventIndex} className="flex items-start justify-between gap-2 text-[10px]"><span className="text-muted-foreground">{event.note || shipmentStatusLabels[event.status] || event.status}</span><time dir="ltr" className="shrink-0 text-[9px] text-muted-foreground">{formatDateTime(event.createdAt)}</time></div>)}</div></div>}
+                  </article>)}
+                </div>
+              </section>
+
+              <section className="order-detail-panel">
+                <div className="order-detail-panel__head"><span className="orders-section-icon"><RefreshCw size={17} /></span><div><h2 className="font-serif text-base font-bold sm:text-lg">المرتجعات والاستبدال</h2><p className="mt-1 text-[10px] text-muted-foreground">متابعة طلبات الإرجاع المرتبطة بهذا الطلب.</p></div></div>
+                <div className="space-y-3 p-4 sm:p-5">
+                  {!returns.length && <p className="rounded-xl border border-dashed border-border/60 p-4 text-center text-xs text-muted-foreground">لا توجد طلبات إرجاع مرتبطة بهذا الطلب.</p>}
+                  {returns.map((returnRequest: any, index: number) => <article key={returnRequest.id || index} className="rounded-xl border border-border/50 bg-[var(--surface)]/55 p-3"><div className="flex flex-wrap items-center justify-between gap-2"><b className="text-xs">{returnRequest.number || 'طلب إرجاع'}</b><span className="text-[10px] font-bold text-[var(--gold-muted)]">{returnStatusLabels[returnRequest.status] || returnRequest.status}</span></div><div className="mt-3 space-y-2"><InfoRow label="سبب الإرجاع" value={returnRequest.reason || 'غير محدد'} /><InfoRow label="تاريخ الطلب" value={formatDateTime(returnRequest.requestedAt)} />{returnRequest.adminNote && <InfoRow label="ملاحظة الإدارة" value={returnRequest.adminNote} />}</div></article>)}
+                </div>
               </section>
             </div>
 
