@@ -121,7 +121,7 @@ async function api(url: string, method = 'GET', body?: any) {
   return j;
 }
 
-export default function AdminManager({ sidebarOpen, setSidebarOpen, topContent, userRole, initialTab = 'analytics' }: { sidebarOpen: boolean, setSidebarOpen: (open: boolean) => void, topContent?: ReactNode, userRole?: string, initialTab?: string }) {
+export default function AdminManager({ sidebarOpen, setSidebarOpen, topContent, userRole, initialTab = 'analytics', hideSidebar = false }: { sidebarOpen: boolean, setSidebarOpen: (open: boolean) => void, topContent?: ReactNode, userRole?: string, initialTab?: string, hideSidebar?: boolean }) {
   const router = useRouter();
   const [tab, setTab] = useState(initialTab);
   const [data, setData] = useState<any[]>([]);
@@ -147,6 +147,33 @@ export default function AdminManager({ sidebarOpen, setSidebarOpen, topContent, 
   useEffect(() => {
     setTab(initialTab);
   }, [initialTab]);
+
+  useEffect(() => {
+    const handleTabChange = (event: Event) => {
+      const nextTab = (event as CustomEvent<string>).detail;
+      if (typeof nextTab === 'string') {
+        setTab(nextTab);
+        setEditing(null);
+        setMsg('');
+      }
+    };
+    const handlePopState = () => {
+      if (window.location.pathname !== '/admin') return;
+      const nextTab = new URLSearchParams(window.location.search).get('tab') || 'analytics';
+      setTab(nextTab);
+    };
+    window.addEventListener('wahaj-admin-tab-change', handleTabChange);
+    window.addEventListener('popstate', handlePopState);
+    return () => {
+      window.removeEventListener('wahaj-admin-tab-change', handleTabChange);
+      window.removeEventListener('popstate', handlePopState);
+    };
+  }, []);
+
+  function setTabAndSync(nextTab: string) {
+    setTab(nextTab);
+    window.dispatchEvent(new CustomEvent('wahaj-admin-tab-change', { detail: nextTab }));
+  }
 
   const commandItems = menuGroups.flatMap(group => group.items.map(([key, label, Icon]) => ({ key, label, Icon, group: group.title })));
   const filteredCommandItems = commandItems.filter(item => {
@@ -337,7 +364,7 @@ export default function AdminManager({ sidebarOpen, setSidebarOpen, topContent, 
   return (
     <div className="wahaj-admin min-h-[calc(100vh-1rem)] bg-[var(--bg)]" dir="rtl">
       {/* Mobile navigation backdrop */}
-      {sidebarOpen && (
+      {!hideSidebar && sidebarOpen && (
         <button
           type="button"
           aria-label="إغلاق قائمة لوحة الإدارة"
@@ -347,6 +374,7 @@ export default function AdminManager({ sidebarOpen, setSidebarOpen, topContent, 
       )}
 
       {/* Mobile-only global bar. The page title intentionally lives below it. */}
+      {!hideSidebar && (
       <div className="wahaj-admin__mobile-wrap sticky top-0 z-30 px-2 pt-2 lg:hidden sm:px-4">
         <header className="flex min-h-[64px] items-center justify-between gap-3 rounded-[24px] border border-border/50 bg-[var(--bg)]/95 px-3 shadow-sm backdrop-blur-xl sm:px-4">
           <button
@@ -371,12 +399,13 @@ export default function AdminManager({ sidebarOpen, setSidebarOpen, topContent, 
           <button type="button" onClick={() => { setCommandOpen(true); setCommandQuery(''); }} className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-border/50 bg-muted/10 text-foreground transition hover:border-[var(--gold)]/40 hover:text-[var(--gold)]" aria-label="البحث السريع"><Search size={18} /></button>
         </header>
       </div>
+      )}
 
       {topContent}
 
       <div className="mx-auto flex max-w-[1900px] gap-4 px-2 pb-8 pt-2 sm:px-4 lg:gap-5 lg:px-5 lg:pt-4 xl:px-6">
         {/* Right navigation rail */}
-        <aside
+        {!hideSidebar && <aside
           className={`wahaj-admin__sidebar fixed inset-y-2 right-2 z-50 flex flex-col overflow-hidden rounded-[30px] border border-border/50 bg-[var(--bg)] shadow-2xl transition-[transform,width] duration-300 lg:sticky lg:top-4 lg:h-[calc(100vh-2rem)] lg:shrink-0 lg:translate-x-0 lg:shadow-sm ${
             sidebarOpen ? 'translate-x-0' : 'translate-x-[calc(100%+1rem)]'
           } ${sidebarCollapsed ? 'lg:w-[92px]' : 'w-[306px] lg:w-[306px]'}`}
@@ -452,7 +481,7 @@ export default function AdminManager({ sidebarOpen, setSidebarOpen, topContent, 
                           key={k}
                           type="button"
                           dir="rtl"
-                          onClick={() => { setEditing(null); setMsg(''); setSidebarOpen(false); if (href) router.push(href); else setTab(k); }}
+                          onClick={() => { setEditing(null); setMsg(''); setSidebarOpen(false); if (href) router.push(href); else setTabAndSync(k); }}
                           aria-current={active ? 'page' : undefined}
                           title={sidebarCollapsed ? t : undefined}
                           className={`group relative flex w-full items-center rounded-2xl transition-all ${
@@ -490,7 +519,7 @@ export default function AdminManager({ sidebarOpen, setSidebarOpen, topContent, 
               )}
             </div>
           </div>
-        </aside>
+        </aside>}
 
         {/* Main workspace */}
         <main className="wahaj-admin__main min-w-0 flex-1 space-y-4 lg:space-y-5">
@@ -610,7 +639,7 @@ export default function AdminManager({ sidebarOpen, setSidebarOpen, topContent, 
           <div className="w-full max-w-xl overflow-hidden rounded-[28px] border border-border/50 bg-[var(--bg)] shadow-2xl" dir="rtl" onMouseDown={e => e.stopPropagation()}>
             <div className="flex items-center gap-3 border-b border-border/40 px-4 py-3.5"><Command size={18} className="text-[var(--gold)]" /><input autoFocus value={commandQuery} onChange={e => setCommandQuery(e.target.value)} placeholder="ابحث عن قسم أو أداة..." className="min-w-0 flex-1 bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground" /><kbd className="rounded-lg border border-border/50 px-2 py-1 text-[9px] text-muted-foreground">ESC</kbd></div>
             <div className="max-h-[55vh] overflow-y-auto p-2">
-              {filteredCommandItems.map(item => { const Icon = item.Icon; return <button key={item.key} type="button" onClick={() => { setTab(item.key); setEditing(null); setCommandOpen(false); setCommandQuery(''); setSidebarOpen(false); }} className={`flex w-full items-center gap-3 rounded-xl px-3 py-3 text-right transition ${tab === item.key ? 'bg-[var(--gold)]/10 text-[var(--gold)]' : 'text-foreground hover:bg-muted/10'}`}><span className="flex h-8 w-8 items-center justify-center rounded-lg bg-muted/10"><Icon size={15} /></span><span className="min-w-0 flex-1"><span className="block text-xs font-medium">{item.label}</span><span className="mt-0.5 block text-[9px] text-muted-foreground">{item.group}</span></span><ChevronLeft size={14} className="text-muted-foreground" /></button>; })}
+              {filteredCommandItems.map(item => { const Icon = item.Icon; return <button key={item.key} type="button" onClick={() => { setTabAndSync(item.key); setEditing(null); setCommandOpen(false); setCommandQuery(''); setSidebarOpen(false); }} className={`flex w-full items-center gap-3 rounded-xl px-3 py-3 text-right transition ${tab === item.key ? 'bg-[var(--gold)]/10 text-[var(--gold)]' : 'text-foreground hover:bg-muted/10'}`}><span className="flex h-8 w-8 items-center justify-center rounded-lg bg-muted/10"><Icon size={15} /></span><span className="min-w-0 flex-1"><span className="block text-xs font-medium">{item.label}</span><span className="mt-0.5 block text-[9px] text-muted-foreground">{item.group}</span></span><ChevronLeft size={14} className="text-muted-foreground" /></button>; })}
               {!filteredCommandItems.length && <div className="p-10 text-center text-xs text-muted-foreground">لا توجد نتائج مطابقة.</div>}
             </div>
             <div className="flex items-center justify-between border-t border-border/30 px-4 py-2.5 text-[9px] text-muted-foreground"><span className="flex items-center gap-1.5"><Keyboard size={12} /> للتنقل السريع</span><span>Ctrl + K</span></div>
