@@ -9,7 +9,37 @@ import { notifyOrderStatusByEmail, notifyShipmentByEmail } from '@/lib/email';
 import { refundGiftCardForOrder } from '@/lib/gift-card';
 const READ=['OWNER','ADMIN','MANAGER','ORDER_MANAGER','VIEWER'];
 const WRITE=['OWNER','ADMIN','MANAGER','ORDER_MANAGER'];
-export async function GET(){const u=await requireUser(READ);if(!u)return NextResponse.json({error:'غير مصرح'},{status:403});return NextResponse.json(await prisma.order.findMany({include:{customer:{select:{id:true,name:true,phone:true,email:true}},items:{include:{product:true}},payments:true,timeline:{orderBy:{createdAt:'asc'}}},orderBy:{createdAt:'desc'},take:100}));}
+export async function GET() {
+  const u = await requireUser(READ);
+  if (!u) return NextResponse.json({ error: 'غير مصرح' }, { status: 403 });
+
+  const orders = await prisma.order.findMany({
+    include: {
+      customer: { select: { id: true, name: true, phone: true, email: true } },
+      items: { include: { product: true } },
+      // لا نضمّن proofUrl؛ قد يكون pathname خاصًا ولا حاجة له في قائمة الطلبات.
+      payments: {
+        select: {
+          id: true,
+          orderId: true,
+          method: true,
+          status: true,
+          reference: true,
+          amount: true,
+          confirmedAt: true,
+          createdAt: true,
+        },
+      },
+      timeline: { orderBy: { createdAt: 'asc' } },
+    },
+    orderBy: { createdAt: 'desc' },
+    take: 100,
+  });
+
+  return NextResponse.json(orders, {
+    headers: { 'Cache-Control': 'private, no-store, max-age=0' },
+  });
+}
 export async function PUT(req:Request){
  const u=await requireUser(WRITE);if(!u)return NextResponse.json({error:'غير مصرح'},{status:403});
  try{
