@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import AdminManager from '@/components/AdminManager';
-import AdminTopbar from '@/components/AdminTopbar';
 import { ShieldCheck, ArrowUpLeft, Package, Truck, RotateCcw, RefreshCw, CircleAlert, CheckCircle2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
@@ -96,21 +95,18 @@ export default function Admin() {
   }
 
   return (
-    <main className="wahaj-admin-page" dir="rtl">
-      <div className="wahaj-admin-page__inner">
-        <AdminTopbar />
-
-        <AdminManager
+    <AdminManager
           sidebarOpen={sidebarOpen}
           setSidebarOpen={setSidebarOpen}
           userRole={user?.role}
           initialTab={initialTab}
+          hideSidebar
           topContent={(<>
             <section className="wahaj-admin-page__welcome">
               <div className="wahaj-admin-page__welcome-copy">
                 <span className="wahaj-admin-page__eyebrow"><ShieldCheck size={14} /> لوحة تحكم آمنة</span>
                 <h1>أهلًا بعودتك، <span>{user?.name || user?.email}</span></h1>
-                <p>تابع متجرك وأدر تفاصيله اليومية من مساحة عمل واحدة.</p>
+                <p>تابع متجرك وأدر تفاصيله اليومية من لوحة تحكم احترافيه.</p>
               </div>
               <div className="wahaj-admin-page__welcome-actions">
                 <span className="wahaj-admin-page__role"><ShieldCheck size={15} /><span>الصلاحية</span><b>{user?.role}</b></span>
@@ -120,7 +116,5 @@ export default function Admin() {
             <OperationsCenter />
           </>)}
         />
-      </div>
-    </main>
   );
 }
