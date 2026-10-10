@@ -92,8 +92,8 @@ export async function POST(req: Request) {
       if (!isJpeg && !isPng && !isWebp) return NextResponse.json({ error: 'محتوى صورة الإيصال غير صالح' }, { status: 400 });
 
       const ext = proofFile.type === 'image/png' ? 'png' : proofFile.type === 'image/webp' ? 'webp' : 'jpg';
-      const blob = await put(`wahaj/payment-proofs/${crypto.randomUUID()}.${ext}`, proofFile, { access: 'public', token: process.env.BLOB_READ_WRITE_TOKEN, contentType: proofFile.type, addRandomSuffix: false });
-      uploadedProofUrl = blob.url;
+      const blob = await put(`wahaj/payment-proofs/${crypto.randomUUID()}.${ext}`, proofFile, { access: 'private', token: process.env.BLOB_READ_WRITE_TOKEN, contentType: proofFile.type, addRandomSuffix: false });
+      uploadedProofUrl = blob.pathname;
     }
 
     const requested = b.items.map(i => {
