@@ -149,6 +149,20 @@ export default function SiteChrome() {
     return <Store {...iconProps} />;
   };
   const isRouteActive = (href: string) => pathname === href || (href !== '/' && !!pathname?.startsWith(`${href}/`));
+  const popupExcludedRoutes = [
+    '/cart',
+    '/account',
+    '/contact',
+    '/faq',
+    '/policies/shipping',
+    '/policies/returns',
+    '/policies/privacy',
+    '/policies/terms',
+    '/payment-policy',
+    '/about',
+    '/track-order',
+  ];
+  const popupExcluded = popupExcludedRoutes.some(route => pathname === route || pathname?.startsWith(`${route}/`));
   const utilityLinks = [
     { label: 'تتبع الطلب', href: '/track-order' },
     { label: 'حسابي', href: '/account' },
@@ -419,7 +433,7 @@ export default function SiteChrome() {
         </span>
         <span className="wahaj-mobile-whatsapp__online" aria-hidden="true" />
       </a>
-      <StorePopup enabled={settings.popup_enabled} config={settings.popup_config} visitKey={pathname || '/'} />
+      {!popupExcluded && <StorePopup enabled={settings.popup_enabled} config={settings.popup_config} visitKey={pathname || '/'} />}
     </>
   );
 }
