@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
 import { requireUser } from '@/lib/auth';
 import { can } from '@/lib/rbac';
+import { DEFAULT_POPUP_CONFIG } from '@/lib/popup-config';
 
 const DEFAULTS: Record<string, string> = {
   brand_name: 'وَهَج',
@@ -13,6 +14,7 @@ const DEFAULTS: Record<string, string> = {
   minimum_order: '0',
   free_shipping: '0',
   popup_enabled: 'false',
+  popup_config: JSON.stringify(DEFAULT_POPUP_CONFIG),
   maintenance_mode: 'false',
   seo_title: 'وَهَج | إكسسوارات عصرية',
   seo_description: 'قطع مختارة بعناية لتضيف لمسة من الوهج إلى كل إطلالة.',
@@ -21,7 +23,29 @@ const DEFAULTS: Record<string, string> = {
   social_tiktok: '',
 };
 
-const settingSchema = z.record(z.string().max(500));
+const settingSchema = z.record(z.string().max(5000));
+const popupConfigSchema = z.object({
+  title: z.string().trim().min(1).max(120),
+  message: z.string().max(700),
+  imageUrl: z.string().max(2000),
+  ctaText: z.string().max(50),
+  ctaUrl: z.string().max(2048),
+  delaySeconds: z.number().int().min(0).max(60),
+  frequency: z.enum(['session', 'daily', 'always']),
+});
+
+function isSafePopupUrl(value: string, allowHash = false) {
+  const input = value.trim();
+  if (!input) return true;
+  if (input.startsWith('/') && !input.startsWith('//')) return true;
+  if (allowHash && /^#[\w-]+$/.test(input)) return true;
+  try {
+    const url = new URL(input);
+    return url.protocol === 'https:' || url.protocol === 'http:';
+  } catch {
+    return false;
+  }
+}
 
 function unauthorized() {
   return NextResponse.json({ error: 'غير مصرح: يلزم تسجيل الدخول إلى لوحة الإدارة.' }, { status: 401 });
@@ -71,6 +95,22 @@ export async function PUT(req: Request) {
     const settings = body?.settings ? settingSchema.parse(body.settings) : null;
 
     if (settings) {
+      if (settings.popup_enabled !== undefined && !['true', 'false'].includes(settings.popup_enabled.trim().toLowerCase())) {
+        throw new Error('قيمة popup_enabled يجب أن تكون true أو false.');
+      }
+      if (settings.popup_config !== undefined) {
+        let rawPopupConfig: unknown;
+        try {
+          rawPopupConfig = JSON.parse(settings.popup_config);
+        } catch {
+          throw new Error('إعدادات النافذة المنبثقة غير صالحة.');
+        }
+        const popupConfig = popupConfigSchema.parse(rawPopupConfig);
+        if (!isSafePopupUrl(popupConfig.imageUrl) || !isSafePopupUrl(popupConfig.ctaUrl, true)) {
+          throw new Error('استخدمي رابطًا داخليًا أو رابط HTTP/HTTPS صالحًا للصورة والزر.');
+        }
+        settings.popup_config = JSON.stringify(popupConfig);
+      }
       await prisma.$transaction(
         Object.entries(settings).map(([key, value]) =>
           prisma.siteSetting.upsert({
