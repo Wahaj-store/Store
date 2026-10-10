@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
-// بيانات عامة قابلة لإعادة التحقق دوريًا.
-export const revalidate = 60;
+// البيانات تُقرأ من قاعدة البيانات وقت الطلب لتجنب تنفيذ الاستعلام أثناء Build.
+export const dynamic = 'force-dynamic';
 
 export async function GET() {
   try {
