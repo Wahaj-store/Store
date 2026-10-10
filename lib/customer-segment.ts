@@ -4,11 +4,16 @@ const DAY = 24 * 60 * 60 * 1000;
 
 export function getCustomerSegmentKey(args: { orderCount: number; spend: number; lastOrder: Date | null; now?: Date }): CustomerSegmentKey {
   const now = args.now ?? new Date();
-  if (args.orderCount === 0) return 'noPurchase';
-  if (args.spend >= 10000 || args.orderCount >= 5) return 'vip';
-  if (args.orderCount >= 3) return 'loyal';
-  if (args.spend >= 5000) return 'highValue';
-  const daysSince = args.lastOrder ? Math.floor((now.getTime() - args.lastOrder.getTime()) / DAY) : null;
+  const orderCount = Number.isFinite(args.orderCount) ? Math.max(0, Math.trunc(args.orderCount)) : 0;
+  const spend = Number.isFinite(args.spend) ? Math.max(0, args.spend) : 0;
+  if (orderCount === 0) return 'noPurchase';
+  if (spend >= 10000 || orderCount >= 5) return 'vip';
+  if (orderCount >= 3) return 'loyal';
+  if (spend >= 5000) return 'highValue';
+  const timestamp = args.lastOrder?.getTime();
+  const daysSince = timestamp !== undefined && Number.isFinite(timestamp)
+    ? Math.max(0, Math.floor((now.getTime() - timestamp) / DAY))
+    : null;
   if (daysSince !== null && daysSince <= 30) return 'new';
   if (daysSince !== null && daysSince <= 90) return 'atRisk';
   return 'dormant';
