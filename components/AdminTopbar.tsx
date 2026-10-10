@@ -5,7 +5,7 @@ import { ArrowUpLeft, LogOut, Menu, Store } from 'lucide-react';
 
 export default function AdminTopbar({ onMenuClick, menuOpen = false }: { onMenuClick?: () => void; menuOpen?: boolean }) {
   return (
-    <header className="wahaj-admin-page__bar w-full">
+    <header className="wahaj-admin-page__bar static w-full">
       <div className="flex min-w-0 items-center gap-2">
         {onMenuClick && <button type="button" onClick={onMenuClick} className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-border bg-card text-foreground md:hidden" aria-label="فتح قائمة الإدارة" aria-expanded={menuOpen} aria-controls="admin-navigation"><Menu size={18} /></button>}
         <Link href="/admin" className="wahaj-admin-page__identity">
