@@ -11,10 +11,11 @@ import {
 } from 'lucide-react';
 import MediaPicker from './MediaPicker';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 
 interface MenuGroup {
   title: string;
-  items: [string, string, ComponentType<LucideProps>][];
+  items: [string, string, ComponentType<LucideProps>, string?][];
 }
 
 const menuGroups: MenuGroup[] = [
@@ -24,6 +25,7 @@ const menuGroups: MenuGroup[] = [
       ['products', 'المنتجات', Package],
       ['categories', 'التصنيفات', FolderTree],
       ['orders', 'الطلبات', ShoppingCart],
+      ['inventory', 'سجل المخزون', Package, '/admin/inventory'],
       ['customers', 'العملاء', Users],
       ['customer-segments', 'تقسيم العملاء', Users],
     ]
@@ -51,6 +53,7 @@ const menuGroups: MenuGroup[] = [
     items: [
       ['payments', 'طرق الدفع', CreditCard],
       ['shipping', 'الشحن والتوصيل', Truck],
+      ['logistics', 'الشحن والمرتجعات', Truck, '/admin/logistics'],
     ]
   },
   {
@@ -119,6 +122,7 @@ async function api(url: string, method = 'GET', body?: any) {
 }
 
 export default function AdminManager({ sidebarOpen, setSidebarOpen, topContent, userRole }: { sidebarOpen: boolean, setSidebarOpen: (open: boolean) => void, topContent?: ReactNode, userRole?: string }) {
+  const router = useRouter();
   const [tab, setTab] = useState('analytics');
   const [data, setData] = useState<any[]>([]);
   const [cats, setCats] = useState<any[]>([]);
@@ -437,14 +441,14 @@ export default function AdminManager({ sidebarOpen, setSidebarOpen, topContent, 
                   )}
 
                   <div className="space-y-1">
-                    {group.items.map(([k, t, Icon]) => {
+                    {group.items.map(([k, t, Icon, href]) => {
                       const active = tab === k;
                       return (
                         <button
                           key={k}
                           type="button"
                           dir="rtl"
-                          onClick={() => { setTab(k); setEditing(null); setMsg(''); setSidebarOpen(false); }}
+                          onClick={() => { setEditing(null); setMsg(''); setSidebarOpen(false); if (href) router.push(href); else setTab(k); }}
                           aria-current={active ? 'page' : undefined}
                           title={sidebarCollapsed ? t : undefined}
                           className={`group relative flex w-full items-center rounded-2xl transition-all ${
