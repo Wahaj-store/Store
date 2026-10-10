@@ -35,7 +35,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ ok: true });
     }
 
-    const limit = rateLimit(
+    const limit = await rateLimit(
       `customer-auth:${body.action}:${getClientKey(req)}`,
       body.action === 'register' ? 5 : 8,
       15 * 60 * 1000,
@@ -67,6 +67,7 @@ export async function POST(req: Request) {
     if (error instanceof z.ZodError) {
       return NextResponse.json({ error: error.issues[0]?.message || 'البيانات غير صالحة' }, { status: 400 });
     }
-    return NextResponse.json({ error: error instanceof Error ? error.message : 'تعذر تنفيذ العملية' }, { status: 400 });
+    // لا نمرر أخطاء قاعدة البيانات أو وجود الحساب إلى العميل.
+    return NextResponse.json({ error: 'تعذر تنفيذ العملية بالبيانات المدخلة. تحققي منها وحاولي مرة أخرى.' }, { status: 400 });
   }
 }
