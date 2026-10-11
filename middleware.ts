@@ -3,16 +3,70 @@ import { jwtVerify } from 'jose';
 import { isSameOriginMutation, csrfDeniedResponse } from '@/lib/csrf';
 
 // مسارات API إدارية عامة (لا تحتاج جلسة)
-// ⚠️ إذا كان مسار تسجيل الدخول عندك مختلفًا، أضفه هنا
 const PUBLIC_ADMIN_APIS = ['/api/admin/login', '/api/admin/logout'];
+const MAINTENANCE_EXEMPT_PATHS = [
+  '/maintenance',
+  '/admin',
+  '/api/admin',
+  '/api/auth',
+  '/api/settings',
+];
+
+function isMaintenanceExempt(pathname: string) {
+  return MAINTENANCE_EXEMPT_PATHS.some(
+    (path) => pathname === path || pathname.startsWith(`${path}/`),
+  );
+}
+
+async function isMaintenanceEnabled(req: NextRequest): Promise<boolean> {
+  try {
+    // /api/settings is explicitly exempt from this check, preventing recursion.
+    const settingsUrl = new URL('/api/settings', req.url);
+    const response = await fetch(settingsUrl, {
+      cache: 'no-store',
+      headers: { accept: 'application/json' },
+    });
+    if (!response.ok) return false;
+    const payload = await response.json();
+    const value = payload?.settings?.maintenance_mode;
+    return value === true || String(value).trim().toLowerCase() === 'true';
+  } catch {
+    // Fail open if settings cannot be reached, so a temporary settings outage
+    // does not accidentally take the whole storefront offline.
+    return false;
+  }
+}
 
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
-  if (pathname.startsWith('/api') && !isSameOriginMutation(req)) return csrfDeniedResponse();
+  if (pathname.startsWith('/api') && !isSameOriginMutation(req)) {
+    return csrfDeniedResponse();
+  }
 
   const isAdminPage = pathname.startsWith('/admin') && pathname !== '/admin/login';
   const isAdminApi = pathname.startsWith('/api/admin') && !PUBLIC_ADMIN_APIS.includes(pathname);
+
+  // Enforce maintenance for storefront pages and public APIs, but never block
+  // the admin dashboard, its authentication endpoints, or public settings.
+  if (!isMaintenanceExempt(pathname) && !(pathname.startsWith('/_next/')) && !pathname.startsWith('/api/admin')) {
+    const maintenanceEnabled = await isMaintenanceEnabled(req);
+    if (maintenanceEnabled) {
+      if (pathname.startsWith('/api/')) {
+        return NextResponse.json(
+          { error: 'المتجر في وضع الصيانة حاليًا. يرجى المحاولة لاحقًا.' },
+          { status: 503, headers: { 'Retry-After': '300', 'Cache-Control': 'no-store' } },
+        );
+      }
+      const maintenanceUrl = req.nextUrl.clone();
+      maintenanceUrl.pathname = '/maintenance';
+      maintenanceUrl.search = '';
+      const response = NextResponse.rewrite(maintenanceUrl);
+      response.headers.set('Cache-Control', 'no-store, max-age=0');
+      applySecurityHeaders(response);
+      return response;
+    }
+  }
 
   if (!isAdminPage && !isAdminApi) {
     const response = NextResponse.next();
@@ -34,13 +88,10 @@ export async function middleware(req: NextRequest) {
 
   try {
     await jwtVerify(token, new TextEncoder().encode(secretValue), { audience: 'admin' });
-
-    // إضافة x-request-id لكل طلب إداري (للتتبع)
     const headers = new Headers(req.headers);
     if (!headers.get('x-request-id')) {
       headers.set('x-request-id', globalThis.crypto.randomUUID());
     }
-
     const response = NextResponse.next({ request: { headers } });
     applySecurityHeaders(response);
     return response;
