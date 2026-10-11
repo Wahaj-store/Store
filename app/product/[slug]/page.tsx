@@ -18,6 +18,7 @@ import ProductGallery from '@/components/ProductGallery';
 import ProductPurchase from '@/components/ProductPurchase';
 import WishlistButton from '@/components/WishlistButton';
 import ClientRecentTracker from '@/components/ClientRecentTracker';
+import FeatureFlagGate from '@/components/FeatureFlagGate';
 
 const ProductCard = dynamic(() => import('@/components/ProductCard'), { ssr: true });
 const ReviewForm = dynamic(() => import('@/components/ReviewForm'), { ssr: true });
@@ -331,6 +332,7 @@ export default async function ProductPage({ params }: { params: { slug: string }
         </section>
 
         {product.relationsFrom.length ? (
+          <FeatureFlagGate flag="smart_recommendations">
           <section className="wahaj-product-related" aria-labelledby="related-products-title">
             <div className="wahaj-product-related__heading">
               <div>
@@ -345,6 +347,7 @@ export default async function ProductPage({ params }: { params: { slug: string }
               ))}
             </div>
           </section>
+          </FeatureFlagGate>
         ) : null}
 
         <RecentlyViewed products={[product]} />
