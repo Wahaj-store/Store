@@ -283,7 +283,7 @@ export default function SiteChrome() {
             ) : <SiteLink href="/cart" className="wahaj-header__action wahaj-header__cart relative text-foreground/80 hover:text-[var(--gold)] transition-colors p-1" aria-label="السلة" title="السلة">
               <ShoppingBag size={20} />
               {cartCount > 0 && <span className="absolute -top-1.5 -end-2 flex h-4 w-4 items-center justify-center rounded-full bg-[var(--gold)] text-[9px] font-bold text-[var(--gold-contrast)] shadow-sm">{cartCount}</span>}
-            </SiteLink>
+            </SiteLink>}
           </div>
         </div>
         <div className="wahaj-header__accent h-[1px] bg-gradient-to-r from-transparent via-[var(--gold)]/40 to-transparent" />
