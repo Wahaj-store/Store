@@ -12,6 +12,8 @@ function authorized(req: Request) {
 
 export async function GET(req: Request) {
   if (!authorized(req)) return NextResponse.json({ error: 'غير مصرح' }, { status: 401 });
+  const flag = await prisma.featureFlag.findUnique({ where: { key: 'abandoned_cart' }, select: { enabled: true } }).catch(() => null);
+  if (flag && !flag.enabled) return NextResponse.json({ ok: true, disabled: true, checked: 0, sent: 0 });
   const cutoff = new Date(Date.now() - 60 * 60 * 1000);
   const carts = await prisma.abandonedCart.findMany({
     where: { status: 'ACTIVE', lastSeenAt: { lt: cutoff }, reminderSentAt: null },
