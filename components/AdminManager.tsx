@@ -317,6 +317,18 @@ export default function AdminManager({ sidebarOpen, setSidebarOpen, topContent, 
     }
   }
 
+  async function toggleMaintenance(enabled: boolean) {
+    try {
+      await api('/api/admin/config', 'PUT', { settings: { maintenance_mode: String(enabled) } });
+      await load();
+      setMsg(enabled ? 'تم تفعيل وضع الصيانة.' : 'تم إيقاف وضع الصيانة.');
+      return true;
+    } catch (e: any) {
+      setMsg(e?.message || 'تعذر تحديث وضع الصيانة.');
+      return false;
+    }
+  }
+
   async function del(id: string) {
     if (!confirm('هل أنت متأكد من الحذف؟')) return;
     try {
@@ -640,7 +652,7 @@ export default function AdminManager({ sidebarOpen, setSidebarOpen, topContent, 
                 </div>
               ) : (
                 <div className="rounded-[26px] border border-border/40 bg-[var(--bg)] p-1 shadow-sm md:p-2">
-                  <Content tab={tab} data={data} onEdit={setEditing} onDelete={del} onRefresh={load} onReorder={reorder} onSavePopup={savePopupSettings} canManageNewsletter={['OWNER', 'ADMIN', 'MANAGER', 'EDITOR'].includes(userRole || '')} />
+                  <Content tab={tab} data={data} onEdit={setEditing} onDelete={del} onRefresh={load} onReorder={reorder} onSavePopup={savePopupSettings} onToggleMaintenance={toggleMaintenance} canManageSettings={['OWNER', 'ADMIN'].includes(userRole || '')} canManageNewsletter={['OWNER', 'ADMIN', 'MANAGER', 'EDITOR'].includes(userRole || '')} />
                 </div>
               )}
             </div>
@@ -1164,27 +1176,71 @@ function GiftWrapFeeEditor({ value }: { value: string }) {
   return <section className="space-y-3 rounded-3xl border border-[var(--gold)]/25 bg-[var(--gold)]/5 p-5 md:p-6"><div><h3 className="font-serif text-base font-bold text-foreground">رسوم خدمة تغليف هدايا</h3><p className="mt-1 text-xs leading-6 text-muted-foreground">تظهر الرسوم للعميل قبل تأكيد الطلب، وتُضاف إلى الإجمالي عند اختيار الخدمة. أدخلي 0 لجعل الخدمة مجانية.</p></div><label className="grid max-w-sm gap-2 text-xs font-semibold text-foreground">رسوم الخدمة (جنيه مصري)<input type="number" min="0" max="100000" step="0.01" value={fee} onChange={event => setFee(event.target.value)} className="h-11 rounded-xl border border-border/50 bg-[var(--bg)] px-3 text-sm outline-none focus:border-[var(--gold)]" /></label><div className="flex flex-wrap items-center gap-3"><button type="button" onClick={() => void save()} disabled={busy} className="rounded-xl bg-[var(--gold)] px-5 py-2.5 text-xs font-bold text-[var(--gold-contrast)] disabled:opacity-50">{busy ? 'جارٍ الحفظ…' : 'حفظ رسوم التغليف'}</button>{notice && <p role="status" className="text-xs text-muted-foreground">{notice}</p>}</div></section>;
 }
 
+function MaintenanceModeSwitch({ enabled, canManage, onToggle }: { enabled: boolean; canManage: boolean; onToggle: (enabled: boolean) => Promise<boolean> }) {
+  const [busy, setBusy] = useState(false);
+  async function toggle() {
+    if (busy || !canManage) return;
+    setBusy(true);
+    try { await onToggle(!enabled); } finally { setBusy(false); }
+  }
+  return <div className="flex shrink-0 items-center gap-2.5 self-end sm:self-center">
+    <span className={`text-[10px] font-bold ${enabled ? 'text-amber-700 dark:text-amber-300' : 'text-muted-foreground'}`}>{busy ? 'جارٍ الحفظ…' : enabled ? 'مفعّل' : 'مقفل'}</span>
+    <button type="button" role="switch" aria-checked={enabled} aria-label={enabled ? 'إيقاف وضع الصيانة' : 'تفعيل وضع الصيانة'} title={canManage ? (enabled ? 'إيقاف وضع الصيانة' : 'تفعيل وضع الصيانة') : 'تحتاج هذه العملية إلى صلاحية مدير'} disabled={!canManage || busy} onClick={() => void toggle()} className={`relative inline-flex h-8 w-14 shrink-0 items-center rounded-full border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--gold)] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-55 ${enabled ? 'border-amber-600 bg-amber-600' : 'border-border/60 bg-muted/30'}`}>
+      <span className={`absolute top-1 h-6 w-6 rounded-full bg-white shadow-sm transition-all ${enabled ? 'right-1' : 'right-7'}`} />
+    </button>
+  </div>;
+}
 
-function Content({ tab, data, onEdit, onDelete, onRefresh, onReorder, onSavePopup, canManageNewsletter }: any) {
+
+function Content({ tab, data, onEdit, onDelete, onRefresh, onReorder, onSavePopup, onToggleMaintenance, canManageSettings, canManageNewsletter }: any) {
   if (tab === 'settings') {
     const settings = Object.fromEntries((Array.isArray(data) ? data : []).map((item: any) => [item.key, item.value]));
-    const otherSettings = (Array.isArray(data) ? data : []).filter((item: any) => !['popup_enabled', 'popup_config', 'gift_wrap_fee'].includes(item.key));
+    const maintenanceEnabled = settings.maintenance_mode === true || String(settings.maintenance_mode ?? '').trim().toLowerCase() === 'true';
+    const otherSettings = (Array.isArray(data) ? data : []).filter((item: any) => !['popup_enabled', 'popup_config', 'gift_wrap_fee', 'maintenance_mode'].includes(item.key));
+    const settingLabels: Record<string, string> = {
+      brand_name: 'اسم المتجر', brand_tagline: 'العبارة التعريفية', currency: 'العملة',
+      announcement: 'شريط الإعلان', whatsapp: 'رقم واتساب', minimum_order: 'الحد الأدنى للطلب',
+      free_shipping: 'حد الشحن المجاني', seo_title: 'عنوان محركات البحث',
+      seo_description: 'وصف محركات البحث', social_facebook: 'رابط فيسبوك',
+      social_instagram: 'رابط إنستغرام', social_tiktok: 'رابط تيك توك',
+      brand_story: 'نبذة عن المتجر', header_menu: 'روابط القائمة العلوية', footer_links: 'روابط التذييل',
+    };
     return (
-      <div className="space-y-5">
+      <div className="space-y-5 md:space-y-6">
         <PopupSettingsEditor enabledValue={settings.popup_enabled ?? 'false'} configValue={settings.popup_config ?? ''} onSave={onSavePopup} />
         <GiftWrapFeeEditor value={String(settings.gift_wrap_fee ?? '0')} />
-        <section className="space-y-3 rounded-3xl border border-border/40 bg-muted/5 p-5 md:p-6">
-          <div>
-            <h3 className="font-serif font-bold text-base text-foreground">إعدادات عامة أخرى</h3>
-            <p className="mt-1 text-xs leading-6 text-muted-foreground">تظل الإعدادات الأخرى قابلة للتحرير من هنا. إعدادات النافذة المنبثقة تُدار من المحرر المخصص أعلاه.</p>
-          </div>
-          {otherSettings.map((item: any) => (
-            <div key={item.id || item.key} className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-border/40 bg-[var(--bg)] p-4">
-              <div className="min-w-0"><b className="break-all text-sm font-bold text-foreground">{item.key}</b><p className="mt-1 break-all text-xs text-muted-foreground">{item.value}</p></div>
-              <div className="flex shrink-0 gap-2"><button type="button" className="rounded-xl border border-border/60 bg-muted/20 px-4 py-2 text-xs font-medium" onClick={() => onEdit(item)}>تعديل</button><button type="button" aria-label={`حذف الإعداد ${item.key}`} className="rounded-xl border border-red-400 px-3 py-2 text-xs text-red-500" onClick={() => onDelete(item.id)}>حذف</button></div>
+        <section className="overflow-hidden rounded-3xl border border-[var(--gold)]/20 bg-[var(--gold)]/[0.035] shadow-sm" aria-labelledby="maintenance-setting-title">
+          <div className="flex flex-col gap-4 p-4 sm:flex-row sm:items-center sm:justify-between sm:p-5 md:p-6">
+            <div className="flex min-w-0 items-start gap-3">
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-[var(--gold)]/10 text-[var(--gold)]"><Settings size={18} /></span>
+              <div className="min-w-0">
+                <div className="flex flex-wrap items-center gap-2"><h3 id="maintenance-setting-title" className="font-serif text-sm font-bold text-foreground sm:text-base">وضع الصيانة</h3><span className={`rounded-full border px-2.5 py-1 text-[9px] font-bold ${maintenanceEnabled ? 'border-amber-500/25 bg-amber-500/10 text-amber-700 dark:text-amber-300' : 'border-green-500/20 bg-green-500/10 text-green-700 dark:text-green-300'}`}>{maintenanceEnabled ? 'المتجر متوقف مؤقتًا' : 'المتجر متاح للزوار'}</span></div>
+                <p className="mt-1 max-w-2xl text-[10px] leading-5 text-muted-foreground sm:text-xs sm:leading-6">عند التفعيل تظهر صفحة الصيانة للزوار، مع بقاء لوحة الإدارة متاحة لكِ لإدارة المتجر وإيقاف الصيانة.</p>
+                <code className="mt-1 block text-[9px] text-muted-foreground/75" dir="ltr">maintenance_mode</code>
+              </div>
             </div>
-          ))}
-          {!otherSettings.length ? <p className="rounded-xl bg-[var(--bg)] p-4 text-xs text-muted-foreground">لا توجد إعدادات عامة إضافية حاليًا.</p> : null}
+            <MaintenanceModeSwitch enabled={maintenanceEnabled} canManage={canManageSettings} onToggle={onToggleMaintenance} />
+          </div>
+        </section>
+
+        <section className="space-y-4 rounded-3xl border border-border/40 bg-muted/[0.035] p-4 sm:p-5 md:p-6" aria-labelledby="general-settings-title">
+          <div className="flex flex-wrap items-end justify-between gap-3 border-b border-border/35 pb-4">
+            <div><h3 id="general-settings-title" className="font-serif text-base font-bold text-foreground sm:text-lg">إعدادات عامة أخرى</h3><p className="mt-1 text-[10px] leading-5 text-muted-foreground sm:text-xs sm:leading-6">عدّلي القيم العامة من بطاقاتها. إعدادات الصيانة والنافذة المنبثقة لها أدوات مستقلة.</p></div>
+            <span className="rounded-full border border-border/40 bg-[var(--bg)] px-3 py-1.5 text-[9px] font-semibold text-muted-foreground">{otherSettings.length} إعداد</span>
+          </div>
+          {otherSettings.length ? <div className="grid gap-3 md:grid-cols-2 xl:gap-4">
+            {otherSettings.map((item: any) => {
+              const label = settingLabels[item.key] || String(item.key || '').replaceAll('_', ' ');
+              const value = item.value == null || item.value === '' ? '—' : String(item.value);
+              return <article key={item.id || item.key} className="group flex min-w-0 flex-col justify-between gap-4 rounded-2xl border border-border/45 bg-[var(--bg)] p-4 transition-colors hover:border-[var(--gold)]/30 sm:p-5">
+                <div className="min-w-0">
+                  <div className="flex flex-wrap items-start justify-between gap-2"><h4 className="min-w-0 break-words text-xs font-bold text-foreground sm:text-sm">{label}</h4><code className="max-w-full break-all rounded-lg border border-border/35 bg-muted/10 px-2 py-1 text-[8px] text-muted-foreground" dir="ltr">{item.key}</code></div>
+                  <p title={value} className="mt-3 line-clamp-3 break-words text-[10px] leading-5 text-muted-foreground sm:text-xs sm:leading-6">{value}</p>
+                </div>
+                <div className="flex justify-end border-t border-border/30 pt-3"><button type="button" disabled={!canManageSettings} className="inline-flex min-h-9 items-center gap-1.5 rounded-xl border border-border/55 bg-muted/10 px-3.5 text-[10px] font-semibold text-foreground transition hover:border-[var(--gold)]/40 hover:bg-[var(--gold)]/5 disabled:cursor-not-allowed disabled:opacity-50" onClick={() => onEdit(item)}><Save size={13} /> تعديل القيمة</button></div>
+              </article>;
+            })}
+          </div> : <p className="rounded-2xl border border-dashed border-border/50 bg-[var(--bg)] p-5 text-center text-xs text-muted-foreground">لا توجد إعدادات عامة إضافية حاليًا.</p>}
         </section>
       </div>
     );
