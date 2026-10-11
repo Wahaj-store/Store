@@ -4,7 +4,7 @@
 import { useEffect, useState, ComponentType, ReactNode } from 'react';
 import Link from 'next/link';
 import { 
-  GripVertical, Trash2, Upload, Plus, Save, Image as ImageIcon, Search, ChevronLeft,
+  GripVertical, Trash2, Upload, Plus, Save, Pencil, Image as ImageIcon, Search, ChevronLeft,
   Package, FolderTree, Tag, CreditCard, Truck, LayoutTemplate, 
   MessageSquareQuote, Users, Shield, ShoppingCart, BarChart3, Sliders, 
   FileText, Download, HelpCircle, Mail, Settings, Gift, RefreshCcw, Share2, Lock, LucideProps, Menu, X, TrendingUp, TrendingDown, PieChart, Bell, Command, Keyboard, CheckCircle2, AlertCircle, Clock
@@ -309,25 +309,29 @@ export default function AdminManager({ sidebarOpen, setSidebarOpen, topContent, 
   async function savePopupSettings(settings: Record<string, string>) {
     try {
       await api('/api/admin/config', 'PUT', { settings });
-      setMsg('تم حفظ إعدادات النافذة المنبثقة.');
+      setEditing(null);
       await load();
+      setMsg('تم حفظ إعدادات النافذة المنبثقة.');
     } catch (e: any) {
       setMsg(e?.message || 'تعذر حفظ إعدادات النافذة المنبثقة.');
       throw e;
     }
   }
 
-  async function toggleMaintenance(enabled: boolean) {
+  async function toggleConfigFlag(key: string, enabled: boolean, label: string) {
     try {
-      await api('/api/admin/config', 'PUT', { settings: { maintenance_mode: String(enabled) } });
+      await api('/api/admin/config', 'PUT', { settings: { [key]: String(enabled) } });
       await load();
-      setMsg(enabled ? 'تم تفعيل وضع الصيانة.' : 'تم إيقاف وضع الصيانة.');
+      setMsg(enabled ? `تم تفعيل ${label}.` : `تم إيقاف ${label}.`);
       return true;
     } catch (e: any) {
-      setMsg(e?.message || 'تعذر تحديث وضع الصيانة.');
+      setMsg(e?.message || `تعذر تحديث ${label}.`);
       return false;
     }
   }
+
+  const toggleMaintenance = (enabled: boolean) => toggleConfigFlag('maintenance_mode', enabled, 'وضع الصيانة');
+  const togglePopup = (enabled: boolean) => toggleConfigFlag('popup_enabled', enabled, 'النافذة المنبثقة');
 
   async function del(id: string) {
     if (!confirm('هل أنت متأكد من الحذف؟')) return;
@@ -648,11 +652,13 @@ export default function AdminManager({ sidebarOpen, setSidebarOpen, topContent, 
                 </div>
               ) : editing ? (
                 <div className="rounded-[26px] border border-border/40 bg-[var(--bg)] p-1 shadow-sm md:p-2">
-                  <Editor tab={tab} value={editing} cats={cats} products={products} onCancel={() => setEditing(null)} onSave={save} upload={upload} />
+                  {tab === 'settings' && editing.key === '__popup_editor__' ? <div className="space-y-4 p-2 sm:p-3" dir="rtl"><PopupSettingsEditor enabledValue={data.find((item: any) => item.key === 'popup_enabled')?.value ?? 'false'} configValue={data.find((item: any) => item.key === 'popup_config')?.value ?? ''} onSave={savePopupSettings} showActivationToggle={false} /><div className="flex justify-end"><button type="button" onClick={() => setEditing(null)} className="rounded-xl border border-border/50 bg-muted/10 px-4 py-2.5 text-xs font-semibold text-muted-foreground transition hover:border-[var(--gold)]/40 hover:text-foreground">إلغاء والعودة للإعدادات</button></div></div>
+                    : tab === 'settings' && editing.key === '__gift_wrap_editor__' ? <GiftWrapFeeEditor value={String(data.find((item: any) => item.key === 'gift_wrap_fee')?.value ?? '0')} onCancel={() => setEditing(null)} onSaved={() => { setEditing(null); void load().then(() => setMsg('تم حفظ رسوم تغليف الهدايا.')); }} />
+                    : <Editor tab={tab} value={editing} cats={cats} products={products} onCancel={() => setEditing(null)} onSave={save} upload={upload} />}
                 </div>
               ) : (
                 <div className="rounded-[26px] border border-border/40 bg-[var(--bg)] p-1 shadow-sm md:p-2">
-                  <Content tab={tab} data={data} onEdit={setEditing} onDelete={del} onRefresh={load} onReorder={reorder} onSavePopup={savePopupSettings} onToggleMaintenance={toggleMaintenance} canManageSettings={['OWNER', 'ADMIN'].includes(userRole || '')} canManageNewsletter={['OWNER', 'ADMIN', 'MANAGER', 'EDITOR'].includes(userRole || '')} />
+                  <Content tab={tab} data={data} onEdit={setEditing} onDelete={del} onRefresh={load} onReorder={reorder} onSavePopup={savePopupSettings} onToggleMaintenance={toggleMaintenance} onTogglePopup={togglePopup} canManageSettings={['OWNER', 'ADMIN'].includes(userRole || '')} canManageNewsletter={['OWNER', 'ADMIN', 'MANAGER', 'EDITOR'].includes(userRole || '')} />
                 </div>
               )}
             </div>
@@ -1157,7 +1163,7 @@ function NewsletterSubscribers({ data, onRefresh, canManage }: { data: any[]; on
   );
 }
 
-function GiftWrapFeeEditor({ value }: { value: string }) {
+function GiftWrapFeeEditor({ value, onCancel, onSaved }: { value: string; onCancel?: () => void; onSaved?: () => void }) {
   const [fee, setFee] = useState(value || '0');
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState('');
@@ -1167,32 +1173,26 @@ function GiftWrapFeeEditor({ value }: { value: string }) {
     if (!Number.isFinite(amount) || amount < 0 || amount > 100000) { setNotice('أدخلي رسومًا صحيحة بين 0 و100000 جنيه.'); return; }
     setBusy(true); setNotice('');
     try {
-      const response = await fetch('/api/admin/config', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ settings: { gift_wrap_fee: String(amount) } }) });
-      const result = await response.json();
-      if (!response.ok) throw new Error(result.error || 'تعذر حفظ الرسوم.');
+      await api('/api/admin/config', 'PUT', { settings: { gift_wrap_fee: String(amount) } });
       setFee(String(amount)); setNotice('تم حفظ رسوم خدمة تغليف هدايا بنجاح.');
+      onSaved?.();
     } catch (error: any) { setNotice(error?.message || 'تعذر حفظ الرسوم.'); } finally { setBusy(false); }
   }
-  return <section className="space-y-3 rounded-3xl border border-[var(--gold)]/25 bg-[var(--gold)]/5 p-5 md:p-6"><div><h3 className="font-serif text-base font-bold text-foreground">رسوم خدمة تغليف هدايا</h3><p className="mt-1 text-xs leading-6 text-muted-foreground">تظهر الرسوم للعميل قبل تأكيد الطلب، وتُضاف إلى الإجمالي عند اختيار الخدمة. أدخلي 0 لجعل الخدمة مجانية.</p></div><label className="grid max-w-sm gap-2 text-xs font-semibold text-foreground">رسوم الخدمة (جنيه مصري)<input type="number" min="0" max="100000" step="0.01" value={fee} onChange={event => setFee(event.target.value)} className="h-11 rounded-xl border border-border/50 bg-[var(--bg)] px-3 text-sm outline-none focus:border-[var(--gold)]" /></label><div className="flex flex-wrap items-center gap-3"><button type="button" onClick={() => void save()} disabled={busy} className="rounded-xl bg-[var(--gold)] px-5 py-2.5 text-xs font-bold text-[var(--gold-contrast)] disabled:opacity-50">{busy ? 'جارٍ الحفظ…' : 'حفظ رسوم التغليف'}</button>{notice && <p role="status" className="text-xs text-muted-foreground">{notice}</p>}</div></section>;
+  return <section className="space-y-4 rounded-3xl border border-border/40 bg-muted/5 p-5 shadow-xs md:p-7" dir="rtl"><div><h3 className="font-serif text-base font-bold text-foreground">رسوم خدمة تغليف الهدايا</h3><p className="mt-1 text-xs leading-6 text-muted-foreground">تظهر الرسوم للعميل قبل تأكيد الطلب، وتُضاف إلى الإجمالي عند اختيار الخدمة. أدخلي 0 لجعل الخدمة مجانية.</p></div><label className="grid max-w-sm gap-2 text-xs font-semibold text-muted-foreground">رسوم الخدمة (جنيه مصري)<input type="number" min="0" max="100000" step="0.01" value={fee} onChange={event => setFee(event.target.value)} className="h-11 rounded-xl border border-border/50 bg-[var(--bg)] px-3 text-sm text-foreground outline-none focus:border-[var(--gold)]" /></label><div className="flex flex-wrap items-center gap-3 border-t border-border/30 pt-4"><button type="button" onClick={() => void save()} disabled={busy} className="rounded-xl bg-[var(--gold)] px-5 py-2.5 text-xs font-bold text-[var(--gold-contrast)] disabled:opacity-50">{busy ? 'جارٍ الحفظ…' : 'حفظ التغييرات'}</button>{onCancel && <button type="button" onClick={onCancel} className="rounded-xl border border-border/50 bg-muted/10 px-4 py-2.5 text-xs font-semibold text-muted-foreground hover:text-foreground">إلغاء</button>}{notice && <p role="status" className="text-xs text-muted-foreground">{notice}</p>}</div></section>;
 }
 
-function MaintenanceModeSwitch({ enabled, canManage, onToggle }: { enabled: boolean; canManage: boolean; onToggle: (enabled: boolean) => Promise<boolean> }) {
+function SettingStatusButton({ enabled, canManage, onToggle, label }: { enabled: boolean; canManage: boolean; onToggle: (enabled: boolean) => Promise<boolean>; label: string }) {
   const [busy, setBusy] = useState(false);
   async function toggle() {
     if (busy || !canManage) return;
     setBusy(true);
     try { await onToggle(!enabled); } finally { setBusy(false); }
   }
-  return <div className="flex shrink-0 items-center gap-2.5 self-end sm:self-center">
-    <span className={`text-[10px] font-bold ${enabled ? 'text-amber-700 dark:text-amber-300' : 'text-muted-foreground'}`}>{busy ? 'جارٍ الحفظ…' : enabled ? 'مفعّل' : 'مقفل'}</span>
-    <button type="button" role="switch" aria-checked={enabled} aria-label={enabled ? 'إيقاف وضع الصيانة' : 'تفعيل وضع الصيانة'} title={canManage ? (enabled ? 'إيقاف وضع الصيانة' : 'تفعيل وضع الصيانة') : 'تحتاج هذه العملية إلى صلاحية مدير'} disabled={!canManage || busy} onClick={() => void toggle()} className={`relative inline-flex h-8 w-14 shrink-0 items-center rounded-full border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--gold)] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-55 ${enabled ? 'border-amber-600 bg-amber-600' : 'border-border/60 bg-muted/30'}`}>
-      <span className={`absolute top-1 h-6 w-6 rounded-full bg-white shadow-sm transition-all ${enabled ? 'right-1' : 'right-7'}`} />
-    </button>
-  </div>;
+  return <button type="button" aria-label={`${enabled ? 'إيقاف' : 'تفعيل'} ${label}`} title={canManage ? `${enabled ? 'إيقاف' : 'تفعيل'} ${label}` : 'تحتاج هذه العملية إلى صلاحية مدير'} disabled={!canManage || busy} onClick={() => void toggle()} className={`inline-flex min-h-10 min-w-[96px] items-center justify-center rounded-xl px-4 py-2 text-[10px] font-bold transition disabled:cursor-not-allowed disabled:opacity-55 ${enabled ? 'bg-[var(--gold)] text-[var(--gold-contrast)] shadow-xs' : 'border border-border/60 bg-muted/20 text-muted-foreground hover:border-[var(--gold)]/40 hover:text-foreground'}`}>{busy ? 'جارٍ الحفظ…' : enabled ? 'مفعل' : 'غير مفعل'}</button>;
 }
 
 
-function GeneralSettingsPanel({ data, onEdit, onSavePopup, onToggleMaintenance, canManageSettings }: any) {
+function GeneralSettingsPanel({ data, onEdit, onToggleMaintenance, onTogglePopup, canManageSettings }: any) {
   const settings = Object.fromEntries((Array.isArray(data) ? data : []).map((item: any) => [item.key, item.value]));
   const maintenanceEnabled = settings.maintenance_mode === true || String(settings.maintenance_mode ?? '').trim().toLowerCase() === 'true';
   const excludedKeys = new Set(['popup_enabled', 'popup_config', 'gift_wrap_fee', 'maintenance_mode']);
@@ -1217,16 +1217,16 @@ function GeneralSettingsPanel({ data, onEdit, onSavePopup, onToggleMaintenance, 
   ];
 
   function renderCards(items: any[]) {
-    return <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+    return <div className="grid gap-3.5">
       {items.map((item: any) => {
         const label = settingLabels[item.key] || String(item.key || '').replaceAll('_', ' ');
         const value = item.value == null || item.value === '' ? '—' : String(item.value);
-        return <article key={item.id || item.key} className="group flex min-w-0 flex-col justify-between gap-4 rounded-2xl border border-border/45 bg-[var(--bg)] p-4 transition duration-200 hover:-translate-y-0.5 hover:border-[var(--gold)]/40 hover:shadow-sm sm:p-5">
-          <div className="min-w-0">
-            <div className="flex flex-wrap items-start justify-between gap-2"><h4 className="min-w-0 break-words text-xs font-bold text-foreground sm:text-sm">{label}</h4><code className="max-w-full break-all rounded-lg border border-border/35 bg-muted/10 px-2 py-1 text-[8px] text-muted-foreground" dir="ltr">{item.key}</code></div>
-            <p title={value} className="mt-3 line-clamp-3 min-h-10 break-words text-[10px] leading-5 text-muted-foreground sm:text-xs sm:leading-6">{value}</p>
+        return <article key={item.id || item.key} className="space-y-3 rounded-3xl border border-border/40 bg-muted/10 p-4 shadow-xs transition hover:border-[var(--gold)]/30 sm:p-5">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="min-w-0"><b className="break-words font-serif text-sm font-bold text-foreground">{label}</b><p className="mt-1 text-[9px] text-muted-foreground" dir="ltr">{item.key}</p></div>
+            <button type="button" disabled={!canManageSettings} className="inline-flex min-h-9 items-center gap-1.5 rounded-xl border border-border/60 bg-[var(--bg)] px-4 py-2 text-[10px] font-medium text-foreground transition hover:border-[var(--gold)]/40 hover:bg-muted/20 disabled:cursor-not-allowed disabled:opacity-50" onClick={() => onEdit(item)}><Pencil size={13} /> تعديل</button>
           </div>
-          <div className="flex justify-end border-t border-border/30 pt-3"><button type="button" disabled={!canManageSettings} className="inline-flex min-h-9 items-center gap-1.5 rounded-xl border border-border/55 bg-muted/10 px-3.5 text-[10px] font-semibold text-foreground transition hover:border-[var(--gold)]/40 hover:bg-[var(--gold)]/5 disabled:cursor-not-allowed disabled:opacity-50" onClick={() => onEdit(item)}><Save size={13} /> تعديل القيمة</button></div>
+          <p title={value} className="break-words border-t border-border/30 pt-3 text-[10px] leading-5 text-muted-foreground sm:text-xs sm:leading-6">{value}</p>
         </article>;
       })}
     </div>;
@@ -1262,7 +1262,7 @@ function GeneralSettingsPanel({ data, onEdit, onSavePopup, onToggleMaintenance, 
             <code className="mt-1 block text-[9px] text-muted-foreground/75" dir="ltr">maintenance_mode</code>
           </div>
         </div>
-        <MaintenanceModeSwitch enabled={maintenanceEnabled} canManage={canManageSettings} onToggle={onToggleMaintenance} />
+        <SettingStatusButton enabled={maintenanceEnabled} canManage={canManageSettings} onToggle={onToggleMaintenance} label="وضع الصيانة" />
       </div>
     </section>
 
@@ -1284,15 +1284,30 @@ function GeneralSettingsPanel({ data, onEdit, onSavePopup, onToggleMaintenance, 
 
     <section id="settings-store-tools" className="scroll-mt-5 space-y-4 rounded-3xl border border-border/40 bg-muted/[0.025] p-4 sm:p-5 md:p-6" aria-labelledby="store-tools-title">
       <div className="flex items-center gap-3 border-b border-border/35 pb-4"><span className="flex h-9 w-9 items-center justify-center rounded-xl bg-[var(--gold)]/10 text-[var(--gold)]"><Tag size={16} /></span><div><h3 id="store-tools-title" className="font-serif text-sm font-bold text-foreground sm:text-base">تجربة الزائر والخدمات</h3><p className="mt-1 text-[9px] leading-5 text-muted-foreground sm:text-[10px]">أدوات مستقلة بتفاصيلها، مع الإبقاء على طريقة حفظها الحالية.</p></div></div>
-      <div className="space-y-4"><PopupSettingsEditor enabledValue={settings.popup_enabled ?? 'false'} configValue={settings.popup_config ?? ''} onSave={onSavePopup} /><GiftWrapFeeEditor value={String(settings.gift_wrap_fee ?? '0')} /></div>
+      <div className="grid gap-3.5">
+        <article className="space-y-3 rounded-3xl border border-border/40 bg-muted/10 p-4 shadow-xs sm:p-5">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="min-w-0"><b className="font-serif text-sm font-bold text-foreground">النافذة المنبثقة</b><p className="mt-1 text-[10px] leading-5 text-muted-foreground">إدارة رسالة العرض وتوقيت ظهورها للزوار.</p></div>
+            <div className="flex flex-wrap items-center gap-2"><SettingStatusButton enabled={String(settings.popup_enabled ?? 'false').trim().toLowerCase() === 'true'} canManage={canManageSettings} onToggle={onTogglePopup} label="النافذة المنبثقة" /><button type="button" disabled={!canManageSettings} onClick={() => onEdit({ id: 'setting:popup-editor', key: '__popup_editor__' })} className="inline-flex min-h-10 items-center gap-1.5 rounded-xl border border-border/60 bg-[var(--bg)] px-4 py-2 text-[10px] font-medium text-foreground transition hover:border-[var(--gold)]/40 hover:bg-muted/20 disabled:cursor-not-allowed disabled:opacity-50"><Pencil size={13} /> تعديل</button></div>
+          </div>
+          <p className="border-t border-border/30 pt-3 text-[10px] text-muted-foreground">الحالة: {String(settings.popup_enabled ?? 'false').toLowerCase() === 'true' ? 'تظهر للزوار' : 'متوقفة'}</p>
+        </article>
+        <article className="space-y-3 rounded-3xl border border-border/40 bg-muted/10 p-4 shadow-xs sm:p-5">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="min-w-0"><b className="font-serif text-sm font-bold text-foreground">رسوم تغليف الهدايا</b><p className="mt-1 text-[10px] leading-5 text-muted-foreground">تُضاف إلى الإجمالي عند اختيار خدمة التغليف.</p></div>
+            <button type="button" disabled={!canManageSettings} onClick={() => onEdit({ id: 'setting:gift-wrap-editor', key: '__gift_wrap_editor__' })} className="inline-flex min-h-9 items-center gap-1.5 rounded-xl border border-border/60 bg-[var(--bg)] px-4 py-2 text-[10px] font-medium text-foreground transition hover:border-[var(--gold)]/40 hover:bg-muted/20 disabled:cursor-not-allowed disabled:opacity-50"><Pencil size={13} /> تعديل</button>
+          </div>
+          <p className="border-t border-border/30 pt-3 text-[10px] text-muted-foreground">الرسوم الحالية: <b className="text-foreground">{String(settings.gift_wrap_fee ?? '0')} ج.م</b></p>
+        </article>
+      </div>
     </section>
   </div>;
 }
 
 
-function Content({ tab, data, onEdit, onDelete, onRefresh, onReorder, onSavePopup, onToggleMaintenance, canManageSettings, canManageNewsletter }: any) {
+function Content({ tab, data, onEdit, onDelete, onRefresh, onReorder, onSavePopup, onToggleMaintenance, onTogglePopup, canManageSettings, canManageNewsletter }: any) {
   if (tab === 'settings') {
-    return <GeneralSettingsPanel data={data} onEdit={onEdit} onSavePopup={onSavePopup} onToggleMaintenance={onToggleMaintenance} canManageSettings={canManageSettings} />;
+    return <GeneralSettingsPanel data={data} onEdit={onEdit} onToggleMaintenance={onToggleMaintenance} onTogglePopup={onTogglePopup} canManageSettings={canManageSettings} />;
   }
   if (tab === 'analytics') return <Analytics data={data[0] || {}} />;
   if (tab === 'newsletter') return <NewsletterSubscribers data={data} onRefresh={onRefresh} canManage={canManageNewsletter} />;
