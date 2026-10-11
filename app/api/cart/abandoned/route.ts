@@ -7,6 +7,8 @@ export const dynamic = 'force-dynamic';
 
 export async function POST(req: Request) {
   try {
+    const flag = await prisma.featureFlag.findUnique({ where: { key: 'abandoned_cart' }, select: { enabled: true } });
+    if (flag && !flag.enabled) return NextResponse.json({ ok: true, disabled: true });
     const customer = await getCustomer();
     if (!customer) return NextResponse.json({ ok: false }, { status: 401 });
 
