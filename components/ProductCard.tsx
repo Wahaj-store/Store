@@ -6,6 +6,7 @@ import { useState } from "react";
 import { Eye, Heart, ShoppingBag, X } from "lucide-react";
 import AddToCart from "./AddToCart";
 import WishlistButton from "./WishlistButton";
+import { useFeatureFlags } from "@/lib/use-feature-flags";
 
 function QuickView({ p, onClose }: { p: any; onClose: () => void }) {
   const price = Number(p.price);
@@ -104,6 +105,7 @@ export default function ProductCard({
   variant?: "default" | "shop";
 }) {
   const [quickView, setQuickView] = useState(false);
+  const { flags } = useFeatureFlags();
   const price = Number(product.price);
   const compare = product.comparePrice ? Number(product.comparePrice) : 0;
   const discount =
@@ -144,7 +146,8 @@ export default function ProductCard({
           </div>
 
           <div className="wahaj-product-card__actions">
-            <button
+            {flags.quick_view && (
+              <button
               type="button"
               onClick={() => setQuickView(true)}
               className="wahaj-product-card__action"
@@ -152,7 +155,8 @@ export default function ProductCard({
             >
               <Eye size={16} />
               <span>نظرة سريعة</span>
-            </button>
+              </button>
+            )}
             <Link
               href={`/product/${product.slug}`}
               prefetch={false}
@@ -208,7 +212,7 @@ export default function ProductCard({
         </div>
       </article>
 
-      {quickView && (
+      {flags.quick_view && quickView && (
         <QuickView p={product} onClose={() => setQuickView(false)} />
       )}
     </>
