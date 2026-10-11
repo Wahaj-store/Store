@@ -1145,13 +1145,34 @@ function NewsletterSubscribers({ data, onRefresh, canManage }: { data: any[]; on
   );
 }
 
+function GiftWrapFeeEditor({ value }: { value: string }) {
+  const [fee, setFee] = useState(value || '0');
+  const [busy, setBusy] = useState(false);
+  const [notice, setNotice] = useState('');
+  useEffect(() => setFee(value || '0'), [value]);
+  async function save() {
+    const amount = Number(fee);
+    if (!Number.isFinite(amount) || amount < 0 || amount > 100000) { setNotice('أدخلي رسومًا صحيحة بين 0 و100000 جنيه.'); return; }
+    setBusy(true); setNotice('');
+    try {
+      const response = await fetch('/api/admin/config', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ settings: { gift_wrap_fee: String(amount) } }) });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error || 'تعذر حفظ الرسوم.');
+      setFee(String(amount)); setNotice('تم حفظ رسوم خدمة تغليف هدايا بنجاح.');
+    } catch (error: any) { setNotice(error?.message || 'تعذر حفظ الرسوم.'); } finally { setBusy(false); }
+  }
+  return <section className="space-y-3 rounded-3xl border border-[var(--gold)]/25 bg-[var(--gold)]/5 p-5 md:p-6"><div><h3 className="font-serif text-base font-bold text-foreground">رسوم خدمة تغليف هدايا</h3><p className="mt-1 text-xs leading-6 text-muted-foreground">تظهر الرسوم للعميل قبل تأكيد الطلب، وتُضاف إلى الإجمالي عند اختيار الخدمة. أدخلي 0 لجعل الخدمة مجانية.</p></div><label className="grid max-w-sm gap-2 text-xs font-semibold text-foreground">رسوم الخدمة (جنيه مصري)<input type="number" min="0" max="100000" step="0.01" value={fee} onChange={event => setFee(event.target.value)} className="h-11 rounded-xl border border-border/50 bg-[var(--bg)] px-3 text-sm outline-none focus:border-[var(--gold)]" /></label><div className="flex flex-wrap items-center gap-3"><button type="button" onClick={() => void save()} disabled={busy} className="rounded-xl bg-[var(--gold)] px-5 py-2.5 text-xs font-bold text-[var(--gold-contrast)] disabled:opacity-50">{busy ? 'جارٍ الحفظ…' : 'حفظ رسوم التغليف'}</button>{notice && <p role="status" className="text-xs text-muted-foreground">{notice}</p>}</div></section>;
+}
+
+
 function Content({ tab, data, onEdit, onDelete, onRefresh, onReorder, onSavePopup, canManageNewsletter }: any) {
   if (tab === 'settings') {
     const settings = Object.fromEntries((Array.isArray(data) ? data : []).map((item: any) => [item.key, item.value]));
-    const otherSettings = (Array.isArray(data) ? data : []).filter((item: any) => !['popup_enabled', 'popup_config'].includes(item.key));
+    const otherSettings = (Array.isArray(data) ? data : []).filter((item: any) => !['popup_enabled', 'popup_config', 'gift_wrap_fee'].includes(item.key));
     return (
       <div className="space-y-5">
         <PopupSettingsEditor enabledValue={settings.popup_enabled ?? 'false'} configValue={settings.popup_config ?? ''} onSave={onSavePopup} />
+        <GiftWrapFeeEditor value={String(settings.gift_wrap_fee ?? '0')} />
         <section className="space-y-3 rounded-3xl border border-border/40 bg-muted/5 p-5 md:p-6">
           <div>
             <h3 className="font-serif font-bold text-base text-foreground">إعدادات عامة أخرى</h3>
