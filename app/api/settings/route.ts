@@ -5,7 +5,7 @@ import { prisma } from '@/lib/prisma';
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
-const PUBLIC_KEYS=['brand_name','brand_tagline','currency','announcement','whatsapp','minimum_order','free_shipping','popup_enabled','seo_title','seo_description','brand_story','header_menu','footer_links','popup_config','social_facebook','social_instagram','social_tiktok','gift_wrap_fee'];
+const PUBLIC_KEYS=['brand_name','brand_tagline','currency','announcement','whatsapp','minimum_order','free_shipping','popup_enabled','maintenance_mode','seo_title','seo_description','brand_story','header_menu','footer_links','popup_config','social_facebook','social_instagram','social_tiktok','gift_wrap_fee'];
 
 export async function GET(){
  const [rows,payments,theme,giftWrapFlag]=await Promise.all([
