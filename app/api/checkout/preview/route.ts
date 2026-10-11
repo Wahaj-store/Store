@@ -128,6 +128,13 @@ export async function POST(req: Request) {
       now,
     });
 
+    const giftWrapFlag = await prisma.featureFlag.findUnique({ where: { key: 'gift_wrap' }, select: { enabled: true } });
+    const giftWrapSelected = body?.giftWrap === true && giftWrapFlag?.enabled === true;
+    const giftWrapSetting = giftWrapSelected ? await prisma.siteSetting.findUnique({ where: { key: 'gift_wrap_fee' }, select: { value: true } }) : null;
+    const parsedGiftWrapFee = Number(giftWrapSetting?.value || 0);
+    const giftWrapFee = giftWrapSelected && Number.isFinite(parsedGiftWrapFee) ? Math.max(0, Math.min(100000, parsedGiftWrapFee)) : 0;
+    const previewTotal = pricing.total + giftWrapFee;
+
     const giftCardCode = String(body?.giftCardCode || '').trim();
     let giftCardBalance: number | null = null;
     let giftCardAmount = 0;
@@ -139,13 +146,14 @@ export async function POST(req: Request) {
         giftCardError = 'بطاقة الهدايا غير صالحة أو منتهية أو بدون رصيد';
       } else {
         giftCardBalance = Number(card.balance);
-        giftCardAmount = Math.min(giftCardBalance, pricing.total);
+        giftCardAmount = Math.min(giftCardBalance, previewTotal);
       }
     }
 
     return NextResponse.json({
       ...pricing,
-      total: Math.max(0, pricing.total - giftCardAmount),
+      giftWrapFee,
+      total: Math.max(0, previewTotal - giftCardAmount),
       giftCardBalance,
       giftCardAmount,
       giftCardError,
