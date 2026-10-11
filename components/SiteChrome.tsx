@@ -7,6 +7,7 @@ import { usePathname } from 'next/navigation';
 import { useTheme } from 'next-themes';
 import { ArrowLeft, ChevronLeft, CircleHelp, CreditCard, Menu, X, Search, User, Moon, Sun, ShoppingBag, MessageCircle, Home, Store, Truck, Info } from 'lucide-react';
 import StorePopup from '@/components/store/StorePopup';
+import { useFeatureFlags } from '@/lib/use-feature-flags';
 
 type SettingMap = Record<string, any>;
 
@@ -27,6 +28,11 @@ export default function SiteChrome() {
   const [settings, setSettings] = useState<SettingMap>({});
   const [payments, setPayments] = useState<any[]>([]);
   const [themeSettings, setThemeSettings] = useState<any>(null);
+  const [cartDrawerOpen, setCartDrawerOpen] = useState(false);
+  const [cartItems, setCartItems] = useState<any[]>([]);
+  const { enabled: featureEnabled } = useFeatureFlags();
+  const cartDrawerEnabled = featureEnabled('cart_drawer', false);
+  const darkModeEnabled = featureEnabled('dark_mode', true);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
   const menuCloseButtonRef = useRef<HTMLButtonElement>(null);
   const menuPanelRef = useRef<HTMLElement>(null);
@@ -50,6 +56,7 @@ export default function SiteChrome() {
     const sync = () => {
       try {
         const cart = JSON.parse(localStorage.getItem('wahaj_cart') || '[]');
+        setCartItems(Array.isArray(cart) ? cart : []);
         setCartCount(cart.reduce((n: any, x: any) => n + Number(x.quantity || 0), 0));
       } catch {
         setCartCount(0);
@@ -57,12 +64,12 @@ export default function SiteChrome() {
     };
 
     sync();
-    window.addEventListener('wahaj_cart-change', sync);
+    window.addEventListener('wahaj-cart-change', sync);
     window.addEventListener('storage', sync);
 
     return () => {
       mounted = false;
-      window.removeEventListener('wahaj_cart-change', sync);
+      window.removeEventListener('wahaj-cart-change', sync);
       window.removeEventListener('storage', sync);
     };
   }, [pathname]);
@@ -252,28 +259,30 @@ export default function SiteChrome() {
               <User size={20} />
             </SiteLink>
 
-            <button
+            {darkModeEnabled && <button
               type="button"
-              onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+              onClick={() => setTheme(themeIsDark ? 'light' : 'dark')}
               className="wahaj-header__action text-foreground/80 hover:text-[var(--gold)] transition-colors p-1"
               aria-label="تبديل الوضع"
-              title={theme === 'dark' ? 'الوضع النهاري' : 'الوضع الليلي'}
+              title={themeIsDark ? 'الوضع النهاري' : 'الوضع الليلي'}
             >
-              {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
-            </button>
+              {themeIsDark ? <Sun size={20} /> : <Moon size={20} />}
+            </button>}
 
-            <SiteLink
-              href="/cart"
-              className="wahaj-header__action wahaj-header__cart relative text-foreground/80 hover:text-[var(--gold)] transition-colors p-1"
-              aria-label="السلة"
-              title="السلة"
-            >
+            {cartDrawerEnabled ? (
+              <button
+                type="button"
+                onClick={() => setCartDrawerOpen(true)}
+                className="wahaj-header__action wahaj-header__cart relative text-foreground/80 hover:text-[var(--gold)] transition-colors p-1"
+                aria-label={`فتح السلة الجانبية (${cartCount})`}
+                title="السلة"
+              >
+                <ShoppingBag size={20} />
+                {cartCount > 0 && <span className="absolute -top-1.5 -end-2 flex h-4 w-4 items-center justify-center rounded-full bg-[var(--gold)] text-[9px] font-bold text-[var(--gold-contrast)] shadow-sm">{cartCount}</span>}
+              </button>
+            ) : <SiteLink href="/cart" className="wahaj-header__action wahaj-header__cart relative text-foreground/80 hover:text-[var(--gold)] transition-colors p-1" aria-label="السلة" title="السلة">
               <ShoppingBag size={20} />
-              {cartCount > 0 && (
-                <span className="absolute -top-1.5 -end-2 flex h-4 w-4 items-center justify-center rounded-full bg-[var(--gold)] text-[9px] font-bold text-[var(--gold-contrast)] shadow-sm">
-                  {cartCount}
-                </span>
-              )}
+              {cartCount > 0 && <span className="absolute -top-1.5 -end-2 flex h-4 w-4 items-center justify-center rounded-full bg-[var(--gold)] text-[9px] font-bold text-[var(--gold-contrast)] shadow-sm">{cartCount}</span>}
             </SiteLink>
           </div>
         </div>
@@ -396,6 +405,24 @@ export default function SiteChrome() {
                 </SiteLink>
               </div>
               <p className="wahaj-mobile-drawer__copyright">جميع الحقوق محفوظة لمتجر {settings.brand_name || 'وَهَج'} © {new Date().getFullYear()}</p>
+            </div>
+          </aside>
+        </div>
+      )}
+
+      {cartDrawerOpen && (
+        <div className="fixed inset-0 z-[90] bg-black/45" role="presentation" onMouseDown={() => setCartDrawerOpen(false)}>
+          <aside className="absolute inset-y-0 end-0 flex w-full max-w-md flex-col border-s border-[var(--gold)]/20 bg-[var(--bg)] text-foreground shadow-2xl" role="dialog" aria-modal="true" aria-label="السلة الجانبية" dir="rtl" onMouseDown={event => event.stopPropagation()}>
+            <div className="flex items-center justify-between border-b border-[var(--gold)]/20 p-5">
+              <div><span className="text-xs text-[var(--gold)]">وَهَج</span><h2 className="text-lg font-bold">سلة مشترياتكِ</h2></div>
+              <button type="button" onClick={() => setCartDrawerOpen(false)} aria-label="إغلاق السلة" className="rounded-full p-2 hover:bg-black/5"><X size={20}/></button>
+            </div>
+            <div className="flex-1 overflow-y-auto p-5">
+              {!cartItems.length ? <p className="py-12 text-center text-sm text-muted-foreground">سلتكِ فارغة حاليًا.</p> : <ul className="space-y-4">{cartItems.map((item: any, index: number) => <li key={`${item.productId}:${item.variantId || index}`} className="flex items-start justify-between gap-3 border-b border-[var(--gold)]/15 pb-4"><div className="min-w-0"><p className="font-semibold">{item.name}</p>{item.variantValue && <p className="mt-1 text-xs text-muted-foreground">{item.variantName}: {item.variantValue}</p>}<p className="mt-2 text-xs text-muted-foreground">الكمية: {item.quantity}</p></div><strong className="shrink-0 text-sm text-[var(--gold)]">{(Number(item.price || 0) * Number(item.quantity || 0)).toLocaleString('ar-EG')} ج.م</strong></li>)}</ul>}
+            </div>
+            <div className="grid gap-3 border-t border-[var(--gold)]/20 p-5">
+              <Link href="/cart" onClick={() => setCartDrawerOpen(false)} className="rounded-xl border border-[var(--gold)]/40 px-4 py-3 text-center text-sm">مراجعة السلة</Link>
+              {cartItems.length > 0 && <Link href="/checkout" onClick={() => setCartDrawerOpen(false)} className="rounded-xl bg-[var(--gold)] px-4 py-3 text-center text-sm font-bold text-[var(--gold-contrast)]">إتمام الطلب</Link>}
             </div>
           </aside>
         </div>
