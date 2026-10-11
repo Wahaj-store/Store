@@ -193,7 +193,7 @@ export default function Cart() {
                   }}
                   className="mt-1 accent-[var(--gold)]"
                 />
-                <span><b className="block">تغليف كهدية</b><small className="mt-1 block text-muted-foreground">أضيفي لمسة مميزة لطلبكِ. سيتم إبلاغ المتجر باختياركِ عند إتمام الطلب.</small></span>
+                <span><b className="block">خدمة تغليف هدايا</b><small className="mt-1 block text-muted-foreground">تظهر رسوم الخدمة والإجمالي النهائي في مراجعة الطلب قبل التأكيد.</small></span>
               </label>
             )}
             <label className="wahaj-cart-coupon"><span>كود الخصم أو الهدية</span><input value={coupon} onChange={event => setCoupon(event.target.value.toUpperCase())} placeholder="اختياري" dir="ltr" /></label>
