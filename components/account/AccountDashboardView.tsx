@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import {
   Heart, Package, UserRound, LogOut, Save, Sparkles, Lock, MapPin, Eye, Clock,
@@ -22,6 +22,9 @@ export default function AccountDashboardView(props: any) {
   const [returnBusy, setReturnBusy] = useState(false);
   const [returnMsg, setReturnMsg] = useState('');
   const [returnLoading, setReturnLoading] = useState(false);
+  const [shippingGovernorates, setShippingGovernorates] = useState<string[]>([]);
+  const [shippingGovernoratesLoading, setShippingGovernoratesLoading] = useState(true);
+  const [shippingGovernoratesError, setShippingGovernoratesError] = useState('');
 
   const returnReasons = [
     ['DAMAGED', 'المنتج تالف'],
@@ -40,6 +43,36 @@ export default function AccountDashboardView(props: any) {
     REFUNDED: 'تم رد المبلغ',
     CANCELLED: 'ملغي',
   };
+
+  useEffect(() => {
+    let active = true;
+    fetch('/api/shipping', { cache: 'no-store' })
+      .then(response => {
+        if (!response.ok) throw new Error('تعذر تحميل المحافظات المتاحة للشحن.');
+        return response.json();
+      })
+      .then((zones: any) => {
+        if (!active) return;
+        const unique = new Map<string, string>();
+        if (Array.isArray(zones)) {
+          zones.forEach(zone => {
+            if (zone?.active === false || typeof zone?.governorate !== 'string') return;
+            const name = zone.governorate.trim().replace(/\s+/g, ' ');
+            if (!name) return;
+            const key = name.normalize('NFKC').toLocaleLowerCase('ar-EG');
+            if (!unique.has(key)) unique.set(key, name);
+          });
+        }
+        const names = Array.from(unique.values());
+        setShippingGovernorates(names);
+        if (!names.length) setShippingGovernoratesError('لا توجد محافظات مفعّلة للشحن حاليًا.');
+      })
+      .catch(() => {
+        if (active) setShippingGovernoratesError('تعذر تحميل المحافظات المتاحة للشحن. حاولي تحديث الصفحة.');
+      })
+      .finally(() => { if (active) setShippingGovernoratesLoading(false); });
+    return () => { active = false; };
+  }, []);
 
   async function openOrder(order: any) {
     setSelectedOrder(order);
@@ -181,13 +214,14 @@ export default function AccountDashboardView(props: any) {
           <section className="wahaj-account-content w-full space-y-6">
             
             {tab === 'profile' && (
-              <div className="bg-muted/10 border border-border/40 rounded-3xl p-6 md:p-8 shadow-xs space-y-6">
+              <div className="wahaj-account-profile-card bg-muted/10 border border-border/40 rounded-3xl p-6 md:p-8 shadow-xs space-y-6">
                 <h2 className="text-xl font-serif font-bold border-b border-border/30 pb-4">البيانات الشخصية</h2>
                 
-                <div className="space-y-4 max-w-xl">
+                <div className="wahaj-account-profile-grid">
                   <div className="space-y-1.5">
-                    <label className="text-xs font-medium text-muted-foreground">الاسم الكامل</label>
+                    <label htmlFor="account-profile-name" className="text-xs font-medium text-muted-foreground">الاسم الكامل</label>
                     <input
+                      id="account-profile-name"
                       className="w-full px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[var(--gold)] transition shadow-xs"
                       value={c.name || ''}
                       onChange={e => setC({ ...c, name: e.target.value })}
@@ -195,8 +229,9 @@ export default function AccountDashboardView(props: any) {
                   </div>
 
                   <div className="space-y-1.5">
-                    <label className="text-xs font-medium text-muted-foreground">رقم الهاتف</label>
+                    <label htmlFor="account-profile-phone" className="text-xs font-medium text-muted-foreground">رقم الهاتف</label>
                     <input
+                      id="account-profile-phone"
                       className="w-full px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[var(--gold)] transition shadow-xs"
                       value={c.phone || ''}
                       dir="ltr"
@@ -207,8 +242,9 @@ export default function AccountDashboardView(props: any) {
                   </div>
 
                   <div className="space-y-1.5">
-                    <label className="text-xs font-medium text-muted-foreground">رقم هاتف إضافي (اختياري)</label>
+                    <label htmlFor="account-profile-secondary-phone" className="text-xs font-medium text-muted-foreground">رقم هاتف إضافي (اختياري)</label>
                     <input
+                      id="account-profile-secondary-phone"
                       className="w-full px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[var(--gold)] transition shadow-xs"
                       value={c.secondaryPhone || ''}
                       dir="ltr"
@@ -217,8 +253,10 @@ export default function AccountDashboardView(props: any) {
                   </div>
 
                   <div className="space-y-1.5">
-                    <label className="text-xs font-medium text-muted-foreground">البريد الإلكتروني</label>
+                    <label htmlFor="account-profile-email" className="text-xs font-medium text-muted-foreground">البريد الإلكتروني</label>
                     <input
+                      id="account-profile-email"
+                      type="email"
                       className="w-full px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[var(--gold)] transition shadow-xs"
                       value={c.email || ''}
                       dir="ltr"
@@ -228,6 +266,7 @@ export default function AccountDashboardView(props: any) {
                 </div>
 
                 <button
+                  type="button"
                   className="inline-flex items-center gap-2 px-6 py-3.5 rounded-2xl bg-[var(--gold)] text-[var(--gold-contrast)] font-serif font-bold text-sm shadow-md hover:opacity-95 transition"
                   onClick={async () => {
                     const response = await fetch('/api/customer/me', {
@@ -599,7 +638,7 @@ export default function AccountDashboardView(props: any) {
                     className="p-6 rounded-2xl bg-[var(--bg)] border border-[var(--gold)]/40 space-y-4 text-xs shadow-sm"
                   >
                     <h3 className="font-serif font-bold text-sm text-[var(--gold)]">تفاصيل عنوان الشحن الجديد</h3>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div className="wahaj-address-form-grid grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <div>
                         <label className="block mb-1 font-medium text-muted-foreground">مسمى العنوان (مثال: المنزل، العمل)</label>
                         <input name="label" defaultValue="المنزل" required className="w-full px-3.5 py-3 rounded-xl bg-muted/10 border border-border/60 text-foreground text-xs shadow-xs" />
@@ -617,14 +656,18 @@ export default function AccountDashboardView(props: any) {
                         <input name="secondaryPhone" dir="ltr" className="w-full px-3.5 py-3 rounded-xl bg-muted/10 border border-border/60 text-foreground text-xs shadow-xs" />
                       </div>
                       <div>
-                        <label className="block mb-1 font-medium text-muted-foreground">المحافظة</label>
-                        <input name="governorate" placeholder="القاهرة، الجيزة..." required className="w-full px-3.5 py-3 rounded-xl bg-muted/10 border border-border/60 text-foreground text-xs shadow-xs" />
+                        <label htmlFor="shipping-governorate" className="block mb-1 font-medium text-muted-foreground">المحافظة</label>
+                        <select id="shipping-governorate" name="governorate" required defaultValue="" disabled={shippingGovernoratesLoading || shippingGovernorates.length === 0} aria-describedby={shippingGovernoratesError ? 'shipping-governorate-error' : undefined} className="wahaj-account-select w-full px-3.5 py-3 rounded-xl bg-muted/10 border border-border/60 text-foreground text-xs shadow-xs">
+                          <option value="" disabled>{shippingGovernoratesLoading ? 'جارٍ تحميل المحافظات...' : 'اختاري المحافظة'}</option>
+                          {shippingGovernorates.map(governorate => <option key={governorate} value={governorate}>{governorate}</option>)}
+                        </select>
                       </div>
                       <div>
                         <label className="block mb-1 font-medium text-muted-foreground">المدينة / المركز</label>
                         <input name="city" placeholder="مدينة نصر، الهرم..." required className="w-full px-3.5 py-3 rounded-xl bg-muted/10 border border-border/60 text-foreground text-xs shadow-xs" />
                       </div>
                     </div>
+                    {shippingGovernoratesError && <p id="shipping-governorate-error" role="status" className="text-[var(--danger)] text-[11px]">{shippingGovernoratesError}</p>}
                     <div>
                       <label className="block mb-1 font-medium text-muted-foreground">العنوان بالتفصيل</label>
                       <input name="address" placeholder="اسم الشارع، رقم العمارة، رقم الشقة" required className="w-full px-3.5 py-3 rounded-xl bg-muted/10 border border-border/60 text-foreground text-xs shadow-xs" />
@@ -660,8 +703,8 @@ export default function AccountDashboardView(props: any) {
 
                 <div className="grid gap-4">
                   {(c.addresses || []).map((addr: any) => (
-                    <div key={addr.id} className="p-4.5 rounded-2xl bg-[var(--bg)] border border-border/60 flex items-start justify-between gap-4 shadow-xs">
-                      <div className="space-y-1 text-sm">
+                    <div key={addr.id} className="wahaj-saved-address p-4.5 rounded-2xl bg-[var(--bg)] border border-border/60 flex items-start justify-between gap-4 shadow-xs">
+                      <div className="wahaj-saved-address__details space-y-1 text-sm">
                         <div className="flex items-center gap-2">
                           <span className="font-serif font-bold text-foreground">{addr.label || 'عنوان'}</span>
                           {addr.isDefault && (
@@ -670,7 +713,7 @@ export default function AccountDashboardView(props: any) {
                             </span>
                           )}
                         </div>
-                        <p className="text-muted-foreground text-xs font-light">
+                        <p className="text-muted-foreground text-xs font-light break-words">
                           {addr.governorate} - {addr.city} - {addr.address}
                         </p>
                         <span className="text-[var(--gold)] text-xs font-medium block pt-1" dir="ltr">
