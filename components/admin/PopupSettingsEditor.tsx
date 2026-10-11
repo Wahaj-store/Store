@@ -12,9 +12,10 @@ type Props = {
   enabledValue: unknown;
   configValue: unknown;
   onSave: (settings: Record<string, string>) => Promise<void>;
+  showActivationToggle?: boolean;
 };
 
-export default function PopupSettingsEditor({ enabledValue, configValue, onSave }: Props) {
+export default function PopupSettingsEditor({ enabledValue, configValue, onSave, showActivationToggle = true }: Props) {
   const [enabled, setEnabled] = useState(String(enabledValue ?? "false").toLowerCase() === "true");
   const [config, setConfig] = useState<PopupConfig>(() => parsePopupConfig(configValue));
   const [saving, setSaving] = useState(false);
@@ -55,10 +56,10 @@ export default function PopupSettingsEditor({ enabledValue, configValue, onSave 
           <div className="flex items-center gap-2 text-[var(--gold)]"><Sparkles size={18} /><h3 className="font-serif text-lg font-bold">النافذة المنبثقة للمتجر</h3></div>
           <p className="mt-1.5 text-xs leading-6 text-muted-foreground">أنشئي رسالة ترحيب أو عرضًا يظهر للزوار في واجهة المتجر العامة حسب إعدادات الظهور أدناه.</p>
         </div>
-        <label className="inline-flex cursor-pointer items-center gap-2.5 rounded-xl border border-border/50 bg-[var(--bg)] px-3.5 py-2.5 text-sm font-medium">
+        {showActivationToggle ? <label className="inline-flex cursor-pointer items-center gap-2.5 rounded-xl border border-border/50 bg-[var(--bg)] px-3.5 py-2.5 text-sm font-medium">
           <input type="checkbox" className="h-4 w-4 accent-[var(--gold)]" checked={enabled} onChange={event => setEnabled(event.target.checked)} />
           {enabled ? "مفعّلة" : "متوقفة"}
-        </label>
+        </label> : null}
       </div>
 
       <div className="grid gap-4 md:grid-cols-2">
