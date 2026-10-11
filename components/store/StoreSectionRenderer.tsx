@@ -3,7 +3,8 @@
 import {
   ArrowLeft, ArrowUpLeft, ChevronLeft, Check, CheckCircle2, Facebook, Heart, Instagram, Mail, MessageCircle, Music2, Quote, RotateCcw, Send, ShieldCheck, Sparkles, Star, Truck,
 } from "lucide-react";
-import { Fragment, useState, type FormEvent } from "react";
+import { Fragment, useState, useEffect, type FormEvent } from "react";
+import { useFeatureFlags } from "@/lib/use-feature-flags";
 import dynamic from "next/dynamic";
 import Image from "next/image";
 import Link from "next/link";
@@ -376,6 +377,7 @@ export default function StoreSectionRenderer({
   settings: any;
 }) {
   const s = settings || {};
+  const { flags } = useFeatureFlags();
   return (
     <div className="wahaj-storefront" dir="rtl">
       <main>
@@ -611,7 +613,7 @@ export default function StoreSectionRenderer({
           }
 
           if (sec.type === "newsletter" || sec.type === "subscribe") {
-            return <NewsletterSection key={sec.id} section={sec} />;
+            return flags.newsletter ? <NewsletterSection key={sec.id} section={sec} /> : null;
           }
 
           return (
