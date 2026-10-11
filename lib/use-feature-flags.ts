@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 const defaults: Record<string, boolean> = {
   dark_mode: true,
@@ -15,17 +15,23 @@ const defaults: Record<string, boolean> = {
 export function useFeatureFlags() {
   const [flags, setFlags] = useState<Record<string, boolean>>(defaults);
   const [loaded, setLoaded] = useState(false);
+
   useEffect(() => {
     let active = true;
     fetch('/api/features', { cache: 'no-store' })
       .then((response) => response.ok ? response.json() : null)
       .then((payload) => {
-        if (!active || !payload?.features) return;
+        if (!active || !payload?.features || typeof payload.features !== 'object') return;
         setFlags((current) => ({ ...current, ...payload.features }));
       })
       .catch(() => undefined)
       .finally(() => { if (active) setLoaded(true); });
     return () => { active = false; };
   }, []);
-  return { flags, loaded };
+
+  const enabled = useCallback((key: string, fallback = false) => {
+    return Object.prototype.hasOwnProperty.call(flags, key) ? Boolean(flags[key]) : fallback;
+  }, [flags]);
+
+  return { flags, loaded, enabled };
 }
