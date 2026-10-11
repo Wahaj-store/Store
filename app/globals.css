@@ -5300,183 +5300,110 @@ a:focus-visible {
 }
 
 
-/* صفحة وضع الصيانة — متوافقة مع هوية وَهَج والوضعين الفاتح والليلي */
+/* صفحة الصيانة — تجديد تحريري متوافق مع هوية وَهَج والوضعين الفاتح والليلي */
+body:has(.wahaj-maintenance) { overflow:hidden; }
+body:has(.wahaj-maintenance) .wahaj-header,
+body:has(.wahaj-maintenance) .wahaj-announcement-bar,
+body:has(.wahaj-maintenance) .wahaj-mobile-bottom-nav,
+body:has(.wahaj-maintenance) .wahaj-footer { display:none !important; }
 .wahaj-maintenance {
-  --maintenance-gold: var(--gold, #c8a96b);
-  position: relative;
-  isolation: isolate;
-  display: flex;
-  min-height: 100svh;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-  padding: clamp(24px, 5vw, 64px) 16px 22px;
-  color: var(--foreground, #171513);
-  background:
-    radial-gradient(ellipse at 50% 38%, color-mix(in srgb, var(--maintenance-gold) 11%, transparent), transparent 44%),
-    var(--background, #f8f5ef);
-  font-family: var(--font-wahaj), Tajawal, sans-serif;
+  --maintenance-gold:var(--gold,#c6a46a);
+  position:relative; isolation:isolate; display:flex; min-height:100svh; align-items:center; justify-content:center;
+  overflow:hidden; padding:clamp(24px,5vh,58px) clamp(16px,4vw,48px) 18px;
+  color:var(--foreground); background:radial-gradient(ellipse at 50% 32%,color-mix(in srgb,var(--maintenance-gold) 11%,transparent),transparent 48%),var(--background);
+  font-family:var(--font-wahaj),'Tajawal',sans-serif;
 }
-.dark .wahaj-maintenance {
-  background:
-    radial-gradient(ellipse at 50% 38%, color-mix(in srgb, var(--maintenance-gold) 12%, transparent), transparent 44%),
-    var(--background, #11100e);
+.dark .wahaj-maintenance { background:radial-gradient(ellipse at 50% 32%,color-mix(in srgb,var(--maintenance-gold) 13%,transparent),transparent 48%),var(--background); }
+.wahaj-maintenance__ambient { position:absolute; z-index:-1; width:430px; height:430px; border:1px solid color-mix(in srgb,var(--maintenance-gold) 12%,transparent); border-radius:50%; pointer-events:none; }
+.wahaj-maintenance__ambient::after { position:absolute; inset:22px; border:1px solid color-mix(in srgb,var(--maintenance-gold) 8%,transparent); border-radius:inherit; content:""; }
+.wahaj-maintenance__ambient--top { top:-300px; inset-inline-end:-115px; }
+.wahaj-maintenance__ambient--bottom { bottom:-330px; inset-inline-start:-155px; width:500px; height:500px; }
+.wahaj-maintenance__frame { width:min(100%,1060px); margin:auto; }
+.wahaj-maintenance__header { display:flex; min-height:64px; align-items:center; justify-content:space-between; gap:18px; margin-bottom:19px; }
+.wahaj-maintenance__brand { display:inline-flex; min-width:0; align-items:center; gap:11px; }
+.wahaj-maintenance__mark { display:grid; width:45px; height:45px; flex:0 0 45px; place-items:center; border:1px solid color-mix(in srgb,var(--maintenance-gold) 55%,var(--border)); border-radius:15px 15px 5px 15px; background:linear-gradient(145deg,var(--gold-soft),color-mix(in srgb,var(--maintenance-gold) 7%,var(--card))); color:var(--gold-muted); font-size:28px; font-weight:700; box-shadow:0 6px 20px color-mix(in srgb,var(--maintenance-gold) 10%,transparent); }
+.wahaj-maintenance__brand-copy { display:grid; gap:1px; }
+.wahaj-maintenance__brand strong { color:var(--foreground); font-size:19px; font-weight:800; line-height:1.4; }
+.wahaj-maintenance__brand small { color:var(--muted-foreground); font-size:9px; }
+.wahaj-maintenance__edition { display:inline-flex; align-items:center; gap:7px; color:var(--gold-muted); font-size:10px; font-weight:700; }
+.wahaj-maintenance__edition svg { color:var(--gold); }
+.wahaj-maintenance__panel { display:grid; grid-template-columns:minmax(0,1.08fr) minmax(330px,.92fr); overflow:hidden; border:1px solid color-mix(in srgb,var(--maintenance-gold) 27%,var(--border)); border-radius:27px; background:color-mix(in srgb,var(--card) 93%,transparent); box-shadow:0 26px 85px rgba(36,27,26,.09),inset 0 1px 0 color-mix(in srgb,var(--card) 70%,transparent); }
+.dark .wahaj-maintenance__panel { box-shadow:0 26px 85px rgba(0,0,0,.28),inset 0 1px 0 rgba(255,255,255,.025); }
+.wahaj-maintenance__copy { display:flex; flex-direction:column; align-items:flex-start; justify-content:center; padding:clamp(28px,5vw,66px); }
+.wahaj-maintenance__status { display:inline-flex; min-height:31px; align-items:center; gap:8px; margin-bottom:28px; padding:4px 11px 4px 13px; border:1px solid color-mix(in srgb,var(--maintenance-gold) 30%,var(--border)); border-radius:999px; background:color-mix(in srgb,var(--maintenance-gold) 8%,var(--card)); color:var(--gold-muted); font-size:10px; font-weight:800; }
+.wahaj-maintenance__status-indicator { display:grid; width:21px; height:21px; place-items:center; border-radius:50%; background:var(--gold-soft); color:var(--gold-muted); }
+.wahaj-maintenance__eyebrow { margin-bottom:9px; color:var(--gold-muted); font-size:11px; font-weight:800; letter-spacing:.035em; }
+.wahaj-maintenance__copy h1 { margin:0; color:var(--foreground); font-size:clamp(31px,4.3vw,48px); font-weight:800; line-height:1.42; letter-spacing:-.04em; }
+.wahaj-maintenance__copy h1 em { color:var(--gold-muted); font-style:normal; }
+.wahaj-maintenance__message { max-width:440px; margin:15px 0 0; color:var(--muted-foreground); font-size:13px; line-height:2; }
+.wahaj-maintenance__promise { display:flex; align-items:center; gap:11px; margin-top:22px; padding:12px 14px; border-inline-start:2px solid var(--gold); border-radius:0 10px 10px 0; background:color-mix(in srgb,var(--gold) 6%,var(--card)); color:var(--gold-muted); }
+.wahaj-maintenance__promise > svg { flex:0 0 auto; }
+.wahaj-maintenance__promise p { display:grid; gap:2px; margin:0; }
+.wahaj-maintenance__promise strong { color:var(--foreground); font-size:10px; font-weight:800; }
+.wahaj-maintenance__promise span { color:var(--muted-foreground); font-size:9px; }
+.wahaj-maintenance__actions { display:flex; flex-wrap:wrap; align-items:center; gap:16px; margin-top:25px; }
+.wahaj-maintenance__primary { display:inline-flex; min-height:44px; align-items:center; justify-content:center; gap:8px; padding:0 15px; border:1px solid var(--gold); border-radius:11px; background:linear-gradient(135deg,color-mix(in srgb,var(--gold) 94%,white),var(--gold)); color:var(--gold-contrast); box-shadow:0 9px 23px color-mix(in srgb,var(--gold) 20%,transparent); font-size:10px; font-weight:900; transition:transform .2s ease,box-shadow .2s ease; }
+.wahaj-maintenance__primary:hover { transform:translateY(-2px); box-shadow:0 13px 28px color-mix(in srgb,var(--gold) 28%,transparent); }
+.wahaj-maintenance__primary:focus-visible { outline:3px solid color-mix(in srgb,var(--gold) 55%,transparent); outline-offset:3px; }
+.wahaj-maintenance__return-note { display:inline-flex; align-items:center; gap:6px; color:var(--muted-foreground); font-size:9px; }
+.wahaj-maintenance__return-note svg { color:var(--gold-muted); }
+.wahaj-maintenance__visual { position:relative; display:flex; min-height:510px; flex-direction:column; justify-content:space-between; overflow:hidden; padding:20px; border-inline-start:1px solid var(--border); background:radial-gradient(ellipse at 50% 32%,color-mix(in srgb,var(--gold) 14%,transparent),transparent 56%),linear-gradient(155deg,color-mix(in srgb,var(--background-secondary) 90%,var(--card)),var(--background)); }
+.wahaj-maintenance__visual::before { position:absolute; inset:0; background-image:radial-gradient(color-mix(in srgb,var(--gold) 18%,transparent) .7px,transparent .7px); background-size:17px 17px; opacity:.27; content:""; pointer-events:none; mask-image:linear-gradient(to bottom,transparent,#000 18%,#000 80%,transparent); }
+.wahaj-maintenance__visual-topline { position:relative; z-index:1; display:flex; align-items:center; justify-content:space-between; color:var(--muted-foreground); font-size:8px; font-weight:800; letter-spacing:.14em; }
+.wahaj-maintenance__live { display:inline-flex; align-items:center; gap:6px; letter-spacing:0; }
+.wahaj-maintenance__live i,.wahaj-maintenance__footer-mark i { width:6px; height:6px; border-radius:50%; background:var(--success); box-shadow:0 0 0 4px color-mix(in srgb,var(--success) 12%,transparent); }
+.wahaj-maintenance__art { position:relative; display:grid; min-height:240px; flex:1; place-items:center; }
+.wahaj-maintenance__art-orbit { position:absolute; width:220px; height:220px; border:1px solid color-mix(in srgb,var(--gold) 27%,transparent); border-radius:50%; }
+.wahaj-maintenance__art-orbit--one { transform:rotate(-27deg) scaleY(.68); }
+.wahaj-maintenance__art-orbit--two { width:166px; height:166px; border-style:dashed; opacity:.62; animation:wahaj-maintenance-rotate 48s linear infinite; }
+.wahaj-maintenance__art-ring { position:relative; display:grid; width:112px; height:112px; place-items:center; border:1px solid color-mix(in srgb,var(--gold) 51%,var(--border)); border-radius:34px 34px 11px 34px; background:linear-gradient(145deg,color-mix(in srgb,var(--gold) 17%,var(--card)),var(--card)); color:var(--gold-muted); box-shadow:0 18px 48px color-mix(in srgb,var(--gold) 15%,transparent),inset 0 1px 0 color-mix(in srgb,var(--card) 75%,transparent); transform:rotate(-8deg); }
+.wahaj-maintenance__art-ring svg { transform:rotate(8deg); }
+.wahaj-maintenance__art-spark { position:absolute; color:var(--gold-muted); }
+.wahaj-maintenance__art-spark--one { inset-block-start:20%; inset-inline-end:22%; font-size:19px; }
+.wahaj-maintenance__art-spark--two { inset-block-end:22%; inset-inline-start:21%; font-size:24px; }
+.wahaj-maintenance__art-caption { position:absolute; inset-block-end:4px; color:var(--muted-foreground); font-size:9px; font-weight:700; }
+.wahaj-maintenance__work-card { position:relative; z-index:1; padding:15px 16px 10px; border:1px solid color-mix(in srgb,var(--gold) 20%,var(--border)); border-radius:15px; background:color-mix(in srgb,var(--card) 92%,transparent); box-shadow:var(--shadow-soft); backdrop-filter:blur(12px); }
+.wahaj-maintenance__work-heading { display:flex; align-items:center; gap:9px; padding-bottom:12px; border-bottom:1px solid var(--border); }
+.wahaj-maintenance__work-icon { display:grid; width:31px; height:31px; flex:0 0 31px; place-items:center; border-radius:10px; background:var(--gold-soft); color:var(--gold-muted); }
+.wahaj-maintenance__work-heading > span:nth-child(2) { display:grid; flex:1; gap:1px; }
+.wahaj-maintenance__work-heading strong { color:var(--foreground); font-size:10px; font-weight:800; }
+.wahaj-maintenance__work-heading small { color:var(--muted-foreground); font-size:8px; }
+.wahaj-maintenance__work-clock { color:var(--gold-muted); }
+.wahaj-maintenance__checklist { display:grid; gap:0; margin:0; padding:5px 0 0; list-style:none; }
+.wahaj-maintenance__checklist li { display:flex; min-height:34px; align-items:center; gap:8px; color:var(--foreground-secondary); font-size:9px; }
+.wahaj-maintenance__check-icon { display:grid; width:18px; height:18px; flex:0 0 18px; place-items:center; border:1px solid color-mix(in srgb,var(--gold) 28%,var(--border)); border-radius:50%; background:var(--gold-soft); color:var(--gold-muted); }
+.wahaj-maintenance__checklist li > small { margin-inline-start:auto; color:var(--muted-foreground); font-size:8px; }
+.wahaj-maintenance__footer { display:flex; min-height:43px; align-items:flex-end; justify-content:space-between; gap:12px; padding-top:12px; color:var(--muted-foreground); font-size:9px; }
+.wahaj-maintenance__footer-mark { display:inline-flex; align-items:center; gap:8px; }
+@keyframes wahaj-maintenance-rotate { to { transform:rotate(333deg); } }
+@media (max-width:760px) {
+  body:has(.wahaj-maintenance) { overflow:auto; }
+  .wahaj-maintenance { min-height:100svh; align-items:flex-start; padding:20px 15px 15px; }
+  .wahaj-maintenance__header { min-height:54px; margin-bottom:14px; }
+  .wahaj-maintenance__edition { font-size:8px; }
+  .wahaj-maintenance__panel { grid-template-columns:1fr; border-radius:21px; }
+  .wahaj-maintenance__copy { padding:28px clamp(20px,7vw,38px) 27px; }
+  .wahaj-maintenance__status { margin-bottom:19px; }
+  .wahaj-maintenance__copy h1 { font-size:clamp(31px,8vw,43px); }
+  .wahaj-maintenance__message { font-size:12px; }
+  .wahaj-maintenance__visual { min-height:390px; border-inline-start:0; border-top:1px solid var(--border); padding:17px; }
+  .wahaj-maintenance__art { min-height:202px; }
+  .wahaj-maintenance__art-orbit { width:190px; height:190px; }
+  .wahaj-maintenance__art-orbit--two { width:145px; height:145px; }
+  .wahaj-maintenance__art-ring { width:94px; height:94px; border-radius:29px 29px 10px 29px; }
+  .wahaj-maintenance__footer { align-items:center; padding-top:15px; font-size:8px; }
 }
-.wahaj-maintenance__glow {
-  position: absolute;
-  z-index: -1;
-  width: 340px;
-  height: 340px;
-  border: 1px solid color-mix(in srgb, var(--maintenance-gold) 13%, transparent);
-  border-radius: 50%;
-  pointer-events: none;
+@media (max-width:390px) {
+  .wahaj-maintenance__edition { max-width:135px; text-align:center; }
+  .wahaj-maintenance__brand small { font-size:8px; }
+  .wahaj-maintenance__copy { padding-inline:19px; }
+  .wahaj-maintenance__actions { align-items:flex-start; flex-direction:column; gap:11px; }
+  .wahaj-maintenance__visual { min-height:370px; }
+  .wahaj-maintenance__footer-mark { gap:6px; }
 }
-.wahaj-maintenance__glow--one { top: -230px; right: -110px; }
-.wahaj-maintenance__glow--two { bottom: -250px; left: -120px; width: 420px; height: 420px; }
-.wahaj-maintenance__card {
-  width: min(100%, 650px);
-  padding: clamp(26px, 5vw, 52px) clamp(20px, 6vw, 62px);
-  border: 1px solid color-mix(in srgb, var(--maintenance-gold) 27%, var(--border, #e7e0d4));
-  border-radius: 28px;
-  background: color-mix(in srgb, var(--card, #fffdf9) 91%, transparent);
-  box-shadow: 0 24px 90px rgb(42 32 16 / 8%), inset 0 1px 0 rgb(255 255 255 / 45%);
-  text-align: center;
-  backdrop-filter: blur(14px);
+@media (prefers-reduced-motion:reduce) {
+  .wahaj-maintenance *, .wahaj-maintenance *::before, .wahaj-maintenance *::after { animation:none !important; transition:none !important; scroll-behavior:auto !important; }
 }
-.dark .wahaj-maintenance__card {
-  background: color-mix(in srgb, var(--card, #1a1916) 93%, transparent);
-  box-shadow: 0 24px 90px rgb(0 0 0 / 25%);
-}
-.wahaj-maintenance__brand {
-  display: inline-flex;
-  align-items: center;
-  gap: 12px;
-  text-align: right;
-}
-.wahaj-maintenance__mark {
-  display: grid;
-  width: 48px;
-  height: 48px;
-  place-items: center;
-  border: 1px solid color-mix(in srgb, var(--maintenance-gold) 70%, transparent);
-  border-radius: 16px 16px 5px 16px;
-  color: var(--maintenance-gold);
-  font-size: 30px;
-  font-weight: 700;
-}
-.wahaj-maintenance__brand strong { display: block; font-size: 20px; line-height: 1.5; }
-.wahaj-maintenance__brand small { display: block; color: var(--muted-foreground, #858078); font-size: 11px; }
-.wahaj-maintenance__illustration {
-  position: relative;
-  display: grid;
-  width: 150px;
-  height: 150px;
-  place-items: center;
-  margin: 28px auto 22px;
-  color: var(--maintenance-gold);
-}
-.wahaj-maintenance__orbit {
-  position: absolute;
-  inset: 8px;
-  border: 1px solid color-mix(in srgb, var(--maintenance-gold) 34%, transparent);
-  border-radius: 50%;
-}
-.wahaj-maintenance__orbit--outer { transform: rotate(-28deg) scaleY(.7); }
-.wahaj-maintenance__orbit--inner { inset: 24px; border-style: dashed; opacity: .7; }
-.wahaj-maintenance__clock {
-  display: grid;
-  width: 94px;
-  height: 94px;
-  place-items: center;
-  border: 1px solid color-mix(in srgb, var(--maintenance-gold) 45%, transparent);
-  border-radius: 50%;
-  background: color-mix(in srgb, var(--maintenance-gold) 9%, var(--card, white));
-}
-.wahaj-maintenance__spark { position: absolute; display: grid; place-items: center; }
-.wahaj-maintenance__spark--a { top: 5px; right: 8px; }
-.wahaj-maintenance__spark--b { bottom: 10px; left: 5px; font-size: 23px; }
-.wahaj-maintenance__eyebrow {
-  display: inline-block;
-  margin-bottom: 14px;
-  color: var(--maintenance-gold);
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: .04em;
-}
-.wahaj-maintenance h1 {
-  margin: 0;
-  font-size: clamp(27px, 5vw, 39px);
-  font-weight: 700;
-  line-height: 1.55;
-  letter-spacing: -.035em;
-}
-.wahaj-maintenance h1 em { color: var(--maintenance-gold); font-style: normal; }
-.wahaj-maintenance__message {
-  max-width: 450px;
-  margin: 16px auto 0;
-  color: var(--muted-foreground, #77716a);
-  font-size: 14px;
-  line-height: 2.05;
-}
-.wahaj-maintenance__status {
-  display: inline-flex;
-  align-items: center;
-  gap: 9px;
-  margin-top: 24px;
-  padding: 10px 15px;
-  border: 1px solid color-mix(in srgb, var(--maintenance-gold) 25%, transparent);
-  border-radius: 999px;
-  background: color-mix(in srgb, var(--maintenance-gold) 8%, transparent);
-  font-size: 12px;
-}
-.wahaj-maintenance__status-dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: var(--maintenance-gold);
-  box-shadow: 0 0 0 4px color-mix(in srgb, var(--maintenance-gold) 16%, transparent);
-}
-.wahaj-maintenance__divider {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  margin: 24px 0 12px;
-  color: var(--maintenance-gold);
-}
-.wahaj-maintenance__divider::before, .wahaj-maintenance__divider::after {
-  height: 1px;
-  flex: 1;
-  background: color-mix(in srgb, var(--maintenance-gold) 24%, transparent);
-  content: "";
-}
-.wahaj-maintenance__thanks { margin: 0; color: var(--muted-foreground, #77716a); font-size: 12px; }
-.wahaj-maintenance__contact {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  margin-top: 18px;
-  color: var(--foreground, #171513);
-  font-size: 12px;
-  font-weight: 700;
-  text-decoration: none;
-  transition: color .2s ease;
-}
-.wahaj-maintenance__contact:hover { color: var(--maintenance-gold); }
-.wahaj-maintenance__footer {
-  padding-top: 20px;
-  color: var(--muted-foreground, #858078);
-  font-size: 10px;
-  text-align: center;
-}
-@media (max-width: 480px) {
-  .wahaj-maintenance__card { border-radius: 22px; }
-  .wahaj-maintenance__illustration { width: 128px; height: 128px; margin-top: 22px; }
-  .wahaj-maintenance__clock { width: 82px; height: 82px; }
-  .wahaj-maintenance__clock svg { width: 45px; height: 45px; }
-  .wahaj-maintenance__message { font-size: 13px; }
-}
-
 
 /* ===== Wahaj cart drawer — shared luxury tokens, RTL and dark-mode aware ===== */
 .wahaj-cart-drawer-overlay { position:fixed; z-index:90; inset:0; overflow:hidden; background:rgba(20,15,13,.56); -webkit-backdrop-filter:blur(4px); backdrop-filter:blur(4px); animation:wahaj-cart-overlay-in .2s ease both; -webkit-tap-highlight-color:transparent; }
@@ -5539,3 +5466,44 @@ a:focus-visible {
 @keyframes wahaj-cart-panel-in { from { opacity:.9; transform:translateX(16px); } to { opacity:1; transform:translateX(0); } }
 @media (max-width:420px) { .wahaj-cart-drawer__header { min-height:94px; padding-inline:17px; }.wahaj-cart-drawer__body { padding:15px 15px 19px; }.wahaj-cart-drawer__footer { padding-inline:16px; }.wahaj-cart-drawer__item { gap:10px; padding:10px; }.wahaj-cart-drawer__image { width:74px; height:90px; flex-basis:74px; } }
 @media (prefers-reduced-motion:reduce) { .wahaj-cart-drawer-overlay,.wahaj-cart-drawer,.wahaj-cart-drawer * { animation:none !important; transition:none !important; scroll-behavior:auto !important; } }
+
+
+/* Account profile and saved address form — spacing, wrapping and responsive controls */
+.wahaj-account-dashboard[data-account-tab='profile'] .wahaj-account-content > .wahaj-account-profile-card::after { content:none; }
+.wahaj-account-dashboard[data-account-tab='profile'] .wahaj-account-profile-card > h2 { margin:0; padding:0 0 15px; line-height:1.5; }
+.wahaj-account-dashboard[data-account-tab='profile'] .wahaj-account-profile-grid { display:grid; width:100%; min-width:0; grid-template-columns:repeat(2,minmax(0,1fr)); gap:18px 22px; margin-top:3px; }
+.wahaj-account-dashboard[data-account-tab='profile'] .wahaj-account-profile-grid > div { display:grid; min-width:0; align-content:start; gap:8px; }
+.wahaj-account-dashboard[data-account-tab='profile'] .wahaj-account-profile-grid > div:first-child { grid-column:1/-1; }
+.wahaj-account-dashboard[data-account-tab='profile'] .wahaj-account-profile-grid label { display:block; min-height:16px; line-height:1.6; }
+.wahaj-account-dashboard[data-account-tab='profile'] .wahaj-account-profile-grid input { display:block; width:100%; min-width:0; height:46px; min-height:46px; margin:0; padding-inline:13px; border:1px solid var(--border); border-radius:11px !important; background:var(--background); color:var(--foreground); font-family:var(--font-wahaj),'Tajawal',sans-serif; font-size:11px; line-height:1.5; box-shadow:none; }
+.wahaj-account-dashboard[data-account-tab='profile'] .wahaj-account-profile-grid input:focus { border-color:var(--gold); box-shadow:0 0 0 3px color-mix(in srgb,var(--gold) 12%,transparent); }
+.wahaj-account-dashboard[data-account-tab='profile'] .wahaj-account-profile-grid input[readonly] { color:var(--muted-foreground); background:color-mix(in srgb,var(--background-secondary) 78%,var(--card)); }
+.wahaj-account-dashboard[data-account-tab='profile'] .wahaj-account-profile-grid p { min-height:0; margin:0; line-height:1.7; }
+.wahaj-account-dashboard[data-account-tab='profile'] .wahaj-account-profile-card > button { min-height:44px; margin-top:1px; }
+.wahaj-account-select { display:block; min-width:0; min-height:44px; color:var(--foreground); background-color:var(--card); font-family:var(--font-wahaj),'Tajawal',sans-serif; font-size:11px; line-height:1.5; }
+.wahaj-account-select:focus { border-color:var(--gold); outline:0; box-shadow:0 0 0 3px color-mix(in srgb,var(--gold) 12%,transparent); }
+.wahaj-account-select:disabled { cursor:not-allowed; opacity:.72; }
+.wahaj-address-form-grid { min-width:0; column-gap:16px !important; row-gap:14px !important; }
+.wahaj-address-form-grid > div { min-width:0; }
+.wahaj-address-form-grid label,.wahaj-address-form-grid + div label { display:block; min-height:17px; line-height:1.65; }
+.wahaj-account-dashboard[data-account-tab='addresses'] form input:not([type='checkbox']),.wahaj-account-dashboard[data-account-tab='addresses'] form select { width:100%; min-width:0; height:44px; min-height:44px; margin:0; padding-inline:12px; font-family:var(--font-wahaj),'Tajawal',sans-serif; font-size:11px; line-height:1.5; }
+.wahaj-account-dashboard[data-account-tab='addresses'] form input:focus,.wahaj-account-dashboard[data-account-tab='addresses'] form select:focus { border-color:var(--gold); outline:0; box-shadow:0 0 0 3px color-mix(in srgb,var(--gold) 11%,transparent); }
+.wahaj-saved-address { min-width:0; }
+.wahaj-saved-address__details { min-width:0; flex:1; overflow-wrap:anywhere; }
+.wahaj-saved-address__details > p { margin:4px 0; line-height:1.85; overflow-wrap:anywhere; }
+.wahaj-saved-address__details > span { max-width:100%; line-height:1.8; overflow-wrap:anywhere; }
+.wahaj-saved-address > button { flex:0 0 auto; }
+@media (max-width:650px) {
+  .wahaj-account-dashboard[data-account-tab='profile'] .wahaj-account-profile-grid { grid-template-columns:minmax(0,1fr); gap:14px; }
+  .wahaj-account-dashboard[data-account-tab='profile'] .wahaj-account-profile-grid > div:first-child { grid-column:auto; }
+  .wahaj-account-dashboard[data-account-tab='profile'] .wahaj-account-profile-grid input { height:45px; min-height:45px; }
+  .wahaj-account-dashboard[data-account-tab='profile'] .wahaj-account-profile-card > button { width:100%; justify-content:center; }
+  .wahaj-account-dashboard[data-account-tab='addresses'] .wahaj-address-form-grid { grid-template-columns:minmax(0,1fr) !important; }
+  .wahaj-account-dashboard[data-account-tab='addresses'] .wahaj-address-form-grid > div { min-width:0; }
+  .wahaj-account-dashboard[data-account-tab='addresses'] form > div:last-child:not(.wahaj-address-form-grid) { align-items:stretch; }
+  .wahaj-account-dashboard[data-account-tab='addresses'] form > div:last-child button { min-height:42px; }
+  .wahaj-saved-address { gap:10px; padding:14px !important; }
+  .wahaj-saved-address__details { font-size:12px; }
+  .wahaj-saved-address__details > p { font-size:10px; }
+  .wahaj-saved-address__details > span { font-size:10px; }
+}
