@@ -5,7 +5,7 @@ import type { AnchorHTMLAttributes } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useTheme } from 'next-themes';
-import { ArrowLeft, ChevronLeft, CircleHelp, CreditCard, Menu, X, Search, User, Moon, Sun, ShoppingBag, MessageCircle, Home, Store, Truck, Info } from 'lucide-react';
+import { ArrowLeft, ChevronLeft, CircleHelp, CreditCard, Menu, X, Search, User, Moon, Sun, ShoppingBag, MessageCircle, Home, Store, Truck, Info, Minus, Plus, ShieldCheck, Trash2 } from 'lucide-react';
 import StorePopup from '@/components/store/StorePopup';
 import { useFeatureFlags } from '@/lib/use-feature-flags';
 
@@ -36,6 +36,9 @@ export default function SiteChrome() {
   const menuButtonRef = useRef<HTMLButtonElement>(null);
   const menuCloseButtonRef = useRef<HTMLButtonElement>(null);
   const menuPanelRef = useRef<HTMLElement>(null);
+  const cartButtonRef = useRef<HTMLButtonElement>(null);
+  const cartCloseButtonRef = useRef<HTMLButtonElement>(null);
+  const cartPanelRef = useRef<HTMLElement>(null);
   const themeIsDark = (resolvedTheme || theme) === 'dark';
 
   useEffect(() => {
@@ -112,6 +115,70 @@ export default function SiteChrome() {
       menuButtonRef.current?.focus();
     };
   }, [menu]);
+
+  useEffect(() => {
+    if (!cartDrawerOpen) return;
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    cartCloseButtonRef.current?.focus();
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        setCartDrawerOpen(false);
+        return;
+      }
+
+      if (event.key !== 'Tab' || !cartPanelRef.current) return;
+      const focusable = Array.from(cartPanelRef.current.querySelectorAll<HTMLElement>(
+        'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])',
+      ));
+      if (focusable.length === 0) return;
+
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener('keydown', handleKeyDown);
+      cartButtonRef.current?.focus();
+    };
+  }, [cartDrawerOpen]);
+
+  const saveDrawerCart = (next: any[]) => {
+    setCartItems(next);
+    setCartCount(next.reduce((count, item) => count + Number(item.quantity || 0), 0));
+    try {
+      localStorage.setItem('wahaj_cart', JSON.stringify(next));
+      window.dispatchEvent(new Event('wahaj-cart-change'));
+      window.dispatchEvent(new Event('storage'));
+    } catch {
+      // Keep the drawer responsive even when browser storage is unavailable.
+    }
+  };
+  const updateDrawerQuantity = (index: number, delta: number) => {
+    saveDrawerCart(cartItems.map((item, itemIndex) => {
+      if (itemIndex !== index) return item;
+      const maximum = Math.max(1, Number(item.maxStock || 99));
+      return { ...item, quantity: Math.max(1, Math.min(maximum, Number(item.quantity || 1) + delta)) };
+    }));
+  };
+  const drawerSubtotal = cartItems.reduce((sum, item) => sum + Number(item.price || 0) * Number(item.quantity || 0), 0);
+  const drawerQuantity = cartItems.reduce((sum, item) => sum + Number(item.quantity || 0), 0);
+  const drawerFreeShipping = Number(settings.free_shipping || 0);
+  const drawerShippingProgress = drawerFreeShipping > 0 ? Math.min(100, drawerSubtotal / drawerFreeShipping * 100) : 0;
+  const drawerRemaining = Math.max(0, drawerFreeShipping - drawerSubtotal);
+  const drawerMoney = (amount: number) => `${amount.toLocaleString('ar-EG')} ج.م`;
 
   useEffect(() => {
     if (pathname?.startsWith('/admin')) return;
@@ -272,6 +339,7 @@ export default function SiteChrome() {
             {cartDrawerEnabled ? (
               <button
                 type="button"
+                ref={cartButtonRef}
                 onClick={() => setCartDrawerOpen(true)}
                 className="wahaj-header__action wahaj-header__cart relative text-foreground/80 hover:text-[var(--gold)] transition-colors p-1"
                 aria-label={`فتح السلة الجانبية (${cartCount})`}
@@ -411,19 +479,87 @@ export default function SiteChrome() {
       )}
 
       {cartDrawerOpen && (
-        <div className="fixed inset-0 z-[90] bg-black/45" role="presentation" onMouseDown={() => setCartDrawerOpen(false)}>
-          <aside className="absolute inset-y-0 end-0 flex w-full max-w-md flex-col border-s border-[var(--gold)]/20 bg-[var(--bg)] text-foreground shadow-2xl" role="dialog" aria-modal="true" aria-label="السلة الجانبية" dir="rtl" onMouseDown={event => event.stopPropagation()}>
-            <div className="flex items-center justify-between border-b border-[var(--gold)]/20 p-5">
-              <div><span className="text-xs text-[var(--gold)]">وَهَج</span><h2 className="text-lg font-bold">سلة مشترياتكِ</h2></div>
-              <button type="button" onClick={() => setCartDrawerOpen(false)} aria-label="إغلاق السلة" className="rounded-full p-2 hover:bg-black/5"><X size={20}/></button>
+        <div className="wahaj-cart-drawer-overlay" role="presentation" onMouseDown={() => setCartDrawerOpen(false)}>
+          <aside
+            ref={cartPanelRef}
+            className="wahaj-cart-drawer"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="wahaj-cart-drawer-title"
+            dir="rtl"
+            onMouseDown={event => event.stopPropagation()}
+          >
+            <header className="wahaj-cart-drawer__header">
+              <div className="wahaj-cart-drawer__heading">
+                <span className="wahaj-cart-drawer__brand"><ShoppingBag size={16} /> وَهَج</span>
+                <h2 id="wahaj-cart-drawer-title">سلة مشترياتكِ</h2>
+                <p>{drawerQuantity ? `${drawerQuantity} ${drawerQuantity === 1 ? 'قطعة مختارة' : 'قطع مختارة'}` : 'اختياراتكِ المفضّلة في مكان واحد'}</p>
+              </div>
+              <button
+                type="button"
+                ref={cartCloseButtonRef}
+                onClick={() => setCartDrawerOpen(false)}
+                aria-label="إغلاق السلة"
+                className="wahaj-cart-drawer__close"
+              ><X size={19} /></button>
+            </header>
+
+            <div className="wahaj-cart-drawer__body">
+              {cartItems.length === 0 ? (
+                <div className="wahaj-cart-drawer__empty">
+                  <span className="wahaj-cart-drawer__empty-icon"><ShoppingBag size={27} strokeWidth={1.6} /></span>
+                  <h3>سلتكِ فارغة حاليًا</h3>
+                  <p>ابدئي باكتشاف القطع التي اخترناها لكِ، وستجدينها هنا عند إضافتها.</p>
+                  <SiteLink href="/shop" onClick={() => setCartDrawerOpen(false)} className="wahaj-cart-drawer__shop-link">اكتشفي المتجر <ArrowLeft size={15} /></SiteLink>
+                </div>
+              ) : (
+                <>
+                  {drawerFreeShipping > 0 && (
+                    <section className="wahaj-cart-drawer__shipping" aria-label="تقدم الشحن المجاني">
+                      <div><Truck size={16} /><span>{drawerRemaining ? `أضيفي منتجات بقيمة ${drawerMoney(drawerRemaining)} للشحن المجاني` : 'رائع! أصبح شحن طلبكِ مجانيًا'}</span></div>
+                      <div className="wahaj-cart-drawer__progress" role="progressbar" aria-valuenow={Math.round(drawerShippingProgress)} aria-valuemin={0} aria-valuemax={100}><span style={{ width: `${drawerShippingProgress}%` }} /></div>
+                    </section>
+                  )}
+                  <div className="wahaj-cart-drawer__items-label"><span>اختياراتكِ</span><b>{drawerQuantity} {drawerQuantity === 1 ? 'قطعة' : 'قطع'}</b></div>
+                  <ul className="wahaj-cart-drawer__items">
+                    {cartItems.map((item: any, index: number) => (
+                      <li key={`${item.productId}:${item.variantId || index}`} className="wahaj-cart-drawer__item">
+                        <div className="wahaj-cart-drawer__image">
+                          <img src={item.image || '/placeholder.svg'} alt={item.name || 'منتج من متجر وَهَج'} />
+                        </div>
+                        <div className="wahaj-cart-drawer__item-body">
+                          <div className="wahaj-cart-drawer__item-top">
+                            <div className="wahaj-cart-drawer__item-copy">
+                              <h3>{item.name}</h3>
+                              {item.variantValue && <p>{item.variantName || 'الخيار'}: {item.variantValue}</p>}
+                              <span>{drawerMoney(Number(item.price || 0))}</span>
+                            </div>
+                            <button type="button" className="wahaj-cart-drawer__remove" onClick={() => saveDrawerCart(cartItems.filter((_, itemIndex) => itemIndex !== index))} aria-label={`حذف ${item.name} من السلة`} title="حذف المنتج"><Trash2 size={16} /></button>
+                          </div>
+                          <div className="wahaj-cart-drawer__item-bottom">
+                            <div className="wahaj-cart-drawer__quantity" aria-label={`كمية ${item.name}`}>
+                              <button type="button" onClick={() => updateDrawerQuantity(index, -1)} aria-label={`تقليل كمية ${item.name}`} disabled={Number(item.quantity || 1) <= 1}><Minus size={13} /></button>
+                              <span aria-live="polite">{item.quantity || 1}</span>
+                              <button type="button" onClick={() => updateDrawerQuantity(index, 1)} aria-label={`زيادة كمية ${item.name}`} disabled={Boolean(item.maxStock && item.quantity >= item.maxStock)}><Plus size={13} /></button>
+                            </div>
+                            <strong>{drawerMoney(Number(item.price || 0) * Number(item.quantity || 0))}</strong>
+                          </div>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                </>
+              )}
             </div>
-            <div className="flex-1 overflow-y-auto p-5">
-              {!cartItems.length ? <p className="py-12 text-center text-sm text-muted-foreground">سلتكِ فارغة حاليًا.</p> : <ul className="space-y-4">{cartItems.map((item: any, index: number) => <li key={`${item.productId}:${item.variantId || index}`} className="flex items-start justify-between gap-3 border-b border-[var(--gold)]/15 pb-4"><div className="min-w-0"><p className="font-semibold">{item.name}</p>{item.variantValue && <p className="mt-1 text-xs text-muted-foreground">{item.variantName}: {item.variantValue}</p>}<p className="mt-2 text-xs text-muted-foreground">الكمية: {item.quantity}</p></div><strong className="shrink-0 text-sm text-[var(--gold)]">{(Number(item.price || 0) * Number(item.quantity || 0)).toLocaleString('ar-EG')} ج.م</strong></li>)}</ul>}
-            </div>
-            <div className="grid gap-3 border-t border-[var(--gold)]/20 p-5">
-              <Link href="/cart" onClick={() => setCartDrawerOpen(false)} className="rounded-xl border border-[var(--gold)]/40 px-4 py-3 text-center text-sm">مراجعة السلة</Link>
-              {cartItems.length > 0 && <Link href="/checkout" onClick={() => setCartDrawerOpen(false)} className="rounded-xl bg-[var(--gold)] px-4 py-3 text-center text-sm font-bold text-[var(--gold-contrast)]">إتمام الطلب</Link>}
-            </div>
+
+            {cartItems.length > 0 && (
+              <footer className="wahaj-cart-drawer__footer">
+                <div className="wahaj-cart-drawer__subtotal"><span>الإجمالي المبدئي</span><strong>{drawerMoney(drawerSubtotal)}</strong></div>
+                <p className="wahaj-cart-drawer__note"><ShieldCheck size={14} /> يتم احتساب الشحن والسعر النهائي عند مراجعة الطلب</p>
+                <SiteLink href="/checkout" onClick={() => setCartDrawerOpen(false)} className="wahaj-cart-drawer__checkout">إتمام الطلب <ArrowLeft size={16} /></SiteLink>
+                <SiteLink href="/cart" onClick={() => setCartDrawerOpen(false)} className="wahaj-cart-drawer__review">مراجعة السلة كاملة</SiteLink>
+              </footer>
+            )}
           </aside>
         </div>
       )}
