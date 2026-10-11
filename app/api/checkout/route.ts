@@ -26,7 +26,7 @@ const Item = z.object({ productId: z.string().min(1), variantId: z.string().opti
 const S = z.object({
   name: z.string().trim().min(2).max(100), phone: z.string().trim().min(8).max(30),
   governorate: z.string().trim().min(2).max(80), city: z.string().trim().min(2).max(100), address: z.string().trim().min(5).max(500), notes: z.string().trim().max(1000).optional(),
-  paymentMethod: z.nativeEnum(PaymentMethod), giftCardCode: z.string().trim().max(40).optional(),
+  paymentMethod: z.nativeEnum(PaymentMethod), giftCardCode: z.string().trim().max(40).optional(), giftWrap: z.boolean().optional(),
   idempotencyKey: z.string().uuid(), addressId: z.string().min(1).optional(), items: z.array(Item).min(1).max(100), paymentReference: z.string().trim().max(100).optional()
 });
 
@@ -158,7 +158,17 @@ export async function POST(req: Request) {
       customerSegmentKey,
       now,
     });
-    const { subtotal, shipping, discount, total } = pricing;
+    const { subtotal, shipping, discount } = pricing;
+    // رسوم خدمة تغليف هدايا تُقرأ من قاعدة البيانات وتُعاد حسابها على الخادم.
+    const giftWrapFlag = await prisma.featureFlag.findUnique({ where: { key: 'gift_wrap' }, select: { enabled: true } });
+    const giftWrapSelected = b.giftWrap === true && giftWrapFlag?.enabled === true;
+    const giftWrapSetting = giftWrapSelected ? await prisma.siteSetting.findUnique({ where: { key: 'gift_wrap_fee' }, select: { value: true } }) : null;
+    const parsedGiftWrapFee = Number(giftWrapSetting?.value || 0);
+    const giftWrapFee = giftWrapSelected && Number.isFinite(parsedGiftWrapFee) ? Math.max(0, Math.min(100000, parsedGiftWrapFee)) : 0;
+    const total = pricing.total + giftWrapFee;
+    const giftWrapNote = giftWrapSelected ? `خدمة تغليف هدايا: ${giftWrapFee.toLocaleString('ar-EG')} ج.م` : '';
+    const customerNotes = (checkoutNotes || '').trim().slice(0, Math.max(0, 999 - giftWrapNote.length));
+    const orderNotes = [customerNotes, giftWrapNote].filter(Boolean).join('\n') || undefined;
     const giftCardCode = b.giftCardCode ? normalizeGiftCardCode(b.giftCardCode) : undefined;
 
     const siteMin = await prisma.siteSetting.findUnique({ where: { key: 'minimum_order' } });
@@ -237,7 +247,7 @@ export async function POST(req: Request) {
       const number = `WAH-${crypto.randomUUID().slice(0, 8).toUpperCase()}`;
       const o = await tx.order.create({ data: {
         number, idempotencyKey, customerId: c.id, customerNameSnapshot: checkoutName, customerPhoneSnapshot: checkoutPhone,
-        paymentMethod: b.paymentMethod, total: Math.max(0, total - giftCardAmount), shipping, discount, giftCardId, giftCardAmount, notes: checkoutNotes, shippingGovernorate: checkoutGovernorate, shippingCity: checkoutCity, shippingAddress: checkoutAddress,
+        paymentMethod: b.paymentMethod, total: Math.max(0, total - giftCardAmount), shipping, discount, giftCardId, giftCardAmount, notes: orderNotes || checkoutNotes, shippingGovernorate: checkoutGovernorate, shippingCity: checkoutCity, shippingAddress: checkoutAddress,
         items: { create: requested.map(i => ({ productId: i.p.id, variantId: i.v?.id, variantName: i.v?.name, variantValue: i.v?.value, skuSnapshot: i.v?.sku || i.p.sku, name: i.p.name, quantity: i.quantity, price: new Prisma.Decimal(i.price) })) },
         payments: { create: { method: b.paymentMethod, amount: Math.max(0, total - giftCardAmount), reference: b.paymentReference, proofUrl: uploadedProofPath } },
         timeline: { create: { status: 'NEW', note: 'تم إنشاء الطلب' } }
