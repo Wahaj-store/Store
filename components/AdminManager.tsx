@@ -1192,58 +1192,107 @@ function MaintenanceModeSwitch({ enabled, canManage, onToggle }: { enabled: bool
 }
 
 
+function GeneralSettingsPanel({ data, onEdit, onSavePopup, onToggleMaintenance, canManageSettings }: any) {
+  const settings = Object.fromEntries((Array.isArray(data) ? data : []).map((item: any) => [item.key, item.value]));
+  const maintenanceEnabled = settings.maintenance_mode === true || String(settings.maintenance_mode ?? '').trim().toLowerCase() === 'true';
+  const excludedKeys = new Set(['popup_enabled', 'popup_config', 'gift_wrap_fee', 'maintenance_mode']);
+  const otherSettings = (Array.isArray(data) ? data : []).filter((item: any) => !excludedKeys.has(item.key));
+  const settingLabels: Record<string, string> = {
+    brand_name: 'اسم المتجر', brand_tagline: 'العبارة التعريفية', brand_story: 'نبذة عن المتجر', currency: 'العملة',
+    announcement: 'شريط الإعلان', whatsapp: 'رقم واتساب', minimum_order: 'الحد الأدنى للطلب', free_shipping: 'حد الشحن المجاني',
+    seo_title: 'عنوان محركات البحث', seo_description: 'وصف محركات البحث', social_facebook: 'رابط فيسبوك',
+    social_instagram: 'رابط إنستغرام', social_tiktok: 'رابط تيك توك', header_menu: 'روابط القائمة العلوية', footer_links: 'روابط التذييل',
+  };
+  const groups = [
+    { id: 'identity', title: 'هوية المتجر', description: 'الاسم والعبارة التعريفية والمعلومات التي تعرّف علامتك للزوار.', icon: Settings, keys: ['brand_name', 'brand_tagline', 'brand_story', 'currency'] },
+    { id: 'commerce', title: 'الطلبات والتواصل', description: 'معلومات التواصل مع العملاء والحدود المالية ورسائل المتجر.', icon: ShoppingCart, keys: ['announcement', 'whatsapp', 'minimum_order', 'free_shipping'] },
+    { id: 'discovery', title: 'الظهور الرقمي', description: 'بيانات محركات البحث وروابط التواصل والتنقل في المتجر.', icon: FileText, keys: ['seo_title', 'seo_description', 'social_facebook', 'social_instagram', 'social_tiktok', 'header_menu', 'footer_links'] },
+  ];
+  const knownKeys = new Set(groups.flatMap(group => group.keys));
+  const extraSettings = otherSettings.filter((item: any) => !knownKeys.has(item.key));
+  const navItems = [
+    ...groups.filter(group => otherSettings.some((item: any) => group.keys.includes(item.key))).map(group => ({ id: `settings-${group.id}`, label: group.title })),
+    { id: 'settings-store-tools', label: 'تجربة الزائر والخدمات' },
+    { id: 'settings-availability', label: 'إتاحة المتجر' },
+  ];
+
+  function renderCards(items: any[]) {
+    return <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+      {items.map((item: any) => {
+        const label = settingLabels[item.key] || String(item.key || '').replaceAll('_', ' ');
+        const value = item.value == null || item.value === '' ? '—' : String(item.value);
+        return <article key={item.id || item.key} className="group flex min-w-0 flex-col justify-between gap-4 rounded-2xl border border-border/45 bg-[var(--bg)] p-4 transition duration-200 hover:-translate-y-0.5 hover:border-[var(--gold)]/40 hover:shadow-sm sm:p-5">
+          <div className="min-w-0">
+            <div className="flex flex-wrap items-start justify-between gap-2"><h4 className="min-w-0 break-words text-xs font-bold text-foreground sm:text-sm">{label}</h4><code className="max-w-full break-all rounded-lg border border-border/35 bg-muted/10 px-2 py-1 text-[8px] text-muted-foreground" dir="ltr">{item.key}</code></div>
+            <p title={value} className="mt-3 line-clamp-3 min-h-10 break-words text-[10px] leading-5 text-muted-foreground sm:text-xs sm:leading-6">{value}</p>
+          </div>
+          <div className="flex justify-end border-t border-border/30 pt-3"><button type="button" disabled={!canManageSettings} className="inline-flex min-h-9 items-center gap-1.5 rounded-xl border border-border/55 bg-muted/10 px-3.5 text-[10px] font-semibold text-foreground transition hover:border-[var(--gold)]/40 hover:bg-[var(--gold)]/5 disabled:cursor-not-allowed disabled:opacity-50" onClick={() => onEdit(item)}><Save size={13} /> تعديل القيمة</button></div>
+        </article>;
+      })}
+    </div>;
+  }
+
+  return <div className="space-y-5 md:space-y-6" dir="rtl">
+    <header className="relative isolate overflow-hidden rounded-3xl border border-[var(--gold)]/20 bg-gradient-to-br from-[var(--gold)]/[0.13] via-[var(--card)] to-[var(--surface)] p-5 shadow-sm sm:p-7 md:p-8">
+      <span aria-hidden="true" className="pointer-events-none absolute -left-9 -top-12 -z-10 h-44 w-44 rounded-full border border-[var(--gold)]/10" />
+      <div className="flex flex-wrap items-start justify-between gap-5">
+        <div className="max-w-2xl">
+          <span className="inline-flex items-center gap-2 rounded-full border border-[var(--gold)]/25 bg-[var(--gold)]/10 px-3 py-1.5 text-[9px] font-bold text-[var(--gold)]"><Settings size={13} /> إعدادات المتجر</span>
+          <h2 className="mt-3 font-serif text-xl font-bold tracking-tight text-foreground sm:text-2xl">إدارة إعدادات متجرك</h2>
+          <p className="mt-2 text-[10px] leading-6 text-muted-foreground sm:text-xs sm:leading-7">نظّمي هوية المتجر وطرق التواصل والظهور الرقمي من مكان واحد. كل مجموعة تحتفظ بعلاقتها الحالية مع إعدادات المتجر وواجهات الحفظ.</p>
+        </div>
+        <div className="flex shrink-0 flex-wrap gap-2">
+          <span className="inline-flex items-center gap-2 rounded-xl border border-border/40 bg-[var(--bg)]/75 px-3 py-2 text-[9px] font-semibold text-muted-foreground"><span className="h-1.5 w-1.5 rounded-full bg-green-500" />{otherSettings.length} إعداد</span>
+          <span className="inline-flex items-center gap-2 rounded-xl border border-border/40 bg-[var(--bg)]/75 px-3 py-2 text-[9px] font-semibold text-muted-foreground"><Shield size={13} className="text-[var(--gold)]" /> إعدادات آمنة</span>
+        </div>
+      </div>
+    </header>
+
+    <nav aria-label="التنقل داخل الإعدادات العامة" className="flex gap-2 overflow-x-auto rounded-2xl border border-border/35 bg-muted/[0.035] p-2.5 [scrollbar-width:thin]">
+      {navItems.map((item, index) => <a key={item.id} href={`#${item.id}`} className="inline-flex min-h-9 shrink-0 items-center gap-2 rounded-xl border border-border/35 bg-[var(--bg)] px-3.5 text-[9px] font-semibold text-muted-foreground transition hover:border-[var(--gold)]/40 hover:text-[var(--gold)] sm:text-[10px]"><span className="flex h-5 w-5 items-center justify-center rounded-md bg-[var(--gold)]/10 text-[8px] text-[var(--gold)]">{(index + 1).toLocaleString('ar-EG')}</span>{item.label}</a>)}
+    </nav>
+
+    <section id="settings-availability" className="scroll-mt-5 overflow-hidden rounded-3xl border border-[var(--gold)]/25 bg-[var(--gold)]/[0.035] shadow-sm" aria-labelledby="maintenance-setting-title">
+      <div className="flex flex-col gap-4 p-4 sm:flex-row sm:items-center sm:justify-between sm:p-5 md:p-6">
+        <div className="flex min-w-0 items-start gap-3">
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-[var(--gold)]/10 text-[var(--gold)]"><Settings size={18} /></span>
+          <div className="min-w-0">
+            <div className="flex flex-wrap items-center gap-2"><h3 id="maintenance-setting-title" className="font-serif text-sm font-bold text-foreground sm:text-base">وضع الصيانة</h3><span className={`rounded-full border px-2.5 py-1 text-[9px] font-bold ${maintenanceEnabled ? 'border-amber-500/25 bg-amber-500/10 text-amber-700 dark:text-amber-300' : 'border-green-500/20 bg-green-500/10 text-green-700 dark:text-green-300'}`}>{maintenanceEnabled ? 'المتجر متوقف مؤقتًا' : 'المتجر متاح للزوار'}</span></div>
+            <p className="mt-1 max-w-2xl text-[10px] leading-5 text-muted-foreground sm:text-xs sm:leading-6">عند التفعيل تظهر صفحة الصيانة للزوار، مع بقاء لوحة الإدارة متاحة لك لإدارة المتجر وإيقاف الصيانة.</p>
+            <code className="mt-1 block text-[9px] text-muted-foreground/75" dir="ltr">maintenance_mode</code>
+          </div>
+        </div>
+        <MaintenanceModeSwitch enabled={maintenanceEnabled} canManage={canManageSettings} onToggle={onToggleMaintenance} />
+      </div>
+    </section>
+
+    <div className="space-y-4">
+      {groups.map(group => {
+        const items = otherSettings.filter((item: any) => group.keys.includes(item.key));
+        if (!items.length) return null;
+        const Icon = group.icon;
+        return <section key={group.id} id={`settings-${group.id}`} className="scroll-mt-5 space-y-4 rounded-3xl border border-border/40 bg-muted/[0.025] p-4 sm:p-5 md:p-6" aria-labelledby={`settings-${group.id}-title`}>
+          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border/35 pb-4">
+            <div className="flex min-w-0 items-start gap-3"><span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[var(--gold)]/10 text-[var(--gold)]"><Icon size={16} /></span><div className="min-w-0"><h3 id={`settings-${group.id}-title`} className="font-serif text-sm font-bold text-foreground sm:text-base">{group.title}</h3><p className="mt-1 text-[9px] leading-5 text-muted-foreground sm:text-[10px] sm:leading-6">{group.description}</p></div></div>
+            <span className="rounded-full border border-border/40 bg-[var(--bg)] px-3 py-1.5 text-[9px] font-semibold text-muted-foreground">{items.length.toLocaleString('ar-EG')} عناصر</span>
+          </div>
+          {renderCards(items)}
+        </section>;
+      })}
+      {!!extraSettings.length && <section id="settings-additional" className="scroll-mt-5 space-y-4 rounded-3xl border border-border/40 bg-muted/[0.025] p-4 sm:p-5 md:p-6"><div className="flex items-center gap-3 border-b border-border/35 pb-4"><span className="flex h-9 w-9 items-center justify-center rounded-xl bg-muted/15 text-muted-foreground"><Settings size={16} /></span><div><h3 className="font-serif text-sm font-bold text-foreground sm:text-base">إعدادات إضافية</h3><p className="mt-1 text-[9px] leading-5 text-muted-foreground">مفاتيح محفوظة إضافية في إعدادات المتجر.</p></div></div>{renderCards(extraSettings)}</section>}
+    </div>
+
+    <section id="settings-store-tools" className="scroll-mt-5 space-y-4 rounded-3xl border border-border/40 bg-muted/[0.025] p-4 sm:p-5 md:p-6" aria-labelledby="store-tools-title">
+      <div className="flex items-center gap-3 border-b border-border/35 pb-4"><span className="flex h-9 w-9 items-center justify-center rounded-xl bg-[var(--gold)]/10 text-[var(--gold)]"><Tag size={16} /></span><div><h3 id="store-tools-title" className="font-serif text-sm font-bold text-foreground sm:text-base">تجربة الزائر والخدمات</h3><p className="mt-1 text-[9px] leading-5 text-muted-foreground sm:text-[10px]">أدوات مستقلة بتفاصيلها، مع الإبقاء على طريقة حفظها الحالية.</p></div></div>
+      <div className="space-y-4"><PopupSettingsEditor enabledValue={settings.popup_enabled ?? 'false'} configValue={settings.popup_config ?? ''} onSave={onSavePopup} /><GiftWrapFeeEditor value={String(settings.gift_wrap_fee ?? '0')} /></div>
+    </section>
+  </div>;
+}
+
+
 function Content({ tab, data, onEdit, onDelete, onRefresh, onReorder, onSavePopup, onToggleMaintenance, canManageSettings, canManageNewsletter }: any) {
   if (tab === 'settings') {
-    const settings = Object.fromEntries((Array.isArray(data) ? data : []).map((item: any) => [item.key, item.value]));
-    const maintenanceEnabled = settings.maintenance_mode === true || String(settings.maintenance_mode ?? '').trim().toLowerCase() === 'true';
-    const otherSettings = (Array.isArray(data) ? data : []).filter((item: any) => !['popup_enabled', 'popup_config', 'gift_wrap_fee', 'maintenance_mode'].includes(item.key));
-    const settingLabels: Record<string, string> = {
-      brand_name: 'اسم المتجر', brand_tagline: 'العبارة التعريفية', currency: 'العملة',
-      announcement: 'شريط الإعلان', whatsapp: 'رقم واتساب', minimum_order: 'الحد الأدنى للطلب',
-      free_shipping: 'حد الشحن المجاني', seo_title: 'عنوان محركات البحث',
-      seo_description: 'وصف محركات البحث', social_facebook: 'رابط فيسبوك',
-      social_instagram: 'رابط إنستغرام', social_tiktok: 'رابط تيك توك',
-      brand_story: 'نبذة عن المتجر', header_menu: 'روابط القائمة العلوية', footer_links: 'روابط التذييل',
-    };
-    return (
-      <div className="space-y-5 md:space-y-6">
-        <PopupSettingsEditor enabledValue={settings.popup_enabled ?? 'false'} configValue={settings.popup_config ?? ''} onSave={onSavePopup} />
-        <GiftWrapFeeEditor value={String(settings.gift_wrap_fee ?? '0')} />
-        <section className="overflow-hidden rounded-3xl border border-[var(--gold)]/20 bg-[var(--gold)]/[0.035] shadow-sm" aria-labelledby="maintenance-setting-title">
-          <div className="flex flex-col gap-4 p-4 sm:flex-row sm:items-center sm:justify-between sm:p-5 md:p-6">
-            <div className="flex min-w-0 items-start gap-3">
-              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-[var(--gold)]/10 text-[var(--gold)]"><Settings size={18} /></span>
-              <div className="min-w-0">
-                <div className="flex flex-wrap items-center gap-2"><h3 id="maintenance-setting-title" className="font-serif text-sm font-bold text-foreground sm:text-base">وضع الصيانة</h3><span className={`rounded-full border px-2.5 py-1 text-[9px] font-bold ${maintenanceEnabled ? 'border-amber-500/25 bg-amber-500/10 text-amber-700 dark:text-amber-300' : 'border-green-500/20 bg-green-500/10 text-green-700 dark:text-green-300'}`}>{maintenanceEnabled ? 'المتجر متوقف مؤقتًا' : 'المتجر متاح للزوار'}</span></div>
-                <p className="mt-1 max-w-2xl text-[10px] leading-5 text-muted-foreground sm:text-xs sm:leading-6">عند التفعيل تظهر صفحة الصيانة للزوار، مع بقاء لوحة الإدارة متاحة لكِ لإدارة المتجر وإيقاف الصيانة.</p>
-                <code className="mt-1 block text-[9px] text-muted-foreground/75" dir="ltr">maintenance_mode</code>
-              </div>
-            </div>
-            <MaintenanceModeSwitch enabled={maintenanceEnabled} canManage={canManageSettings} onToggle={onToggleMaintenance} />
-          </div>
-        </section>
-
-        <section className="space-y-4 rounded-3xl border border-border/40 bg-muted/[0.035] p-4 sm:p-5 md:p-6" aria-labelledby="general-settings-title">
-          <div className="flex flex-wrap items-end justify-between gap-3 border-b border-border/35 pb-4">
-            <div><h3 id="general-settings-title" className="font-serif text-base font-bold text-foreground sm:text-lg">إعدادات عامة أخرى</h3><p className="mt-1 text-[10px] leading-5 text-muted-foreground sm:text-xs sm:leading-6">عدّلي القيم العامة من بطاقاتها. إعدادات الصيانة والنافذة المنبثقة لها أدوات مستقلة.</p></div>
-            <span className="rounded-full border border-border/40 bg-[var(--bg)] px-3 py-1.5 text-[9px] font-semibold text-muted-foreground">{otherSettings.length} إعداد</span>
-          </div>
-          {otherSettings.length ? <div className="grid gap-3 md:grid-cols-2 xl:gap-4">
-            {otherSettings.map((item: any) => {
-              const label = settingLabels[item.key] || String(item.key || '').replaceAll('_', ' ');
-              const value = item.value == null || item.value === '' ? '—' : String(item.value);
-              return <article key={item.id || item.key} className="group flex min-w-0 flex-col justify-between gap-4 rounded-2xl border border-border/45 bg-[var(--bg)] p-4 transition-colors hover:border-[var(--gold)]/30 sm:p-5">
-                <div className="min-w-0">
-                  <div className="flex flex-wrap items-start justify-between gap-2"><h4 className="min-w-0 break-words text-xs font-bold text-foreground sm:text-sm">{label}</h4><code className="max-w-full break-all rounded-lg border border-border/35 bg-muted/10 px-2 py-1 text-[8px] text-muted-foreground" dir="ltr">{item.key}</code></div>
-                  <p title={value} className="mt-3 line-clamp-3 break-words text-[10px] leading-5 text-muted-foreground sm:text-xs sm:leading-6">{value}</p>
-                </div>
-                <div className="flex justify-end border-t border-border/30 pt-3"><button type="button" disabled={!canManageSettings} className="inline-flex min-h-9 items-center gap-1.5 rounded-xl border border-border/55 bg-muted/10 px-3.5 text-[10px] font-semibold text-foreground transition hover:border-[var(--gold)]/40 hover:bg-[var(--gold)]/5 disabled:cursor-not-allowed disabled:opacity-50" onClick={() => onEdit(item)}><Save size={13} /> تعديل القيمة</button></div>
-              </article>;
-            })}
-          </div> : <p className="rounded-2xl border border-dashed border-border/50 bg-[var(--bg)] p-5 text-center text-xs text-muted-foreground">لا توجد إعدادات عامة إضافية حاليًا.</p>}
-        </section>
-      </div>
-    );
+    return <GeneralSettingsPanel data={data} onEdit={onEdit} onSavePopup={onSavePopup} onToggleMaintenance={onToggleMaintenance} canManageSettings={canManageSettings} />;
   }
   if (tab === 'analytics') return <Analytics data={data[0] || {}} />;
   if (tab === 'newsletter') return <NewsletterSubscribers data={data} onRefresh={onRefresh} canManage={canManageNewsletter} />;
