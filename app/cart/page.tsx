@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { ArrowLeft, ArrowRight, Check, Minus, Plus, ShieldCheck, ShoppingBag, Sparkles, Trash2, Truck } from 'lucide-react';
+import { useFeatureFlags } from '@/lib/use-feature-flags';
 
 type CartItem = {
   productId: string;
@@ -24,6 +25,9 @@ export default function Cart() {
   const [freeShipping, setFreeShipping] = useState(0);
   const [coupon, setCoupon] = useState('');
   const [removingKey, setRemovingKey] = useState<string | null>(null);
+  const { enabled: featureEnabled } = useFeatureFlags();
+  const giftWrapEnabled = featureEnabled('gift_wrap', false);
+  const [giftWrap, setGiftWrap] = useState(false);
 
   useEffect(() => {
     const readCart = () => {
@@ -47,6 +51,7 @@ export default function Cart() {
 
     readCart();
     syncAbandonedCart();
+    try { setGiftWrap(localStorage.getItem('wahaj_gift_wrap') === 'true'); } catch {}
     fetch('/api/settings')
       .then(response => response.json())
       .then(data => {
@@ -176,6 +181,21 @@ export default function Cart() {
               <div className="wahaj-shipping-progress__copy"><span>{remaining ? `تبقى ${money(remaining)} للشحن المجاني` : 'وصلتِ للشحن المجاني'}</span><b>{Math.round(progress)}%</b></div>
               <div className="wahaj-shipping-progress__bar"><span style={{ width: `${progress}%` }} /></div>
             </div>}
+            {giftWrapEnabled && (
+              <label className="my-4 flex cursor-pointer items-start gap-3 rounded-xl border border-[var(--gold)]/30 p-3 text-sm">
+                <input
+                  type="checkbox"
+                  checked={giftWrap}
+                  onChange={(event) => {
+                    const enabled = event.target.checked;
+                    setGiftWrap(enabled);
+                    try { localStorage.setItem('wahaj_gift_wrap', enabled ? 'true' : 'false'); } catch {}
+                  }}
+                  className="mt-1 accent-[var(--gold)]"
+                />
+                <span><b className="block">تغليف كهدية</b><small className="mt-1 block text-muted-foreground">أضيفي لمسة مميزة لطلبكِ. سيتم إبلاغ المتجر باختياركِ عند إتمام الطلب.</small></span>
+              </label>
+            )}
             <label className="wahaj-cart-coupon"><span>كود الخصم أو الهدية</span><input value={coupon} onChange={event => setCoupon(event.target.value.toUpperCase())} placeholder="اختياري" dir="ltr" /></label>
             <div className="wahaj-summary-lines"><div><span>عدد القطع</span><b>{quantity}</b></div><div><span>الإجمالي المبدئي</span><b>{money(subtotal)}</b></div><div><span>الشحن</span><b className="is-muted">يُحسب حسب العنوان</b></div></div>
             <div className="wahaj-summary-total"><span>الإجمالي الحالي</span><strong>{money(subtotal)}</strong></div>
