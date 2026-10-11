@@ -5298,3 +5298,181 @@ a:focus-visible {
 @media (prefers-reduced-motion: reduce) {
   .wahaj-login__submit, .wahaj-login__input-wrap input { transition: none; }
 }
+
+
+/* صفحة وضع الصيانة — متوافقة مع هوية وَهَج والوضعين الفاتح والليلي */
+.wahaj-maintenance {
+  --maintenance-gold: var(--gold, #c8a96b);
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  min-height: 100svh;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  padding: clamp(24px, 5vw, 64px) 16px 22px;
+  color: var(--foreground, #171513);
+  background:
+    radial-gradient(ellipse at 50% 38%, color-mix(in srgb, var(--maintenance-gold) 11%, transparent), transparent 44%),
+    var(--background, #f8f5ef);
+  font-family: var(--font-wahaj), Tajawal, sans-serif;
+}
+.dark .wahaj-maintenance {
+  background:
+    radial-gradient(ellipse at 50% 38%, color-mix(in srgb, var(--maintenance-gold) 12%, transparent), transparent 44%),
+    var(--background, #11100e);
+}
+.wahaj-maintenance__glow {
+  position: absolute;
+  z-index: -1;
+  width: 340px;
+  height: 340px;
+  border: 1px solid color-mix(in srgb, var(--maintenance-gold) 13%, transparent);
+  border-radius: 50%;
+  pointer-events: none;
+}
+.wahaj-maintenance__glow--one { top: -230px; right: -110px; }
+.wahaj-maintenance__glow--two { bottom: -250px; left: -120px; width: 420px; height: 420px; }
+.wahaj-maintenance__card {
+  width: min(100%, 650px);
+  padding: clamp(26px, 5vw, 52px) clamp(20px, 6vw, 62px);
+  border: 1px solid color-mix(in srgb, var(--maintenance-gold) 27%, var(--border, #e7e0d4));
+  border-radius: 28px;
+  background: color-mix(in srgb, var(--card, #fffdf9) 91%, transparent);
+  box-shadow: 0 24px 90px rgb(42 32 16 / 8%), inset 0 1px 0 rgb(255 255 255 / 45%);
+  text-align: center;
+  backdrop-filter: blur(14px);
+}
+.dark .wahaj-maintenance__card {
+  background: color-mix(in srgb, var(--card, #1a1916) 93%, transparent);
+  box-shadow: 0 24px 90px rgb(0 0 0 / 25%);
+}
+.wahaj-maintenance__brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  text-align: right;
+}
+.wahaj-maintenance__mark {
+  display: grid;
+  width: 48px;
+  height: 48px;
+  place-items: center;
+  border: 1px solid color-mix(in srgb, var(--maintenance-gold) 70%, transparent);
+  border-radius: 16px 16px 5px 16px;
+  color: var(--maintenance-gold);
+  font-size: 30px;
+  font-weight: 700;
+}
+.wahaj-maintenance__brand strong { display: block; font-size: 20px; line-height: 1.5; }
+.wahaj-maintenance__brand small { display: block; color: var(--muted-foreground, #858078); font-size: 11px; }
+.wahaj-maintenance__illustration {
+  position: relative;
+  display: grid;
+  width: 150px;
+  height: 150px;
+  place-items: center;
+  margin: 28px auto 22px;
+  color: var(--maintenance-gold);
+}
+.wahaj-maintenance__orbit {
+  position: absolute;
+  inset: 8px;
+  border: 1px solid color-mix(in srgb, var(--maintenance-gold) 34%, transparent);
+  border-radius: 50%;
+}
+.wahaj-maintenance__orbit--outer { transform: rotate(-28deg) scaleY(.7); }
+.wahaj-maintenance__orbit--inner { inset: 24px; border-style: dashed; opacity: .7; }
+.wahaj-maintenance__clock {
+  display: grid;
+  width: 94px;
+  height: 94px;
+  place-items: center;
+  border: 1px solid color-mix(in srgb, var(--maintenance-gold) 45%, transparent);
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--maintenance-gold) 9%, var(--card, white));
+}
+.wahaj-maintenance__spark { position: absolute; display: grid; place-items: center; }
+.wahaj-maintenance__spark--a { top: 5px; right: 8px; }
+.wahaj-maintenance__spark--b { bottom: 10px; left: 5px; font-size: 23px; }
+.wahaj-maintenance__eyebrow {
+  display: inline-block;
+  margin-bottom: 14px;
+  color: var(--maintenance-gold);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .04em;
+}
+.wahaj-maintenance h1 {
+  margin: 0;
+  font-size: clamp(27px, 5vw, 39px);
+  font-weight: 700;
+  line-height: 1.55;
+  letter-spacing: -.035em;
+}
+.wahaj-maintenance h1 em { color: var(--maintenance-gold); font-style: normal; }
+.wahaj-maintenance__message {
+  max-width: 450px;
+  margin: 16px auto 0;
+  color: var(--muted-foreground, #77716a);
+  font-size: 14px;
+  line-height: 2.05;
+}
+.wahaj-maintenance__status {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  margin-top: 24px;
+  padding: 10px 15px;
+  border: 1px solid color-mix(in srgb, var(--maintenance-gold) 25%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--maintenance-gold) 8%, transparent);
+  font-size: 12px;
+}
+.wahaj-maintenance__status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--maintenance-gold);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--maintenance-gold) 16%, transparent);
+}
+.wahaj-maintenance__divider {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 24px 0 12px;
+  color: var(--maintenance-gold);
+}
+.wahaj-maintenance__divider::before, .wahaj-maintenance__divider::after {
+  height: 1px;
+  flex: 1;
+  background: color-mix(in srgb, var(--maintenance-gold) 24%, transparent);
+  content: "";
+}
+.wahaj-maintenance__thanks { margin: 0; color: var(--muted-foreground, #77716a); font-size: 12px; }
+.wahaj-maintenance__contact {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 18px;
+  color: var(--foreground, #171513);
+  font-size: 12px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: color .2s ease;
+}
+.wahaj-maintenance__contact:hover { color: var(--maintenance-gold); }
+.wahaj-maintenance__footer {
+  padding-top: 20px;
+  color: var(--muted-foreground, #858078);
+  font-size: 10px;
+  text-align: center;
+}
+@media (max-width: 480px) {
+  .wahaj-maintenance__card { border-radius: 22px; }
+  .wahaj-maintenance__illustration { width: 128px; height: 128px; margin-top: 22px; }
+  .wahaj-maintenance__clock { width: 82px; height: 82px; }
+  .wahaj-maintenance__clock svg { width: 45px; height: 45px; }
+  .wahaj-maintenance__message { font-size: 13px; }
+}
