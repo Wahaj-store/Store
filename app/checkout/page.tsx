@@ -103,6 +103,9 @@ function CheckoutContent() {
   const [pricing, setPricing] = useState<any>({ subtotal: 0, discount: 0, shipping: 0, total: 0, freeShipping: false, appliedOffers: [] });
   const [pricingLoading, setPricingLoading] = useState(false);
   const [pricingMessage, setPricingMessage] = useState('');
+  const [giftWrapAvailable, setGiftWrapAvailable] = useState(false);
+  const [giftWrapFee, setGiftWrapFee] = useState(0);
+  const [giftWrapSelected, setGiftWrapSelected] = useState(false);
   
   const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
   const [customer, setCustomer] = useState<CustomerSummary | null>(null);
@@ -140,6 +143,9 @@ function CheckoutContent() {
     fetch('/api/settings')
       .then(x => x.json())
       .then(data => {
+        setGiftWrapAvailable(data?.features?.gift_wrap === true);
+        setGiftWrapFee(Math.max(0, Math.min(100000, Number(data?.settings?.gift_wrap_fee || 0))));
+        try { setGiftWrapSelected(localStorage.getItem('wahaj_gift_wrap') === 'true'); } catch {}
         const rawMethods = Array.isArray(data) ? data : (data.payments || []);
         const ms = rawMethods.filter((m: any) => m.enabled !== false);
         
@@ -214,6 +220,7 @@ function CheckoutContent() {
   const offerDiscount = Number(pricing.discount || 0);
   const finalShipping = Number(pricing.shipping ?? shippingCost);
   const finalTotal = Number(pricing.total || 0);
+  const appliedGiftWrapFee = giftWrapAvailable && giftWrapSelected ? giftWrapFee : 0;
 
   useEffect(() => {
     let cancelled = false;
@@ -233,6 +240,7 @@ function CheckoutContent() {
             governorate: selectedGovernorate || undefined,
             city: formData.city || undefined,
             phone: formData.phone || undefined,
+            giftWrap: giftWrapAvailable && giftWrapSelected,
           }),
         });
         const data = await res.json();
@@ -249,7 +257,7 @@ function CheckoutContent() {
       }
     }, 250);
     return () => { cancelled = true; window.clearTimeout(timer); };
-  }, [c, coupon, selectedGovernorate, formData.city, formData.phone]);
+  }, [c, coupon, selectedGovernorate, formData.city, formData.phone, giftWrapAvailable, giftWrapSelected]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -324,6 +332,7 @@ function CheckoutContent() {
       city: formData.city,
       address: formData.address,
       notes: formData.notes,
+      giftWrap: giftWrapAvailable && giftWrapSelected,
       addressId: selectedAddressId || undefined,
       paymentMethod: pay,
       giftCardCode: coupon || undefined,
@@ -368,6 +377,7 @@ function CheckoutContent() {
           sessionStorage.removeItem('wahaj_checkout_idempotency_key');
         } catch {}
         localStorage.removeItem('wahaj_cart');
+        localStorage.removeItem('wahaj_gift_wrap');
         window.dispatchEvent(new Event('wahaj-cart-change'));
         r.push(`/checkout/success?order=${j.orderNumber}`);
       } else {
@@ -426,6 +436,7 @@ function CheckoutContent() {
                 <label>المدينة / المركز<input name="city" required readOnly={Boolean(selectedAddressId)} value={formData.city} onChange={handleInputChange} placeholder="اسم المدينة أو الحي" /></label>
               </div>
               <label className="wahaj-form-field">العنوان بالتفصيل<textarea name="address" required readOnly={Boolean(selectedAddressId)} rows={3} value={formData.address} onChange={handleInputChange} placeholder="اسم الشارع، رقم العمارة، رقم الشقة..." /></label>
+              {giftWrapAvailable && <label className="mt-4 flex cursor-pointer items-start gap-3 rounded-2xl border border-[var(--gold)]/30 bg-[var(--gold)]/5 p-4"><input type="checkbox" checked={giftWrapSelected} onChange={event => { const enabled = event.target.checked; setGiftWrapSelected(enabled); try { localStorage.setItem('wahaj_gift_wrap', enabled ? 'true' : 'false'); } catch {} }} className="mt-1 accent-[var(--gold)]" /><span className="grid gap-1"><b className="text-sm text-foreground">خدمة تغليف هدايا</b><small className="text-xs leading-5 text-muted-foreground">{giftWrapFee > 0 ? `رسوم الخدمة: ${giftWrapFee.toLocaleString('ar-EG')} ج.م` : 'خدمة تغليف هدايا مجانية'}. يمكنكِ اختيارها قبل تأكيد الطلب.</small></span></label>}
               <div className="wahaj-form-grid wahaj-form-grid--secondary"><label>ملاحظات التوصيل <span>اختياري</span><input name="notes" value={formData.notes} onChange={handleInputChange} placeholder="أي ملاحظات خاصة بالتوصيل..." /></label><label>بطاقة هدية / كود خصم <span>اختياري</span><input value={coupon} onChange={event => setCoupon(event.target.value.toUpperCase())} placeholder="أدخلي الكود" dir="ltr" /></label></div>
             </div>
 
@@ -440,7 +451,7 @@ function CheckoutContent() {
           <aside className="wahaj-checkout-summary">
             <div className="wahaj-cart-summary__label">مراجعة نهائية</div><h2>ملخص طلبكِ</h2>
             <div className="wahaj-checkout-items">{c.map((item: any, index: number) => <div key={`${item.productId}:${item.variantId || index}`}><span><b>{item.quantity}×</b> {item.name}</span><strong>{(Number(item.price) * Number(item.quantity)).toLocaleString('ar-EG')} ج.م</strong></div>)}</div>
-            <div className="wahaj-summary-lines"><div><span>الإجمالي المبدئي</span><b>{subtotal.toLocaleString('ar-EG')} ج.م</b></div>{offerDiscount > 0 && <div className="is-discount"><span>الخصم</span><b>−{offerDiscount.toLocaleString('ar-EG')} ج.م</b></div>}<div><span>الشحن</span><b>{pricing.freeShipping ? <span className="is-gold">مجانًا</span> : `${finalShipping.toLocaleString('ar-EG')} ج.م`}</b></div></div>
+            <div className="wahaj-summary-lines"><div><span>الإجمالي المبدئي</span><b>{subtotal.toLocaleString('ar-EG')} ج.م</b></div>{offerDiscount > 0 && <div className="is-discount"><span>الخصم</span><b>−{offerDiscount.toLocaleString('ar-EG')} ج.م</b></div>}<div><span>الشحن</span><b>{pricing.freeShipping ? <span className="is-gold">مجانًا</span> : `${finalShipping.toLocaleString('ar-EG')} ج.م`}</b></div>{giftWrapAvailable && giftWrapSelected && <div><span>خدمة تغليف هدايا</span><b>{appliedGiftWrapFee.toLocaleString('ar-EG')} ج.م</b></div>}</div>
             {pricingMessage && <div className="wahaj-pricing-note">{pricingMessage}</div>}
             <div className="wahaj-summary-total"><span>الإجمالي النهائي {pricingLoading ? '…' : ''}</span><strong>{finalTotal.toLocaleString('ar-EG')} ج.م</strong></div>
             <button disabled={busy || !c.length || !methods.length} className="wahaj-commerce-primary wahaj-checkout-submit">{busy ? 'جارٍ إرسال الطلب...' : 'تأكيد وإتمام الطلب'}<CheckCircle2 size={18} /></button>
