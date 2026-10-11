@@ -5464,6 +5464,7 @@ body:has(.wahaj-maintenance) .wahaj-footer { display:none !important; }
 .wahaj-cart-drawer__review:hover { color:var(--gold-muted); }
 @keyframes wahaj-cart-overlay-in { from { opacity:0; } to { opacity:1; } }
 @keyframes wahaj-cart-panel-in { from { opacity:.9; transform:translateX(16px); } to { opacity:1; transform:translateX(0); } }
+@media (max-width:600px) { .wahaj-cart-drawer { width:min(470px,90vw); max-width:calc(100vw - 28px); } }
 @media (max-width:420px) { .wahaj-cart-drawer__header { min-height:94px; padding-inline:17px; }.wahaj-cart-drawer__body { padding:15px 15px 19px; }.wahaj-cart-drawer__footer { padding-inline:16px; }.wahaj-cart-drawer__item { gap:10px; padding:10px; }.wahaj-cart-drawer__image { width:74px; height:90px; flex-basis:74px; } }
 @media (prefers-reduced-motion:reduce) { .wahaj-cart-drawer-overlay,.wahaj-cart-drawer,.wahaj-cart-drawer * { animation:none !important; transition:none !important; scroll-behavior:auto !important; } }
 
