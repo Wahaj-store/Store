@@ -10,6 +10,10 @@ const NewsletterSchema = z.object({
 });
 
 export async function POST(req: Request) {
+  try {
+    const flag = await prisma.featureFlag.findUnique({ where: { key: 'newsletter' }, select: { enabled: true } });
+    if (flag && !flag.enabled) return NextResponse.json({ error: 'الاشتراك في النشرة البريدية غير متاح حاليًا.' }, { status: 403 });
+  } catch { /* Preserve newsletter availability if feature-flag lookup fails. */ }
   const clientKey = getClientKey(req);
   const limit = await rateLimit(`newsletter:ip:${clientKey}`, 5, 15 * 60 * 1000);
   if (!limit.ok) {
