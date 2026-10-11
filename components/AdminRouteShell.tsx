@@ -138,7 +138,7 @@ export default function AdminRouteShell({ children }: { children: ReactNode }) {
                   <h2 className="mb-1.5 px-2 text-[10px] font-bold text-muted-foreground">{group.label}</h2>
                   <div className="space-y-1">
                     {group.items.map(({ label, tab, icon: Icon }) => {
-                      const href = tab === 'logistics' ? '/admin/logistics' : `/admin?tab=${encodeURIComponent(tab)}`;
+                      const href = tab === 'inventory' ? '/admin/inventory' : tab === 'logistics' ? '/admin/logistics' : `/admin?tab=${encodeURIComponent(tab)}`;
                       const active = activeAdminTab === tab;
                       return <Link key={`${group.label}-${tab}`} href={href} onClick={() => { setActiveAdminTab(tab); setMenuOpen(false); window.dispatchEvent(new CustomEvent('wahaj-admin-tab-change', { detail: tab })); }} aria-current={active ? 'page' : undefined} className={`flex min-h-10 items-center gap-2.5 rounded-xl px-3 text-xs transition ${active ? 'bg-[var(--gold)] font-bold text-[var(--gold-contrast)]' : 'text-foreground/80 hover:bg-muted/15 hover:text-[var(--gold)]'}`}>
                         <Icon size={16} className={active ? '' : 'text-[var(--gold)]'} /><span className="flex-1">{label}</span><ChevronLeft size={13} className="opacity-60" />
