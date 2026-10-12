@@ -90,7 +90,11 @@ export default async function Shop({ searchParams }: { searchParams: ShopSearchP
   const safePage = Math.min(requestedPage, totalPages);
   const products = await prisma.product.findMany({
     where,
-    include: { images: { orderBy: { sortOrder: 'asc' }, take: 1 }, category: true },
+    include: {
+      images: { orderBy: { sortOrder: 'asc' }, take: 1 },
+      category: true,
+      variants: { select: { id: true }, take: 1 },
+    },
     orderBy,
     skip: (safePage - 1) * PAGE_SIZE,
     take: PAGE_SIZE,
