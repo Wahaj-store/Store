@@ -94,6 +94,7 @@ export default async function ProductPage({ params }: { params: { slug: string }
               include: {
                 images: { orderBy: { sortOrder: 'asc' }, take: 1 },
                 category: true,
+                variants: { select: { id: true }, take: 1 },
               },
             },
           },
