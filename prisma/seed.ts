@@ -1,5 +1,6 @@
 import { PrismaClient, Role, ProductStatus, PaymentMethod } from '@prisma/client';
 import crypto from 'crypto';
+import { buildProductSearchText } from '../lib/product-search';
 
 const prisma = new PrismaClient();
 
@@ -10,25 +11,6 @@ function hash(password: string): Promise<string> {
       else resolve(derivedKey.toString('hex'));
     });
   });
-}
-
-/**
- * Search text used by the Product trigram GIN index.
- * Keeps Arabic letters searchable while removing diacritics/tatweel and normalizing whitespace.
- */
-function normalizeSearchText(value: string): string {
-  return value
-    .toLowerCase()
-    .normalize('NFKC')
-    .replace(/[\u064B-\u065F\u0670\u06D6-\u06ED]/g, '')
-    .replace(/\u0640/g, '')
-    .replace(/[أإآٱ]/g, 'ا')
-    .replace(/ى/g, 'ي')
-    .replace(/ة/g, 'ه')
-    .replace(/ؤ/g, 'و')
-    .replace(/ئ/g, 'ي')
-    .replace(/\s+/g, ' ')
-    .trim();
 }
 
 async function upsertSiteSetting(key: string, value: string) {
@@ -135,9 +117,13 @@ async function main() {
     if (!categoryId) throw new Error(`Category not found: ${product.category}`);
 
     const description = 'قطعة أنيقة مختارة بعناية لتضيف لمسة من الوهج إلى إطلالتك.';
-    const searchText = normalizeSearchText(
-      [product.name, product.slug, product.sku, description, product.category].join(' '),
-    );
+    const searchText = buildProductSearchText({
+      name: product.name,
+      slug: product.slug,
+      sku: product.sku,
+      description,
+      tags: product.category,
+    });
 
     const saved = await prisma.product.upsert({
       where: { slug: product.slug },
