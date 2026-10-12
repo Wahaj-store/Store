@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { prisma } from '@/lib/prisma';
 import ProductCard from '@/components/ProductCard';
+import { normalizeProductSearchText } from '@/lib/product-search';
 
 export const revalidate = 60;
 
@@ -41,6 +42,7 @@ function getNonNegativeNumber(value: string | undefined) {
 
 export default async function Shop({ searchParams }: { searchParams: ShopSearchParams }) {
   const q = (searchParams.q || '').trim().slice(0, 120);
+  const normalizedQuery = normalizeProductSearchText(q);
   const category = searchParams.category?.trim().slice(0, 120) || undefined;
   const minPrice = getNonNegativeNumber(searchParams.minPrice);
   const maxPrice = getNonNegativeNumber(searchParams.maxPrice);
@@ -54,13 +56,15 @@ export default async function Shop({ searchParams }: { searchParams: ShopSearchP
     status: 'PUBLISHED' as const,
     ...(category ? { category: { slug: category } } : {}),
     ...(q
-      ? {
-          OR: [
-            { name: { contains: q, mode: 'insensitive' as const } },
-            { sku: { contains: q, mode: 'insensitive' as const } },
-            { description: { contains: q, mode: 'insensitive' as const } },
-          ],
-        }
+      ? normalizedQuery.length >= 3
+        ? { searchText: { contains: normalizedQuery, mode: 'insensitive' as const } }
+        : {
+            OR: [
+              { name: { contains: q, mode: 'insensitive' as const } },
+              { sku: { contains: q, mode: 'insensitive' as const } },
+              { description: { contains: q, mode: 'insensitive' as const } },
+            ],
+          }
       : {}),
     ...(minPrice !== undefined || maxPrice !== undefined
       ? {
