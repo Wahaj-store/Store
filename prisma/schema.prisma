@@ -211,7 +211,7 @@ model Product {
   seoTitle         String?
   seoDescription   String?
   tags             String?
-  searchText       String?
+  searchText       String                    @default("")
   featured         Boolean                   @default(false)
   newArrival       Boolean                   @default(false)
   bestSeller       Boolean                   @default(false)
@@ -238,6 +238,10 @@ model Product {
   @@index([categoryId, status])
   @@index([stock, status])
   @@index([searchText(ops: raw("gin_trgm_ops"))], type: Gin)
+  @@index([status, createdAt])
+  @@index([categoryId, status, createdAt])
+  @@index([status, price])
+  @@index([status, name])
 }
 
 model ProductImage {
@@ -265,7 +269,7 @@ model ProductVariant {
   inventoryLedger InventoryLedger[]
 
   @@unique([productId, name, value])
-  @@index([productId])
+  @@index([productId, stock])
 }
 
 model BackInStockSubscription {

@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma';
 import { requirePermission } from '@/lib/auth';
 import { InventoryLedgerType, Prisma } from '@prisma/client';
 import { applyInventoryDelta } from '@/lib/inventory';
+import { revalidateShopProducts } from '@/lib/shop-cache';
 
 export async function GET(req: Request) {
   const auth = await requirePermission('inventoryRead');
@@ -47,6 +48,7 @@ export async function POST(req: Request) {
       { isolationLevel: Prisma.TransactionIsolationLevel.Serializable, maxWait: 5000, timeout: 15000 },
     );
     await prisma.activityLog.create({ data: { userId: auth.user.id, action: 'INVENTORY_ADJUSTMENT', entity: 'InventoryLedger', entityId: entry.id, metadata: JSON.stringify({ productId, variantId, delta, reason }) } });
+    revalidateShopProducts();
     return NextResponse.json(entry, { status: 201 });
   } catch (error: any) {
     return NextResponse.json({ error: error?.message || 'تعذر تسجيل حركة المخزون' }, { status: error?.code === 'P2034' ? 409 : 400 });

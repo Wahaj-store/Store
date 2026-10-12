@@ -9,14 +9,14 @@ type SearchableProductFields = {
 };
 
 /**
- * Keep this normalization aligned with the SQL backfill in the trigram migration.
- * The same normalized representation is stored in Product.searchText and queried
- * from /shop so PostgreSQL can use its pg_trgm GIN index for substring matches.
+ * Must remain aligned with normalize_product_search_text() in the database
+ * trigger migration. The normalized value is indexed by PostgreSQL pg_trgm.
  */
 export function normalizeProductSearchText(value: unknown): string {
   return String(value ?? '')
     .toLowerCase()
-    .replace(/[\u064B-\u065F\u0670-\u06ED]/g, '')
+    // Arabic harakat, dagger alif and Quranic annotation marks (not Arabic letters).
+    .replace(/[\u064B-\u065F\u0670\u06D6-\u06ED]/g, '')
     .replace(/\u0640/g, '')
     .replace(/[أإآٱ]/g, 'ا')
     .replace(/ى/g, 'ي')

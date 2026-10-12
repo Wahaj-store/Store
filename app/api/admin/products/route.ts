@@ -4,6 +4,7 @@ import { requirePermission } from '@/lib/auth';
 import { Prisma } from '@prisma/client';
 import { recordInventoryEntry } from '@/lib/inventory';
 import { buildProductSearchText } from '@/lib/product-search';
+import { revalidateShopProducts } from '@/lib/shop-cache';
 
 export async function GET() {
   const auth = await requirePermission('productsRead');
@@ -36,6 +37,7 @@ export async function POST(req: Request) {
       return created;
     }, { isolationLevel: Prisma.TransactionIsolationLevel.Serializable, maxWait: 5000, timeout: 15000 });
     await prisma.activityLog.create({ data: { userId: auth.user.id, action: 'CREATE', entity: 'Product', entityId: p.id } });
+    revalidateShopProducts();
     return NextResponse.json(p, { status: 201 });
   } catch (e: any) {
     return NextResponse.json({ error: e.message || 'تعذر إنشاء المنتج' }, { status: e?.code === 'P2034' ? 409 : 400 });

@@ -3,6 +3,7 @@ import {prisma} from '@/lib/prisma';
 import {requireUser} from '@/lib/auth';
 import {OrderStatus, PaymentStatus, Prisma} from '@prisma/client';
 import { updateOrderStatus } from '@/lib/order-service';
+import { revalidateShopProducts } from '@/lib/shop-cache';
 import { updatePaymentStatus } from '@/lib/payment-service';
 import { notifyOrderStatus } from '@/lib/whatsapp';
 import { syncShipmentFromOrderStatus } from '@/lib/shipment-sync';
@@ -57,6 +58,7 @@ export async function PUT(req:Request){
    return await tx.order.findUnique({where:{id:old.id}});
   },{isolationLevel:Prisma.TransactionIsolationLevel.Serializable,maxWait:5000,timeout:15000});
   if (!order) return NextResponse.json({error:'تعذر تحديث الطلب'},{status:500});
+  revalidateShopProducts();
   await prisma.activityLog.create({data:{userId:u.id,action:'UPDATE_ORDER',entity:'Order',entityId:order.id,metadata:JSON.stringify({status:b.status,paymentStatus:b.paymentStatus})}});
   if (nextStatus) {
    const customer = order.customerId ? await prisma.customer.findUnique({where:{id:order.customerId},select:{email:true,name:true}}) : null;

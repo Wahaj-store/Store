@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma';
 import { requireUser } from '@/lib/auth';
 import { rolesFor } from '@/lib/rbac';
 import { updateReturnStatus } from '@/lib/return-service';
+import { revalidateShopProducts } from '@/lib/shop-cache';
 import { notifyReturn } from '@/lib/whatsapp';
 import { notifyReturnByEmail } from '@/lib/email';
 
@@ -25,6 +26,7 @@ export async function PUT(req: Request) {
       actorName: user.name || user.email,
       adminNote: typeof body.adminNote === 'string' ? body.adminNote : undefined,
     }), { isolationLevel: Prisma.TransactionIsolationLevel.Serializable, maxWait: 5000, timeout: 15000 });
+    revalidateShopProducts();
     await prisma.activityLog.create({ data: { userId: user.id, action: 'UPDATE_RETURN', entity: 'ReturnRequest', entityId: updated.id, metadata: JSON.stringify({ status: updated.status }) } });
     const notificationOrder = await prisma.order.findUnique({ where: { id: updated.orderId }, select: { id: true, number: true, customerId: true, customerPhoneSnapshot: true, customerNameSnapshot: true, customer: { select: { email: true, name: true } } } });
     if (notificationOrder) {

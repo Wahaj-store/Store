@@ -4,6 +4,7 @@ import { requirePermission } from '@/lib/auth';
 import { Prisma } from '@prisma/client';
 import { recordInventoryEntry } from '@/lib/inventory';
 import { buildProductSearchText } from '@/lib/product-search';
+import { revalidateShopProducts } from '@/lib/shop-cache';
 
 export async function GET(_: Request, { params }: { params: { id: string } }) {
   const auth = await requirePermission('productsRead');
@@ -69,6 +70,7 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
     }, { isolationLevel: Prisma.TransactionIsolationLevel.Serializable, maxWait: 5000, timeout: 15000 });
 
     await prisma.activityLog.create({ data: { userId: auth.user.id, action: 'UPDATE', entity: 'Product', entityId: p.id, metadata: JSON.stringify({ inventoryTracked: true }) } });
+    revalidateShopProducts();
     return NextResponse.json(p);
   } catch (e: any) {
     return NextResponse.json({ error: e.message || 'تعذر تحديث المنتج' }, { status: e?.code === 'P2034' ? 409 : 400 });
@@ -83,5 +85,6 @@ export async function DELETE(_: Request, { params }: { params: { id: string } })
   const reviewRefs = await prisma.review.count({ where: { productId: params.id } });
   if (reviewRefs > 0) return NextResponse.json({ error: 'لا يمكن حذف منتج له تقييمات. غيّري حالته إلى ARCHIVED بدلًا من الحذف.' }, { status: 409 });
   await prisma.product.delete({ where: { id: params.id } });
+  revalidateShopProducts();
   return NextResponse.json({ ok: true });
 }

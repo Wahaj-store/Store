@@ -9,6 +9,7 @@ import { refundGiftCardForOrder } from '@/lib/gift-card';
 import { getClientKey, rateLimit } from '@/lib/rate-limit';
 import { getPaymentProofUrl, isPrivatePaymentProofPath } from '@/lib/payment-proof';
 import { updateOrderStatus } from '@/lib/order-service';
+import { revalidateShopProducts } from '@/lib/shop-cache';
 
 const ORDER_READ_ROLES = ['OWNER', 'ADMIN', 'MANAGER', 'ORDER_MANAGER', 'VIEWER'];
 const PAYMENT_PROOF_ROLES = ['OWNER', 'ADMIN', 'MANAGER', 'ORDER_MANAGER'];
@@ -103,6 +104,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
       return { updatedOrder, shipment };
     }, { isolationLevel: Prisma.TransactionIsolationLevel.Serializable, maxWait: 5000, timeout: 15000 });
 
+    revalidateShopProducts();
     const orderForEmail = await prisma.order.findUnique({ where: { id }, select: { number: true, status: true, customerNameSnapshot: true, customer: { select: { email: true, name: true } } } });
     if (orderForEmail) {
       await notifyOrderStatusByEmail({ email: orderForEmail.customer?.email, name: orderForEmail.customer?.name || orderForEmail.customerNameSnapshot, orderNumber: orderForEmail.number, status: orderForEmail.status });

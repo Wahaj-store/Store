@@ -110,7 +110,11 @@ export default function ProductCard({
   const compare = product.comparePrice ? Number(product.comparePrice) : 0;
   const discount =
     compare > price ? Math.round((1 - price / compare) * 100) : 0;
-  const soldOut = Number(product.stock) <= 0;
+  const firstVariantStock = product.variants?.[0]?.stock;
+  const availableStock = product.variants?.length && firstVariantStock != null
+    ? Number(firstVariantStock)
+    : Number(product.stock);
+  const soldOut = availableStock <= 0;
 
   return (
     <>
@@ -196,12 +200,12 @@ export default function ProductCard({
           <div className="wahaj-product-card__availability">
             <span
               className={`wahaj-product-card__dot ${
-                soldOut ? "is-out" : Number(product.stock) <= 5 ? "is-low" : ""
+              soldOut ? "is-out" : availableStock <= 5 ? "is-low" : ""
               }`}
             />
             {soldOut
               ? "غير متوفر حاليًا"
-              : Number(product.stock) <= 5
+              : availableStock <= 5
                 ? "متبقي عدد محدود"
                 : "متوفر — جاهز للطلب"}
           </div>

@@ -15,6 +15,7 @@ import { markLatestCartRecovered } from '@/lib/abandoned-cart';
 import { hashGiftCardCode, normalizeGiftCardCode } from '@/lib/gift-card';
 import { findActiveShippingZone } from '@/lib/shipping';
 import { getClientKey, rateLimit } from '@/lib/rate-limit';
+import { revalidateShopProducts } from '@/lib/shop-cache';
 import {
   createPaymentProofPath,
   deletePaymentProof,
@@ -274,6 +275,7 @@ export async function POST(req: Request) {
       return o;
     }, { isolationLevel: Prisma.TransactionIsolationLevel.Serializable, maxWait: 5000, timeout: 15000 });
 
+    revalidateShopProducts();
     const orderCustomer = order.customerId
       ? await prisma.customer.findUnique({ where: { id: order.customerId }, select: { email: true, name: true } })
       : null;
