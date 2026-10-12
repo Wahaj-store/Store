@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import { Check, ShoppingBag } from 'lucide-react';
 
 type AddToCartProps = {
@@ -74,6 +75,23 @@ export default function AddToCart({
     : !product.stock;
 
   const isDetail = variant === 'detail';
+
+  if (variant === 'card' && product.variants?.length && !variantId) {
+    return (
+      <Link
+        href={`/product/${product.slug}`}
+        prefetch={false}
+        aria-label={`اختاري خيارات ${product.name}`}
+        className="group relative flex min-h-[58px] w-full items-center justify-center overflow-hidden rounded-[22px] border border-[var(--gold)] bg-[var(--gold)] px-5 text-sm font-bold text-[var(--gold-contrast)] shadow-[0_10px_28px_color-mix(in_srgb,var(--gold)_20%,transparent)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_14px_34px_color-mix(in_srgb,var(--gold)_28%,transparent)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--gold)] focus-visible:ring-offset-2 md:min-h-[62px] md:text-base"
+      >
+        <span aria-hidden="true" className="absolute inset-0 -translate-x-full bg-white/15 transition-transform duration-700 group-hover:translate-x-full" />
+        <span className="relative z-10 inline-flex items-center justify-center gap-2.5">
+          <ShoppingBag size={20} strokeWidth={2.1} aria-hidden="true" />
+          <span>اختاري الخيار</span>
+        </span>
+      </Link>
+    );
+  }
 
   return (
     <button
