@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma';
 import { requirePermission } from '@/lib/auth';
 import { Prisma } from '@prisma/client';
 import { recordInventoryEntry } from '@/lib/inventory';
+import { buildProductSearchText } from '@/lib/product-search';
 
 export async function GET(_: Request, { params }: { params: { id: string } }) {
   const auth = await requirePermission('productsRead');
@@ -49,6 +50,7 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
         name: b.name, slug: b.slug, description: b.description || null, price: Number(b.price), comparePrice: b.comparePrice === '' || b.comparePrice == null ? null : Number(b.comparePrice), stock: newStock,
         sku: b.sku, categoryId: b.categoryId, status: b.status, material: b.material || null, careInstructions: b.careInstructions || null, seoTitle: b.seoTitle || null,
         seoDescription: b.seoDescription || null, tags: b.tags || null, videoUrl: b.videoUrl || null, barcode: b.barcode || null, weight: b.weight === '' || b.weight == null ? null : Number(b.weight),
+        searchText: buildProductSearchText({ name: b.name, slug: b.slug, sku: b.sku, description: b.description, tags: b.tags, material: b.material, careInstructions: b.careInstructions }),
         featured: Boolean(b.featured), newArrival: Boolean(b.newArrival), bestSeller: Boolean(b.bestSeller),
         images: { create: (b.images || []).map((x: any, i: number) => ({ url: x.url, alt: x.alt || b.name, sortOrder: i })) },
         variants: { create: newVariants },
