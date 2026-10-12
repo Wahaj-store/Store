@@ -5533,3 +5533,80 @@ body:has(.wahaj-maintenance) .wahaj-footer { display:none !important; }
 @media (prefers-reduced-motion: reduce) {
   .wahaj-shop-heading-skeleton,.wahaj-shop-count-skeleton,.wahaj-shop-categories--loading span,.wahaj-shop-product-skeleton > span { animation: none; }
 }
+
+
+/* Shop follow-up: mobile-first filter disclosure, readable controls, and compact intro. */
+.wahaj-shop-filter-disclosure { min-width: 0; flex: 1; }
+.wahaj-shop-filter-toggle { display: none; }
+@media (min-width: 701px) {
+  /* Keep filter fields permanently visible on larger screens, even though the native details starts closed. */
+  .wahaj-shop-filter-disclosure > .wahaj-shop-filters { display: flex !important; }
+}
+@media (max-width: 700px) {
+  .wahaj-shop-hero { padding: 18px 16px 15px; }
+  .wahaj-shop-hero__copy h1 { margin: 11px 0 8px; font-size: clamp(34px, 10vw, 44px); line-height: 1.06; }
+  .wahaj-shop-hero__copy > p {
+    display: -webkit-box;
+    overflow: hidden;
+    font-size: 12px;
+    line-height: 1.65;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+  .wahaj-shop-hero__proof { display: none; }
+  .wahaj-shop-search { margin-top: 14px; }
+  .wahaj-shop-search__field input { height: 44px; font-size: 12px; }
+  .wahaj-shop-search__clear { width: 44px; height: 44px; flex-basis: 44px; }
+  .wahaj-shop-search__submit { min-height: 44px; font-size: 12px; }
+  .wahaj-shop-catalog { padding-top: 20px; }
+  .wahaj-shop-catalog__heading { margin-bottom: 12px; }
+  .wahaj-shop-catalog__heading p { font-size: 11px; }
+  .wahaj-shop-results span { font-size: 10px; }
+  .wahaj-shop-results small { font-size: 9px; }
+  .wahaj-shop-category { min-height: 44px; font-size: 11px; }
+
+  .wahaj-shop-filter-panel { display: block; padding: 9px 11px; }
+  .wahaj-shop-filter-panel__title--desktop { display: none; }
+  .wahaj-shop-filter-disclosure { width: 100%; }
+  .wahaj-shop-filter-toggle {
+    display: flex;
+    min-height: 46px;
+    align-items: center;
+    gap: 10px;
+    list-style: none;
+    color: var(--foreground);
+    cursor: pointer;
+  }
+  .wahaj-shop-filter-toggle::-webkit-details-marker { display: none; }
+  .wahaj-shop-filter-toggle > span:nth-child(2) b,
+  .wahaj-shop-filter-toggle > span:nth-child(2) small { display: block; }
+  .wahaj-shop-filter-toggle > span:nth-child(2) b { font-size: 12px; font-weight: 800; }
+  .wahaj-shop-filter-toggle > span:nth-child(2) small { margin-top: 2px; color: var(--muted-foreground); font-size: 10px; }
+  .wahaj-shop-filter-toggle > svg:last-child { margin-inline-start: auto; color: var(--gold-muted); transition: transform .18s ease; }
+  .wahaj-shop-filter-disclosure[open] > .wahaj-shop-filter-toggle > svg:last-child { transform: rotate(180deg); }
+  .wahaj-shop-filter-disclosure:not([open]) > .wahaj-shop-filters { display: none; }
+  .wahaj-shop-filter-disclosure[open] > .wahaj-shop-filters {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-top: 7px;
+    padding-top: 10px;
+    border-top: 1px solid var(--border);
+  }
+  .wahaj-shop-price-field { min-height: 44px; gap: 7px; padding-inline: 9px; font-size: 11px; }
+  .wahaj-shop-price-field input { width: 52px; font-size: 12px; }
+  .wahaj-shop-price-field__control small { font-size: 10px; }
+  .wahaj-shop-stock,.wahaj-shop-sort,.wahaj-shop-filter-submit { min-height: 44px; font-size: 11px; }
+  .wahaj-shop-sort select { font-size: 11px; }
+  .wahaj-shop-filter-submit { font-size: 12px; }
+  .wahaj-shop-active-filters { font-size: 10px; }
+  .wahaj-shop-active-filter { min-height: 44px; padding-inline: 10px; font-size: 11px; }
+  .wahaj-shop-clear-filters { min-height: 44px; padding-inline: 5px; }
+  .wahaj-shop-page-number,.wahaj-shop-page-arrow { min-width: 44px; min-height: 44px; font-size: 10px; }
+  .wahaj-product-card--shop .wahaj-product-card__action { min-width: 44px; min-height: 44px; }
+  .wahaj-shop-filter-error { font-size: 12px; }
+}
+@media (max-width: 390px) {
+  .wahaj-shop-search__submit { min-height: 44px; padding-inline: 8px; font-size: 11px; }
+  .wahaj-shop-filter-disclosure[open] > .wahaj-shop-filters { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+}

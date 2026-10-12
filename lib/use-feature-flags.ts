@@ -1,4 +1,5 @@
 'use client';
+
 import { useCallback, useEffect, useState } from 'react';
 
 const defaults: Record<string, boolean> = {
@@ -12,20 +13,46 @@ const defaults: Record<string, boolean> = {
   abandoned_cart: false,
 };
 
+const CACHE_TTL_MS = 60_000;
+let cachedFlags: Record<string, boolean> | null = null;
+let cachedAt = 0;
+let flagsRequest: Promise<Record<string, boolean>> | null = null;
+
+function loadFeatureFlags(): Promise<Record<string, boolean>> {
+  if (cachedFlags && Date.now() - cachedAt < CACHE_TTL_MS) {
+    return Promise.resolve(cachedFlags);
+  }
+  if (!flagsRequest) {
+    flagsRequest = fetch('/api/features', { cache: 'no-store' })
+      .then((response) => response.ok ? response.json() : null)
+      .then((payload) => {
+        const received = payload?.features && typeof payload.features === 'object'
+          ? payload.features as Record<string, unknown>
+          : {};
+        const valid = Object.fromEntries(
+          Object.entries(received).filter(([, value]) => typeof value === 'boolean'),
+        ) as Record<string, boolean>;
+        cachedFlags = { ...defaults, ...valid };
+        cachedAt = Date.now();
+        return cachedFlags;
+      })
+      .catch(() => ({ ...defaults }))
+      .finally(() => { flagsRequest = null; });
+  }
+  return flagsRequest;
+}
+
 export function useFeatureFlags() {
   const [flags, setFlags] = useState<Record<string, boolean>>(defaults);
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
     let active = true;
-    fetch('/api/features', { cache: 'no-store' })
-      .then((response) => response.ok ? response.json() : null)
-      .then((payload) => {
-        if (!active || !payload?.features || typeof payload.features !== 'object') return;
-        setFlags((current) => ({ ...current, ...payload.features }));
-      })
-      .catch(() => undefined)
-      .finally(() => { if (active) setLoaded(true); });
+    loadFeatureFlags().then((value) => {
+      if (!active) return;
+      setFlags(value);
+      setLoaded(true);
+    });
     return () => { active = false; };
   }, []);
 

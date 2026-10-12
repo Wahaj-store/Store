@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { ArrowLeft, ArrowRight, PackageSearch, Sparkles, X } from 'lucide-react';
-import ProductCard from '@/components/ProductCard';
+import ShopProductCard from '@/components/ShopProductCard';
 import { getShopCategories, getShopProductCount, getShopProducts, SHOP_PAGE_SIZE } from '@/lib/shop-data';
 import { shopHref, type ShopSearchState } from '@/lib/shop-query';
 
@@ -111,7 +111,7 @@ export async function ShopProductResults({ state }: { state: ShopSearchState }) 
     );
   }
 
-  return <div className="wahaj-shop-product-grid">{products.map((product) => <ProductCard key={product.id} product={product} variant="shop" />)}</div>;
+  return <div className="wahaj-shop-product-grid">{products.map((product) => <ShopProductCard key={product.id} product={product} />)}</div>;
 }
 
 export function ShopPaginationFallback() {

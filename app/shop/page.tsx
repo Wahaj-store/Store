@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import type { Metadata } from 'next';
 import { Suspense } from 'react';
 import {
   ArrowLeft,
@@ -25,6 +26,21 @@ import { parseShopSearchParams, shopHref, type RawShopSearchParams } from '@/lib
 
 // The HTML shell is request-specific; only the public catalog data is cached below.
 export const dynamic = 'force-dynamic';
+
+export const metadata: Metadata = {
+  title: 'تسوّقي إكسسوارات وَهَج',
+  description: 'اكتشفي تشكيلة وَهَج من الإكسسوارات المختارة بعناية، وابحثي حسب التصنيف والسعر والتوفر.',
+  alternates: { canonical: '/shop' },
+  robots: { index: true, follow: true },
+  openGraph: {
+    title: 'تسوّقي إكسسوارات وَهَج',
+    description: 'اكتشفي تشكيلة وَهَج من الإكسسوارات المختارة بعناية.',
+    url: '/shop',
+    siteName: 'وَهَج',
+    locale: 'ar_EG',
+    type: 'website',
+  },
+};
 
 export default function Shop({ searchParams }: { searchParams: RawShopSearchParams }) {
   const state = parseShopSearchParams(searchParams || {});
@@ -77,17 +93,24 @@ export default function Shop({ searchParams }: { searchParams: RawShopSearchPara
         </Suspense>
 
         <section className="wahaj-shop-filter-panel" aria-label="خيارات تصفية المنتجات">
-          <div className="wahaj-shop-filter-panel__title"><span className="wahaj-shop-filter-panel__icon"><SlidersHorizontal size={16} /></span><div><b>صمّمي نتائجك</b><small>حدّدي النطاق والترتيب المناسبين</small></div></div>
-          <form className="wahaj-shop-filters" action="/shop" method="get">
-            {state.q ? <input type="hidden" name="q" value={state.q} /> : null}
-            {state.category ? <input type="hidden" name="category" value={state.category} /> : null}
-            <label className="wahaj-shop-price-field"><span>السعر من</span><span className="wahaj-shop-price-field__control"><input type="number" name="minPrice" min="0" step="1" inputMode="decimal" defaultValue={state.rawMinPrice} placeholder="0" aria-label="أقل سعر بالجنيه المصري" /><small>ج.م</small></span></label>
-            <span className="wahaj-shop-price-separator" aria-hidden="true">—</span>
-            <label className="wahaj-shop-price-field"><span>إلى</span><span className="wahaj-shop-price-field__control"><input type="number" name="maxPrice" min="0" step="1" inputMode="decimal" defaultValue={state.rawMaxPrice} placeholder="∞" aria-label="أعلى سعر بالجنيه المصري" /><small>ج.م</small></span></label>
-            <label className="wahaj-shop-stock"><input type="checkbox" name="stock" value="in-stock" defaultChecked={state.inStock} /><span className="wahaj-shop-stock__check"><Check size={12} /></span><span>المتوفر فقط</span></label>
-            <label className="wahaj-shop-sort"><span className="sr-only">ترتيب المنتجات</span><select name="sort" defaultValue={state.sort}><option value="newest">الأحدث أولًا</option><option value="price-asc">السعر: الأقل أولًا</option><option value="price-desc">السعر: الأعلى أولًا</option><option value="name-asc">الاسم: أ–ي</option></select><ChevronDown size={14} aria-hidden="true" /></label>
-            <button type="submit" className="wahaj-shop-filter-submit">تطبيق <ArrowLeft size={14} /></button>
-          </form>
+          <div className="wahaj-shop-filter-panel__title wahaj-shop-filter-panel__title--desktop"><span className="wahaj-shop-filter-panel__icon"><SlidersHorizontal size={16} /></span><div><b>صمّمي نتائجك</b><small>حدّدي النطاق والترتيب المناسبين</small></div></div>
+          <details className="wahaj-shop-filter-disclosure" open={Boolean(state.category || state.rawMinPrice || state.rawMaxPrice || state.inStock || state.sort !== 'newest')}>
+            <summary className="wahaj-shop-filter-toggle">
+              <span className="wahaj-shop-filter-panel__icon"><SlidersHorizontal size={16} /></span>
+              <span><b>صمّمي نتائجك</b><small>حدّدي النطاق والترتيب المناسبين</small></span>
+              <ChevronDown size={17} aria-hidden="true" />
+            </summary>
+            <form className="wahaj-shop-filters" action="/shop" method="get">
+              {state.q ? <input type="hidden" name="q" value={state.q} /> : null}
+              {state.category ? <input type="hidden" name="category" value={state.category} /> : null}
+              <label className="wahaj-shop-price-field"><span>السعر من</span><span className="wahaj-shop-price-field__control"><input type="number" name="minPrice" min="0" step="1" inputMode="decimal" defaultValue={state.rawMinPrice} placeholder="0" aria-label="أقل سعر بالجنيه المصري" /><small>ج.م</small></span></label>
+              <span className="wahaj-shop-price-separator" aria-hidden="true">—</span>
+              <label className="wahaj-shop-price-field"><span>إلى</span><span className="wahaj-shop-price-field__control"><input type="number" name="maxPrice" min="0" step="1" inputMode="decimal" defaultValue={state.rawMaxPrice} placeholder="∞" aria-label="أعلى سعر بالجنيه المصري" /><small>ج.م</small></span></label>
+              <label className="wahaj-shop-stock"><input type="checkbox" name="stock" value="in-stock" defaultChecked={state.inStock} /><span className="wahaj-shop-stock__check"><Check size={12} /></span><span>المتوفر فقط</span></label>
+              <label className="wahaj-shop-sort"><span className="sr-only">ترتيب المنتجات</span><select name="sort" defaultValue={state.sort}><option value="newest">الأحدث أولًا</option><option value="price-asc">السعر: الأقل أولًا</option><option value="price-desc">السعر: الأعلى أولًا</option><option value="name-asc">الاسم: أ–ي</option></select><ChevronDown size={14} aria-hidden="true" /></label>
+              <button type="submit" className="wahaj-shop-filter-submit">تطبيق <ArrowLeft size={14} /></button>
+            </form>
+          </details>
         </section>
         {state.invalidPriceRange ? (
           <p className="wahaj-shop-filter-error" role="alert">الحد الأدنى للسعر أكبر من الحد الأعلى. صحّحي النطاق؛ لم نطبّق فلتر السعر على النتائج الحالية.</p>
