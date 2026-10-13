@@ -1,17 +1,8 @@
 import { PrismaClient, Role, ProductStatus, PaymentMethod } from '@prisma/client';
-import crypto from 'crypto';
 import { buildProductSearchText } from '../lib/product-search';
+import { hashPassword } from '../lib/password';
 
 const prisma = new PrismaClient();
-
-function hash(password: string): Promise<string> {
-  return new Promise((resolve, reject) => {
-    crypto.scrypt(password, 'wahaj-salt', 64, (error, derivedKey) => {
-      if (error) reject(error);
-      else resolve(derivedKey.toString('hex'));
-    });
-  });
-}
 
 async function upsertSiteSetting(key: string, value: string) {
   await prisma.siteSetting.upsert({
@@ -40,7 +31,7 @@ async function main() {
   }
 
   // 1) Owner/admin account required by the admin login flow.
-  const passwordHash = await hash(adminPassword);
+  const passwordHash = await hashPassword(adminPassword);
   await prisma.user.upsert({
     where: { email: adminEmail },
     update: { active: true, role: Role.OWNER, name: 'مالك المتجر' },
