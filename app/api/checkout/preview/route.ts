@@ -7,9 +7,25 @@ import { calculatePricing } from '@/lib/pricing';
 import { giftCardIsUsable, hashGiftCardCode, normalizeGiftCardCode } from '@/lib/gift-card';
 import { normalizePhone } from '@/lib/security';
 import { getClientKey, rateLimit } from '@/lib/rate-limit';
+import { CheckoutPreviewSchema } from '@/lib/checkout-preview-schema';
+import { getCustomerOrderMetrics } from '@/lib/customer-order-metrics';
+import {
+  InvalidJsonBodyError,
+  RequestBodyTooLargeError,
+  readJsonBodyLimited,
+} from '@/lib/limited-json-body';
+
+const PREVIEW_MAX_BODY_BYTES = 64 * 1024;
 
 function normalizeNullableNumber(value: unknown) {
   return value === null || value === undefined ? null : Number(value);
+}
+
+function previewErrorResponse(error: string, status = 400) {
+  return NextResponse.json(
+    { error, subtotal: 0, discount: 0, shipping: 0, total: 0, freeShipping: false, appliedOffers: [] },
+    { status, headers: { 'Cache-Control': 'no-store' } },
+  );
 }
 
 export async function POST(req: Request) {
@@ -22,8 +38,12 @@ export async function POST(req: Request) {
       );
     }
 
-    const body = await req.json();
-    const items = Array.isArray(body?.items) ? body.items : [];
+    const rawBody = await readJsonBodyLimited(req, PREVIEW_MAX_BODY_BYTES);
+    const parsedBody = CheckoutPreviewSchema.safeParse(rawBody);
+    if (!parsedBody.success) return previewErrorResponse('بيانات السلة غير صالحة.');
+
+    const body = parsedBody.data;
+    const items = body.items;
     if (!items.length) {
       return NextResponse.json({
         subtotal: 0,
@@ -35,28 +55,27 @@ export async function POST(req: Request) {
       });
     }
 
-    const ids: string[] = [
-      ...new Set<string>(
-        items
-          .map((item: any) => String(item?.productId || ''))
-          .filter(Boolean)
-      ),
-    ];
+    const ids = [...new Set(items.map((item) => item.productId))];
     const products = await prisma.product.findMany({
       where: { id: { in: ids }, status: 'PUBLISHED' },
-      include: { variants: true },
+      select: {
+        id: true,
+        name: true,
+        price: true,
+        categoryId: true,
+        variants: { select: { id: true, price: true } },
+      },
     });
+    const productsById = new Map(products.map((product) => [product.id, product]));
 
-    const lines = items.map((item: any) => {
-      const product = products.find(p => p.id === String(item.productId));
+    const lines = items.map((item) => {
+      const product = productsById.get(item.productId);
       if (!product) throw new Error('أحد المنتجات لم يعد متاحًا');
 
-      const variant = item.variantId ? product.variants.find(v => v.id === String(item.variantId)) : undefined;
+      const variant = item.variantId ? product.variants.find(v => v.id === item.variantId) : undefined;
       if (product.variants.length > 0 && !variant) throw new Error(`اختاري خيارات المنتج ${product.name} أولاً`);
 
-      const quantity = Math.max(1, Math.min(50, Math.floor(Number(item.quantity) || 0)));
-      if (!quantity) throw new Error('كمية منتج غير صالحة');
-
+      const quantity = item.quantity;
       const unitPrice = variant?.price != null ? Number(variant.price) : Number(product.price);
       return {
         quantity,
@@ -68,17 +87,19 @@ export async function POST(req: Request) {
 
     const now = new Date();
     const loggedInCustomer = await getCustomer();
-    const phone = normalizePhone(String(body?.phone || '').trim());
+    const phone = normalizePhone(body.phone);
     const customer = loggedInCustomer?.id
-      ? await prisma.customer.findUnique({ where: { id: loggedInCustomer.id }, select: { id: true, orders: { select: { total: true, status: true, createdAt: true }, orderBy: { createdAt: 'asc' } } } })
+      ? await prisma.customer.findUnique({ where: { id: loggedInCustomer.id }, select: { id: true } })
       : phone
-        ? await prisma.customer.findUnique({ where: { phone }, select: { id: true, orders: { select: { total: true, status: true, createdAt: true }, orderBy: { createdAt: 'asc' } } } })
+        ? await prisma.customer.findUnique({ where: { phone }, select: { id: true } })
         : null;
-    const customerOrders = customer?.orders.filter(o => o.status !== 'CANCELLED') ?? [];
-    const customerSpend = customerOrders.reduce((sum, o) => sum + Number(o.total), 0);
-    const customerLastOrder = customerOrders.at(-1)?.createdAt ?? null;
-    const isFirstOrder = customerOrders.length === 0;
-    const customerSegmentKey = customer ? getCustomerSegmentKey({ orderCount: customerOrders.length, spend: customerSpend, lastOrder: customerLastOrder, now }) : null;
+    const customerMetrics = customer
+      ? await getCustomerOrderMetrics(customer.id)
+      : { orderCount: 0, spend: 0, lastOrder: null };
+    const isFirstOrder = customerMetrics.orderCount === 0;
+    const customerSegmentKey = customer
+      ? getCustomerSegmentKey({ ...customerMetrics, now })
+      : null;
 
 
     let shippingPrice = 0;
@@ -160,15 +181,15 @@ export async function POST(req: Request) {
       isFirstOrder,
       appliedOffers: pricing.appliedOffers,
     });
-  } catch (error: any) {
-    return NextResponse.json({
-      error: error?.message || 'تعذر تحديث ملخص الطلب',
-      subtotal: 0,
-      discount: 0,
-      shipping: 0,
-      total: 0,
-      freeShipping: false,
-      appliedOffers: [],
-    }, { status: 400 });
+  } catch (error) {
+    if (error instanceof RequestBodyTooLargeError) {
+      return previewErrorResponse('حجم بيانات معاينة السلة أكبر من الحد المسموح.', 413);
+    }
+    if (error instanceof InvalidJsonBodyError) {
+      return previewErrorResponse('تعذر قراءة بيانات السلة.');
+    }
+    return previewErrorResponse(
+      error instanceof Error ? error.message : 'تعذر تحديث ملخص الطلب',
+    );
   }
 }
