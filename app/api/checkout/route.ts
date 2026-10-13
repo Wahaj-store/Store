@@ -16,6 +16,7 @@ import { hashGiftCardCode, normalizeGiftCardCode } from '@/lib/gift-card';
 import { findActiveShippingZone } from '@/lib/shipping';
 import { getClientKey, rateLimit } from '@/lib/rate-limit';
 import { revalidateShopProducts } from '@/lib/shop-cache';
+import { getCustomerOrderMetrics } from '@/lib/customer-order-metrics';
 import {
   createPaymentProofPath,
   deletePaymentProof,
@@ -105,13 +106,15 @@ export async function POST(req: Request) {
     if (!zone) return NextResponse.json({ error: 'لا توجد منطقة شحن مفعلة لهذا العنوان' }, { status: 400 });
 
     const existingCustomer = loggedInCustomer?.id
-      ? await prisma.customer.findUnique({ where: { id: loggedInCustomer.id }, select: { id: true, orders: { select: { total: true, status: true, createdAt: true }, orderBy: { createdAt: 'asc' } } } })
-      : await prisma.customer.findUnique({ where: { phone: normalizedPhone }, select: { id: true, orders: { select: { total: true, status: true, createdAt: true }, orderBy: { createdAt: 'asc' } } } });
-    const customerOrders = existingCustomer?.orders.filter(o => o.status !== 'CANCELLED') ?? [];
-    const customerSpend = customerOrders.reduce((sum, o) => sum + Number(o.total), 0);
-    const customerLastOrder = customerOrders.at(-1)?.createdAt ?? null;
-    const isFirstOrder = customerOrders.length === 0;
-    const customerSegmentKey = existingCustomer ? getCustomerSegmentKey({ orderCount: customerOrders.length, spend: customerSpend, lastOrder: customerLastOrder, now }) : null;
+      ? await prisma.customer.findUnique({ where: { id: loggedInCustomer.id }, select: { id: true } })
+      : await prisma.customer.findUnique({ where: { phone: normalizedPhone }, select: { id: true } });
+    const customerMetrics = existingCustomer
+      ? await getCustomerOrderMetrics(existingCustomer.id)
+      : { orderCount: 0, spend: 0, lastOrder: null };
+    const isFirstOrder = customerMetrics.orderCount === 0;
+    const customerSegmentKey = existingCustomer
+      ? getCustomerSegmentKey({ ...customerMetrics, now })
+      : null;
 
     const activeOffers = await prisma.offer.findMany({
       where: {
