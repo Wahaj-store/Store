@@ -14,20 +14,26 @@ export function isSameOriginMutation(request: Request) {
   const referer = request.headers.get('referer');
   if (!origin && !referer) return true;
 
-  const requestUrl = new URL(request.url);
-  const configured = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/+$/, '');
-  const allowedHosts = new Set([requestUrl.host]);
+  const allowedOrigins = new Set<string>();
+  try {
+    allowedOrigins.add(new URL(request.url).origin);
+  } catch {
+    return false;
+  }
+
+  const configured = process.env.NEXT_PUBLIC_SITE_URL?.trim();
   if (configured) {
     try {
-      allowedHosts.add(new URL(configured).host);
+      allowedOrigins.add(new URL(configured).origin);
     } catch {
-      // Ignore malformed optional configuration and keep the request host.
+      // Ignore malformed optional configuration and keep the request origin.
     }
   }
 
   const candidate = origin || referer;
+  if (!candidate) return true;
   try {
-    return allowedHosts.has(new URL(candidate!).host);
+    return allowedOrigins.has(new URL(candidate).origin);
   } catch {
     return false;
   }
