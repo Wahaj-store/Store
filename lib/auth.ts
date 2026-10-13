@@ -1,8 +1,8 @@
 import { cookies } from 'next/headers';
 import { SignJWT, jwtVerify } from 'jose';
-import crypto from 'crypto';
 import { prisma } from './prisma';
 import { can, type Permission } from './rbac';
+export { hashPassword, verifyPassword } from './password';
 let cachedSecret: Uint8Array | null = null;
 
 function getSecret() {
@@ -13,39 +13,6 @@ function getSecret() {
   }
   cachedSecret = new TextEncoder().encode(value);
   return cachedSecret;
-}
-
-export async function hashPassword(password: string) {
-  if (!password || password.length < 8) throw new Error('كلمة المرور يجب أن تكون 8 أحرف على الأقل');
-  const salt = crypto.randomBytes(16).toString('hex');
-  return new Promise<string>((resolve, reject) =>
-    crypto.scrypt(password, salt, 64, { N: 16384, r: 8, p: 1 }, (e, key) =>
-      e ? reject(e) : resolve(`s2$${salt}$${key.toString('hex')}`)
-    )
-  );
-}
-
-export async function verifyPassword(password: string, stored: string) {
-  try {
-    if (stored.startsWith('s2$')) {
-      const [, salt, hex] = stored.split('$');
-      const derived = await new Promise<Buffer>((resolve, reject) =>
-        crypto.scrypt(password, salt, 64, { N: 16384, r: 8, p: 1 }, (e, key) =>
-          e ? reject(e) : resolve(key)
-        )
-      );
-      const expected = Buffer.from(hex, 'hex');
-      return expected.length === derived.length && crypto.timingSafeEqual(expected, derived);
-    }
-    // توافق مع الهاشات القديمة (V6)
-    const legacy = await new Promise<Buffer>((resolve, reject) =>
-      crypto.scrypt(password, 'wahaj-salt', 64, (e, key) => e ? reject(e) : resolve(key))
-    );
-    const expected = Buffer.from(stored, 'hex');
-    return expected.length === legacy.length && crypto.timingSafeEqual(expected, legacy);
-  } catch {
-    return false;
-  }
 }
 
 export async function createSession(userId: string) {
