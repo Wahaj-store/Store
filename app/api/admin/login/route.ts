@@ -3,6 +3,7 @@ import { z } from 'zod';
 
 import { prisma } from '@/lib/prisma';
 import { createSession, verifyPassword } from '@/lib/auth';
+import { hashPassword } from '@/lib/password';
 import {
   checkRateLimit,
   getClientKey,
@@ -86,10 +87,46 @@ export async function POST(req: Request) {
       );
     }
 
-    await prisma.user.update({
-      where: { id: user.id },
-      data: { lastLoginAt: new Date() },
+    const needsPasswordUpgrade = !user.passwordHash.startsWith('s2$');
+    const migratedPasswordHash = needsPasswordUpgrade
+      ? await hashPassword(password)
+      : user.passwordHash;
+    const updatedUser = await prisma.user.updateMany({
+      where: { id: user.id, active: true, passwordHash: user.passwordHash },
+      data: {
+        lastLoginAt: new Date(),
+        ...(needsPasswordUpgrade ? { passwordHash: migratedPasswordHash } : {}),
+      },
     });
+
+    if (updatedUser.count !== 1) {
+      // Avoid overwriting a password changed by another request after this login read.
+      const latestUser = await prisma.user.findUnique({
+        where: { id: user.id },
+        select: { active: true, passwordHash: true },
+      });
+      if (
+        !latestUser?.active ||
+        !latestUser.passwordHash ||
+        !(await verifyPassword(password, latestUser.passwordHash))
+      ) {
+        return NextResponse.json(
+          { error: 'البريد الإلكتروني أو كلمة المرور غير صحيحة.' },
+          { status: 401, headers: { 'Cache-Control': 'no-store' } },
+        );
+      }
+
+      const touchLatestUser = await prisma.user.updateMany({
+        where: { id: user.id, active: true, passwordHash: latestUser.passwordHash },
+        data: { lastLoginAt: new Date() },
+      });
+      if (touchLatestUser.count !== 1) {
+        return NextResponse.json(
+          { error: 'تعذر تنفيذ تسجيل الدخول حاليًا.' },
+          { status: 409, headers: { 'Cache-Control': 'no-store' } },
+        );
+      }
+    }
 
     await prisma.activityLog.create({
       data: {
