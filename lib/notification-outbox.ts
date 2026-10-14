@@ -27,13 +27,36 @@ const WhatsAppPayload = z.object({
 
 export type NotificationOutboxResult = 'sent' | 'failed' | 'skipped' | 'busy';
 
+type OutboxDependencies = {
+  db: Pick<typeof prisma, 'notificationOutbox'>;
+  sendEmail: typeof notifyOrderCreatedByEmail;
+  sendWhatsApp: typeof notifyOrderCreated;
+  now: () => Date;
+};
+
+type OutboxDependencyOverrides = Partial<OutboxDependencies>;
+
+function resolveDependencies(overrides: OutboxDependencyOverrides = {}): OutboxDependencies {
+  return {
+    db: overrides.db ?? prisma,
+    sendEmail: overrides.sendEmail ?? notifyOrderCreatedByEmail,
+    sendWhatsApp: overrides.sendWhatsApp ?? notifyOrderCreated,
+    now: overrides.now ?? (() => new Date()),
+  };
+}
+
 function errorMessage(error: unknown) {
   return String(error instanceof Error ? error.message : error).slice(0, 1000);
 }
 
-export async function processNotificationOutboxItem(id: string): Promise<NotificationOutboxResult> {
-  const now = new Date();
-  const claimed = await prisma.notificationOutbox.updateMany({
+export async function processNotificationOutboxItem(
+  id: string,
+  overrides: OutboxDependencyOverrides = {},
+): Promise<NotificationOutboxResult> {
+  const dependencies = resolveDependencies(overrides);
+  const repository = dependencies.db.notificationOutbox;
+  const now = dependencies.now();
+  const claimed = await repository.updateMany({
     where: {
       id,
       OR: [
@@ -58,12 +81,12 @@ export async function processNotificationOutboxItem(id: string): Promise<Notific
 
   if (claimed.count !== 1) return 'busy';
 
-  const item = await prisma.notificationOutbox.findUnique({ where: { id } });
+  const item = await repository.findUnique({ where: { id } });
   if (!item) return 'failed';
 
   // تسمح هذه المطالبة الختامية بوضع العنصر في FAILED إن انتهت المهلة بعد آخر محاولة.
   if (item.attempts > MAX_ATTEMPTS) {
-    await prisma.notificationOutbox.update({
+    await repository.update({
       where: { id },
       data: {
         status: 'FAILED',
@@ -77,14 +100,14 @@ export async function processNotificationOutboxItem(id: string): Promise<Notific
   try {
     if (item.channel === 'EMAIL_ORDER_CREATED') {
       const payload = EmailPayload.parse(item.payload);
-      const sent = await notifyOrderCreatedByEmail(payload);
+      const sent = await dependencies.sendEmail(payload);
       if (!sent) throw new Error('لم يقبل مزود البريد رسالة تأكيد الطلب');
     } else if (item.channel === 'WHATSAPP_ORDER_CREATED') {
       const payload = WhatsAppPayload.parse(item.payload);
-      const result = await notifyOrderCreated(payload);
+      const result = await dependencies.sendWhatsApp(payload);
       if (!result.ok) {
         if (result.skipped && result.reason === 'invalid_phone') {
-          await prisma.notificationOutbox.update({
+          await repository.update({
             where: { id },
             data: {
               status: 'SKIPPED',
@@ -97,7 +120,7 @@ export async function processNotificationOutboxItem(id: string): Promise<Notific
         throw new Error(`تعذر إرسال إشعار WhatsApp: ${result.reason}`);
       }
     } else {
-      await prisma.notificationOutbox.update({
+      await repository.update({
         where: { id },
         data: {
           status: 'SKIPPED',
@@ -108,19 +131,19 @@ export async function processNotificationOutboxItem(id: string): Promise<Notific
       return 'skipped';
     }
 
-    await prisma.notificationOutbox.update({
+    await repository.update({
       where: { id },
-      data: { status: 'SENT', sentAt: new Date(), lockedUntil: null, lastError: null },
+      data: { status: 'SENT', sentAt: dependencies.now(), lockedUntil: null, lastError: null },
     });
     return 'sent';
   } catch (error) {
     const message = errorMessage(error);
-    await prisma.notificationOutbox.update({
+    await repository.update({
       where: { id },
       data: {
         status: 'FAILED',
         lockedUntil: null,
-        nextAttemptAt: new Date(Date.now() + RETRY_DELAY_MS),
+        nextAttemptAt: new Date(now.getTime() + RETRY_DELAY_MS),
         lastError: message,
       },
     });
@@ -129,9 +152,12 @@ export async function processNotificationOutboxItem(id: string): Promise<Notific
   }
 }
 
-export async function processNotificationOutboxBatch() {
-  const now = new Date();
-  const items = await prisma.notificationOutbox.findMany({
+export async function processNotificationOutboxBatch(
+  overrides: OutboxDependencyOverrides = {},
+) {
+  const dependencies = resolveDependencies(overrides);
+  const now = dependencies.now();
+  const items = await dependencies.db.notificationOutbox.findMany({
     where: {
       OR: [
         {
@@ -155,7 +181,7 @@ export async function processNotificationOutboxBatch() {
   for (let index = 0; index < items.length; index += concurrency) {
     const chunk = items.slice(index, index + concurrency);
     const results = await Promise.allSettled(
-      chunk.map(({ id }) => processNotificationOutboxItem(id)),
+      chunk.map(({ id }) => processNotificationOutboxItem(id, dependencies)),
     );
     for (const result of results) {
       const outcome = result.status === 'fulfilled' ? result.value : 'failed';
@@ -167,4 +193,4 @@ export async function processNotificationOutboxBatch() {
   }
 
   return totals;
-             }
+}
