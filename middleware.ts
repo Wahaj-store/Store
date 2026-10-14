@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { jwtVerify } from 'jose';
 import { isSameOriginMutation, csrfDeniedResponse } from '@/lib/csrf';
+import { createMaintenanceStatusCache } from '@/lib/maintenance-status-cache';
 
 // مسارات API إدارية عامة (لا تحتاج جلسة)
 const PUBLIC_ADMIN_APIS = ['/api/admin/login', '/api/admin/logout'];
@@ -18,23 +19,24 @@ function isMaintenanceExempt(pathname: string) {
   );
 }
 
+const readCachedMaintenanceStatus = createMaintenanceStatusCache({
+  successTtlMs: 5_000,
+  failureTtlMs: 1_000,
+});
+
 async function isMaintenanceEnabled(req: NextRequest): Promise<boolean> {
-  try {
-    // /api/settings is explicitly exempt from this check, preventing recursion.
-    const settingsUrl = new URL('/api/settings', req.url);
+  return readCachedMaintenanceStatus(async () => {
+    // This endpoint is under the exempt /api/settings path, so it cannot recurse.
+    const settingsUrl = new URL('/api/settings/maintenance', req.url);
     const response = await fetch(settingsUrl, {
       cache: 'no-store',
       headers: { accept: 'application/json' },
     });
-    if (!response.ok) return false;
+    if (!response.ok) throw new Error('Maintenance settings are unavailable');
     const payload = await response.json();
-    const value = payload?.settings?.maintenance_mode;
+    const value = payload?.maintenanceMode;
     return value === true || String(value).trim().toLowerCase() === 'true';
-  } catch {
-    // Fail open if settings cannot be reached, so a temporary settings outage
-    // does not accidentally take the whole storefront offline.
-    return false;
-  }
+  });
 }
 
 export async function middleware(req: NextRequest) {
