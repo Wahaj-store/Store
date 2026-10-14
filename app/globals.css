@@ -1,6 +1,65 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
+
+@custom-variant dark (&:is(.dark *));
+
+@theme {
+  --font-sans: var(--font-wahaj), sans-serif;
+  --font-arabic: var(--font-wahaj), sans-serif;
+  --font-serif: var(--font-wahaj), serif;
+
+  --color-background: var(--background);
+  --color-background-secondary: var(--background-secondary);
+  --color-foreground: var(--foreground);
+  --color-foreground-secondary: var(--foreground-secondary);
+  --color-card: var(--card);
+  --color-border: var(--border);
+
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+
+  --color-primary: var(--foreground);
+  --color-primary-foreground: var(--background);
+
+  --color-secondary: var(--background-secondary);
+  --color-secondary-foreground: var(--foreground);
+
+  --color-accent: var(--gold);
+  --color-accent-foreground: var(--gold-contrast);
+
+  --color-gold: var(--gold);
+  --color-gold-light: var(--gold);
+  --color-gold-dark: var(--gold-muted);
+
+  --color-brand-dark: #241b1a;
+  --color-brand-light: #f7f2ea;
+
+  --color-rose: var(--rose);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-danger: var(--danger);
+
+  --border-color-border: var(--border);
+
+  --shadow-luxury: var(--shadow-luxury-value);
+}
+
+/*
+  The default border color has changed to `currentcolor` in Tailwind CSS v4,
+  so we've added these compatibility styles to make sure everything still
+  looks the same as it did with Tailwind CSS v3.
+
+  If we ever want to remove these styles, we need to add an explicit border
+  color utility to any element that depends on these defaults.
+*/
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentcolor);
+  }
+}
 
 /* =========================================================
    وَهَج — Central Design Tokens
@@ -36,7 +95,7 @@
   --radius-md: 10px;
   --radius-lg: 16px;
   --shadow-soft: 0 8px 30px rgba(36, 27, 26, 0.06);
-  --shadow-luxury: 0 18px 55px rgba(36, 27, 26, 0.10);
+  --shadow-luxury-value: 0 18px 55px rgba(36, 27, 26, 0.10);
   --container: 1180px;
   --transition: 220ms ease;
 }
@@ -68,7 +127,7 @@
   --danger: #C9847D;
   --info: #C69A94;
   --shadow-soft: 0 8px 30px rgba(0, 0, 0, 0.14);
-  --shadow-luxury: 0 18px 55px rgba(0, 0, 0, 0.18);
+  --shadow-luxury-value: 0 18px 55px rgba(0, 0, 0, 0.18);
 }
 
 * { box-sizing: border-box; }
