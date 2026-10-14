@@ -84,6 +84,7 @@ export async function sendWhatsAppTemplate(options: WhatsAppTemplateOptions) {
         Authorization: `Bearer ${cfg.accessToken}`,
         'Content-Type': 'application/json',
       },
+      signal: AbortSignal.timeout(8_000),
       body: JSON.stringify(payload),
       cache: 'no-store',
     });
