@@ -9,8 +9,7 @@ import { put } from '@vercel/blob';
 import { getCustomerSegmentKey } from '@/lib/customer-segment';
 import { calculatePricing, type OfferPricing } from '@/lib/pricing';
 import { recordInventoryEntry } from '@/lib/inventory';
-import { notifyOrderCreated } from '@/lib/whatsapp';
-import { notifyOrderCreatedByEmail } from '@/lib/email';
+import { processNotificationOutboxItem } from '@/lib/notification-outbox';
 import { markLatestCartRecovered } from '@/lib/abandoned-cart';
 import { hashGiftCardCode, normalizeGiftCardCode } from '@/lib/gift-card';
 import { findActiveShippingZone } from '@/lib/shipping';
@@ -257,6 +256,41 @@ export async function POST(req: Request) {
         timeline: { create: { status: 'NEW', note: 'تم إنشاء الطلب' } }
       } });
 
+      if (c.email) {
+        await tx.notificationOutbox.create({
+          data: {
+            eventKey: `order-created:email:${o.id}`,
+            orderId: o.id,
+            channel: 'EMAIL_ORDER_CREATED',
+            payload: {
+              email: c.email,
+              name: c.name || checkoutName,
+              orderNumber: o.number,
+              total: Number(o.total),
+              paymentMethod: o.paymentMethod,
+            },
+          },
+        });
+      }
+
+      if (checkoutPhone && process.env.WHATSAPP_ORDER_CREATED_TEMPLATE) {
+        await tx.notificationOutbox.create({
+          data: {
+            eventKey: `order-created:whatsapp:${o.id}`,
+            orderId: o.id,
+            channel: 'WHATSAPP_ORDER_CREATED',
+            payload: {
+              id: o.id,
+              number: o.number,
+              customerId: o.customerId,
+              phone: checkoutPhone,
+              total: Number(o.total),
+              paymentMethod: o.paymentMethod,
+            },
+          },
+        });
+      }
+
       if (inventoryEntryIds.length) await tx.inventoryLedger.updateMany({ where: { id: { in: inventoryEntryIds } }, data: { orderId: o.id } });
 
       if (giftCardId && giftCardAmount > 0) {
@@ -278,28 +312,38 @@ export async function POST(req: Request) {
       return o;
     }, { isolationLevel: Prisma.TransactionIsolationLevel.Serializable, maxWait: 5000, timeout: 15000 });
 
-    revalidateShopProducts();
-    const orderCustomer = order.customerId
-      ? await prisma.customer.findUnique({ where: { id: order.customerId }, select: { email: true, name: true } })
-      : null;
-    if (order.customerId) await markLatestCartRecovered(order.customerId, order.id);
+    // تم حفظ إثبات الدفع مع الطلب؛ لا نحذفه في حال تعثرت معالجة جانبية بعد نجاح المعاملة.
+    uploadedProofPath = undefined;
+    try {
+      revalidateShopProducts();
+    } catch (error) {
+      console.error('CHECKOUT_CACHE_REVALIDATION_ERROR:', error instanceof Error ? error.message : 'unknown');
+    }
+    if (order.customerId) {
+      try {
+        await markLatestCartRecovered(order.customerId, order.id);
+      } catch (error) {
+        console.error('CHECKOUT_CART_RECOVERY_ERROR:', error instanceof Error ? error.message : 'unknown');
+      }
+    }
 
-    await notifyOrderCreatedByEmail({
-      email: orderCustomer?.email,
-      name: orderCustomer?.name || order.customerNameSnapshot,
-      orderNumber: order.number,
-      total: order.total,
-      paymentMethod: order.paymentMethod,
-    });
-
-    await notifyOrderCreated({
-      id: order.id,
-      number: order.number,
-      customerId: order.customerId,
-      phone: order.customerPhoneSnapshot,
-      total: order.total,
-      paymentMethod: order.paymentMethod,
-    });
+    // محاولة فورية بمهلة محدودة؛ أي فشل يبقى محفوظاً ليستعيده عامل Cron اليومي.
+    try {
+      const pendingNotifications = await prisma.notificationOutbox.findMany({
+        where: { orderId: order.id, status: 'PENDING', nextAttemptAt: { lte: new Date() } },
+        select: { id: true },
+      });
+      const deliveryResults = await Promise.allSettled(
+        pendingNotifications.map(({ id }) => processNotificationOutboxItem(id)),
+      );
+      for (const result of deliveryResults) {
+        if (result.status === 'rejected') {
+          console.error('CHECKOUT_NOTIFICATION_OUTBOX_ERROR:', result.reason instanceof Error ? result.reason.message : 'unknown');
+        }
+      }
+    } catch (error) {
+      console.error('CHECKOUT_NOTIFICATION_OUTBOX_ERROR:', error instanceof Error ? error.message : 'unknown');
+    }
 
     return NextResponse.json({ ok: true, orderNumber: order.number, subtotal, shipping, discount, total });
   } catch (e: any) {
