@@ -41,6 +41,7 @@ export async function sendBrevoEmail(input: SendEmailInput) {
         'Content-Type': 'application/json',
         'api-key': apiKey,
       },
+      signal: AbortSignal.timeout(8_000),
       body: JSON.stringify({
         sender: {
           name: process.env.SENDER_NAME || 'متجر وَهَج',
@@ -50,6 +51,7 @@ export async function sendBrevoEmail(input: SendEmailInput) {
         subject: input.subject,
         htmlContent: input.htmlContent,
       }),
+      cache: 'no-store',
     });
 
     if (!response.ok) {
