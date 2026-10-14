@@ -468,6 +468,7 @@ model Order {
   shipments             Shipment[]
   returnRequests        ReturnRequest[]
   whatsappNotifications WhatsAppNotification[]
+  notificationOutbox    NotificationOutbox[]
   abandonedCart         AbandonedCart?
 
   @@index([status, createdAt])
@@ -879,4 +880,24 @@ model WhatsAppNotification {
   @@index([customerId, createdAt])
   @@index([orderId, createdAt])
   @@index([status, createdAt])
+}
+
+model NotificationOutbox {
+  id            String   @id @default(cuid())
+  eventKey      String   @unique
+  orderId       String
+  order         Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  channel       String
+  payload       Json
+  status        String   @default("PENDING")
+  attempts      Int      @default(0)
+  nextAttemptAt DateTime @default(now())
+  lockedUntil   DateTime?
+  lastError     String?
+  sentAt        DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([status, nextAttemptAt])
+  @@index([orderId, channel])
 }
