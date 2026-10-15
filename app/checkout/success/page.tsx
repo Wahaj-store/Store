@@ -1,10 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, use } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, Check, CheckCircle2, Copy, Home, PackageCheck, ShieldCheck, ShoppingBag, Sparkles, Truck } from 'lucide-react';
 
-export default function Success({ searchParams }: { searchParams: { order?: string } }) {
+export default function Success(props: { searchParams: Promise<{ order?: string }> }) {
+  const searchParams = use(props.searchParams);
   const orderNumber = searchParams?.order || 'WAH-XXXXX';
   const [copied, setCopied] = useState(false);
 

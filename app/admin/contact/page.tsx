@@ -42,7 +42,7 @@ export default function AdminContactMessagesPage() {
       <div className="flex justify-between items-center border-b pb-4">
         <div>
           <h1 className="text-2xl font-bold flex items-center gap-2">
-            <Mail className="text-[var(--gold)]" /> رسائل العملاء (تواصل معنا)
+            <Mail className="text-(--gold)" /> رسائل العملاء (تواصل معنا)
           </h1>
           <p className="text-xs text-gray-500 mt-1">عرض والاستعلام عن كافة الرسائل والاستفسارات الواردة من صفحة التواصل بالمتجر.</p>
         </div>
@@ -55,11 +55,11 @@ export default function AdminContactMessagesPage() {
           <div className="bg-white p-8 rounded-2xl border text-center text-gray-400">لا توجد أي رسائل واردة حتى الآن.</div>
         ) : (
           messages.map(msg => (
-            <div key={msg.id} className="bg-white p-6 rounded-2xl border shadow-sm space-y-4 transition hover:border-[var(--gold)]">
+            <div key={msg.id} className="bg-white p-6 rounded-2xl border shadow-xs space-y-4 transition hover:border-(--gold)">
               <div className="flex flex-wrap justify-between items-start gap-4 border-b pb-3">
                 <div className="space-y-1">
                   <div className="flex items-center gap-2 font-bold text-gray-900 text-base">
-                    <User size={16} className="text-[var(--gold)]" /> {msg.name}
+                    <User size={16} className="text-(--gold)" /> {msg.name}
                   </div>
                   <div className="flex items-center gap-3 text-xs text-gray-500">
                     <span className="flex items-center gap-1 font-mono" dir="ltr">
@@ -73,7 +73,7 @@ export default function AdminContactMessagesPage() {
                 </div>
 
                 <div className="flex items-center gap-2">
-                  <span className="px-3 py-1 rounded-full text-xs bg-[var(--gold)]/10 text-[var(--gold)] font-medium">
+                  <span className="px-3 py-1 rounded-full text-xs bg-(--gold)/10 text-(--gold) font-medium">
                     {msg.subject || 'استفسار عام'}
                   </span>
                   <button 

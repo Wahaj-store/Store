@@ -78,7 +78,7 @@ export async function POST(req: Request) {
     if (updated.count !== 1) {
       return NextResponse.json({ error: 'رمز التحقق غير صحيح أو انتهت صلاحيته' }, { status: 400 });
     }
-    cookies().delete('wahaj_customer');
+    (await cookies()).delete('wahaj_customer');
 
     return NextResponse.json({ success: true, message: 'تم تحديث كلمة المرور بنجاح' });
   } catch (error: any) {

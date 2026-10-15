@@ -152,6 +152,34 @@ export async function processNotificationOutboxItem(
   }
 }
 
+export async function processOrderNotificationOutbox(
+  orderId: string,
+  overrides: OutboxDependencyOverrides = {},
+) {
+  const dependencies = resolveDependencies(overrides);
+  const now = dependencies.now();
+  const items = await dependencies.db.notificationOutbox.findMany({
+    where: { orderId, status: 'PENDING', nextAttemptAt: { lte: now } },
+    orderBy: { createdAt: 'asc' },
+    take: 8,
+    select: { id: true },
+  });
+
+  const totals = { checked: items.length, sent: 0, failed: 0, skipped: 0, busy: 0 };
+  const results = await Promise.allSettled(
+    items.map(({ id }) => processNotificationOutboxItem(id, dependencies)),
+  );
+  for (const result of results) {
+    const outcome = result.status === 'fulfilled' ? result.value : 'failed';
+    totals[outcome] += 1;
+    if (result.status === 'rejected') {
+      console.error('Order notification outbox worker error:', errorMessage(result.reason));
+    }
+  }
+
+  return totals;
+}
+
 export async function processNotificationOutboxBatch(
   overrides: OutboxDependencyOverrides = {},
 ) {

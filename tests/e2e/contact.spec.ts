@@ -29,5 +29,5 @@ test('contact form submits successfully', async ({ page }) => {
   await page.getByLabel('النص أو الاستفسار').fill('رسالة اختبار من Playwright');
   await page.getByRole('button', { name: 'إرسال الرسالة' }).click();
 
-  await expect(page.getByText('تم إرسال رسالتك بنجاح!')).toBeVisible();
+  await expect(page.getByText('تم إرسال رسالتك بنجاح')).toBeVisible();
 });

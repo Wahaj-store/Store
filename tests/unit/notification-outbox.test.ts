@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import {
+  processOrderNotificationOutbox,
   processNotificationOutboxBatch,
   processNotificationOutboxItem,
 } from '../../lib/notification-outbox';
@@ -65,7 +66,11 @@ function createHarness(initialItem = makeItem()) {
       Object.assign(item, data);
       return item;
     },
-    async findMany() {
+    async findMany(args: any = {}) {
+      const where = args.where || {};
+      if (where.orderId && where.orderId !== item.orderId) return [];
+      if (where.status && where.status !== item.status) return [];
+      if (where.nextAttemptAt?.lte && item.nextAttemptAt > where.nextAttemptAt.lte) return [];
       return [{ id: item.id }];
     },
   };
@@ -96,6 +101,42 @@ test('marks a successfully delivered email as SENT exactly once', async () => {
   assert.equal(harness.item.attempts, 1);
   assert.ok(harness.item.sentAt instanceof Date);
   assert.equal(harness.item.lockedUntil, null);
+});
+
+test('processes eligible pending notifications for the requested order', async () => {
+  const harness = createHarness();
+  let sendCount = 0;
+
+  const result = await processOrderNotificationOutbox('order-1', {
+    db: harness.db,
+    now: harness.now,
+    sendEmail: async () => {
+      sendCount += 1;
+      return true;
+    },
+  });
+
+  assert.deepEqual(result, { checked: 1, sent: 1, failed: 0, skipped: 0, busy: 0 });
+  assert.equal(sendCount, 1);
+  assert.equal(harness.item.status, 'SENT');
+});
+
+test('does not process pending notifications belonging to another order', async () => {
+  const harness = createHarness();
+  let sendCount = 0;
+
+  const result = await processOrderNotificationOutbox('order-2', {
+    db: harness.db,
+    now: harness.now,
+    sendEmail: async () => {
+      sendCount += 1;
+      return true;
+    },
+  });
+
+  assert.deepEqual(result, { checked: 0, sent: 0, failed: 0, skipped: 0, busy: 0 });
+  assert.equal(sendCount, 0);
+  assert.equal(harness.item.status, 'PENDING');
 });
 
 test('records a provider failure and delays another attempt until the next daily run', async () => {

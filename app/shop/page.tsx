@@ -42,7 +42,8 @@ export const metadata: Metadata = {
   },
 };
 
-export default function Shop({ searchParams }: { searchParams: RawShopSearchParams }) {
+export default async function Shop(props: { searchParams: Promise<RawShopSearchParams> }) {
+  const searchParams = await props.searchParams;
   const state = parseShopSearchParams(searchParams || {});
 
   return (

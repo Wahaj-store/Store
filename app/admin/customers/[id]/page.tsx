@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState, use } from 'react';
 import Link from 'next/link';
 import {
   ArrowUpLeft, CalendarDays, CheckCircle2, CircleAlert, Clock3, Mail,
@@ -21,7 +21,8 @@ function ProfileMetric({ icon: Icon, label, value, note, tone = 'gold' }: any) {
   return <article className="profile-metric"><span className={`profile-metric__icon profile-metric__icon--${tone}`}><Icon size={18} /></span><div className="min-w-0"><p className="text-[10px] text-muted-foreground sm:text-xs">{label}</p><p className="mt-1 text-lg font-bold sm:text-2xl">{value}</p><p className="mt-1 truncate text-[9px] text-muted-foreground">{note}</p></div></article>;
 }
 
-export default function CustomerDetail({ params }: { params: { id: string } }) {
+export default function CustomerDetail(props: { params: Promise<{ id: string }> }) {
+  const params = use(props.params);
   const [customer, setCustomer] = useState<Customer | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -47,7 +48,7 @@ export default function CustomerDetail({ params }: { params: { id: string } }) {
   const totalSpend = useMemo(() => orders.reduce((sum: number, order: any) => sum + Number(order.total || 0), 0), [orders]);
 
   return (
-    <main className="min-h-screen bg-[var(--bg)] px-3 py-5 text-foreground sm:px-5 sm:py-7 lg:px-8" dir="rtl">
+    <main className="min-h-screen bg-(--bg) px-3 py-5 text-foreground sm:px-5 sm:py-7 lg:px-8" dir="rtl">
       <div className="mx-auto w-full max-w-[1440px] space-y-5 sm:space-y-6">
         <header className="customer-profile-hero">
           <div className="relative z-10 min-w-0">
@@ -76,7 +77,7 @@ export default function CustomerDetail({ params }: { params: { id: string } }) {
               <div className="customer-profile-panel__head"><div className="flex items-center gap-2"><span className="orders-section-icon"><ShoppingBag size={17} /></span><div><h2 className="font-serif text-base font-bold sm:text-lg">سجل الطلبات</h2><p className="mt-1 text-[10px] text-muted-foreground">كل الطلبات المرتبطة بحساب العميل.</p></div></div><span className="orders-count">{orders.length} طلب</span></div>
               {orders.length ? <div className="grid gap-3 p-3 sm:p-4">{orders.map((order: any) => <article key={order.id} className="customer-order-card">
                 <div className="flex flex-wrap items-center justify-between gap-3"><div><Link href={`/admin/orders/${order.id}`} className="order-number">#{order.number}</Link><p className="mt-1 text-[9px] text-muted-foreground"><Clock3 size={11} className="ml-1 inline" />{date(order.createdAt)}</p></div><CustomerOrderStatus status={order.status} /></div>
-                <div className="mt-3 flex items-center justify-between gap-3 border-t border-border/50 pt-3"><div><p className="text-[9px] text-muted-foreground">إجمالي الطلب</p><p className="mt-1 text-sm font-bold text-[var(--gold-muted)]">{money(order.total)}</p></div><Link href={`/admin/orders/${order.id}`} className="order-open-link">عرض الطلب <ArrowUpLeft size={14} /></Link></div>
+                <div className="mt-3 flex items-center justify-between gap-3 border-t border-border/50 pt-3"><div><p className="text-[9px] text-muted-foreground">إجمالي الطلب</p><p className="mt-1 text-sm font-bold text-(--gold-muted)">{money(order.total)}</p></div><Link href={`/admin/orders/${order.id}`} className="order-open-link">عرض الطلب <ArrowUpLeft size={14} /></Link></div>
               </article>)}</div> : <ProfileEmpty icon={ShoppingBag} title="لا توجد طلبات بعد" description="ستظهر الطلبات المرتبطة بالعميل هنا." />}
             </section>
 

@@ -3,10 +3,8 @@ import { prisma } from '@/lib/prisma';
 import { getCustomer } from '@/lib/customer-auth';
 
 // تحديث عنوان أو تعيينه كعنوان أساسي
-export async function PUT(
-  req: Request,
-  { params }: { params: { id: string } }
-) {
+export async function PUT(req: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   try {
     const c = await getCustomer();
     if (!c) {
@@ -58,10 +56,8 @@ export async function PUT(
 }
 
 // حذف عنوان
-export async function DELETE(
-  req: Request,
-  { params }: { params: { id: string } }
-) {
+export async function DELETE(req: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   try {
     const c = await getCustomer();
     if (!c) {

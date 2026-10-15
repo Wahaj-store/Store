@@ -1,2 +1,5 @@
 import {NextResponse} from 'next/server';import {requireUser} from '@/lib/auth';import {prisma} from '@/lib/prisma';
-export async function GET(_:Request,{params}:{params:{id:string}}){const u=await requireUser();if(!u)return NextResponse.json({error:'غير مصرح'},{status:403});const c=await prisma.customer.findUnique({where:{id:params.id},select:{id:true,name:true,phone:true,email:true,lastLoginAt:true,createdAt:true,updatedAt:true,addresses:true,orders:{include:{items:true},orderBy:{createdAt:'desc'}},reviews:{include:{product:true},orderBy:{createdAt:'desc'}}}});return c?NextResponse.json(c):NextResponse.json({error:'العميل غير موجود'},{status:404})}
+export async function GET(_:Request, props:{params: Promise<{id:string}>}) {
+  const params = await props.params;
+  const u=await requireUser();if(!u)return NextResponse.json({error:'غير مصرح'},{status:403});const c=await prisma.customer.findUnique({where:{id:params.id},select:{id:true,name:true,phone:true,email:true,lastLoginAt:true,createdAt:true,updatedAt:true,addresses:true,orders:{include:{items:true},orderBy:{createdAt:'desc'}},reviews:{include:{product:true},orderBy:{createdAt:'desc'}}}});return c?NextResponse.json(c):NextResponse.json({error:'العميل غير موجود'},{status:404})
+}

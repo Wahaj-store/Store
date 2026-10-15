@@ -16,11 +16,11 @@ test.describe('Track order', () => {
     });
 
     await page.goto('/track-order');
-    await expect(page.getByRole('heading', { name: 'تابع خط سير طلبك' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'تتبعي طلبكِ بثقة' })).toBeVisible();
 
     await page.getByLabel('رقم الطلب').fill('WAH-TEST-001');
     await page.getByLabel('رقم الهاتف المسجل').fill('01012345678');
-    await page.getByRole('button', { name: 'بحث وتتبع الطلب' }).click();
+    await page.getByRole('button', { name: 'بحث عن الطلب' }).click();
 
     await expect(page.getByText('عذراً، لم يتم العثور على طلب بهذه البيانات. تأكد من البيانات واطلب المساعدة.')).toBeVisible();
   });
@@ -67,7 +67,7 @@ test.describe('Track order', () => {
     await page.goto('/track-order');
     await page.getByLabel('رقم الطلب').fill('WAH-TEST-002');
     await page.getByLabel('رقم الهاتف المسجل').fill('01012345678');
-    await page.getByRole('button', { name: 'بحث وتتبع الطلب' }).click();
+    await page.getByRole('button', { name: 'بحث عن الطلب' }).click();
 
     await expect(page.getByText('WX-123456')).toBeVisible();
     await expect(page.getByText('Wahaj Express')).toBeVisible();

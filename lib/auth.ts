@@ -21,7 +21,7 @@ export async function createSession(userId: string) {
     .setIssuedAt()
     .setExpirationTime('7d')
     .sign(getSecret());
-  cookies().set('wahaj_session', token, {
+  (await cookies()).set('wahaj_session', token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'lax',
@@ -31,7 +31,7 @@ export async function createSession(userId: string) {
 }
 
 export async function getUser() {
-  const token = cookies().get('wahaj_session')?.value;
+  const token = (await cookies()).get('wahaj_session')?.value;
   if (!token) return null;
   try {
     const { payload } = await jwtVerify(token, getSecret(), { audience: 'admin' });
@@ -72,5 +72,5 @@ export async function requirePermission(permission: Permission) {
 }
 
 export async function clearSession() {
-  cookies().delete('wahaj_session');
+  (await cookies()).delete('wahaj_session');
 }

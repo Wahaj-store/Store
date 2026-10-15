@@ -390,32 +390,32 @@ export default function AdminManager({ sidebarOpen, setSidebarOpen, topContent, 
   const canCreate = ['products', 'categories', 'offers', 'shipping', 'homepage', 'gift-cards', 'relations', 'faq', 'redirects', 'settings'].includes(tab);
 
   return (
-    <div className="wahaj-admin min-h-[calc(100vh-1rem)] bg-[var(--bg)]" dir="rtl">
+    <div className="wahaj-admin min-h-[calc(100vh-1rem)] bg-(--bg)" dir="rtl">
       {/* Mobile navigation backdrop */}
       {!hideSidebar && sidebarOpen && (
         <button
           type="button"
           aria-label="إغلاق قائمة لوحة الإدارة"
           onClick={() => setSidebarOpen(false)}
-          className="fixed inset-0 z-40 cursor-default bg-black/55 backdrop-blur-[4px] lg:hidden"
+          className="fixed inset-0 z-40 cursor-default bg-black/55 backdrop-blur-xs lg:hidden"
         />
       )}
 
       {/* Mobile-only global bar. The page title intentionally lives below it. */}
       {!hideSidebar && (
       <div className="wahaj-admin__mobile-wrap admin-scroll-header-wrap z-30 px-2 pt-2 lg:hidden sm:px-4">
-        <header className="flex min-h-[64px] items-center justify-between gap-3 rounded-[24px] border border-border/50 bg-[var(--bg)]/95 px-3 shadow-sm backdrop-blur-xl sm:px-4">
+        <header className="flex min-h-[64px] items-center justify-between gap-3 rounded-[24px] border border-border/50 bg-(--bg)/95 px-3 shadow-xs backdrop-blur-xl sm:px-4">
           <button
             type="button"
             onClick={() => setSidebarOpen(true)}
-            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-border/50 bg-muted/10 text-foreground transition hover:border-[var(--gold)]/40 hover:text-[var(--gold)]"
+            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-border/50 bg-muted/10 text-foreground transition hover:border-(--gold)/40 hover:text-(--gold)"
             aria-label="فتح قائمة لوحة الإدارة"
           >
             <Menu size={20} />
           </button>
 
           <div className="flex min-w-0 items-center gap-2.5">
-            <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-xl border border-[var(--gold)]/25 bg-muted/10 p-1.5">
+            <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-xl border border-(--gold)/25 bg-muted/10 p-1.5">
               <Image src="/images/wahaj.logo.png" alt="Wahaj Store" fill sizes="40px" className="object-contain" />
             </div>
             <div className="min-w-0 text-right">
@@ -424,7 +424,7 @@ export default function AdminManager({ sidebarOpen, setSidebarOpen, topContent, 
             </div>
           </div>
 
-          <button type="button" onClick={() => { setCommandOpen(true); setCommandQuery(''); }} className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-border/50 bg-muted/10 text-foreground transition hover:border-[var(--gold)]/40 hover:text-[var(--gold)]" aria-label="البحث السريع"><Search size={18} /></button>
+          <button type="button" onClick={() => { setCommandOpen(true); setCommandQuery(''); }} className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-border/50 bg-muted/10 text-foreground transition hover:border-(--gold)/40 hover:text-(--gold)" aria-label="البحث السريع"><Search size={18} /></button>
         </header>
       </div>
       )}
@@ -435,7 +435,7 @@ export default function AdminManager({ sidebarOpen, setSidebarOpen, topContent, 
       <div className="mx-auto flex max-w-[1900px] gap-4 px-2 pb-8 pt-2 sm:px-4 lg:gap-5 lg:px-5 lg:pt-4 xl:px-6">
         {/* Right navigation rail */}
         {!hideSidebar && <aside
-          className={`wahaj-admin__sidebar fixed inset-y-2 right-2 z-50 flex flex-col overflow-hidden rounded-[30px] border border-border/50 bg-[var(--bg)] shadow-2xl transition-[transform,width] duration-300 lg:sticky lg:top-4 lg:h-[calc(100vh-2rem)] lg:shrink-0 lg:translate-x-0 lg:shadow-sm ${
+          className={`wahaj-admin__sidebar fixed inset-y-2 right-2 z-50 flex flex-col overflow-hidden rounded-[30px] border border-border/50 bg-(--bg) shadow-2xl transition-[transform,width] duration-300 lg:sticky lg:top-4 lg:h-[calc(100vh-2rem)] lg:shrink-0 lg:translate-x-0 lg:shadow-xs ${
             sidebarOpen ? 'translate-x-0' : 'translate-x-[calc(100%+1rem)]'
           } ${sidebarCollapsed ? 'lg:w-[92px]' : 'w-[306px] lg:w-[306px]'}`}
         >
@@ -444,7 +444,7 @@ export default function AdminManager({ sidebarOpen, setSidebarOpen, topContent, 
             <div className={`flex items-center ${sidebarCollapsed ? 'justify-center' : 'justify-between gap-3'}`}>
               {!sidebarCollapsed && (
                 <div className="flex min-w-0 items-center gap-3">
-                  <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-2xl border border-[var(--gold)]/30 bg-muted/10 p-1.5">
+                  <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-2xl border border-(--gold)/30 bg-muted/10 p-1.5">
                     <Image src="/images/wahaj.logo.png" alt="Wahaj Store" fill sizes="44px" className="object-contain" priority />
                   </div>
                   <div className="min-w-0">
@@ -458,7 +458,7 @@ export default function AdminManager({ sidebarOpen, setSidebarOpen, topContent, 
                 <button
                   type="button"
                   onClick={() => setSidebarCollapsed((v) => !v)}
-                  className="hidden h-9 w-9 items-center justify-center rounded-xl border border-border/40 bg-muted/10 text-muted-foreground transition hover:border-[var(--gold)]/35 hover:text-[var(--gold)] lg:flex"
+                  className="hidden h-9 w-9 items-center justify-center rounded-xl border border-border/40 bg-muted/10 text-muted-foreground transition hover:border-(--gold)/35 hover:text-(--gold) lg:flex"
                   aria-label={sidebarCollapsed ? 'توسيع القائمة' : 'تصغير القائمة'}
                   title={sidebarCollapsed ? 'توسيع القائمة' : 'تصغير القائمة'}
                 >
@@ -478,10 +478,10 @@ export default function AdminManager({ sidebarOpen, setSidebarOpen, topContent, 
 
           <div className="flex-1 overflow-y-auto px-2.5 py-4 custom-scrollbar sm:px-3">
             {!sidebarCollapsed && (
-              <div className="mb-5 rounded-2xl border border-[var(--gold)]/15 bg-[var(--gold)]/5 px-3.5 py-3">
+              <div className="mb-5 rounded-2xl border border-(--gold)/15 bg-(--gold)/5 px-3.5 py-3">
                 <div className="flex items-center justify-between gap-2">
-                  <span className="text-[10px] font-bold text-[var(--gold)]">لوحة الإدارة</span>
-                  <span className="h-1.5 w-1.5 rounded-full bg-[var(--gold)]" />
+                  <span className="text-[10px] font-bold text-(--gold)">لوحة الإدارة</span>
+                  <span className="h-1.5 w-1.5 rounded-full bg-(--gold)" />
                 </div>
                 <p className="mt-1 text-[10px] leading-5 text-muted-foreground">إدارة المتجر من مساحة واحدة منظمة وواضحة.</p>
               </div>
@@ -492,13 +492,13 @@ export default function AdminManager({ sidebarOpen, setSidebarOpen, topContent, 
                 <section key={group.title}>
                   {!sidebarCollapsed ? (
                     <div className="mb-2.5 flex items-center gap-2 px-2" dir="rtl">
-                      <span className="h-1.5 w-1.5 rounded-full bg-[var(--gold)]/65" />
+                      <span className="h-1.5 w-1.5 rounded-full bg-(--gold)/65" />
                       <h3 className="min-w-0 text-right text-[10px] font-bold tracking-[0.04em] text-muted-foreground">{group.title}</h3>
                       <span className="h-px flex-1 bg-border/35" />
                     </div>
                   ) : (
                     <div className="mb-2 flex justify-center" aria-hidden="true">
-                      <span className="h-px w-8 bg-[var(--gold)]/35" />
+                      <span className="h-px w-8 bg-(--gold)/35" />
                     </div>
                   )}
 
@@ -517,11 +517,11 @@ export default function AdminManager({ sidebarOpen, setSidebarOpen, topContent, 
                             sidebarCollapsed ? 'justify-center px-2 py-2.5' : 'gap-3 px-3 py-2.5'
                           } ${
                             active
-                              ? 'bg-[var(--gold)] text-[var(--gold-contrast)] font-bold shadow-sm'
+                              ? 'bg-(--gold) text-(--gold-contrast) font-bold shadow-xs'
                               : 'text-muted-foreground hover:bg-muted/15 hover:text-foreground'
                           }`}
                         >
-                          <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${active ? 'bg-black/8' : 'bg-[var(--gold)]/8 text-[var(--gold)]'}`}>
+                          <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${active ? 'bg-black/8' : 'bg-(--gold)/8 text-(--gold)'}`}>
                             <Icon size={16} />
                           </span>
                           {!sidebarCollapsed && <span className="min-w-0 flex-1 text-right text-xs">{t}</span>}
@@ -537,7 +537,7 @@ export default function AdminManager({ sidebarOpen, setSidebarOpen, topContent, 
 
           <div className={`${sidebarCollapsed ? 'p-2.5' : 'p-3 sm:p-4'} border-t border-border/40`}>
             <div className={`flex items-center rounded-2xl border border-border/40 bg-muted/10 ${sidebarCollapsed ? 'justify-center p-2.5' : 'gap-2.5 px-3 py-3'}`}>
-              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[var(--gold)]/10 text-[var(--gold)]">
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-(--gold)/10 text-(--gold)">
                 <Shield size={15} />
               </div>
               {!sidebarCollapsed && (
@@ -553,9 +553,9 @@ export default function AdminManager({ sidebarOpen, setSidebarOpen, topContent, 
         {/* Main workspace */}
         <main className="wahaj-admin__main min-w-0 flex-1 space-y-4 lg:space-y-5">
           {/* Desktop global header. No menu button beside the page title. */}
-          <header className="wahaj-admin__toolbar hidden min-h-[68px] items-center justify-between gap-4 rounded-[26px] border border-border/50 bg-[var(--bg)]/95 px-5 shadow-sm backdrop-blur-xl lg:flex xl:px-6">
+          <header className="wahaj-admin__toolbar hidden min-h-[68px] items-center justify-between gap-4 rounded-[26px] border border-border/50 bg-(--bg)/95 px-5 shadow-xs backdrop-blur-xl lg:flex xl:px-6">
             <div className="flex min-w-0 items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--gold)]/10 text-[var(--gold)]">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-(--gold)/10 text-(--gold)">
                 <CurrentTabIcon size={18} />
               </div>
               <div className="min-w-0 text-right">
@@ -565,25 +565,25 @@ export default function AdminManager({ sidebarOpen, setSidebarOpen, topContent, 
             </div>
 
             <div className="flex items-center gap-2">
-              <button type="button" onClick={() => { setCommandOpen(true); setCommandQuery(''); }} className="hidden h-10 min-w-[190px] items-center justify-between gap-3 rounded-xl border border-border/40 bg-muted/10 px-3 text-[10px] text-muted-foreground transition hover:border-[var(--gold)]/30 sm:flex" aria-label="فتح البحث السريع">
+              <button type="button" onClick={() => { setCommandOpen(true); setCommandQuery(''); }} className="hidden h-10 min-w-[190px] items-center justify-between gap-3 rounded-xl border border-border/40 bg-muted/10 px-3 text-[10px] text-muted-foreground transition hover:border-(--gold)/30 sm:flex" aria-label="فتح البحث السريع">
                 <span className="flex items-center gap-2"><Search size={14} /> بحث سريع في لوحة الإدارة</span><kbd className="rounded-md border border-border/50 px-1.5 py-0.5 text-[9px]">Ctrl K</kbd>
               </button>
               <div className="relative">
-                <button type="button" onClick={() => setNotificationsOpen(v => !v)} className="relative flex h-10 w-10 items-center justify-center rounded-xl border border-border/40 bg-muted/10 text-muted-foreground transition hover:border-[var(--gold)]/30 hover:text-[var(--gold)]" aria-label="التنبيهات"><Bell size={16} /><span className="absolute right-1.5 top-1.5 h-1.5 w-1.5 rounded-full bg-[var(--gold)]" /></button>
-                {notificationsOpen && <div className="absolute left-0 top-12 z-[70] w-[290px] rounded-2xl border border-border/50 bg-[var(--bg)] p-3 shadow-2xl">
-                  <div className="flex items-center justify-between border-b border-border/30 px-2 pb-3"><b className="text-xs text-foreground">مركز التنبيهات</b><span className="rounded-full bg-[var(--gold)]/10 px-2 py-1 text-[9px] text-[var(--gold)]">مباشر</span></div>
-                  <div className="space-y-1 pt-2"><div className="flex gap-3 rounded-xl p-2.5 hover:bg-muted/10"><Clock size={15} className="mt-0.5 text-[var(--gold)]" /><div><p className="text-[11px] font-medium">بيانات القسم الحالي جاهزة</p><p className="mt-0.5 text-[9px] text-muted-foreground">يتم تحديث البيانات عند تغيير القسم</p></div></div><div className="flex gap-3 rounded-xl p-2.5 hover:bg-muted/10"><CheckCircle2 size={15} className="mt-0.5 text-green-600" /><div><p className="text-[11px] font-medium">النظام متصل</p><p className="mt-0.5 text-[9px] text-muted-foreground">جلسة الإدارة محمية بالصلاحيات</p></div></div></div>
+                <button type="button" onClick={() => setNotificationsOpen(v => !v)} className="relative flex h-10 w-10 items-center justify-center rounded-xl border border-border/40 bg-muted/10 text-muted-foreground transition hover:border-(--gold)/30 hover:text-(--gold)" aria-label="التنبيهات"><Bell size={16} /><span className="absolute right-1.5 top-1.5 h-1.5 w-1.5 rounded-full bg-(--gold)" /></button>
+                {notificationsOpen && <div className="absolute left-0 top-12 z-70 w-[290px] rounded-2xl border border-border/50 bg-(--bg) p-3 shadow-2xl">
+                  <div className="flex items-center justify-between border-b border-border/30 px-2 pb-3"><b className="text-xs text-foreground">مركز التنبيهات</b><span className="rounded-full bg-(--gold)/10 px-2 py-1 text-[9px] text-(--gold)">مباشر</span></div>
+                  <div className="space-y-1 pt-2"><div className="flex gap-3 rounded-xl p-2.5 hover:bg-muted/10"><Clock size={15} className="mt-0.5 text-(--gold)" /><div><p className="text-[11px] font-medium">بيانات القسم الحالي جاهزة</p><p className="mt-0.5 text-[9px] text-muted-foreground">يتم تحديث البيانات عند تغيير القسم</p></div></div><div className="flex gap-3 rounded-xl p-2.5 hover:bg-muted/10"><CheckCircle2 size={15} className="mt-0.5 text-green-600" /><div><p className="text-[11px] font-medium">النظام متصل</p><p className="mt-0.5 text-[9px] text-muted-foreground">جلسة الإدارة محمية بالصلاحيات</p></div></div></div>
                 </div>}
               </div>
-              <div className="hidden rounded-full border border-border/40 bg-muted/10 px-3 py-2 text-[10px] text-muted-foreground xl:flex xl:items-center xl:gap-2"><span className="h-1.5 w-1.5 rounded-full bg-[var(--gold)]" /><span>Wahaj Admin</span></div>
+              <div className="hidden rounded-full border border-border/40 bg-muted/10 px-3 py-2 text-[10px] text-muted-foreground xl:flex xl:items-center xl:gap-2"><span className="h-1.5 w-1.5 rounded-full bg-(--gold)" /><span>Wahaj Admin</span></div>
             </div>
           </header>
 
           {/* Page header */}
-          <section className="wahaj-admin__section-head rounded-[30px] border border-border/50 bg-[var(--bg)] p-5 shadow-sm sm:p-6 lg:p-7">
+          <section className="wahaj-admin__section-head rounded-[30px] border border-border/50 bg-(--bg) p-5 shadow-xs sm:p-6 lg:p-7">
             <div className="flex flex-col gap-5">
               <div className="flex items-start gap-4">
-                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-[var(--gold)]/25 bg-[var(--gold)]/8 text-[var(--gold)] sm:h-14 sm:w-14">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-(--gold)/25 bg-(--gold)/8 text-(--gold) sm:h-14 sm:w-14">
                   <CurrentTabIcon size={22} />
                 </div>
                 <div className="min-w-0 flex-1 text-right">
@@ -601,13 +601,13 @@ export default function AdminManager({ sidebarOpen, setSidebarOpen, topContent, 
 
               <div className="flex flex-col gap-3 border-t border-border/40 pt-4 sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex items-center gap-2 text-[10px] text-muted-foreground">
-                  <span className="h-1.5 w-1.5 rounded-full bg-[var(--gold)]" />
+                  <span className="h-1.5 w-1.5 rounded-full bg-(--gold)" />
                   <span>التغييرات تُحفظ مباشرة عبر النظام.</span>
                 </div>
                 <div className="flex items-center gap-2">
                   {loading && (
                     <div className="inline-flex items-center gap-2 rounded-full border border-border/40 bg-muted/10 px-3 py-2 text-[10px] text-muted-foreground">
-                      <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[var(--gold)]" />
+                      <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-(--gold)" />
                       جارٍ التحديث…
                     </div>
                   )}
@@ -615,7 +615,7 @@ export default function AdminManager({ sidebarOpen, setSidebarOpen, topContent, 
                     <button
                       type="button"
                       onClick={() => setEditing(getNewItemTemplate())}
-                      className="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-[var(--gold)] px-4 text-xs font-bold text-[var(--gold-contrast)] shadow-sm transition hover:-translate-y-0.5 hover:opacity-95"
+                      className="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-(--gold) px-4 text-xs font-bold text-(--gold-contrast) shadow-xs transition hover:-translate-y-0.5 hover:opacity-95"
                     >
                       <Plus size={16} />
                       <span>إضافة جديدة</span>
@@ -627,13 +627,13 @@ export default function AdminManager({ sidebarOpen, setSidebarOpen, topContent, 
           </section>
 
           {msg && (
-            <div className={`flex items-start gap-3 rounded-2xl border px-4 py-3 text-xs font-medium shadow-sm ${msg.includes('خطأ') || msg.includes('تعذر') ? 'border-red-500/20 bg-red-500/5 text-red-600' : 'border-green-500/20 bg-green-500/5 text-green-600'}`}>
+            <div className={`flex items-start gap-3 rounded-2xl border px-4 py-3 text-xs font-medium shadow-xs ${msg.includes('خطأ') || msg.includes('تعذر') ? 'border-red-500/20 bg-red-500/5 text-red-600' : 'border-green-500/20 bg-green-500/5 text-green-600'}`}>
               {msg.includes('خطأ') || msg.includes('تعذر') ? <AlertCircle size={15} className="mt-0.5 shrink-0" /> : <CheckCircle2 size={15} className="mt-0.5 shrink-0" />}<span>{msg}</span>
             </div>
           )}
 
           {/* Content workspace */}
-          <section className="wahaj-admin__workspace overflow-hidden rounded-[30px] border border-border/50 bg-[var(--bg)] shadow-sm">
+          <section className="wahaj-admin__workspace overflow-hidden rounded-[30px] border border-border/50 bg-(--bg) shadow-xs">
             <div className="flex items-center justify-between gap-3 border-b border-border/35 px-5 py-4 sm:px-6">
               <div className="text-right">
                 <p className="text-xs font-bold text-foreground">مساحة العمل</p>
@@ -647,17 +647,17 @@ export default function AdminManager({ sidebarOpen, setSidebarOpen, topContent, 
             <div className="p-2 sm:p-3 lg:p-4">
               {loading && tab !== 'newsletter' ? (
                 <div className="rounded-[26px] border border-border/40 bg-muted/5 p-16 text-center text-sm text-muted-foreground">
-                  <div className="mx-auto mb-3 h-7 w-7 animate-spin rounded-full border-2 border-border/50 border-t-[var(--gold)]" />
+                  <div className="mx-auto mb-3 h-7 w-7 animate-spin rounded-full border-2 border-border/50 border-t-(--gold)" />
                   جارٍ تحميل بيانات القسم…
                 </div>
               ) : editing ? (
-                <div className="rounded-[26px] border border-border/40 bg-[var(--bg)] p-1 shadow-sm md:p-2">
-                  {tab === 'settings' && editing.key === '__popup_editor__' ? <div className="space-y-4 p-2 sm:p-3" dir="rtl"><PopupSettingsEditor enabledValue={data.find((item: any) => item.key === 'popup_enabled')?.value ?? 'false'} configValue={data.find((item: any) => item.key === 'popup_config')?.value ?? ''} onSave={savePopupSettings} showActivationToggle={false} /><div className="flex justify-end"><button type="button" onClick={() => setEditing(null)} className="rounded-xl border border-border/50 bg-muted/10 px-4 py-2.5 text-xs font-semibold text-muted-foreground transition hover:border-[var(--gold)]/40 hover:text-foreground">إلغاء والعودة للإعدادات</button></div></div>
+                <div className="rounded-[26px] border border-border/40 bg-(--bg) p-1 shadow-xs md:p-2">
+                  {tab === 'settings' && editing.key === '__popup_editor__' ? <div className="space-y-4 p-2 sm:p-3" dir="rtl"><PopupSettingsEditor enabledValue={data.find((item: any) => item.key === 'popup_enabled')?.value ?? 'false'} configValue={data.find((item: any) => item.key === 'popup_config')?.value ?? ''} onSave={savePopupSettings} showActivationToggle={false} /><div className="flex justify-end"><button type="button" onClick={() => setEditing(null)} className="rounded-xl border border-border/50 bg-muted/10 px-4 py-2.5 text-xs font-semibold text-muted-foreground transition hover:border-(--gold)/40 hover:text-foreground">إلغاء والعودة للإعدادات</button></div></div>
                     : tab === 'settings' && editing.key === '__gift_wrap_editor__' ? <GiftWrapFeeEditor value={String(data.find((item: any) => item.key === 'gift_wrap_fee')?.value ?? '0')} onCancel={() => setEditing(null)} onSaved={() => { setEditing(null); void load().then(() => setMsg('تم حفظ رسوم تغليف الهدايا.')); }} />
                     : <Editor tab={tab} value={editing} cats={cats} products={products} onCancel={() => setEditing(null)} onSave={save} upload={upload} />}
                 </div>
               ) : (
-                <div className="rounded-[26px] border border-border/40 bg-[var(--bg)] p-1 shadow-sm md:p-2">
+                <div className="rounded-[26px] border border-border/40 bg-(--bg) p-1 shadow-xs md:p-2">
                   <Content tab={tab} data={data} onEdit={setEditing} onDelete={del} onRefresh={load} onReorder={reorder} onSavePopup={savePopupSettings} onToggleMaintenance={toggleMaintenance} onTogglePopup={togglePopup} canManageSettings={['OWNER', 'ADMIN'].includes(userRole || '')} canManageNewsletter={['OWNER', 'ADMIN', 'MANAGER', 'EDITOR'].includes(userRole || '')} />
                 </div>
               )}
@@ -666,11 +666,11 @@ export default function AdminManager({ sidebarOpen, setSidebarOpen, topContent, 
         </main>
       </div>
       {commandOpen && (
-        <div className="fixed inset-0 z-[100] flex items-start justify-center bg-black/55 px-3 pt-[12vh] backdrop-blur-sm" onMouseDown={() => setCommandOpen(false)}>
-          <div className="w-full max-w-xl overflow-hidden rounded-[28px] border border-border/50 bg-[var(--bg)] shadow-2xl" dir="rtl" onMouseDown={e => e.stopPropagation()}>
-            <div className="flex items-center gap-3 border-b border-border/40 px-4 py-3.5"><Command size={18} className="text-[var(--gold)]" /><input autoFocus value={commandQuery} onChange={e => setCommandQuery(e.target.value)} placeholder="ابحث عن قسم أو أداة..." className="min-w-0 flex-1 bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground" /><kbd className="rounded-lg border border-border/50 px-2 py-1 text-[9px] text-muted-foreground">ESC</kbd></div>
+        <div className="fixed inset-0 z-100 flex items-start justify-center bg-black/55 px-3 pt-[12vh] backdrop-blur-xs" onMouseDown={() => setCommandOpen(false)}>
+          <div className="w-full max-w-xl overflow-hidden rounded-[28px] border border-border/50 bg-(--bg) shadow-2xl" dir="rtl" onMouseDown={e => e.stopPropagation()}>
+            <div className="flex items-center gap-3 border-b border-border/40 px-4 py-3.5"><Command size={18} className="text-(--gold)" /><input autoFocus value={commandQuery} onChange={e => setCommandQuery(e.target.value)} placeholder="ابحث عن قسم أو أداة..." className="min-w-0 flex-1 bg-transparent text-sm text-foreground outline-hidden placeholder:text-muted-foreground" /><kbd className="rounded-lg border border-border/50 px-2 py-1 text-[9px] text-muted-foreground">ESC</kbd></div>
             <div className="max-h-[55vh] overflow-y-auto p-2">
-              {filteredCommandItems.map(item => { const Icon = item.Icon; return <button key={item.key} type="button" onClick={() => { setTabAndSync(item.key); setEditing(null); setCommandOpen(false); setCommandQuery(''); setSidebarOpen(false); }} className={`flex w-full items-center gap-3 rounded-xl px-3 py-3 text-right transition ${tab === item.key ? 'bg-[var(--gold)]/10 text-[var(--gold)]' : 'text-foreground hover:bg-muted/10'}`}><span className="flex h-8 w-8 items-center justify-center rounded-lg bg-muted/10"><Icon size={15} /></span><span className="min-w-0 flex-1"><span className="block text-xs font-medium">{item.label}</span><span className="mt-0.5 block text-[9px] text-muted-foreground">{item.group}</span></span><ChevronLeft size={14} className="text-muted-foreground" /></button>; })}
+              {filteredCommandItems.map(item => { const Icon = item.Icon; return <button key={item.key} type="button" onClick={() => { setTabAndSync(item.key); setEditing(null); setCommandOpen(false); setCommandQuery(''); setSidebarOpen(false); }} className={`flex w-full items-center gap-3 rounded-xl px-3 py-3 text-right transition ${tab === item.key ? 'bg-(--gold)/10 text-(--gold)' : 'text-foreground hover:bg-muted/10'}`}><span className="flex h-8 w-8 items-center justify-center rounded-lg bg-muted/10"><Icon size={15} /></span><span className="min-w-0 flex-1"><span className="block text-xs font-medium">{item.label}</span><span className="mt-0.5 block text-[9px] text-muted-foreground">{item.group}</span></span><ChevronLeft size={14} className="text-muted-foreground" /></button>; })}
               {!filteredCommandItems.length && <div className="p-10 text-center text-xs text-muted-foreground">لا توجد نتائج مطابقة.</div>}
             </div>
             <div className="flex items-center justify-between border-t border-border/30 px-4 py-2.5 text-[9px] text-muted-foreground"><span className="flex items-center gap-1.5"><Keyboard size={12} /> للتنقل السريع</span><span>Ctrl + K</span></div>
@@ -692,26 +692,26 @@ function Editor({ tab, value, cats, products, onCancel, onSave, upload }: any) {
   const addVar = () => set('variants', [...v.variants, { name: 'اللون', value: '', stock: 0, price: '' }]);
 
   if (tab === 'settings') return (
-    <div className="bg-muted/10 border border-border/40 rounded-3xl p-6 md:p-8 space-y-5 shadow-xs">
-      <h3 className="font-serif font-bold text-lg text-[var(--gold)]">إعدادات المتجر العامة</h3>
+    <div className="bg-muted/10 border border-border/40 rounded-3xl p-6 md:p-8 space-y-5 shadow-2xs">
+      <h3 className="font-serif font-bold text-lg text-(--gold)">إعدادات المتجر العامة</h3>
       <div className="grid gap-4 md:grid-cols-2">
         <Field label="المفتاح (Key)" value={v.key || ''} onChange={(x: any) => set('key', x)} />
         <Field label="القيمة (Value)" value={v.value || ''} onChange={(x: any) => set('value', x)} />
       </div>
       <div className="flex gap-3 pt-3">
-        <button className="px-6 py-3 rounded-2xl bg-[var(--gold)] text-[var(--gold-contrast)] font-serif font-bold text-sm shadow-sm hover:opacity-95 transition inline-flex items-center gap-2 cursor-pointer" onClick={() => onSave(v)}><Save size={17} /> حفظ الإعداد</button>
+        <button className="px-6 py-3 rounded-2xl bg-(--gold) text-(--gold-contrast) font-serif font-bold text-sm shadow-xs hover:opacity-95 transition inline-flex items-center gap-2 cursor-pointer" onClick={() => onSave(v)}><Save size={17} /> حفظ الإعداد</button>
         <button className="px-5 py-3 rounded-2xl bg-muted/20 border border-border/60 text-muted-foreground text-sm font-medium hover:bg-muted/30 transition cursor-pointer" onClick={onCancel}>إلغاء</button>
       </div>
     </div>
   );
 
   if (tab === 'faq') return (
-    <div className="bg-muted/10 border border-border/40 rounded-3xl p-6 md:p-8 space-y-5 shadow-xs">
-      <h3 className="font-serif font-bold text-lg text-[var(--gold)]">{v.id ? 'تعديل السؤال' : 'إضافة سؤال جديد'}</h3>
+    <div className="bg-muted/10 border border-border/40 rounded-3xl p-6 md:p-8 space-y-5 shadow-2xs">
+      <h3 className="font-serif font-bold text-lg text-(--gold)">{v.id ? 'تعديل السؤال' : 'إضافة سؤال جديد'}</h3>
       <div className="grid gap-4 md:grid-cols-2">
         <Field label="السؤال" value={v.question || ''} onChange={(x: any) => set('question', x)} />
         <label className="text-xs md:text-sm font-medium text-muted-foreground">القسم
-          <select className="w-full mt-1 px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[var(--gold)]" value={v.category || 'general'} onChange={e => set('category', e.target.value)}>
+          <select className="w-full mt-1 px-4 py-3 rounded-2xl bg-(--bg) border border-border/60 text-foreground text-sm focus:outline-hidden focus:border-(--gold)" value={v.category || 'general'} onChange={e => set('category', e.target.value)}>
             <option value="general">عام</option>
             <option value="shipping">الشحن والتوصيل</option>
             <option value="payment">الدفع</option>
@@ -721,40 +721,40 @@ function Editor({ tab, value, cats, products, onCancel, onSave, upload }: any) {
         </label>
         <Field label="ترتيب الظهور" type="number" value={v.displayOrder ?? 0} onChange={(x: any) => set('displayOrder', Number(x))} />
         <label className="flex items-center gap-2.5 pt-6 text-sm font-light cursor-pointer">
-          <input type="checkbox" className="w-4 h-4 accent-[var(--gold)]" checked={!!v.published} onChange={e => set('published', e.target.checked)} /> منشور في المتجر
+          <input type="checkbox" className="w-4 h-4 accent-(--gold)" checked={!!v.published} onChange={e => set('published', e.target.checked)} /> منشور في المتجر
         </label>
         <label className="md:col-span-2 text-xs md:text-sm font-medium text-muted-foreground">الإجابة
-          <textarea className="w-full mt-1 px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[var(--gold)] min-h-28" value={v.answer || ''} onChange={e => set('answer', e.target.value)} />
+          <textarea className="w-full mt-1 px-4 py-3 rounded-2xl bg-(--bg) border border-border/60 text-foreground text-sm focus:outline-hidden focus:border-(--gold) min-h-28" value={v.answer || ''} onChange={e => set('answer', e.target.value)} />
         </label>
       </div>
       <div className="flex gap-3 pt-3">
-        <button className="px-6 py-3 rounded-2xl bg-[var(--gold)] text-[var(--gold-contrast)] font-serif font-bold text-sm shadow-sm hover:opacity-95 transition inline-flex items-center gap-2 cursor-pointer" onClick={() => onSave(v)}><Save size={17} /> حفظ</button>
+        <button className="px-6 py-3 rounded-2xl bg-(--gold) text-(--gold-contrast) font-serif font-bold text-sm shadow-xs hover:opacity-95 transition inline-flex items-center gap-2 cursor-pointer" onClick={() => onSave(v)}><Save size={17} /> حفظ</button>
         <button className="px-5 py-3 rounded-2xl bg-muted/20 border border-border/60 text-muted-foreground text-sm font-medium hover:bg-muted/30 transition cursor-pointer" onClick={onCancel}>إلغاء</button>
       </div>
     </div>
   );
 
   if (tab === 'payments') return (
-    <div className="bg-muted/10 border border-border/40 rounded-3xl p-6 md:p-8 space-y-5 shadow-xs">
+    <div className="bg-muted/10 border border-border/40 rounded-3xl p-6 md:p-8 space-y-5 shadow-2xs">
       <div className="grid gap-4 md:grid-cols-2">
         <Field label="اسم الطريقة" value={v.label} onChange={(x: any) => set('label', x)} />
         <Field label="ترتيب الظهور" value={v.displayOrder || 0} onChange={(x: any) => set('displayOrder', x)} type="number" />
         <Field label="اسم الحساب" value={v.accountName || ''} onChange={(x: any) => set('accountName', x)} />
         <Field label="رقم/معرف الحساب" value={v.accountNumber || ''} onChange={(x: any) => set('accountNumber', x)} />
-        <label className="md:col-span-2 text-xs md:text-sm font-medium text-muted-foreground">الوصف<textarea className="w-full mt-1 px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[var(--gold)]" value={v.description || ''} onChange={e => set('description', e.target.value)} /></label>
-        <label className="md:col-span-2 text-xs md:text-sm font-medium text-muted-foreground">تعليمات الدفع<textarea className="w-full mt-1 px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[var(--gold)] min-h-28" value={v.instructions || ''} onChange={e => set('instructions', e.target.value)} /></label>
-        <label className="flex items-center gap-2.5 text-sm font-light cursor-pointer"><input type="checkbox" className="w-4 h-4 accent-[var(--gold)]" checked={!!v.enabled} onChange={e => set('enabled', e.target.checked)} /> مفعلة</label>
-        <label className="flex items-center gap-2.5 text-sm font-light cursor-pointer"><input type="checkbox" className="w-4 h-4 accent-[var(--gold)]" checked={!!v.proofRequired} onChange={e => set('proofRequired', e.target.checked)} /> طلب إثبات دفع</label>
+        <label className="md:col-span-2 text-xs md:text-sm font-medium text-muted-foreground">الوصف<textarea className="w-full mt-1 px-4 py-3 rounded-2xl bg-(--bg) border border-border/60 text-foreground text-sm focus:outline-hidden focus:border-(--gold)" value={v.description || ''} onChange={e => set('description', e.target.value)} /></label>
+        <label className="md:col-span-2 text-xs md:text-sm font-medium text-muted-foreground">تعليمات الدفع<textarea className="w-full mt-1 px-4 py-3 rounded-2xl bg-(--bg) border border-border/60 text-foreground text-sm focus:outline-hidden focus:border-(--gold) min-h-28" value={v.instructions || ''} onChange={e => set('instructions', e.target.value)} /></label>
+        <label className="flex items-center gap-2.5 text-sm font-light cursor-pointer"><input type="checkbox" className="w-4 h-4 accent-(--gold)" checked={!!v.enabled} onChange={e => set('enabled', e.target.checked)} /> مفعلة</label>
+        <label className="flex items-center gap-2.5 text-sm font-light cursor-pointer"><input type="checkbox" className="w-4 h-4 accent-(--gold)" checked={!!v.proofRequired} onChange={e => set('proofRequired', e.target.checked)} /> طلب إثبات دفع</label>
       </div>
       <div className="mt-5 flex gap-3">
-        <button className="px-6 py-3 rounded-2xl bg-[var(--gold)] text-[var(--gold-contrast)] font-serif font-bold text-sm shadow-sm hover:opacity-95 transition inline-flex items-center gap-2 cursor-pointer" onClick={() => onSave(v)}><Save size={17} /> حفظ</button>
+        <button className="px-6 py-3 rounded-2xl bg-(--gold) text-(--gold-contrast) font-serif font-bold text-sm shadow-xs hover:opacity-95 transition inline-flex items-center gap-2 cursor-pointer" onClick={() => onSave(v)}><Save size={17} /> حفظ</button>
         <button className="px-5 py-3 rounded-2xl bg-muted/20 border border-border/60 text-muted-foreground text-sm font-medium hover:bg-muted/30 transition cursor-pointer" onClick={onCancel}>إلغاء</button>
       </div>
     </div>
   );
 
   if (tab === 'gift-cards') return (
-    <div className="bg-muted/10 border border-border/40 rounded-3xl p-6 md:p-8 space-y-5 shadow-xs">
+    <div className="bg-muted/10 border border-border/40 rounded-3xl p-6 md:p-8 space-y-5 shadow-2xs">
       <div className="grid gap-4 md:grid-cols-2">
         <Field
           label="القيمة"
@@ -766,7 +766,7 @@ function Editor({ tab, value, cats, products, onCancel, onSave, upload }: any) {
         <label className="text-xs md:text-sm font-medium text-muted-foreground space-y-1 block">
           تاريخ الانتهاء
           <input
-            className="w-full mt-1 px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[var(--gold)] transition shadow-xs"
+            className="w-full mt-1 px-4 py-3 rounded-2xl bg-(--bg) border border-border/60 text-foreground text-sm focus:outline-hidden focus:border-(--gold) transition shadow-2xs"
             type="date"
             min={new Date().toISOString().slice(0, 10)}
             value={v.expiresAt ? String(v.expiresAt).slice(0, 10) : ''}
@@ -775,31 +775,31 @@ function Editor({ tab, value, cats, products, onCancel, onSave, upload }: any) {
           <span className="block mt-1 text-[11px] text-muted-foreground">اختاري التاريخ مباشرة من التقويم.</span>
         </label>
 
-        <div className="md:col-span-2 rounded-2xl bg-[var(--bg)] border border-[var(--gold)]/20 p-4">
+        <div className="md:col-span-2 rounded-2xl bg-(--bg) border border-(--gold)/20 p-4">
           <p className="text-xs text-muted-foreground">كود البطاقة</p>
           {v.id ? (
             <p className="mt-1 font-mono text-base tracking-wider text-foreground" dir="ltr">{v.code}</p>
           ) : (
-            <p className="mt-1 text-sm font-medium text-[var(--gold)]">سيتم إنشاء كود البطاقة تلقائيًا عند الحفظ.</p>
+            <p className="mt-1 text-sm font-medium text-(--gold)">سيتم إنشاء كود البطاقة تلقائيًا عند الحفظ.</p>
           )}
         </div>
 
         <label className="flex items-center gap-2.5 text-sm font-light cursor-pointer">
-          <input type="checkbox" className="w-4 h-4 accent-[var(--gold)]" checked={v.active !== false} onChange={e => set('active', e.target.checked)} />
+          <input type="checkbox" className="w-4 h-4 accent-(--gold)" checked={v.active !== false} onChange={e => set('active', e.target.checked)} />
           البطاقة مفعلة
         </label>
       </div>
 
       {v.id && (
-        <div className="rounded-2xl bg-[var(--bg)] border border-border/40 p-4">
+        <div className="rounded-2xl bg-(--bg) border border-border/40 p-4">
           <p className="text-xs text-muted-foreground">الرصيد الحالي</p>
-          <p className="mt-1 text-lg font-serif font-bold text-[var(--gold)]">{Number(v.balance || 0).toLocaleString('ar-EG')} ج.م</p>
+          <p className="mt-1 text-lg font-serif font-bold text-(--gold)">{Number(v.balance || 0).toLocaleString('ar-EG')} ج.م</p>
           <p className="mt-1 text-[11px] text-muted-foreground">لا يمكن تعديل القيمة الأصلية بعد الإصدار.</p>
         </div>
       )}
 
       <div className="mt-5 flex gap-3 pt-4 border-t border-border/30">
-        <button className="px-6 py-3 rounded-2xl bg-[var(--gold)] text-[var(--gold-contrast)] font-serif font-bold text-sm shadow-sm hover:opacity-95 transition inline-flex items-center gap-2 cursor-pointer" onClick={() => onSave(v)}><Save size={17} /> حفظ</button>
+        <button className="px-6 py-3 rounded-2xl bg-(--gold) text-(--gold-contrast) font-serif font-bold text-sm shadow-xs hover:opacity-95 transition inline-flex items-center gap-2 cursor-pointer" onClick={() => onSave(v)}><Save size={17} /> حفظ</button>
         <button className="px-5 py-3 rounded-2xl bg-muted/20 border border-border/60 text-muted-foreground text-sm font-medium hover:bg-muted/30 transition cursor-pointer" onClick={onCancel}>إلغاء</button>
       </div>
     </div>
@@ -815,14 +815,14 @@ function Editor({ tab, value, cats, products, onCancel, onSave, upload }: any) {
   };
 
   if (tab === 'relations') return (
-    <div className="bg-muted/10 border border-border/40 rounded-3xl p-6 md:p-8 space-y-5 shadow-xs">
+    <div className="bg-muted/10 border border-border/40 rounded-3xl p-6 md:p-8 space-y-5 shadow-2xs">
       <div>
-        <h3 className="font-serif font-bold text-lg text-[var(--gold)]">{v.id ? 'تعديل ترشيح المنتجات' : 'إضافة ترشيح منتجات'}</h3>
+        <h3 className="font-serif font-bold text-lg text-(--gold)">{v.id ? 'تعديل ترشيح المنتجات' : 'إضافة ترشيح منتجات'}</h3>
         <p className="mt-1 text-xs text-muted-foreground">اختاري المنتجات من القوائم؛ سيتم ربطها باستخدام معرّفاتها الصحيحة تلقائيًا.</p>
       </div>
       <div className="grid gap-4 md:grid-cols-2">
         <label className="text-xs md:text-sm font-medium text-muted-foreground">نوع الترشيح
-          <select className="w-full mt-1 px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[var(--gold)]" value={v.type || 'RELATED'} onChange={e => set('type', e.target.value)}>
+          <select className="w-full mt-1 px-4 py-3 rounded-2xl bg-(--bg) border border-border/60 text-foreground text-sm focus:outline-hidden focus:border-(--gold)" value={v.type || 'RELATED'} onChange={e => set('type', e.target.value)}>
             <option value="RELATED">منتجات مشابهة</option>
             <option value="COMPLEMENTARY">منتجات مكملة</option>
             <option value="UPSELL">ترقية المنتج</option>
@@ -832,13 +832,13 @@ function Editor({ tab, value, cats, products, onCancel, onSave, upload }: any) {
         </label>
         <Field label="ترتيب الظهور" value={v.sortOrder ?? 0} onChange={(x: any) => set('sortOrder', x)} type="number" />
         <label className="text-xs md:text-sm font-medium text-muted-foreground">المنتج الأساسي
-          <select required disabled={!products.length} className="w-full mt-1 px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[var(--gold)] disabled:opacity-60" value={v.fromProductId || ''} onChange={e => set('fromProductId', e.target.value)}>
+          <select required disabled={!products.length} className="w-full mt-1 px-4 py-3 rounded-2xl bg-(--bg) border border-border/60 text-foreground text-sm focus:outline-hidden focus:border-(--gold) disabled:opacity-60" value={v.fromProductId || ''} onChange={e => set('fromProductId', e.target.value)}>
             <option value="">{products.length ? 'اختاري المنتج الأساسي' : 'جاري تحميل المنتجات…'}</option>
             {products.map((product: any) => <option key={product.id} value={product.id}>{product.name} — {product.slug}</option>)}
           </select>
         </label>
         <label className="text-xs md:text-sm font-medium text-muted-foreground">المنتج المرشّح
-          <select required disabled={!products.length} className="w-full mt-1 px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[var(--gold)] disabled:opacity-60" value={v.toProductId || ''} onChange={e => set('toProductId', e.target.value)}>
+          <select required disabled={!products.length} className="w-full mt-1 px-4 py-3 rounded-2xl bg-(--bg) border border-border/60 text-foreground text-sm focus:outline-hidden focus:border-(--gold) disabled:opacity-60" value={v.toProductId || ''} onChange={e => set('toProductId', e.target.value)}>
             <option value="">{products.length ? 'اختاري المنتج المرشّح' : 'جاري تحميل المنتجات…'}</option>
             {products.map((product: any) => <option key={product.id} value={product.id} disabled={product.id === v.fromProductId}>{product.name} — {product.slug}{product.id === v.fromProductId ? ' (المنتج الأساسي)' : ''}</option>)}
           </select>
@@ -846,18 +846,18 @@ function Editor({ tab, value, cats, products, onCancel, onSave, upload }: any) {
       </div>
       {products.length < 2 && <p className="rounded-2xl border border-amber-500/20 bg-amber-500/5 px-4 py-3 text-xs text-amber-700">يلزم وجود منتجين على الأقل لإضافة ترشيح.</p>}
       <div className="flex flex-wrap gap-3 border-t border-border/30 pt-4">
-        <button disabled={products.length < 2 || !v.fromProductId || !v.toProductId || v.fromProductId === v.toProductId} className="inline-flex items-center gap-2 rounded-2xl bg-[var(--gold)] px-6 py-3 text-sm font-bold text-[var(--gold-contrast)] shadow-sm transition hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-50" onClick={() => onSave(v)}><Save size={17} /> حفظ الترشيح</button>
+        <button disabled={products.length < 2 || !v.fromProductId || !v.toProductId || v.fromProductId === v.toProductId} className="inline-flex items-center gap-2 rounded-2xl bg-(--gold) px-6 py-3 text-sm font-bold text-(--gold-contrast) shadow-xs transition hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-50" onClick={() => onSave(v)}><Save size={17} /> حفظ الترشيح</button>
         <button className="cursor-pointer rounded-2xl border border-border/60 bg-muted/20 px-5 py-3 text-sm font-medium text-muted-foreground transition hover:bg-muted/30" onClick={onCancel}>إلغاء</button>
       </div>
     </div>
   );
 
   if (tab === 'offers') return (
-    <div className="bg-muted/10 border border-border/40 rounded-3xl p-6 md:p-8 space-y-5 shadow-xs">
+    <div className="bg-muted/10 border border-border/40 rounded-3xl p-6 md:p-8 space-y-5 shadow-2xs">
       <div className="grid gap-4 md:grid-cols-2">
         <Field label="اسم العرض" value={v.name || ''} onChange={(x: any) => set('name', x)} />
         <label className="text-xs md:text-sm font-medium text-muted-foreground">نوع العرض
-          <select className="w-full mt-1 px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[var(--gold)]" value={v.type || 'FLASH_SALE'} onChange={e => set('type', e.target.value)}>
+          <select className="w-full mt-1 px-4 py-3 rounded-2xl bg-(--bg) border border-border/60 text-foreground text-sm focus:outline-hidden focus:border-(--gold)" value={v.type || 'FLASH_SALE'} onChange={e => set('type', e.target.value)}>
             <option value="FLASH_SALE">تخفيض مباشر</option>
             <option value="BUY_X_GET_Y">اشترِ X واحصل على Y</option>
             <option value="FREE_SHIPPING">شحن مجاني</option>
@@ -866,7 +866,7 @@ function Editor({ tab, value, cats, products, onCancel, onSave, upload }: any) {
           </select>
         </label>
         <label className="text-xs md:text-sm font-medium text-muted-foreground">نوع الخصم
-          <select className="w-full mt-1 px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[var(--gold)]" value={v.discountType || 'PERCENTAGE'} onChange={e => set('discountType', e.target.value)}>
+          <select className="w-full mt-1 px-4 py-3 rounded-2xl bg-(--bg) border border-border/60 text-foreground text-sm focus:outline-hidden focus:border-(--gold)" value={v.discountType || 'PERCENTAGE'} onChange={e => set('discountType', e.target.value)}>
             <option value="PERCENTAGE">نسبة مئوية</option>
             <option value="FIXED">قيمة ثابتة</option>
           </select>
@@ -882,26 +882,26 @@ function Editor({ tab, value, cats, products, onCancel, onSave, upload }: any) {
           <Field label="نسبة خصم الوحدات المجانية" value={v.getDiscountPercent ?? 100} onChange={(x: any) => set('getDiscountPercent', x)} type="number" />
         </>}
         <label className="text-xs md:text-sm font-medium text-muted-foreground">المنتج المستهدف
-          <select className="w-full mt-1 px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[var(--gold)]" value={v.productId || ''} onChange={e => set('productId', e.target.value)}>
+          <select className="w-full mt-1 px-4 py-3 rounded-2xl bg-(--bg) border border-border/60 text-foreground text-sm focus:outline-hidden focus:border-(--gold)" value={v.productId || ''} onChange={e => set('productId', e.target.value)}>
             <option value="">كل المنتجات</option>
             {products.map((x: any) => <option key={x.id} value={x.id}>{x.name}</option>)}
           </select>
         </label>
         <label className="text-xs md:text-sm font-medium text-muted-foreground">التصنيف المستهدف
-          <select className="w-full mt-1 px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[var(--gold)]" value={v.categoryId || ''} onChange={e => set('categoryId', e.target.value)}>
+          <select className="w-full mt-1 px-4 py-3 rounded-2xl bg-(--bg) border border-border/60 text-foreground text-sm focus:outline-hidden focus:border-(--gold)" value={v.categoryId || ''} onChange={e => set('categoryId', e.target.value)}>
             <option value="">كل التصنيفات</option>
             {cats.map((x: any) => <option key={x.id} value={x.id}>{x.name}</option>)}
           </select>
         </label>
-        <div className="md:col-span-2 rounded-2xl bg-[var(--bg)] border border-[var(--gold)]/20 p-4 space-y-3">
+        <div className="md:col-span-2 rounded-2xl bg-(--bg) border border-(--gold)/20 p-4 space-y-3">
           <div>
-            <p className="text-sm font-serif font-bold text-[var(--gold)]">الجمهور المستهدف</p>
+            <p className="text-sm font-serif font-bold text-(--gold)">الجمهور المستهدف</p>
             <p className="text-[11px] text-muted-foreground mt-1">اتركيه بدون اختيار ليعمل العرض مع كل العملاء.</p>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-2.5">
             {OFFER_SEGMENTS.map(([key, label]) => (
-              <label key={key} className={`flex items-center gap-2.5 rounded-xl border px-3 py-2.5 text-xs cursor-pointer transition ${Array.isArray(v.segmentKeys) && v.segmentKeys.includes(key) ? 'border-[var(--gold)] bg-[var(--gold)]/10' : 'border-border/40 bg-muted/10'}`}>
-                <input type="checkbox" className="w-4 h-4 accent-[var(--gold)]" checked={Array.isArray(v.segmentKeys) && v.segmentKeys.includes(key)} onChange={e => {
+              <label key={key} className={`flex items-center gap-2.5 rounded-xl border px-3 py-2.5 text-xs cursor-pointer transition ${Array.isArray(v.segmentKeys) && v.segmentKeys.includes(key) ? 'border-(--gold) bg-(--gold)/10' : 'border-border/40 bg-muted/10'}`}>
+                <input type="checkbox" className="w-4 h-4 accent-(--gold)" checked={Array.isArray(v.segmentKeys) && v.segmentKeys.includes(key)} onChange={e => {
                   const current = Array.isArray(v.segmentKeys) ? v.segmentKeys : [];
                   set('segmentKeys', e.target.checked ? [...current, key] : current.filter((x: string) => x !== key));
                 }} />
@@ -911,42 +911,42 @@ function Editor({ tab, value, cats, products, onCancel, onSave, upload }: any) {
           </div>
         </div>
         <label className="text-xs md:text-sm font-medium text-muted-foreground">يبدأ
-          <input type="datetime-local" className="w-full mt-1 px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[var(--gold)]" value={toDateTimeLocal(v.startsAt)} onChange={e => set('startsAt', e.target.value)} />
+          <input type="datetime-local" className="w-full mt-1 px-4 py-3 rounded-2xl bg-(--bg) border border-border/60 text-foreground text-sm focus:outline-hidden focus:border-(--gold)" value={toDateTimeLocal(v.startsAt)} onChange={e => set('startsAt', e.target.value)} />
           <span className="block mt-1 text-[11px] text-muted-foreground">الوقت يُحفظ بنفس الساعة التي تختارينها.</span>
         </label>
         <label className="text-xs md:text-sm font-medium text-muted-foreground">ينتهي
-          <input type="datetime-local" className="w-full mt-1 px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[var(--gold)]" value={toDateTimeLocal(v.endsAt)} onChange={e => set('endsAt', e.target.value)} />
+          <input type="datetime-local" className="w-full mt-1 px-4 py-3 rounded-2xl bg-(--bg) border border-border/60 text-foreground text-sm focus:outline-hidden focus:border-(--gold)" value={toDateTimeLocal(v.endsAt)} onChange={e => set('endsAt', e.target.value)} />
           <span className="block mt-1 text-[11px] text-muted-foreground">الوقت يُحفظ بنفس الساعة التي تختارينها.</span>
         </label>
       </div>
       <div className="flex flex-wrap gap-5 pt-2">
-        <label className="flex items-center gap-2.5 text-sm font-light cursor-pointer"><input type="checkbox" className="w-4 h-4 accent-[var(--gold)]" checked={!!v.stackable} onChange={e => set('stackable', e.target.checked)} /> قابل للدمج مع العروض الأخرى</label>
-        <label className="flex items-center gap-2.5 text-sm font-light cursor-pointer"><input type="checkbox" className="w-4 h-4 accent-[var(--gold)]" checked={v.active !== false} onChange={e => set('active', e.target.checked)} /> مفعّل</label>
+        <label className="flex items-center gap-2.5 text-sm font-light cursor-pointer"><input type="checkbox" className="w-4 h-4 accent-(--gold)" checked={!!v.stackable} onChange={e => set('stackable', e.target.checked)} /> قابل للدمج مع العروض الأخرى</label>
+        <label className="flex items-center gap-2.5 text-sm font-light cursor-pointer"><input type="checkbox" className="w-4 h-4 accent-(--gold)" checked={v.active !== false} onChange={e => set('active', e.target.checked)} /> مفعّل</label>
       </div>
       <p className="text-xs text-muted-foreground leading-relaxed">العروض تُطبّق على السيرفر فقط، وتُراجع الصلاحية والمدة والحد الأقصى للاستخدام أثناء إنشاء الطلب.</p>
       <div className="mt-5 flex gap-3">
-        <button className="px-6 py-3 rounded-2xl bg-[var(--gold)] text-[var(--gold-contrast)] font-serif font-bold text-sm shadow-sm hover:opacity-95 transition inline-flex items-center gap-2 cursor-pointer" onClick={() => onSave(v)}><Save size={17} /> حفظ</button>
+        <button className="px-6 py-3 rounded-2xl bg-(--gold) text-(--gold-contrast) font-serif font-bold text-sm shadow-xs hover:opacity-95 transition inline-flex items-center gap-2 cursor-pointer" onClick={() => onSave(v)}><Save size={17} /> حفظ</button>
         <button className="px-5 py-3 rounded-2xl bg-muted/20 border border-border/60 text-muted-foreground text-sm font-medium hover:bg-muted/30 transition cursor-pointer" onClick={onCancel}>إلغاء</button>
       </div>
     </div>
   );
 
   if (tab === 'redirects') return (
-    <div className="bg-muted/10 border border-border/40 rounded-3xl p-6 md:p-8 space-y-5 shadow-xs">
+    <div className="bg-muted/10 border border-border/40 rounded-3xl p-6 md:p-8 space-y-5 shadow-2xs">
       <div className="grid gap-4 md:grid-cols-2">
         <Field label="المسار القديم" value={v.fromPath || ''} onChange={(x: any) => set('fromPath', x)} />
         <Field label="المسار الجديد" value={v.toPath || ''} onChange={(x: any) => set('toPath', x)} />
         <Field label="كود التحويل" value={v.statusCode || 301} onChange={(x: any) => set('statusCode', x)} type="number" />
       </div>
       <div className="mt-5 flex gap-3">
-        <button className="px-6 py-3 rounded-2xl bg-[var(--gold)] text-[var(--gold-contrast)] font-serif font-bold text-sm shadow-sm hover:opacity-95 transition inline-flex items-center gap-2 cursor-pointer" onClick={() => onSave(v)}><Save size={17} /> حفظ</button>
+        <button className="px-6 py-3 rounded-2xl bg-(--gold) text-(--gold-contrast) font-serif font-bold text-sm shadow-xs hover:opacity-95 transition inline-flex items-center gap-2 cursor-pointer" onClick={() => onSave(v)}><Save size={17} /> حفظ</button>
         <button className="px-5 py-3 rounded-2xl bg-muted/20 border border-border/60 text-muted-foreground text-sm font-medium hover:bg-muted/30 transition cursor-pointer" onClick={onCancel}>إلغاء</button>
       </div>
     </div>
   );
 
   return (
-    <div className="bg-muted/10 border border-border/40 rounded-3xl p-6 md:p-8 space-y-6 shadow-xs">
+    <div className="bg-muted/10 border border-border/40 rounded-3xl p-6 md:p-8 space-y-6 shadow-2xs">
       <div className="grid gap-4 md:grid-cols-2">
         {tab === 'products' ? (
           <>
@@ -957,13 +957,13 @@ function Editor({ tab, value, cats, products, onCancel, onSave, upload }: any) {
             <Field label="السعر قبل الخصم" value={v.comparePrice} onChange={(x: any) => set('comparePrice', x)} type="number" />
             <Field label="المخزون" value={v.stock} onChange={(x: any) => set('stock', x)} type="number" />
             <label className="text-xs md:text-sm font-medium text-muted-foreground">التصنيف
-              <select className="w-full mt-1 px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[var(--gold)]" value={v.categoryId} onChange={e => set('categoryId', e.target.value)}>
+              <select className="w-full mt-1 px-4 py-3 rounded-2xl bg-(--bg) border border-border/60 text-foreground text-sm focus:outline-hidden focus:border-(--gold)" value={v.categoryId} onChange={e => set('categoryId', e.target.value)}>
                 <option value="">اختر التصنيف</option>
                 {cats.map((c: any) => <option key={c.id} value={c.id}>{c.name}</option>)}
               </select>
             </label>
             <label className="text-xs md:text-sm font-medium text-muted-foreground">الحالة
-              <select className="w-full mt-1 px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[var(--gold)]" value={v.status} onChange={e => set('status', e.target.value)}>
+              <select className="w-full mt-1 px-4 py-3 rounded-2xl bg-(--bg) border border-border/60 text-foreground text-sm focus:outline-hidden focus:border-(--gold)" value={v.status} onChange={e => set('status', e.target.value)}>
                 {['DRAFT', 'PUBLISHED', 'HIDDEN', 'ARCHIVED'].map((x: any) => <option key={x}>{x}</option>)}
               </select>
             </label>
@@ -974,20 +974,20 @@ function Editor({ tab, value, cats, products, onCancel, onSave, upload }: any) {
             <div className="md:col-span-2 grid grid-cols-2 md:grid-cols-3 gap-3 pt-2">
               {[['featured', 'مميز'], ['newArrival', 'وصل حديثًا'], ['bestSeller', 'الأكثر مبيعًا']].map(([k, l]) => (
                 <label key={k} className="flex items-center gap-2.5 text-sm font-light cursor-pointer">
-                  <input type="checkbox" className="w-4 h-4 accent-[var(--gold)]" checked={!!v[k]} onChange={e => set(k, e.target.checked)} />{l}
+                  <input type="checkbox" className="w-4 h-4 accent-(--gold)" checked={!!v[k]} onChange={e => set(k, e.target.checked)} />{l}
                 </label>
               ))}
             </div>
             <label className="md:col-span-2 text-xs md:text-sm font-medium text-muted-foreground">الوصف
-              <textarea className="w-full mt-1 px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[var(--gold)] min-h-28" value={v.description || ''} onChange={e => set('description', e.target.value)} />
+              <textarea className="w-full mt-1 px-4 py-3 rounded-2xl bg-(--bg) border border-border/60 text-foreground text-sm focus:outline-hidden focus:border-(--gold) min-h-28" value={v.description || ''} onChange={e => set('description', e.target.value)} />
             </label>
             <div className="md:col-span-2 space-y-2">
-              <p className="text-sm font-serif font-bold text-[var(--gold)]">صور المنتج</p>
+              <p className="text-sm font-serif font-bold text-(--gold)">صور المنتج</p>
               <div className="flex flex-wrap gap-3">
                 {v.images.map((im: any, i: number) => (
                   <div key={i} className="relative">
-                    <Image src={im.url} width={96} height={96} alt={im.alt || v.name || "صورة المنتج"} className="h-24 w-24 rounded-2xl object-cover border border-border/60 shadow-xs" />
-                    <button className="absolute -top-2 -end-2 rounded-full bg-red-500 w-6 h-6 flex items-center justify-center text-white text-xs font-bold shadow-xs cursor-pointer" onClick={() => set('images', v.images.filter((_: any, j: number) => j !== i))}>×</button>
+                    <Image src={im.url} width={96} height={96} alt={im.alt || v.name || "صورة المنتج"} className="h-24 w-24 rounded-2xl object-cover border border-border/60 shadow-2xs" />
+                    <button className="absolute -top-2 -inset-e-2 rounded-full bg-red-500 w-6 h-6 flex items-center justify-center text-white text-xs font-bold shadow-2xs cursor-pointer" onClick={() => set('images', v.images.filter((_: any, j: number) => j !== i))}>×</button>
                   </div>
                 ))}
                 <div className="flex items-center gap-2">
@@ -997,17 +997,17 @@ function Editor({ tab, value, cats, products, onCancel, onSave, upload }: any) {
             </div>
             <div className="md:col-span-2 space-y-3 pt-2 border-t border-border/30">
               <div className="flex items-center justify-between">
-                <b className="font-serif font-bold text-sm text-[var(--gold)]">Variants / الخيارات</b>
+                <b className="font-serif font-bold text-sm text-(--gold)">Variants / الخيارات</b>
                 <button className="px-4 py-2 rounded-xl bg-muted/20 border border-border/60 text-xs font-medium hover:bg-muted/30 transition cursor-pointer" onClick={addVar}>+ إضافة خيار</button>
               </div>
               {v.variants.map((x: any, i: number) => (
-                <div className="grid gap-2.5 md:grid-cols-5 items-center p-3 rounded-2xl bg-[var(--bg)] border border-border/60 shadow-xs" key={i}>
-                  <input className="w-full px-3 py-2 rounded-xl bg-muted/10 border border-border/60 text-xs text-foreground focus:outline-none focus:border-[var(--gold)]" placeholder="النوع" value={x.name} onChange={e => { const a = [...v.variants]; a[i].name = e.target.value; set('variants', a); }} />
-                  <input className="w-full px-3 py-2 rounded-xl bg-muted/10 border border-border/60 text-xs text-foreground focus:outline-none focus:border-[var(--gold)]" placeholder="القيمة" value={x.value} onChange={e => { const a = [...v.variants]; a[i].value = e.target.value; set('variants', a); }} />
-                  <input className="w-full px-3 py-2 rounded-xl bg-muted/10 border border-border/60 text-xs text-foreground focus:outline-none focus:border-[var(--gold)]" type="number" placeholder="المخزون" value={x.stock} onChange={e => { const a = [...v.variants]; a[i].stock = Number(e.target.value); set('variants', a); }} />
-                  <input className="w-full px-3 py-2 rounded-xl bg-muted/10 border border-border/60 text-xs text-foreground focus:outline-none focus:border-[var(--gold)]" type="number" placeholder="سعر خاص" value={x.price ?? ""} onChange={e => { const a = [...v.variants]; a[i].price = e.target.value === '' ? null : Number(e.target.value); set('variants', a); }} />
+                <div className="grid gap-2.5 md:grid-cols-5 items-center p-3 rounded-2xl bg-(--bg) border border-border/60 shadow-2xs" key={i}>
+                  <input className="w-full px-3 py-2 rounded-xl bg-muted/10 border border-border/60 text-xs text-foreground focus:outline-hidden focus:border-(--gold)" placeholder="النوع" value={x.name} onChange={e => { const a = [...v.variants]; a[i].name = e.target.value; set('variants', a); }} />
+                  <input className="w-full px-3 py-2 rounded-xl bg-muted/10 border border-border/60 text-xs text-foreground focus:outline-hidden focus:border-(--gold)" placeholder="القيمة" value={x.value} onChange={e => { const a = [...v.variants]; a[i].value = e.target.value; set('variants', a); }} />
+                  <input className="w-full px-3 py-2 rounded-xl bg-muted/10 border border-border/60 text-xs text-foreground focus:outline-hidden focus:border-(--gold)" type="number" placeholder="المخزون" value={x.stock} onChange={e => { const a = [...v.variants]; a[i].stock = Number(e.target.value); set('variants', a); }} />
+                  <input className="w-full px-3 py-2 rounded-xl bg-muted/10 border border-border/60 text-xs text-foreground focus:outline-hidden focus:border-(--gold)" type="number" placeholder="سعر خاص" value={x.price ?? ""} onChange={e => { const a = [...v.variants]; a[i].price = e.target.value === '' ? null : Number(e.target.value); set('variants', a); }} />
                   <div className="flex gap-2">
-                    <input className="w-full px-3 py-2 rounded-xl bg-muted/10 border border-border/60 text-xs text-foreground focus:outline-none focus:border-[var(--gold)]" placeholder="SKU" value={x.sku || ""} onChange={e => { const a = [...v.variants]; a[i].sku = e.target.value; set('variants', a); }} />
+                    <input className="w-full px-3 py-2 rounded-xl bg-muted/10 border border-border/60 text-xs text-foreground focus:outline-hidden focus:border-(--gold)" placeholder="SKU" value={x.sku || ""} onChange={e => { const a = [...v.variants]; a[i].sku = e.target.value; set('variants', a); }} />
                     <button className="p-2 rounded-xl border border-red-400 text-red-500 hover:bg-red-500/10 transition cursor-pointer" onClick={() => set('variants', v.variants.filter((_: any, j: number) => j !== i))}><Trash2 size={16} /></button>
                   </div>
                 </div>
@@ -1037,7 +1037,7 @@ function Editor({ tab, value, cats, products, onCancel, onSave, upload }: any) {
       )}
 
       <div className="mt-6 flex gap-3 pt-4 border-t border-border/30">
-        <button className="px-6 py-3 rounded-2xl bg-[var(--gold)] text-[var(--gold-contrast)] font-serif font-bold text-sm shadow-sm hover:opacity-95 transition inline-flex items-center gap-2 cursor-pointer" onClick={() => onSave(v)}><Save size={17} /> حفظ</button>
+        <button className="px-6 py-3 rounded-2xl bg-(--gold) text-(--gold-contrast) font-serif font-bold text-sm shadow-xs hover:opacity-95 transition inline-flex items-center gap-2 cursor-pointer" onClick={() => onSave(v)}><Save size={17} /> حفظ</button>
         <button className="px-5 py-3 rounded-2xl bg-muted/20 border border-border/60 text-muted-foreground text-sm font-medium hover:bg-muted/30 transition cursor-pointer" onClick={onCancel}>إلغاء</button>
       </div>
     </div>
@@ -1048,7 +1048,7 @@ function Field({ label, value, onChange, type = 'text' }: any) {
   return (
     <label className="text-xs md:text-sm font-medium text-muted-foreground space-y-1 block">
       {label}
-      <input className="w-full mt-1 px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[var(--gold)] transition shadow-xs" type={type} value={value ?? ''} onChange={e => onChange(e.target.value)} />
+      <input className="w-full mt-1 px-4 py-3 rounded-2xl bg-(--bg) border border-border/60 text-foreground text-sm focus:outline-hidden focus:border-(--gold) transition shadow-2xs" type={type} value={value ?? ''} onChange={e => onChange(e.target.value)} />
     </label>
   );
 }
@@ -1057,7 +1057,7 @@ function Select({ label, value, options, onChange }: any) {
   return (
     <label className="mt-4 block text-xs md:text-sm font-medium text-muted-foreground space-y-1">
       {label}
-      <select className="w-full mt-1 px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[var(--gold)] transition shadow-xs" value={value} onChange={e => onChange(e.target.value)}>
+      <select className="w-full mt-1 px-4 py-3 rounded-2xl bg-(--bg) border border-border/60 text-foreground text-sm focus:outline-hidden focus:border-(--gold) transition shadow-2xs" value={value} onChange={e => onChange(e.target.value)}>
         {options.map((x: string) => <option key={x}>{x}</option>)}
       </select>
     </label>
@@ -1141,17 +1141,17 @@ function NewsletterSubscribers({ data, onRefresh, canManage }: { data: any[]; on
           { label: 'اشتراكات موقوفة', value: inactiveCount, tone: 'text-muted-foreground' },
         ].map(card => <div key={card.label} className="rounded-2xl border border-border/40 bg-muted/10 p-4"><p className="text-[10px] text-muted-foreground">{card.label}</p><b className={`mt-1 block text-xl font-bold ${card.tone}`}>{card.value.toLocaleString('ar-EG')}</b></div>)}
       </div>
-      <section className="overflow-hidden rounded-3xl border border-border/40 bg-muted/5 shadow-xs">
-        <div className="flex flex-wrap items-start justify-between gap-3 border-b border-border/30 p-4 sm:p-5"><div><h2 className="font-serif text-base font-bold text-foreground">قائمة المشتركين</h2><p className="mt-1 text-[10px] leading-5 text-muted-foreground">{canManage ? 'ابحثي أو صفّي القائمة، وصدّري النتائج الحالية إلى CSV.' : 'يمكنك عرض القائمة وتصديرها؛ دورك لا يسمح بتغيير حالة الاشتراك.'}</p></div><button type="button" onClick={exportCsv} disabled={!filtered.length} className="inline-flex min-h-10 items-center gap-2 rounded-xl bg-[var(--gold)] px-4 text-xs font-bold text-[var(--gold-contrast)] transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"><Download size={15} /> تصدير CSV</button></div>
+      <section className="overflow-hidden rounded-3xl border border-border/40 bg-muted/5 shadow-2xs">
+        <div className="flex flex-wrap items-start justify-between gap-3 border-b border-border/30 p-4 sm:p-5"><div><h2 className="font-serif text-base font-bold text-foreground">قائمة المشتركين</h2><p className="mt-1 text-[10px] leading-5 text-muted-foreground">{canManage ? 'ابحثي أو صفّي القائمة، وصدّري النتائج الحالية إلى CSV.' : 'يمكنك عرض القائمة وتصديرها؛ دورك لا يسمح بتغيير حالة الاشتراك.'}</p></div><button type="button" onClick={exportCsv} disabled={!filtered.length} className="inline-flex min-h-10 items-center gap-2 rounded-xl bg-(--gold) px-4 text-xs font-bold text-(--gold-contrast) transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"><Download size={15} /> تصدير CSV</button></div>
         <div className="flex flex-col gap-3 p-4 sm:p-5">
           <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-            <label className="relative block w-full lg:max-w-sm"><Search size={15} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground" /><span className="sr-only">البحث بالبريد أو مصدر التسجيل</span><input value={search} onChange={event => setSearch(event.target.value)} placeholder="ابحث بالبريد أو مصدر التسجيل" className="h-10 w-full rounded-xl border border-border/40 bg-[var(--bg)] pr-9 pl-3 text-xs text-foreground outline-none transition placeholder:text-muted-foreground focus:border-[var(--gold)]/60" /></label>
+            <label className="relative block w-full lg:max-w-sm"><Search size={15} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground" /><span className="sr-only">البحث بالبريد أو مصدر التسجيل</span><input value={search} onChange={event => setSearch(event.target.value)} placeholder="ابحث بالبريد أو مصدر التسجيل" className="h-10 w-full rounded-xl border border-border/40 bg-(--bg) pr-9 pl-3 text-xs text-foreground outline-hidden transition placeholder:text-muted-foreground focus:border-(--gold)/60" /></label>
             <div className="flex flex-wrap gap-2" role="group" aria-label="تصفية حالة الاشتراك">
-              {filters.map(filter => <button key={filter.key} type="button" onClick={() => setStatusFilter(filter.key)} aria-pressed={statusFilter === filter.key} className={`rounded-xl border px-3 py-2 text-[10px] transition ${statusFilter === filter.key ? 'border-[var(--gold)] bg-[var(--gold)] text-[var(--gold-contrast)] font-bold' : 'border-border/40 bg-[var(--bg)] text-muted-foreground hover:border-[var(--gold)]/40'}`}>{filter.label} <span className="mr-1 opacity-75">{filter.count.toLocaleString('ar-EG')}</span></button>)}
-              <button type="button" onClick={() => void onRefresh()} className="inline-flex items-center gap-1.5 rounded-xl border border-border/40 bg-[var(--bg)] px-3 py-2 text-[10px] text-muted-foreground transition hover:border-[var(--gold)]/40"><RefreshCcw size={13} /> تحديث</button>
+              {filters.map(filter => <button key={filter.key} type="button" onClick={() => setStatusFilter(filter.key)} aria-pressed={statusFilter === filter.key} className={`rounded-xl border px-3 py-2 text-[10px] transition ${statusFilter === filter.key ? 'border-(--gold) bg-(--gold) text-(--gold-contrast) font-bold' : 'border-border/40 bg-(--bg) text-muted-foreground hover:border-(--gold)/40'}`}>{filter.label} <span className="mr-1 opacity-75">{filter.count.toLocaleString('ar-EG')}</span></button>)}
+              <button type="button" onClick={() => void onRefresh()} className="inline-flex items-center gap-1.5 rounded-xl border border-border/40 bg-(--bg) px-3 py-2 text-[10px] text-muted-foreground transition hover:border-(--gold)/40"><RefreshCcw size={13} /> تحديث</button>
             </div>
           </div>
-          {notice && <p role="status" className="rounded-xl border border-[var(--gold)]/20 bg-[var(--gold)]/5 px-3 py-2 text-[10px] text-[var(--gold)]">{notice}</p>}
+          {notice && <p role="status" className="rounded-xl border border-(--gold)/20 bg-(--gold)/5 px-3 py-2 text-[10px] text-(--gold)">{notice}</p>}
           <div className="overflow-x-auto rounded-2xl border border-border/30"><table className="w-full min-w-[720px] text-right text-xs"><thead><tr className="border-b border-border/30 bg-muted/10 text-muted-foreground"><th className="p-3 font-medium">البريد الإلكتروني</th><th className="p-3 font-medium">مصدر التسجيل</th><th className="p-3 font-medium">تاريخ الاشتراك</th><th className="p-3 font-medium">الحالة</th><th className="p-3 font-medium">الإجراء</th></tr></thead><tbody>
             {filtered.map(subscriber => <tr key={subscriber.id} className="border-b border-border/20 last:border-0 hover:bg-muted/5"><td className="p-3 font-medium" dir="ltr">{subscriber.email}</td><td className="p-3 text-muted-foreground">{subscriber.source === 'homepage' ? 'الصفحة الرئيسية' : subscriber.source || '—'}</td><td className="p-3 text-muted-foreground">{subscriber.createdAt ? new Date(subscriber.createdAt).toLocaleDateString('ar-EG') : '—'}</td><td className="p-3"><span className={`inline-flex rounded-full border px-2.5 py-1 text-[9px] font-bold ${subscriber.active ? 'border-green-500/20 bg-green-500/10 text-green-600' : 'border-border/40 bg-muted/15 text-muted-foreground'}`}>{subscriber.active ? 'نشط' : 'موقوف'}</span></td><td className="p-3">{canManage ? <button type="button" disabled={busyId === subscriber.id} onClick={() => void toggleStatus(subscriber)} className={`rounded-lg border px-2.5 py-1.5 text-[9px] font-bold transition disabled:opacity-50 ${subscriber.active ? 'border-border/40 bg-muted/10 text-muted-foreground hover:border-red-500/30 hover:text-red-500' : 'border-green-500/20 bg-green-500/10 text-green-600 hover:bg-green-500/15'}`}>{busyId === subscriber.id ? 'جارٍ الحفظ…' : subscriber.active ? 'إيقاف الاشتراك' : 'إعادة التفعيل'}</button> : <span className="text-[9px] text-muted-foreground">عرض فقط</span>}</td></tr>)}
             {!filtered.length && <tr><td colSpan={5} className="p-10 text-center text-xs text-muted-foreground">{rows.length ? 'لا توجد نتائج تطابق البحث أو التصفية.' : 'لا يوجد مشتركون مسجلون حتى الآن.'}</td></tr>}
@@ -1178,7 +1178,7 @@ function GiftWrapFeeEditor({ value, onCancel, onSaved }: { value: string; onCanc
       onSaved?.();
     } catch (error: any) { setNotice(error?.message || 'تعذر حفظ الرسوم.'); } finally { setBusy(false); }
   }
-  return <section className="space-y-4 rounded-3xl border border-border/40 bg-muted/5 p-5 shadow-xs md:p-7" dir="rtl"><div><h3 className="font-serif text-base font-bold text-foreground">رسوم خدمة تغليف الهدايا</h3><p className="mt-1 text-xs leading-6 text-muted-foreground">تظهر الرسوم للعميل قبل تأكيد الطلب، وتُضاف إلى الإجمالي عند اختيار الخدمة. أدخلي 0 لجعل الخدمة مجانية.</p></div><label className="grid max-w-sm gap-2 text-xs font-semibold text-muted-foreground">رسوم الخدمة (جنيه مصري)<input type="number" min="0" max="100000" step="0.01" value={fee} onChange={event => setFee(event.target.value)} className="h-11 rounded-xl border border-border/50 bg-[var(--bg)] px-3 text-sm text-foreground outline-none focus:border-[var(--gold)]" /></label><div className="flex flex-wrap items-center gap-3 border-t border-border/30 pt-4"><button type="button" onClick={() => void save()} disabled={busy} className="rounded-xl bg-[var(--gold)] px-5 py-2.5 text-xs font-bold text-[var(--gold-contrast)] disabled:opacity-50">{busy ? 'جارٍ الحفظ…' : 'حفظ التغييرات'}</button>{onCancel && <button type="button" onClick={onCancel} className="rounded-xl border border-border/50 bg-muted/10 px-4 py-2.5 text-xs font-semibold text-muted-foreground hover:text-foreground">إلغاء</button>}{notice && <p role="status" className="text-xs text-muted-foreground">{notice}</p>}</div></section>;
+  return <section className="space-y-4 rounded-3xl border border-border/40 bg-muted/5 p-5 shadow-2xs md:p-7" dir="rtl"><div><h3 className="font-serif text-base font-bold text-foreground">رسوم خدمة تغليف الهدايا</h3><p className="mt-1 text-xs leading-6 text-muted-foreground">تظهر الرسوم للعميل قبل تأكيد الطلب، وتُضاف إلى الإجمالي عند اختيار الخدمة. أدخلي 0 لجعل الخدمة مجانية.</p></div><label className="grid max-w-sm gap-2 text-xs font-semibold text-muted-foreground">رسوم الخدمة (جنيه مصري)<input type="number" min="0" max="100000" step="0.01" value={fee} onChange={event => setFee(event.target.value)} className="h-11 rounded-xl border border-border/50 bg-(--bg) px-3 text-sm text-foreground outline-hidden focus:border-(--gold)" /></label><div className="flex flex-wrap items-center gap-3 border-t border-border/30 pt-4"><button type="button" onClick={() => void save()} disabled={busy} className="rounded-xl bg-(--gold) px-5 py-2.5 text-xs font-bold text-(--gold-contrast) disabled:opacity-50">{busy ? 'جارٍ الحفظ…' : 'حفظ التغييرات'}</button>{onCancel && <button type="button" onClick={onCancel} className="rounded-xl border border-border/50 bg-muted/10 px-4 py-2.5 text-xs font-semibold text-muted-foreground hover:text-foreground">إلغاء</button>}{notice && <p role="status" className="text-xs text-muted-foreground">{notice}</p>}</div></section>;
 }
 
 function SettingStatusButton({ enabled, canManage, onToggle, label }: { enabled: boolean; canManage: boolean; onToggle: (enabled: boolean) => Promise<boolean>; label: string }) {
@@ -1188,7 +1188,7 @@ function SettingStatusButton({ enabled, canManage, onToggle, label }: { enabled:
     setBusy(true);
     try { await onToggle(!enabled); } finally { setBusy(false); }
   }
-  return <button type="button" aria-label={`${enabled ? 'إيقاف' : 'تفعيل'} ${label}`} title={canManage ? `${enabled ? 'إيقاف' : 'تفعيل'} ${label}` : 'تحتاج هذه العملية إلى صلاحية مدير'} disabled={!canManage || busy} onClick={() => void toggle()} className={`inline-flex min-h-10 min-w-[96px] items-center justify-center rounded-xl px-4 py-2 text-[10px] font-bold transition disabled:cursor-not-allowed disabled:opacity-55 ${enabled ? 'bg-[var(--gold)] text-[var(--gold-contrast)] shadow-xs' : 'border border-border/60 bg-muted/20 text-muted-foreground hover:border-[var(--gold)]/40 hover:text-foreground'}`}>{busy ? 'جارٍ الحفظ…' : enabled ? 'مفعل' : 'غير مفعل'}</button>;
+  return <button type="button" aria-label={`${enabled ? 'إيقاف' : 'تفعيل'} ${label}`} title={canManage ? `${enabled ? 'إيقاف' : 'تفعيل'} ${label}` : 'تحتاج هذه العملية إلى صلاحية مدير'} disabled={!canManage || busy} onClick={() => void toggle()} className={`inline-flex min-h-10 min-w-[96px] items-center justify-center rounded-xl px-4 py-2 text-[10px] font-bold transition disabled:cursor-not-allowed disabled:opacity-55 ${enabled ? 'bg-(--gold) text-(--gold-contrast) shadow-2xs' : 'border border-border/60 bg-muted/20 text-muted-foreground hover:border-(--gold)/40 hover:text-foreground'}`}>{busy ? 'جارٍ الحفظ…' : enabled ? 'مفعل' : 'غير مفعل'}</button>;
 }
 
 
@@ -1209,7 +1209,7 @@ function GeneralSettingsPanel({ data, onEdit, onToggleMaintenance, onTogglePopup
     const bi = preferredOrder.indexOf(b.key);
     return (ai < 0 ? preferredOrder.length : ai) - (bi < 0 ? preferredOrder.length : bi);
   });
-  const editButtonClass = 'inline-flex min-h-9 shrink-0 items-center justify-center gap-1.5 rounded-xl border border-border/60 bg-[var(--bg)] px-4 py-2 text-[10px] font-medium text-foreground transition hover:border-[var(--gold)]/40 hover:bg-muted/20 disabled:cursor-not-allowed disabled:opacity-50';
+  const editButtonClass = 'inline-flex min-h-9 shrink-0 items-center justify-center gap-1.5 rounded-xl border border-border/60 bg-(--bg) px-4 py-2 text-[10px] font-medium text-foreground transition hover:border-(--gold)/40 hover:bg-muted/20 disabled:cursor-not-allowed disabled:opacity-50';
 
   return <div className="grid gap-3.5" dir="rtl">
     <div className="rounded-2xl border border-border/40 bg-muted/5 p-4 text-xs leading-6 text-muted-foreground">
@@ -1217,7 +1217,7 @@ function GeneralSettingsPanel({ data, onEdit, onToggleMaintenance, onTogglePopup
       <span> — تُعرض الإعدادات في قائمة واحدة؛ اضغط «تعديل» لفتح محرر الإعداد، واستخدم زر الحالة للإعدادات القابلة للتفعيل.</span>
     </div>
 
-    <article className="bg-muted/10 border border-border/40 rounded-3xl p-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between shadow-xs">
+    <article className="bg-muted/10 border border-border/40 rounded-3xl p-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between shadow-2xs">
       <div className="min-w-0">
         <b className="font-serif font-bold text-foreground">وضع الصيانة</b>
         <p className="text-muted-foreground text-xs font-light mt-0.5">{maintenanceEnabled ? 'المتجر متوقف مؤقتًا أمام الزوار.' : 'المتجر متاح للزوار حاليًا.'} يبقى الوصول إلى لوحة الإدارة متاحًا للتحكم في الوضع.</p>
@@ -1228,16 +1228,16 @@ function GeneralSettingsPanel({ data, onEdit, onToggleMaintenance, onTogglePopup
     {regularSettings.map((item: any) => {
       const label = settingLabels[item.key] || String(item.key || '').replaceAll('_', ' ');
       const value = item.value == null || item.value === '' ? 'غير مضبوط' : String(item.value);
-      return <article key={item.id || item.key} className="bg-muted/10 border border-border/40 rounded-3xl p-5 flex flex-col gap-3 shadow-xs">
+      return <article key={item.id || item.key} className="bg-muted/10 border border-border/40 rounded-3xl p-5 flex flex-col gap-3 shadow-2xs">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="min-w-0"><b className="font-serif font-bold text-foreground">{label}</b><span className="mt-0.5 block text-[9px] text-muted-foreground" dir="ltr">{item.key}</span></div>
           <button type="button" disabled={!canManageSettings} onClick={() => onEdit(item)} className={editButtonClass}><Pencil size={13} /> تعديل</button>
         </div>
-        <p title={value} dir="auto" className="break-words border-t border-border/30 pt-3 text-xs font-light leading-6 text-muted-foreground [overflow-wrap:anywhere]">{value}</p>
+        <p title={value} dir="auto" className="wrap-break-word border-t border-border/30 pt-3 text-xs font-light leading-6 text-muted-foreground wrap-anywhere">{value}</p>
       </article>;
     })}
 
-    <article className="bg-muted/10 border border-border/40 rounded-3xl p-5 flex flex-col gap-3 shadow-xs">
+    <article className="bg-muted/10 border border-border/40 rounded-3xl p-5 flex flex-col gap-3 shadow-2xs">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="min-w-0"><b className="font-serif font-bold text-foreground">النافذة المنبثقة</b><p className="text-muted-foreground text-xs font-light mt-0.5">إدارة رسالة العرض وتوقيت ظهورها للزوار.</p></div>
         <div className="flex flex-wrap items-center gap-2"><SettingStatusButton enabled={popupEnabled} canManage={canManageSettings} onToggle={onTogglePopup} label="النافذة المنبثقة" /><button type="button" disabled={!canManageSettings} onClick={() => onEdit({ id: 'setting:popup-editor', key: '__popup_editor__' })} className={editButtonClass}><Pencil size={13} /> تعديل</button></div>
@@ -1245,7 +1245,7 @@ function GeneralSettingsPanel({ data, onEdit, onToggleMaintenance, onTogglePopup
       <p className="border-t border-border/30 pt-3 text-xs font-light text-muted-foreground">الحالة: {popupEnabled ? 'تظهر للزوار' : 'متوقفة'}</p>
     </article>
 
-    <article className="bg-muted/10 border border-border/40 rounded-3xl p-5 flex flex-col gap-3 shadow-xs">
+    <article className="bg-muted/10 border border-border/40 rounded-3xl p-5 flex flex-col gap-3 shadow-2xs">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="min-w-0"><b className="font-serif font-bold text-foreground">رسوم تغليف الهدايا</b><p className="text-muted-foreground text-xs font-light mt-0.5">تُضاف إلى الإجمالي عند اختيار خدمة التغليف.</p></div>
         <button type="button" disabled={!canManageSettings} onClick={() => onEdit({ id: 'setting:gift-wrap-editor', key: '__gift_wrap_editor__' })} className={editButtonClass}><Pencil size={13} /> تعديل</button>
@@ -1269,7 +1269,7 @@ function Content({ tab, data, onEdit, onDelete, onRefresh, onReorder, onSavePopu
         const expired = card.expiresAt && new Date(card.expiresAt) <= new Date();
         const usable = card.active && !expired && Number(card.balance) > 0;
         return (
-          <div key={card.id} className="bg-muted/10 border border-border/40 rounded-3xl p-5 md:p-6 shadow-xs">
+          <div key={card.id} className="bg-muted/10 border border-border/40 rounded-3xl p-5 md:p-6 shadow-2xs">
             <div className="flex flex-wrap items-start justify-between gap-4">
               <div className="space-y-2">
                 <div className="flex flex-wrap items-center gap-2">
@@ -1278,7 +1278,7 @@ function Content({ tab, data, onEdit, onDelete, onRefresh, onReorder, onSavePopu
                 </div>
                 <div className="flex flex-wrap gap-x-5 gap-y-1 text-xs text-muted-foreground">
                   <span>القيمة: <b className="text-foreground">{Number(card.amount).toLocaleString('ar-EG')} ج.م</b></span>
-                  <span>الرصيد: <b className="text-[var(--gold)]">{Number(card.balance).toLocaleString('ar-EG')} ج.م</b></span>
+                  <span>الرصيد: <b className="text-(--gold)">{Number(card.balance).toLocaleString('ar-EG')} ج.م</b></span>
                   <span>الحركات: {card._count?.ledger ?? 0}</span>
                   {card.expiresAt && <span>الانتهاء: {new Date(card.expiresAt).toLocaleDateString('ar-EG')}</span>}
                 </div>
@@ -1299,7 +1299,7 @@ function Content({ tab, data, onEdit, onDelete, onRefresh, onReorder, onSavePopu
   if (tab === 'faq') return (
     <div className="space-y-4">
       {data.map((faq: any) => (
-        <div key={faq.id} className="bg-muted/10 border border-border/40 rounded-3xl p-6 space-y-3 shadow-xs">
+        <div key={faq.id} className="bg-muted/10 border border-border/40 rounded-3xl p-6 space-y-3 shadow-2xs">
           <div className="flex justify-between items-start gap-4">
             <div className="space-y-1">
               <b className="text-base font-serif font-bold text-foreground">{faq.question}</b>
@@ -1318,7 +1318,7 @@ function Content({ tab, data, onEdit, onDelete, onRefresh, onReorder, onSavePopu
               <button className="p-2 rounded-xl border border-red-400 text-red-500 hover:bg-red-500/10 transition cursor-pointer" onClick={() => onDelete(faq.id)}><Trash2 size={16} /></button>
             </div>
           </div>
-          <p className="text-xs md:text-sm text-muted-foreground/90 bg-[var(--bg)]/60 border border-border/40 p-4 rounded-2xl font-light leading-relaxed">
+          <p className="text-xs md:text-sm text-muted-foreground/90 bg-(--bg)/60 border border-border/40 p-4 rounded-2xl font-light leading-relaxed">
             {faq.answer}
           </p>
         </div>
@@ -1330,7 +1330,7 @@ function Content({ tab, data, onEdit, onDelete, onRefresh, onReorder, onSavePopu
   if (tab === 'contact') return (
     <div className="space-y-4">
       {data.map((msg: any) => (
-        <div key={msg.id} className="bg-muted/10 border border-border/40 rounded-3xl p-6 space-y-4 shadow-xs">
+        <div key={msg.id} className="bg-muted/10 border border-border/40 rounded-3xl p-6 space-y-4 shadow-2xs">
           <div className="flex flex-wrap justify-between items-start gap-4 border-b border-border/30 pb-4">
             <div className="space-y-1">
               <b className="text-base font-serif font-bold text-foreground">{msg.name}</b>
@@ -1341,17 +1341,17 @@ function Content({ tab, data, onEdit, onDelete, onRefresh, onReorder, onSavePopu
               </div>
             </div>
             <div className="flex items-center gap-3">
-              <span className="px-3 py-1 rounded-full text-xs bg-[var(--gold)]/10 text-[var(--gold)] font-medium border border-[var(--gold)]/20">
+              <span className="px-3 py-1 rounded-full text-xs bg-(--gold)/10 text-(--gold) font-medium border border-(--gold)/20">
                 {msg.subject || 'استفسار عام'}
               </span>
               <button className="p-2 rounded-xl border border-red-400 text-red-500 hover:bg-red-500/10 transition cursor-pointer" onClick={() => onDelete(msg.id)} title="حذف الرسالة"><Trash2 size={16} /></button>
             </div>
           </div>
-          <p className="text-xs md:text-sm text-foreground/90 bg-[var(--bg)]/60 border border-border/40 p-4 rounded-2xl leading-relaxed whitespace-pre-wrap font-light">
+          <p className="text-xs md:text-sm text-foreground/90 bg-(--bg)/60 border border-border/40 p-4 rounded-2xl leading-relaxed whitespace-pre-wrap font-light">
             {msg.message}
           </p>
           <div className="flex justify-end">
-            <a href={`https://wa.me/${msg.phone}`} target="_blank" rel="noopener noreferrer" className="px-5 py-2.5 rounded-xl bg-[var(--gold)] text-[var(--gold-contrast)] text-xs font-serif font-bold shadow-sm hover:opacity-95 transition inline-flex items-center gap-1.5 cursor-pointer">
+            <a href={`https://wa.me/${msg.phone}`} target="_blank" rel="noopener noreferrer" className="px-5 py-2.5 rounded-xl bg-(--gold) text-(--gold-contrast) text-xs font-serif font-bold shadow-xs hover:opacity-95 transition inline-flex items-center gap-1.5 cursor-pointer">
               الرد عبر واتساب مباشرة
             </a>
           </div>
@@ -1364,14 +1364,14 @@ function Content({ tab, data, onEdit, onDelete, onRefresh, onReorder, onSavePopu
   if (tab === 'payments') return (
     <div className="grid gap-3.5">
       {data.map((x: any) => (
-        <div className="bg-muted/10 border border-border/40 rounded-3xl p-5 shadow-xs space-y-3" key={x.method}>
+        <div className="bg-muted/10 border border-border/40 rounded-3xl p-5 shadow-2xs space-y-3" key={x.method}>
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
               <b className="font-serif font-bold text-foreground">{x.label}</b>
               <p className="text-muted-foreground text-xs font-light mt-0.5">{x.description}</p>
             </div>
             <div className="flex gap-2.5">
-              <button className={`px-4 py-2 rounded-xl text-xs font-medium transition cursor-pointer ${x.enabled ? 'bg-[var(--gold)] text-[var(--gold-contrast)] font-bold shadow-xs' : 'bg-muted/20 border border-border/60 text-muted-foreground'}`} onClick={async () => { await api('/api/admin/payments', 'PUT', { ...x, enabled: !x.enabled }); onRefresh(); }}>
+              <button className={`px-4 py-2 rounded-xl text-xs font-medium transition cursor-pointer ${x.enabled ? 'bg-(--gold) text-(--gold-contrast) font-bold shadow-2xs' : 'bg-muted/20 border border-border/60 text-muted-foreground'}`} onClick={async () => { await api('/api/admin/payments', 'PUT', { ...x, enabled: !x.enabled }); onRefresh(); }}>
                 {x.enabled ? 'مفعل' : 'متوقف'}
               </button>
               <button className="px-4 py-2 rounded-xl bg-muted/20 border border-border/60 text-xs font-medium hover:bg-muted/30 transition cursor-pointer" onClick={() => onEdit(x)}>إدارة</button>
@@ -1389,12 +1389,12 @@ function Content({ tab, data, onEdit, onDelete, onRefresh, onReorder, onSavePopu
     <div className="grid gap-3.5">
       <p className="rounded-2xl border border-border/40 bg-muted/5 p-4 text-xs leading-6 text-muted-foreground">تفعيل النافذة المنبثقة ومحتواها يُدار من <b className="text-foreground">الإعدادات العامة</b> عبر المحرر المخصص.</p>
       {data.filter((x: any) => x.key !== 'popup').map((x: any) => (
-        <div className="bg-muted/10 border border-border/40 rounded-3xl p-5 flex items-center justify-between shadow-xs" key={x.id}>
+        <div className="bg-muted/10 border border-border/40 rounded-3xl p-5 flex items-center justify-between shadow-2xs" key={x.id}>
           <div>
             <b className="font-serif font-bold text-foreground">{x.key}</b>
             <p className="text-muted-foreground text-xs font-light mt-0.5">{x.description || 'ميزة قابلة للتفعيل'}</p>
           </div>
-          <button className={`px-5 py-2.5 rounded-2xl text-xs font-medium transition cursor-pointer ${x.enabled ? 'bg-[var(--gold)] text-[var(--gold-contrast)] font-bold shadow-xs' : 'bg-muted/20 border border-border/60 text-muted-foreground'}`} onClick={async () => { await api('/api/admin/features', 'PUT', { key: x.key, enabled: !x.enabled }); onRefresh(); }}>
+          <button className={`px-5 py-2.5 rounded-2xl text-xs font-medium transition cursor-pointer ${x.enabled ? 'bg-(--gold) text-(--gold-contrast) font-bold shadow-2xs' : 'bg-muted/20 border border-border/60 text-muted-foreground'}`} onClick={async () => { await api('/api/admin/features', 'PUT', { key: x.key, enabled: !x.enabled }); onRefresh(); }}>
             {x.enabled ? 'مفعل' : 'متوقف'}
           </button>
         </div>
@@ -1406,7 +1406,7 @@ function Content({ tab, data, onEdit, onDelete, onRefresh, onReorder, onSavePopu
   if (tab === 'security') return (
     <div className="space-y-2.5">
       {(data[0]?.logs || data || []).map((x: any) => (
-        <div className="bg-muted/10 border border-border/40 rounded-2xl p-4 shadow-xs" key={x.id || Math.random()}>
+        <div className="bg-muted/10 border border-border/40 rounded-2xl p-4 shadow-2xs" key={x.id || Math.random()}>
           <b className="font-serif font-bold text-sm text-foreground">{x.action || 'سجل نشاط'}</b>
           <span className="text-muted-foreground text-xs mr-3 font-light">{x.entity || ''}</span>
           <div className="text-muted-foreground text-[11px] mt-1 font-light">{x.createdAt ? new Date(x.createdAt).toLocaleString('ar-EG') : ''}</div>
@@ -1422,15 +1422,15 @@ function Content({ tab, data, onEdit, onDelete, onRefresh, onReorder, onSavePopu
   if (tab === 'users') return (
     <div className="space-y-3">
       {data.map((x: any) => (
-        <div className="bg-muted/10 border border-border/40 rounded-2xl p-4 flex flex-wrap items-center gap-4 shadow-xs" key={x.id}>
+        <div className="bg-muted/10 border border-border/40 rounded-2xl p-4 flex flex-wrap items-center gap-4 shadow-2xs" key={x.id}>
           <div className="flex-1">
             <b className="font-serif font-bold text-foreground">{x.name || x.email}</b>
             <p className="text-muted-foreground text-xs font-light mt-0.5">{x.email}</p>
           </div>
-          <select className="px-3 py-2 rounded-xl bg-[var(--bg)] border border-border/60 text-xs text-foreground focus:outline-none focus:border-[var(--gold)]" value={x.role} onChange={async e => { await api('/api/admin/users', 'PUT', { id: x.id, role: e.target.value, active: x.active }); onRefresh(); }}>
+          <select className="px-3 py-2 rounded-xl bg-(--bg) border border-border/60 text-xs text-foreground focus:outline-hidden focus:border-(--gold)" value={x.role} onChange={async e => { await api('/api/admin/users', 'PUT', { id: x.id, role: e.target.value, active: x.active }); onRefresh(); }}>
             {['OWNER', 'ADMIN', 'MANAGER', 'EDITOR', 'ORDER_MANAGER', 'VIEWER'].map(r => <option key={r}>{r}</option>)}
           </select>
-          <button className={`px-4 py-2 rounded-xl text-xs font-medium transition cursor-pointer ${x.active ? 'bg-[var(--gold)] text-[var(--gold-contrast)] font-bold shadow-xs' : 'bg-muted/20 border border-border/60 text-muted-foreground'}`} onClick={async () => { await api('/api/admin/users', 'PUT', { id: x.id, role: x.role, active: !x.active }); onRefresh(); }}>
+          <button className={`px-4 py-2 rounded-xl text-xs font-medium transition cursor-pointer ${x.active ? 'bg-(--gold) text-(--gold-contrast) font-bold shadow-2xs' : 'bg-muted/20 border border-border/60 text-muted-foreground'}`} onClick={async () => { await api('/api/admin/users', 'PUT', { id: x.id, role: x.role, active: !x.active }); onRefresh(); }}>
             {x.active ? 'نشط' : 'موقوف'}
           </button>
         </div>
@@ -1447,7 +1447,7 @@ function Content({ tab, data, onEdit, onDelete, onRefresh, onReorder, onSavePopu
       {data.map((offer: any) => {
         const state = getOfferState(offer);
         return (
-          <div key={offer.id} className="bg-muted/10 border border-border/40 rounded-3xl p-5 md:p-6 shadow-xs">
+          <div key={offer.id} className="bg-muted/10 border border-border/40 rounded-3xl p-5 md:p-6 shadow-2xs">
             <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
               <div className="min-w-0 space-y-2">
                 <div className="flex flex-wrap items-center gap-2">
@@ -1464,7 +1464,7 @@ function Content({ tab, data, onEdit, onDelete, onRefresh, onReorder, onSavePopu
                 </div>
               </div>
               <div className="flex flex-wrap gap-2 shrink-0">
-                <button className={`px-4 py-2 rounded-xl text-xs font-medium transition cursor-pointer ${offer.active ? 'bg-muted/20 border border-border/60 text-muted-foreground hover:bg-muted/30' : 'bg-[var(--gold)] text-[var(--gold-contrast)] font-bold hover:opacity-95'}`} onClick={() => toggleOfferActive(offer, onRefresh)}>
+                <button className={`px-4 py-2 rounded-xl text-xs font-medium transition cursor-pointer ${offer.active ? 'bg-muted/20 border border-border/60 text-muted-foreground hover:bg-muted/30' : 'bg-(--gold) text-(--gold-contrast) font-bold hover:opacity-95'}`} onClick={() => toggleOfferActive(offer, onRefresh)}>
                   {offer.active ? 'إيقاف العرض' : 'تفعيل العرض'}
                 </button>
                 <button className="px-4 py-2 rounded-xl bg-muted/20 border border-border/60 text-xs font-medium hover:bg-muted/30 transition cursor-pointer" onClick={() => onEdit(offer)}>تعديل</button>
@@ -1481,7 +1481,7 @@ function Content({ tab, data, onEdit, onDelete, onRefresh, onReorder, onSavePopu
   return (
     <div className="space-y-3">
       {data.map((x: any) => (
-        <div className="bg-muted/10 border border-border/40 rounded-2xl p-4 flex items-center justify-between gap-4 shadow-xs" key={x.id || x.key}>
+        <div className="bg-muted/10 border border-border/40 rounded-2xl p-4 flex items-center justify-between gap-4 shadow-2xs" key={x.id || x.key}>
           <div>
             <b className="font-serif font-bold text-foreground text-sm">{x.name || x.title || x.code || x.governorate || x.type || x.key}</b>
             <p className="text-muted-foreground text-xs font-light mt-1">
@@ -1551,7 +1551,7 @@ function Analytics({ data: initialData }: any) {
         </div>
         <div className="flex items-center gap-1.5 p-1 rounded-2xl bg-muted/10 border border-border/40">
           {[7, 30, 90, 365].map((x) => (
-            <button key={x} onClick={() => loadRange(x)} className={`px-3 py-2 rounded-xl text-[11px] transition cursor-pointer ${days === x ? 'bg-[var(--gold)] text-[var(--gold-contrast)] font-bold' : 'text-muted-foreground hover:bg-muted/20'}`}>
+            <button key={x} onClick={() => loadRange(x)} className={`px-3 py-2 rounded-xl text-[11px] transition cursor-pointer ${days === x ? 'bg-(--gold) text-(--gold-contrast) font-bold' : 'text-muted-foreground hover:bg-muted/20'}`}>
               {x === 7 ? '7 أيام' : x === 30 ? '30 يوم' : x === 90 ? '90 يوم' : 'سنة'}
             </button>
           ))}
@@ -1562,12 +1562,12 @@ function Analytics({ data: initialData }: any) {
 
       <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
         {[
-          ['المبيعات', formatMoney(totals.sales), comparison.sales, 'text-[var(--gold)]'],
+          ['المبيعات', formatMoney(totals.sales), comparison.sales, 'text-(--gold)'],
           ['الطلبات', totals.orders || 0, comparison.orders, 'text-foreground'],
           ['متوسط الطلب', formatMoney(totals.aov), comparison.aov, 'text-foreground'],
           ['العملاء النشطون', totals.activeCustomers || 0, comparison.activeCustomers, 'text-foreground'],
         ].map(([label, value, delta, tone]) => (
-          <div key={String(label)} className="bg-muted/10 border border-border/40 rounded-3xl p-5 shadow-xs space-y-2">
+          <div key={String(label)} className="bg-muted/10 border border-border/40 rounded-3xl p-5 shadow-2xs space-y-2">
             <p className="text-muted-foreground text-xs font-light">{label}</p>
             <div className="flex items-end justify-between gap-2">
               <h3 className={`text-2xl font-serif font-bold ${tone}`}>{value}</h3>
@@ -1578,27 +1578,27 @@ function Analytics({ data: initialData }: any) {
       </div>
 
       <div className="grid gap-4 lg:grid-cols-[1.5fr_1fr]">
-        <div className="bg-muted/10 border border-border/40 rounded-3xl p-5 shadow-xs">
+        <div className="bg-muted/10 border border-border/40 rounded-3xl p-5 shadow-2xs">
           <div className="flex items-center justify-between mb-5">
             <div><h3 className="font-serif font-bold">المبيعات اليومية</h3><p className="text-[11px] text-muted-foreground mt-1">آخر {days} يوم</p></div>
-            <TrendingUp size={18} className="text-[var(--gold)]" />
+            <TrendingUp size={18} className="text-(--gold)" />
           </div>
           <div className="h-48 flex items-end gap-1.5 overflow-hidden">
             {daily.map((x: any) => (
               <div key={x.date} className="flex-1 min-w-[4px] h-full flex items-end group" title={`${x.date}: ${formatMoney(x.sales)}`}>
-                <div className="w-full rounded-t-md bg-[var(--gold)]/70 group-hover:bg-[var(--gold)] transition" style={{ height: `${Math.max(3, (Number(x.sales || 0) / maxSales) * 100)}%` }} />
+                <div className="w-full rounded-t-md bg-(--gold)/70 group-hover:bg-(--gold) transition" style={{ height: `${Math.max(3, (Number(x.sales || 0) / maxSales) * 100)}%` }} />
               </div>
             ))}
           </div>
         </div>
 
-        <div className="bg-muted/10 border border-border/40 rounded-3xl p-5 shadow-xs">
-          <div className="flex items-center gap-2 mb-4"><PieChart size={17} className="text-[var(--gold)]" /><h3 className="font-serif font-bold">طرق الدفع</h3></div>
+        <div className="bg-muted/10 border border-border/40 rounded-3xl p-5 shadow-2xs">
+          <div className="flex items-center gap-2 mb-4"><PieChart size={17} className="text-(--gold)" /><h3 className="font-serif font-bold">طرق الدفع</h3></div>
           <div className="space-y-3">
             {(data.payments || []).map((x: any) => (
               <div key={x.method} className="space-y-1">
                 <div className="flex justify-between text-xs"><span>{paymentLabels[x.method] || x.method}</span><b>{formatMoney(x.sales)}</b></div>
-                <div className="h-2 rounded-full bg-muted/20 overflow-hidden"><div className="h-full bg-[var(--gold)] rounded-full" style={{ width: `${totals.sales ? Math.min(100, (x.sales / totals.sales) * 100) : 0}%` }} /></div>
+                <div className="h-2 rounded-full bg-muted/20 overflow-hidden"><div className="h-full bg-(--gold) rounded-full" style={{ width: `${totals.sales ? Math.min(100, (x.sales / totals.sales) * 100) : 0}%` }} /></div>
               </div>
             ))}
             {!(data.payments || []).length && <p className="text-xs text-muted-foreground">لا توجد بيانات كافية.</p>}
@@ -1607,14 +1607,14 @@ function Analytics({ data: initialData }: any) {
       </div>
 
       <div className="grid gap-4 lg:grid-cols-2">
-        <div className="bg-muted/10 border border-border/40 rounded-3xl p-5 shadow-xs">
+        <div className="bg-muted/10 border border-border/40 rounded-3xl p-5 shadow-2xs">
           <h3 className="font-serif font-bold mb-4">أفضل المنتجات</h3>
           <div className="space-y-2.5">
             {(data.topProducts || []).map((x: any, i: number) => <div key={`${x.name}-${i}`} className="flex items-center gap-3 py-2 border-b border-border/20 last:border-0"><span className="w-6 text-xs text-muted-foreground">{i + 1}</span><div className="flex-1 min-w-0"><p className="text-xs font-medium truncate">{x.name}</p><p className="text-[10px] text-muted-foreground">{x.quantity} قطعة</p></div><b className="text-xs">{formatMoney(x.revenue)}</b></div>)}
             {!(data.topProducts || []).length && <p className="text-xs text-muted-foreground">لا توجد مبيعات في الفترة.</p>}
           </div>
         </div>
-        <div className="bg-muted/10 border border-border/40 rounded-3xl p-5 shadow-xs">
+        <div className="bg-muted/10 border border-border/40 rounded-3xl p-5 shadow-2xs">
           <h3 className="font-serif font-bold mb-4">حالة الطلبات</h3>
           <div className="space-y-2.5">
             {(data.statuses || []).map((x: any) => <div key={x.status} className="flex items-center justify-between text-xs"><span>{statusLabels[x.status] || x.status}</span><span className="px-2.5 py-1 rounded-full bg-muted/20 border border-border/40">{x.count}</span></div>)}
@@ -1622,10 +1622,10 @@ function Analytics({ data: initialData }: any) {
         </div>
       </div>
 
-      <div className="bg-muted/10 border border-border/40 rounded-3xl p-5 shadow-xs">
+      <div className="bg-muted/10 border border-border/40 rounded-3xl p-5 shadow-2xs">
         <div className="flex flex-wrap justify-between items-center gap-3 mb-4"><div><h3 className="font-serif font-bold">مؤشرات العملاء</h3><p className="text-[11px] text-muted-foreground mt-1">مبنية على تاريخ الطلبات الكامل.</p></div><span className="text-xs text-muted-foreground">عملاء جدد: <b className="text-foreground">{totals.newCustomers || 0}</b></span></div>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5">
-          {[['vip','VIP'],['loyal','أوفياء'],['highValue','قيمة مرتفعة'],['atRisk','معرضون للفقد']].map(([key,label]) => <div key={key} className="rounded-2xl bg-[var(--bg)] border border-border/40 p-4"><p className="text-[11px] text-muted-foreground">{label}</p><b className="text-xl font-serif">{data.segments?.[key] || 0}</b></div>)}
+          {[['vip','VIP'],['loyal','أوفياء'],['highValue','قيمة مرتفعة'],['atRisk','معرضون للفقد']].map(([key,label]) => <div key={key} className="rounded-2xl bg-(--bg) border border-border/40 p-4"><p className="text-[11px] text-muted-foreground">{label}</p><b className="text-xl font-serif">{data.segments?.[key] || 0}</b></div>)}
         </div>
       </div>
     </div>
@@ -1638,7 +1638,7 @@ function CustomerSegments({ data, onRefresh }: any) {
   const [audienceLoading, setAudienceLoading] = useState(false);
   const [audienceMsg, setAudienceMsg] = useState('');
   const toneClass: Record<string, string> = {
-    gold: 'text-[var(--gold)] bg-[var(--gold)]/10 border-[var(--gold)]/20',
+    gold: 'text-(--gold) bg-(--gold)/10 border-(--gold)/20',
     green: 'text-green-600 bg-green-500/10 border-green-500/20',
     blue: 'text-blue-600 bg-blue-500/10 border-blue-500/20',
     violet: 'text-violet-600 bg-violet-500/10 border-violet-500/20',
@@ -1705,29 +1705,29 @@ function CustomerSegments({ data, onRefresh }: any) {
 
   return (
     <div className="space-y-5">
-      <div className="flex flex-wrap items-center justify-between gap-3"><div><h2 className="text-xl md:text-2xl font-serif font-bold">تقسيم العملاء</h2><p className="text-xs text-muted-foreground font-light mt-1">تقسيم تلقائي للعملاء حسب قيمة الشراء، التكرار وحداثة آخر طلب.</p></div><button onClick={onRefresh} className="px-4 py-2.5 rounded-xl bg-[var(--gold)] text-[var(--gold-contrast)] text-xs font-bold cursor-pointer inline-flex items-center gap-2"><RefreshCcw size={15} /> تحديث الشرائح</button></div>
+      <div className="flex flex-wrap items-center justify-between gap-3"><div><h2 className="text-xl md:text-2xl font-serif font-bold">تقسيم العملاء</h2><p className="text-xs text-muted-foreground font-light mt-1">تقسيم تلقائي للعملاء حسب قيمة الشراء، التكرار وحداثة آخر طلب.</p></div><button onClick={onRefresh} className="px-4 py-2.5 rounded-xl bg-(--gold) text-(--gold-contrast) text-xs font-bold cursor-pointer inline-flex items-center gap-2"><RefreshCcw size={15} /> تحديث الشرائح</button></div>
       <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-        {(data.segments || []).map((segment: any) => <div key={segment.key} className="bg-muted/10 border border-border/40 rounded-3xl p-5 shadow-xs"><div className="flex items-start justify-between gap-2"><div><h3 className="font-serif font-bold text-sm">{segment.name}</h3><p className="text-[10px] text-muted-foreground mt-1 leading-relaxed">{segment.rule}</p></div><span className={`px-2 py-1 rounded-full border text-[10px] ${toneClass[segment.tone] || toneClass.muted}`}>{segment.count}</span></div><div className="mt-4 flex justify-between text-[11px] text-muted-foreground"><span>إجمالي الإنفاق</span><b className="text-foreground">{formatMoney(segment.totalSpend)}</b></div><div className="mt-1 flex justify-between text-[11px] text-muted-foreground"><span>متوسط العميل</span><b className="text-foreground">{formatMoney(segment.avgSpend)}</b></div></div>)}
+        {(data.segments || []).map((segment: any) => <div key={segment.key} className="bg-muted/10 border border-border/40 rounded-3xl p-5 shadow-2xs"><div className="flex items-start justify-between gap-2"><div><h3 className="font-serif font-bold text-sm">{segment.name}</h3><p className="text-[10px] text-muted-foreground mt-1 leading-relaxed">{segment.rule}</p></div><span className={`px-2 py-1 rounded-full border text-[10px] ${toneClass[segment.tone] || toneClass.muted}`}>{segment.count}</span></div><div className="mt-4 flex justify-between text-[11px] text-muted-foreground"><span>إجمالي الإنفاق</span><b className="text-foreground">{formatMoney(segment.totalSpend)}</b></div><div className="mt-1 flex justify-between text-[11px] text-muted-foreground"><span>متوسط العميل</span><b className="text-foreground">{formatMoney(segment.avgSpend)}</b></div></div>)}
       </div>
-      <div className="bg-muted/10 border border-border/40 rounded-3xl p-5 shadow-xs"><h3 className="font-serif font-bold mb-4">أهم العملاء داخل الشرائح</h3><div className="overflow-x-auto"><table className="w-full text-right text-xs"><thead><tr className="border-b border-border/30 text-muted-foreground"><th className="p-3">العميل</th><th className="p-3">الشريحة</th><th className="p-3">الطلبات</th><th className="p-3">الإنفاق</th><th className="p-3">آخر طلب</th></tr></thead><tbody>{(data.segments || []).flatMap((s: any) => (s.members || []).slice(0, 5).map((m: any) => ({ ...m, segment: s.name, id: `${s.key}-${m.id}` }))).map((m: any) => <tr key={m.id} className="border-b border-border/20 last:border-0"><td className="p-3 font-medium">{m.name}</td><td className="p-3 text-muted-foreground">{m.segment}</td><td className="p-3">{m.orderCount}</td><td className="p-3">{formatMoney(m.spend)}</td><td className="p-3 text-muted-foreground">{m.lastOrder ? new Date(m.lastOrder).toLocaleDateString('ar-EG') : '—'}</td></tr>)}</tbody></table></div></div>
-      <div className="bg-muted/10 border border-border/40 rounded-3xl p-5 shadow-xs">
+      <div className="bg-muted/10 border border-border/40 rounded-3xl p-5 shadow-2xs"><h3 className="font-serif font-bold mb-4">أهم العملاء داخل الشرائح</h3><div className="overflow-x-auto"><table className="w-full text-right text-xs"><thead><tr className="border-b border-border/30 text-muted-foreground"><th className="p-3">العميل</th><th className="p-3">الشريحة</th><th className="p-3">الطلبات</th><th className="p-3">الإنفاق</th><th className="p-3">آخر طلب</th></tr></thead><tbody>{(data.segments || []).flatMap((s: any) => (s.members || []).slice(0, 5).map((m: any) => ({ ...m, segment: s.name, id: `${s.key}-${m.id}` }))).map((m: any) => <tr key={m.id} className="border-b border-border/20 last:border-0"><td className="p-3 font-medium">{m.name}</td><td className="p-3 text-muted-foreground">{m.segment}</td><td className="p-3">{m.orderCount}</td><td className="p-3">{formatMoney(m.spend)}</td><td className="p-3 text-muted-foreground">{m.lastOrder ? new Date(m.lastOrder).toLocaleDateString('ar-EG') : '—'}</td></tr>)}</tbody></table></div></div>
+      <div className="bg-muted/10 border border-border/40 rounded-3xl p-5 shadow-2xs">
         <div className="flex flex-wrap items-start justify-between gap-3 mb-4">
           <div>
             <h3 className="font-serif font-bold">جمهور التسويق</h3>
             <p className="text-[11px] text-muted-foreground mt-1">اختر شريحة لعرض العملاء الفعليين وتجهيزها للتواصل أو التصدير.</p>
           </div>
-          <span className="px-3 py-1.5 rounded-full border border-[var(--gold)]/20 bg-[var(--gold)]/10 text-[var(--gold)] text-[10px] font-bold">{audience.length || (selectedSegment !== 'all' ? Number(selectedSegmentData?.count || 0) : 0)} عميل</span>
+          <span className="px-3 py-1.5 rounded-full border border-(--gold)/20 bg-(--gold)/10 text-(--gold) text-[10px] font-bold">{audience.length || (selectedSegment !== 'all' ? Number(selectedSegmentData?.count || 0) : 0)} عميل</span>
         </div>
         <div className="flex flex-wrap gap-2 mb-4">
-          <button type="button" onClick={() => selectSegment('all')} className={`px-3 py-2 rounded-xl border text-xs cursor-pointer ${selectedSegment === 'all' ? 'bg-[var(--gold)] text-[var(--gold-contrast)] border-[var(--gold)]' : 'border-border/40 bg-muted/10'}`}>كل العملاء</button>
-          {(data.segments || []).map((segment: any) => <button key={segment.key} type="button" onClick={() => selectSegment(segment.key)} className={`px-3 py-2 rounded-xl border text-xs cursor-pointer ${selectedSegment === segment.key ? 'bg-[var(--gold)] text-[var(--gold-contrast)] border-[var(--gold)]' : 'border-border/40 bg-muted/10'}`}>{segment.name} ({segment.count})</button>)}
+          <button type="button" onClick={() => selectSegment('all')} className={`px-3 py-2 rounded-xl border text-xs cursor-pointer ${selectedSegment === 'all' ? 'bg-(--gold) text-(--gold-contrast) border-(--gold)' : 'border-border/40 bg-muted/10'}`}>كل العملاء</button>
+          {(data.segments || []).map((segment: any) => <button key={segment.key} type="button" onClick={() => selectSegment(segment.key)} className={`px-3 py-2 rounded-xl border text-xs cursor-pointer ${selectedSegment === segment.key ? 'bg-(--gold) text-(--gold-contrast) border-(--gold)' : 'border-border/40 bg-muted/10'}`}>{segment.name} ({segment.count})</button>)}
         </div>
         <div className="flex flex-wrap gap-2 mb-4">
           <button type="button" disabled={audienceLoading} onClick={() => loadAudience()} className="px-3 py-2 rounded-xl border border-border/40 text-xs inline-flex items-center gap-2 cursor-pointer disabled:opacity-50"><RefreshCcw size={14} />{audienceLoading ? 'جاري التحميل...' : 'تحديث الجمهور'}</button>
           <button type="button" onClick={copyPhones} className="px-3 py-2 rounded-xl border border-border/40 text-xs inline-flex items-center gap-2 cursor-pointer"><Share2 size={14} />نسخ أرقام الهاتف</button>
           <button type="button" onClick={exportAudience} className="px-3 py-2 rounded-xl border border-border/40 text-xs inline-flex items-center gap-2 cursor-pointer"><FileText size={14} />تصدير CSV</button>
         </div>
-        {audienceMsg && <p className="text-[11px] text-[var(--gold)] mb-3">{audienceMsg}</p>}
+        {audienceMsg && <p className="text-[11px] text-(--gold) mb-3">{audienceMsg}</p>}
         <div className="overflow-x-auto rounded-2xl border border-border/30">
           <table className="w-full text-right text-xs">
             <thead><tr className="border-b border-border/30 text-muted-foreground"><th className="p-3">العميل</th><th className="p-3">الهاتف</th><th className="p-3">الطلبات</th><th className="p-3">الإنفاق</th><th className="p-3">آخر طلب</th></tr></thead>
@@ -1748,7 +1748,7 @@ function Customers({ data }: any) {
   return (
     <div className="space-y-2.5">
       {data.map((c: any) => (
-        <div className="bg-muted/10 border border-border/40 rounded-2xl p-4 flex justify-between items-center shadow-xs" key={c.id}>
+        <div className="bg-muted/10 border border-border/40 rounded-2xl p-4 flex justify-between items-center shadow-2xs" key={c.id}>
           <div>
             <b className="font-serif font-bold text-foreground">{c.name}</b>
             <p className="text-muted-foreground text-xs font-light mt-0.5">{c.phone} • {c.email || 'بدون إيميل'}</p>
@@ -1764,16 +1764,16 @@ function Orders({ data, onRefresh }: any) {
   return (
     <div className="space-y-2.5">
       {data.map((o: any) => (
-        <div className="bg-muted/10 border border-border/40 rounded-2xl p-4 flex justify-between items-center shadow-xs" key={o.id}>
+        <div className="bg-muted/10 border border-border/40 rounded-2xl p-4 flex justify-between items-center shadow-2xs" key={o.id}>
           <div>
-            <Link href={`/admin/orders/${o.id}`} className="text-[var(--gold)] font-serif font-bold hover:underline inline-block text-base cursor-pointer">
+            <Link href={`/admin/orders/${o.id}`} className="text-(--gold) font-serif font-bold hover:underline inline-block text-base cursor-pointer">
               طلب #{o.number} 🔗
             </Link>
             <p className="text-muted-foreground text-xs font-light mt-1">
-              {o.customerNameSnapshot || 'عميل'} • {o.total} ج.م • <span className="text-[var(--gold)] font-medium">{o.status}</span>
+              {o.customerNameSnapshot || 'عميل'} • {o.total} ج.م • <span className="text-(--gold) font-medium">{o.status}</span>
             </p>
           </div>
-          <Link href={`/admin/orders/${o.id}`} className="px-4 py-2 rounded-xl bg-[var(--gold)] text-[var(--gold-contrast)] text-xs font-serif font-bold hover:opacity-95 transition shadow-xs cursor-pointer">
+          <Link href={`/admin/orders/${o.id}`} className="px-4 py-2 rounded-xl bg-(--gold) text-(--gold-contrast) text-xs font-serif font-bold hover:opacity-95 transition shadow-2xs cursor-pointer">
             إدارة الطلب ←
           </Link>
         </div>
@@ -1791,7 +1791,7 @@ function Sortable({ data, onEdit, onDelete, onReorder }: any) {
   return (
     <div className="space-y-2.5">
       {items.map((x: any, i: number) => (
-        <div key={x.id} draggable onDragStart={() => setDrag(i)} onDragOver={e => e.preventDefault()} onDrop={async () => { if (drag === null || drag === i) return; const a = [...items]; const [m] = a.splice(drag, 1); a.splice(i, 0, m); setDrag(null); await onReorder(a, '/api/admin/homepage'); }} className="bg-muted/10 border border-border/40 rounded-2xl flex items-center gap-3 p-4 cursor-move shadow-xs">
+        <div key={x.id} draggable onDragStart={() => setDrag(i)} onDragOver={e => e.preventDefault()} onDrop={async () => { if (drag === null || drag === i) return; const a = [...items]; const [m] = a.splice(drag, 1); a.splice(i, 0, m); setDrag(null); await onReorder(a, '/api/admin/homepage'); }} className="bg-muted/10 border border-border/40 rounded-2xl flex items-center gap-3 p-4 cursor-move shadow-2xs">
           <GripVertical className="text-muted-foreground" />
           <div className="flex-1">
             <b className="font-serif font-bold text-foreground text-sm">{x.title || x.type}</b>
@@ -1823,13 +1823,13 @@ function Media({ data, onDelete, onRefresh }: any) {
 
   return (
     <div className="space-y-4">
-      <label className="px-5 py-3 rounded-2xl bg-[var(--gold)] text-[var(--gold-contrast)] font-serif font-bold text-xs shadow-sm hover:opacity-95 transition inline-flex items-center gap-2 cursor-pointer">
+      <label className="px-5 py-3 rounded-2xl bg-(--gold) text-(--gold-contrast) font-serif font-bold text-xs shadow-xs hover:opacity-95 transition inline-flex items-center gap-2 cursor-pointer">
         <Upload size={17} /> {busy ? 'جارٍ الرفع…' : 'رفع صورة'}
         <input hidden type="file" accept="image/*" onChange={e => { const f = e.target.files?.[0]; if (f) upload(f); }} />
       </label>
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
         {data.map((x: any) => (
-          <div key={x.id} className="bg-muted/10 border border-border/40 rounded-3xl overflow-hidden shadow-xs">
+          <div key={x.id} className="bg-muted/10 border border-border/40 rounded-3xl overflow-hidden shadow-2xs">
             <Image src={x.url} width={600} height={600} alt={x.name || "صورة من مكتبة الوسائط"} sizes="(max-width: 768px) 50vw, 25vw" className="aspect-square w-full object-cover" />
             <div className="p-3.5 space-y-2">
               <p className="truncate text-xs text-foreground font-light">{x.name}</p>
@@ -1847,12 +1847,12 @@ function Reviews({ data, onRefresh }: any) {
   return (
     <div className="space-y-2.5">
       {data.map((x: any) => (
-        <div className="bg-muted/10 border border-border/40 rounded-2xl p-4 flex flex-wrap items-center gap-4 shadow-xs" key={x.id}>
+        <div className="bg-muted/10 border border-border/40 rounded-2xl p-4 flex flex-wrap items-center gap-4 shadow-2xs" key={x.id}>
           <div className="flex-1 space-y-1">
             <b className="font-serif font-bold text-foreground text-sm">{x.customer?.name || 'عميل'} — {x.product?.name}</b>
             <p className="text-xs text-foreground font-light">{'★'.repeat(x.rating)} <span className="text-muted-foreground">{x.text || ''}</span></p>
           </div>
-          <button className={`px-4 py-2 rounded-xl text-xs font-medium transition cursor-pointer ${x.approved ? 'bg-[var(--gold)] text-[var(--gold-contrast)] font-bold shadow-xs' : 'bg-muted/20 border border-border/60 text-muted-foreground'}`} onClick={async () => { await api('/api/admin/reviews', 'PUT', { id: x.id, approved: !x.approved }); onRefresh(); }}>
+          <button className={`px-4 py-2 rounded-xl text-xs font-medium transition cursor-pointer ${x.approved ? 'bg-(--gold) text-(--gold-contrast) font-bold shadow-2xs' : 'bg-muted/20 border border-border/60 text-muted-foreground'}`} onClick={async () => { await api('/api/admin/reviews', 'PUT', { id: x.id, approved: !x.approved }); onRefresh(); }}>
             {x.approved ? 'معتمد' : 'معلق'}
           </button>
         </div>

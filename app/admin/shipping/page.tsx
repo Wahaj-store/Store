@@ -8,7 +8,7 @@ import {
 } from 'lucide-react';
 
 type ShippingZone = any;
-const fieldClass = 'h-11 w-full rounded-xl border border-border/70 bg-[var(--bg)] px-3.5 text-sm text-foreground outline-none transition placeholder:text-muted-foreground/70 focus:border-[var(--gold)] focus:ring-2 focus:ring-[var(--gold)]/10';
+const fieldClass = 'h-11 w-full rounded-xl border border-border/70 bg-(--bg) px-3.5 text-sm text-foreground outline-hidden transition placeholder:text-muted-foreground/70 focus:border-(--gold) focus:ring-2 focus:ring-(--gold)/10';
 const money = (value: unknown) => `${Number(value || 0).toLocaleString('ar-EG')} ج.م`;
 
 function ZoneMetric({ icon: Icon, label, value, note, tone = 'gold' }: any) {
@@ -134,7 +134,7 @@ export default function AdminShippingPage() {
   const freeCell = (zone: ShippingZone) => editingId === zone.id ? <input type="number" min="0" value={editFreeAbove} onChange={event => setEditFreeAbove(event.target.value)} className={`${fieldClass} w-full sm:max-w-[150px]`} placeholder="اختياري" aria-label={`حد الشحن المجاني ${zone.governorate}`} /> : zone.freeAbove != null && zone.freeAbove !== '' ? <span>{money(zone.freeAbove)}</span> : <span className="text-muted-foreground">غير محدد</span>;
 
   return (
-    <main className="min-h-screen bg-[var(--bg)] px-3 py-5 text-foreground sm:px-5 sm:py-7 lg:px-8" dir="rtl">
+    <main className="min-h-screen bg-(--bg) px-3 py-5 text-foreground sm:px-5 sm:py-7 lg:px-8" dir="rtl">
       <div className="mx-auto w-full max-w-[1440px] space-y-5 sm:space-y-6">
         <header className="shipping-hero">
           <div className="relative z-10 min-w-0"><Link href="/admin" className="shipping-back"><ArrowUpLeft size={14} /> لوحة الإدارة</Link>
@@ -172,7 +172,7 @@ export default function AdminShippingPage() {
             {!filteredZones.length && <div className="shipping-empty"><span><MapPin size={22} /></span><b>{query ? 'لم نعثر على محافظة مطابقة' : 'لا توجد مناطق شحن'}</b><p>{query ? 'جرّب البحث باسم آخر.' : 'أضف أول محافظة لتحديد تكلفة التوصيل.'}</p>{!query && <button type="button" onClick={() => setShowAddModal(true)} className="admin-action admin-action--gold mt-2"><Plus size={15} /> إضافة محافظة</button>}</div>}
           </>}
         </section>
-        <p className="flex items-center justify-center gap-2 pb-2 text-center text-[10px] text-muted-foreground"><ShieldCheck size={13} className="text-[var(--gold-muted)]" /> يتم حفظ أسعار المناطق عبر إعدادات الشحن الحالية للمتجر.</p>
+        <p className="flex items-center justify-center gap-2 pb-2 text-center text-[10px] text-muted-foreground"><ShieldCheck size={13} className="text-(--gold-muted)" /> يتم حفظ أسعار المناطق عبر إعدادات الشحن الحالية للمتجر.</p>
       </div>
 
       {showAddModal && <div className="shipping-modal-backdrop" onMouseDown={event => { if (event.target === event.currentTarget) setShowAddModal(false); }}>

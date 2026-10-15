@@ -5,6 +5,7 @@ import {
   buildPublicProductsOrder,
   buildPublicProductsWhere,
   parsePublicProductsQuery,
+  PUBLIC_PRODUCT_LIST_SELECT,
   PUBLIC_PRODUCTS_MAX_PAGE,
 } from '../../lib/public-products-query';
 
@@ -33,12 +34,30 @@ test('public product query bounds pagination and sanitizes filters', () => {
     status: 'PUBLISHED',
     category: { is: { slug: 'bracelets' } },
     price: { gte: 50, lte: 700 },
-    stock: { gt: 0 },
+    OR: [
+      { stock: { gt: 0 } },
+      { variants: { some: { stock: { gt: 0 } } } },
+    ],
   });
   assert.deepEqual(buildPublicProductsOrder(query.sort), [
     { price: 'asc' },
     { id: 'asc' },
   ]);
+});
+
+test('public product list selects card data and bounds related rows', () => {
+  assert.equal('searchText' in PUBLIC_PRODUCT_LIST_SELECT, false);
+  assert.deepEqual(PUBLIC_PRODUCT_LIST_SELECT.images, {
+    select: { url: true, alt: true },
+    orderBy: { sortOrder: 'asc' },
+    take: 1,
+  });
+  assert.deepEqual(PUBLIC_PRODUCT_LIST_SELECT.category, { select: { name: true } });
+  assert.deepEqual(PUBLIC_PRODUCT_LIST_SELECT.variants, {
+    select: { id: true, stock: true },
+    orderBy: { stock: 'desc' },
+    take: 1,
+  });
 });
 
 test('unknown sort and invalid page values fall back safely', () => {

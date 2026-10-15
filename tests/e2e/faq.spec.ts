@@ -17,9 +17,14 @@ test('FAQ page loads and opens an answer', async ({ page }) => {
   });
 
   await page.goto('/faq');
-  await expect(page.getByRole('heading', { name: 'الأسئلة الشائعة' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'إجابات واضحة لأسئلتك' })).toBeVisible();
   await expect(page.getByText('كيف يمكنني تتبع طلبي؟')).toBeVisible();
 
-  await page.getByRole('button', { name: /كيف يمكنني تتبع طلبي؟/ }).click();
-  await expect(page.getByText('استخدم صفحة تتبع الطلب وأدخل رقم الطلب ورقم الهاتف المسجل.')).toBeVisible();
+  const answer = page.getByText('استخدم صفحة تتبع الطلب وأدخل رقم الطلب ورقم الهاتف المسجل.');
+  const question = page.getByRole('button', { name: /كيف يمكنني تتبع طلبي؟/ });
+  await expect(answer).toBeVisible();
+  await question.click();
+  await expect(answer).toBeHidden();
+  await question.click();
+  await expect(answer).toBeVisible();
 });

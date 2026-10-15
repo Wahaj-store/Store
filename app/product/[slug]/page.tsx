@@ -29,7 +29,8 @@ export const revalidate = 60;
 
 const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || 'https://wahaj-store.vercel.app').replace(/\/+$/, '');
 
-export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
+export async function generateMetadata(props: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const params = await props.params;
   const product = await prisma.product.findUnique({
     where: { slug: params.slug },
     select: {
@@ -76,7 +77,8 @@ const paymentOptions = [
   { method: 'INSTAPAY', label: 'إنستا باي', Icon: ShieldCheck },
 ] as const;
 
-export default async function ProductPage({ params }: { params: { slug: string } }) {
+export default async function ProductPage(props: { params: Promise<{ slug: string }> }) {
+  const params = await props.params;
   const [product, payments] = await Promise.all([
     prisma.product.findUnique({
       where: { slug: params.slug },

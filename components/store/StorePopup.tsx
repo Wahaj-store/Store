@@ -64,7 +64,7 @@ export default function StorePopup({ enabled, config: rawConfig, visitKey }: { e
 
   return (
     <div
-      className="fixed inset-0 z-[120] flex items-center justify-center bg-black/55 p-4 backdrop-blur-sm"
+      className="fixed inset-0 z-120 flex items-center justify-center bg-black/55 p-4 backdrop-blur-xs"
       onMouseDown={event => { if (event.target === event.currentTarget) setOpen(false); }}
     >
       <section
@@ -72,43 +72,43 @@ export default function StorePopup({ enabled, config: rawConfig, visitKey }: { e
         aria-modal="true"
         aria-labelledby="wahaj-store-popup-title"
         aria-describedby={config.message ? "wahaj-store-popup-message" : undefined}
-        className="relative w-full max-w-lg overflow-hidden rounded-[26px] border border-[var(--border)] bg-[var(--card)] text-[var(--foreground)] shadow-2xl"
+        className="relative w-full max-w-lg overflow-hidden rounded-[26px] border border-(--border) bg-(--card) text-(--foreground) shadow-2xl"
         dir="rtl"
       >
         <button
           type="button"
           onClick={() => setOpen(false)}
           aria-label="إغلاق النافذة المنبثقة"
-          className="absolute left-3 top-3 z-10 grid h-10 w-10 place-items-center rounded-full border border-white/50 bg-white/90 text-stone-800 shadow-sm transition hover:bg-white"
+          className="absolute left-3 top-3 z-10 grid h-10 w-10 place-items-center rounded-full border border-white/50 bg-white/90 text-stone-800 shadow-xs transition hover:bg-white"
         >
           <X size={19} />
         </button>
         {imageUrl ? (
-          <div className="relative aspect-[16/8] w-full bg-[var(--surface)]">
+          <div className="relative aspect-16/8 w-full bg-(--surface)">
             <Image src={imageUrl} alt="" fill unoptimized sizes="(max-width: 600px) 100vw, 512px" className="object-cover" />
           </div>
         ) : (
-          <div className="flex h-24 items-center justify-center bg-[linear-gradient(135deg,var(--gold-soft),var(--background))] text-[var(--gold-muted)]">
+          <div className="flex h-24 items-center justify-center bg-[linear-gradient(135deg,var(--gold-soft),var(--background))] text-(--gold-muted)">
             <Sparkles size={28} strokeWidth={1.4} />
           </div>
         )}
         <div className="space-y-4 p-6 text-center sm:p-8">
           <div>
-            <p className="mb-2 text-xs font-bold tracking-[0.12em] text-[var(--gold-muted)]">وَهَج · تفاصيل تستحق أن تُرى</p>
+            <p className="mb-2 text-xs font-bold tracking-[0.12em] text-(--gold-muted)">وَهَج · تفاصيل تستحق أن تُرى</p>
             <h2 id="wahaj-store-popup-title" className="font-serif text-2xl font-bold leading-relaxed sm:text-3xl">{config.title}</h2>
-            {config.message ? <p id="wahaj-store-popup-message" className="mx-auto mt-3 max-w-md whitespace-pre-wrap text-sm leading-7 text-[var(--muted-foreground)]">{config.message}</p> : null}
+            {config.message ? <p id="wahaj-store-popup-message" className="mx-auto mt-3 max-w-md whitespace-pre-wrap text-sm leading-7 text-(--muted-foreground)">{config.message}</p> : null}
           </div>
           {ctaUrl && config.ctaText ? (
             <a
               href={ctaUrl}
               target={isExternal ? "_blank" : undefined}
               rel={isExternal ? "noopener noreferrer" : undefined}
-              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-[var(--gold)] px-6 py-3 text-sm font-bold text-[var(--gold-contrast)] transition hover:brightness-95"
+              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-(--gold) px-6 py-3 text-sm font-bold text-(--gold-contrast) transition hover:brightness-95"
             >
               {config.ctaText}<ArrowLeft size={16} />
             </a>
           ) : null}
-          <div><button type="button" onClick={() => setOpen(false)} className="text-xs text-[var(--muted-foreground)] underline underline-offset-4">ليس الآن</button></div>
+          <div><button type="button" onClick={() => setOpen(false)} className="text-xs text-(--muted-foreground) underline underline-offset-4">ليس الآن</button></div>
         </div>
       </section>
     </div>

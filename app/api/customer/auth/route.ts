@@ -31,7 +31,7 @@ export async function POST(req: Request) {
     const body = AuthSchema.parse(await req.json().catch(() => null));
 
     if (body.action === 'logout') {
-      cookies().delete('wahaj_customer');
+      (await cookies()).delete('wahaj_customer');
       return NextResponse.json({ ok: true });
     }
 

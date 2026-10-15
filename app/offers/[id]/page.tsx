@@ -10,7 +10,8 @@ function formatDate(value: Date | null) {
   return new Intl.DateTimeFormat("ar-EG", { day: "numeric", month: "long", year: "numeric" }).format(value);
 }
 
-export default async function OfferDetailsPage({ params }: { params: { id: string } }) {
+export default async function OfferDetailsPage(props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const offer = await prisma.offer.findUnique({
     where: { id: params.id },
     include: {

@@ -4,6 +4,7 @@ import {
   buildPublicProductsOrder,
   buildPublicProductsWhere,
   parsePublicProductsQuery,
+  PUBLIC_PRODUCT_LIST_SELECT,
   PUBLIC_PRODUCTS_PAGE_SIZE,
 } from '@/lib/public-products-query';
 
@@ -18,7 +19,7 @@ export async function GET(req: Request) {
     prisma.product.count({ where }),
     prisma.product.findMany({
       where,
-      include: { images: { orderBy: { sortOrder: 'asc' } }, category: true, variants: true },
+      select: PUBLIC_PRODUCT_LIST_SELECT,
       orderBy,
       skip: (query.page - 1) * PUBLIC_PRODUCTS_PAGE_SIZE,
       take: PUBLIC_PRODUCTS_PAGE_SIZE,

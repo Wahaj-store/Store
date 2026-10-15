@@ -14,7 +14,7 @@ function QuickView({ p, onClose }: { p: any; onClose: () => void }) {
 
   return (
     <div
-      className="wahaj-product-modal fixed inset-0 z-[80] grid place-items-center p-4"
+      className="wahaj-product-modal fixed inset-0 z-80 grid place-items-center p-4"
       role="dialog"
       aria-modal="true"
       aria-label={`عرض سريع: ${p.name}`}
@@ -47,7 +47,7 @@ function QuickView({ p, onClose }: { p: any; onClose: () => void }) {
 
           <div className="p-6 md:p-9 text-right">
             {p.category?.name && (
-              <span className="text-[11px] font-bold tracking-[0.16em] text-[var(--gold)]">
+              <span className="text-[11px] font-bold tracking-[0.16em] text-(--gold)">
                 {p.category.name}
               </span>
             )}
@@ -57,17 +57,17 @@ function QuickView({ p, onClose }: { p: any; onClose: () => void }) {
             </h2>
 
             <div className="mt-5 flex items-baseline gap-3">
-              <span className="text-2xl font-bold text-[var(--gold)]">
+              <span className="text-2xl font-bold text-(--gold)">
                 {price.toLocaleString("ar-EG")} ج.م
               </span>
               {compare > price && (
-                <del className="text-sm text-[var(--muted-foreground)]">
+                <del className="text-sm text-(--muted-foreground)">
                   {compare.toLocaleString("ar-EG")} ج.م
                 </del>
               )}
             </div>
 
-            <p className="mt-5 text-sm leading-8 text-[var(--muted-foreground)]">
+            <p className="mt-5 text-sm leading-8 text-(--muted-foreground)">
               {p.description ||
                 "قطعة مختارة بعناية من وَهَج، بتفاصيل تجمع بين الرقي واللمسة العصرية."}
             </p>
@@ -83,7 +83,7 @@ function QuickView({ p, onClose }: { p: any; onClose: () => void }) {
               <button
                 type="button"
                 onClick={onClose}
-                className="text-sm text-[var(--muted-foreground)] hover:text-foreground transition-colors py-2"
+                className="text-sm text-(--muted-foreground) hover:text-foreground transition-colors py-2"
               >
                 متابعة التصفح
               </button>

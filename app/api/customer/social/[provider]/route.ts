@@ -52,7 +52,7 @@ async function createState(provider: Provider) {
     .setIssuedAt()
     .setExpirationTime('10m')
     .sign(secret());
-  cookies().set('wahaj_oauth_state', nonce, {
+  (await cookies()).set('wahaj_oauth_state', nonce, {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'lax',
@@ -118,7 +118,8 @@ async function exchangeCode(req: Request, provider: Provider, code: string) {
   return { email: String(profile.email).trim().toLowerCase(), name: String(profile.name || 'عضو وَهَج').trim() };
 }
 
-export async function GET(req: Request, { params }: { params: { provider: string } }) {
+export async function GET(req: Request, props: { params: Promise<{ provider: string }> }) {
+  const params = await props.params;
   const provider = providerFromParam(params.provider);
   if (!provider) return NextResponse.json({ error: 'مزود تسجيل غير مدعوم' }, { status: 404 });
   const url = new URL(req.url);
@@ -129,12 +130,12 @@ export async function GET(req: Request, { params }: { params: { provider: string
   if (!url.searchParams.get('code')) return startOAuth(req, provider);
   try {
     const state = url.searchParams.get('state') || '';
-    const storedNonce = cookies().get('wahaj_oauth_state')?.value;
+    const storedNonce = (await cookies()).get('wahaj_oauth_state')?.value;
     const { payload } = await jwtVerify(state, secret());
     if (payload.typ !== 'customer-oauth-state' || payload.provider !== provider || !storedNonce || payload.nonce !== storedNonce) {
       return finish(req, 'invalid_state');
     }
-    cookies().delete('wahaj_oauth_state');
+    (await cookies()).delete('wahaj_oauth_state');
     const profile = await exchangeCode(req, provider, url.searchParams.get('code')!);
     let customer = await prisma.customer.findUnique({ where: { email: profile.email } });
     if (!customer) {

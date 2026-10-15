@@ -6,7 +6,7 @@ import { Check, Clock3, Eye, Save, Sparkles } from "lucide-react";
 import MediaPicker from "../MediaPicker";
 import { DEFAULT_POPUP_CONFIG, parsePopupConfig, safePopupImageUrl, type PopupConfig } from "@/lib/popup-config";
 
-const fieldClass = "w-full rounded-xl border border-border/60 bg-[var(--bg)] px-3.5 py-3 text-sm text-foreground outline-none transition focus:border-[var(--gold)]";
+const fieldClass = "w-full rounded-xl border border-border/60 bg-(--bg) px-3.5 py-3 text-sm text-foreground outline-hidden transition focus:border-(--gold)";
 
 type Props = {
   enabledValue: unknown;
@@ -50,14 +50,14 @@ export default function PopupSettingsEditor({ enabledValue, configValue, onSave,
   const previewImage = safePopupImageUrl(config.imageUrl);
 
   return (
-    <section className="space-y-6 rounded-3xl border border-border/40 bg-muted/5 p-5 shadow-xs md:p-7" dir="rtl">
+    <section className="space-y-6 rounded-3xl border border-border/40 bg-muted/5 p-5 shadow-2xs md:p-7" dir="rtl">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2 text-[var(--gold)]"><Sparkles size={18} /><h3 className="font-serif text-lg font-bold">النافذة المنبثقة للمتجر</h3></div>
+          <div className="flex items-center gap-2 text-(--gold)"><Sparkles size={18} /><h3 className="font-serif text-lg font-bold">النافذة المنبثقة للمتجر</h3></div>
           <p className="mt-1.5 text-xs leading-6 text-muted-foreground">أنشئي رسالة ترحيب أو عرضًا يظهر للزوار في واجهة المتجر العامة حسب إعدادات الظهور أدناه.</p>
         </div>
-        {showActivationToggle ? <label className="inline-flex cursor-pointer items-center gap-2.5 rounded-xl border border-border/50 bg-[var(--bg)] px-3.5 py-2.5 text-sm font-medium">
-          <input type="checkbox" className="h-4 w-4 accent-[var(--gold)]" checked={enabled} onChange={event => setEnabled(event.target.checked)} />
+        {showActivationToggle ? <label className="inline-flex cursor-pointer items-center gap-2.5 rounded-xl border border-border/50 bg-(--bg) px-3.5 py-2.5 text-sm font-medium">
+          <input type="checkbox" className="h-4 w-4 accent-(--gold)" checked={enabled} onChange={event => setEnabled(event.target.checked)} />
           {enabled ? "مفعّلة" : "متوقفة"}
         </label> : null}
       </div>
@@ -93,18 +93,18 @@ export default function PopupSettingsEditor({ enabledValue, configValue, onSave,
         </label>
       </div>
 
-      <div className="rounded-2xl border border-border/40 bg-[var(--bg)] p-4">
+      <div className="rounded-2xl border border-border/40 bg-(--bg) p-4">
         <div className="mb-3 flex items-center gap-2 text-xs font-bold text-muted-foreground"><Eye size={15} /> معاينة تقريبية</div>
-        <div className="mx-auto max-w-md rounded-2xl border border-border/50 bg-[var(--card)] p-5 text-center shadow-sm">
-          {previewImage ? <Image src={previewImage} alt="" width={600} height={240} unoptimized className="mb-4 max-h-36 w-full rounded-xl object-cover" /> : <Sparkles size={22} className="mx-auto mb-3 text-[var(--gold)]" />}
+        <div className="mx-auto max-w-md rounded-2xl border border-border/50 bg-(--card) p-5 text-center shadow-xs">
+          {previewImage ? <Image src={previewImage} alt="" width={600} height={240} unoptimized className="mb-4 max-h-36 w-full rounded-xl object-cover" /> : <Sparkles size={22} className="mx-auto mb-3 text-(--gold)" />}
           <b className="font-serif text-lg">{config.title || "عنوان النافذة"}</b>
           <p className="mt-2 whitespace-pre-wrap text-xs leading-6 text-muted-foreground">{config.message || "نص الرسالة سيظهر هنا."}</p>
-          {config.ctaText ? <span className="mt-3 inline-flex rounded-lg bg-[var(--gold)] px-4 py-2 text-xs font-bold text-[var(--gold-contrast)]">{config.ctaText}</span> : null}
+          {config.ctaText ? <span className="mt-3 inline-flex rounded-lg bg-(--gold) px-4 py-2 text-xs font-bold text-(--gold-contrast)">{config.ctaText}</span> : null}
         </div>
       </div>
 
       <div className="flex flex-wrap items-center gap-3 border-t border-border/30 pt-4">
-        <button type="button" disabled={saving} onClick={save} className="inline-flex items-center gap-2 rounded-xl bg-[var(--gold)] px-5 py-3 text-sm font-bold text-[var(--gold-contrast)] transition hover:opacity-90 disabled:cursor-wait disabled:opacity-60"><Save size={16} />{saving ? "جارٍ الحفظ…" : "حفظ إعدادات النافذة"}</button>
+        <button type="button" disabled={saving} onClick={save} className="inline-flex items-center gap-2 rounded-xl bg-(--gold) px-5 py-3 text-sm font-bold text-(--gold-contrast) transition hover:opacity-90 disabled:cursor-wait disabled:opacity-60"><Save size={16} />{saving ? "جارٍ الحفظ…" : "حفظ إعدادات النافذة"}</button>
         {notice ? <span role="status" className="inline-flex items-center gap-1.5 text-xs text-muted-foreground">{notice.startsWith("تم") ? <Check size={14} className="text-green-600" /> : null}{notice}</span> : null}
       </div>
     </section>

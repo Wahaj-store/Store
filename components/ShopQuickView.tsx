@@ -18,7 +18,7 @@ export default function ShopQuickView({ product }: { product: ShopProduct }) {
   const dialog = open && typeof document !== 'undefined'
     ? createPortal(
         <div
-          className="wahaj-product-modal fixed inset-0 z-[80] grid place-items-center p-4"
+          className="wahaj-product-modal fixed inset-0 z-80 grid place-items-center p-4"
           role="dialog"
           aria-modal="true"
           aria-label={`عرض سريع: ${product.name}`}
@@ -40,18 +40,18 @@ export default function ShopQuickView({ product }: { product: ShopProduct }) {
                 />
               </div>
               <div className="p-6 text-right md:p-9">
-                {product.category?.name ? <span className="text-[11px] font-bold tracking-[0.16em] text-[var(--gold)]">{product.category.name}</span> : null}
+                {product.category?.name ? <span className="text-[11px] font-bold tracking-[0.16em] text-(--gold)">{product.category.name}</span> : null}
                 <h2 className="mt-2 text-2xl font-semibold leading-tight md:text-3xl">{product.name}</h2>
                 <div className="mt-5 flex items-baseline gap-3">
-                  <span className="text-2xl font-bold text-[var(--gold)]">{price.toLocaleString('ar-EG')} ج.م</span>
-                  {compare > price ? <del className="text-sm text-[var(--muted-foreground)]">{compare.toLocaleString('ar-EG')} ج.م</del> : null}
+                  <span className="text-2xl font-bold text-(--gold)">{price.toLocaleString('ar-EG')} ج.م</span>
+                  {compare > price ? <del className="text-sm text-(--muted-foreground)">{compare.toLocaleString('ar-EG')} ج.م</del> : null}
                 </div>
-                <p className="mt-5 text-sm leading-8 text-[var(--muted-foreground)]">
+                <p className="mt-5 text-sm leading-8 text-(--muted-foreground)">
                   {product.description || 'قطعة مختارة بعناية من وَهَج، بتفاصيل تجمع بين الرقي واللمسة العصرية.'}
                 </p>
                 <div className="mt-7 grid gap-3">
                   <Link href={`/product/${product.slug}`} prefetch={false} className="wahaj-product-modal__details">اكتشفي التفاصيل الكاملة</Link>
-                  <button type="button" onClick={() => setOpen(false)} className="py-2 text-sm text-[var(--muted-foreground)] transition-colors hover:text-foreground">متابعة التصفح</button>
+                  <button type="button" onClick={() => setOpen(false)} className="py-2 text-sm text-(--muted-foreground) transition-colors hover:text-foreground">متابعة التصفح</button>
                 </div>
               </div>
             </div>

@@ -55,7 +55,7 @@ function AddressSelector({ selectedId, onSelectAddress, onAuthState }: { selecte
   if (addresses.length === 0) return <p className="checkout-addresses__empty">لا توجد عناوين محفوظة بعد. يمكنكِ إدخال عنوان جديد أدناه.</p>;
 
   return (
-    <div className="space-y-3 mb-6 p-5 rounded-3xl bg-muted/10 border border-border/40 shadow-xs">
+    <div className="space-y-3 mb-6 p-5 rounded-3xl bg-muted/10 border border-border/40 shadow-2xs">
       <label className="block text-xs font-semibold text-foreground tracking-wide">اختاري من عناوينك المحفوظة:</label>
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         {addresses.map((addr) => (
@@ -64,14 +64,14 @@ function AddressSelector({ selectedId, onSelectAddress, onAuthState }: { selecte
             onClick={() => onSelectAddress(addr)}
             className={`cursor-pointer rounded-2xl border p-4 transition-all text-xs ${
               selectedId === addr.id
-                ? 'border-[var(--gold)] bg-[var(--gold)]/10 ring-1 ring-[var(--gold)]'
-                : 'border-border/40 bg-[var(--bg)] hover:border-[var(--gold)]/40 shadow-xs'
+                ? 'border-(--gold) bg-(--gold)/10 ring-1 ring-(--gold)'
+                : 'border-border/40 bg-(--bg) hover:border-(--gold)/40 shadow-2xs'
             }`}
           >
             <div className="flex items-center justify-between mb-1.5">
               <span className="font-serif font-bold text-foreground">{addr.label || 'عنوان'}</span>
               {addr.isDefault && (
-                <span className="rounded-full bg-[var(--gold)] px-2 py-0.5 text-[10px] text-[var(--gold-contrast)] font-bold">أساسي</span>
+                <span className="rounded-full bg-(--gold) px-2 py-0.5 text-[10px] text-(--gold-contrast) font-bold">أساسي</span>
               )}
             </div>
             <p className="text-muted-foreground font-light">{addr.name} - {addr.phone}</p>
@@ -82,7 +82,7 @@ function AddressSelector({ selectedId, onSelectAddress, onAuthState }: { selecte
       <button
         type="button"
         onClick={() => onSelectAddress(null)}
-        className="text-xs text-[var(--gold)] underline hover:opacity-80 mt-2 block font-medium"
+        className="text-xs text-(--gold) underline hover:opacity-80 mt-2 block font-medium"
       >
         أو إدخال عنوان جديد لهذا الطلب
       </button>
@@ -394,14 +394,14 @@ function CheckoutContent() {
     switch (methodKey.toLowerCase()) {
       case 'cod':
       case 'cash':
-        return <Truck size={20} className="text-[var(--gold)]" />;
+        return <Truck size={20} className="text-(--gold)" />;
       case 'vodafone':
       case 'vodafone_cash':
         return <span className="text-red-500 font-bold text-xs">V-CASH</span>;
       case 'instapay':
         return <span className="text-purple-600 font-bold text-xs">InstaPay</span>;
       default:
-        return <CreditCard size={20} className="text-[var(--gold)]" />;
+        return <CreditCard size={20} className="text-(--gold)" />;
     }
   };
 
@@ -436,7 +436,7 @@ function CheckoutContent() {
                 <label>المدينة / المركز<input name="city" required readOnly={Boolean(selectedAddressId)} value={formData.city} onChange={handleInputChange} placeholder="اسم المدينة أو الحي" /></label>
               </div>
               <label className="wahaj-form-field">العنوان بالتفصيل<textarea name="address" required readOnly={Boolean(selectedAddressId)} rows={3} value={formData.address} onChange={handleInputChange} placeholder="اسم الشارع، رقم العمارة، رقم الشقة..." /></label>
-              {giftWrapAvailable && <label className="mt-4 flex cursor-pointer items-start gap-3 rounded-2xl border border-[var(--gold)]/30 bg-[var(--gold)]/5 p-4"><input type="checkbox" checked={giftWrapSelected} onChange={event => { const enabled = event.target.checked; setGiftWrapSelected(enabled); try { localStorage.setItem('wahaj_gift_wrap', enabled ? 'true' : 'false'); } catch {} }} className="mt-1 accent-[var(--gold)]" /><span className="grid gap-1"><b className="text-sm text-foreground">خدمة تغليف هدايا</b><small className="text-xs leading-5 text-muted-foreground">{giftWrapFee > 0 ? `رسوم الخدمة: ${giftWrapFee.toLocaleString('ar-EG')} ج.م` : 'خدمة تغليف هدايا مجانية'}. يمكنكِ اختيارها قبل تأكيد الطلب.</small></span></label>}
+              {giftWrapAvailable && <label className="mt-4 flex cursor-pointer items-start gap-3 rounded-2xl border border-(--gold)/30 bg-(--gold)/5 p-4"><input type="checkbox" checked={giftWrapSelected} onChange={event => { const enabled = event.target.checked; setGiftWrapSelected(enabled); try { localStorage.setItem('wahaj_gift_wrap', enabled ? 'true' : 'false'); } catch {} }} className="mt-1 accent-(--gold)" /><span className="grid gap-1"><b className="text-sm text-foreground">خدمة تغليف هدايا</b><small className="text-xs leading-5 text-muted-foreground">{giftWrapFee > 0 ? `رسوم الخدمة: ${giftWrapFee.toLocaleString('ar-EG')} ج.م` : 'خدمة تغليف هدايا مجانية'}. يمكنكِ اختيارها قبل تأكيد الطلب.</small></span></label>}
               <div className="wahaj-form-grid wahaj-form-grid--secondary"><label>ملاحظات التوصيل <span>اختياري</span><input name="notes" value={formData.notes} onChange={handleInputChange} placeholder="أي ملاحظات خاصة بالتوصيل..." /></label><label>بطاقة هدية / كود خصم <span>اختياري</span><input value={coupon} onChange={event => setCoupon(event.target.value.toUpperCase())} placeholder="أدخلي الكود" dir="ltr" /></label></div>
             </div>
 

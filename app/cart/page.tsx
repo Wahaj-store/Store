@@ -182,7 +182,7 @@ export default function Cart() {
               <div className="wahaj-shipping-progress__bar"><span style={{ width: `${progress}%` }} /></div>
             </div>}
             {giftWrapEnabled && (
-              <label className="my-4 flex cursor-pointer items-start gap-3 rounded-xl border border-[var(--gold)]/30 p-3 text-sm">
+              <label className="my-4 flex cursor-pointer items-start gap-3 rounded-xl border border-(--gold)/30 p-3 text-sm">
                 <input
                   type="checkbox"
                   checked={giftWrap}
@@ -191,7 +191,7 @@ export default function Cart() {
                     setGiftWrap(enabled);
                     try { localStorage.setItem('wahaj_gift_wrap', enabled ? 'true' : 'false'); } catch {}
                   }}
-                  className="mt-1 accent-[var(--gold)]"
+                  className="mt-1 accent-(--gold)"
                 />
                 <span><b className="block">خدمة تغليف هدايا</b><small className="mt-1 block text-muted-foreground">تظهر رسوم الخدمة والإجمالي النهائي في مراجعة الطلب قبل التأكيد.</small></span>
               </label>

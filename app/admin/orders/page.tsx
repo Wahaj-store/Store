@@ -89,7 +89,7 @@ export default function Orders() {
   ];
 
   return (
-    <main className="min-h-screen bg-[var(--bg)] px-3 py-5 text-foreground sm:px-5 sm:py-7 lg:px-8" dir="rtl">
+    <main className="min-h-screen bg-(--bg) px-3 py-5 text-foreground sm:px-5 sm:py-7 lg:px-8" dir="rtl">
       <div className="mx-auto w-full max-w-[1440px] space-y-5 sm:space-y-6">
         <header className="order-page-hero">
           <div className="relative z-10 min-w-0">
@@ -125,7 +125,7 @@ export default function Orders() {
                   <td className="whitespace-nowrap text-muted-foreground">{formatDate(order.createdAt)}</td>
                   <td><OrderStatus status={order.status} /></td>
                   <td><div className="space-y-1.5"><PaymentStatus status={order.paymentStatus} /><span className="block text-[9px] text-muted-foreground">{paymentMethodLabels[order.paymentMethod] || order.paymentMethod || '—'}</span></div></td>
-                  <td className="whitespace-nowrap font-bold text-[var(--gold-muted)]">{formatMoney(order.total)}</td>
+                  <td className="whitespace-nowrap font-bold text-(--gold-muted)">{formatMoney(order.total)}</td>
                   <td><Link href={`/admin/orders/${order.id}`} className="order-open-link">إدارة <ArrowDownLeft size={14} /></Link></td>
                 </tr>)}
               </tbody></table></div>
@@ -133,7 +133,7 @@ export default function Orders() {
                 {visibleOrders.map(order => <article key={order.id} className="order-mobile-card">
                   <div className="flex items-start justify-between gap-3"><div><Link href={`/admin/orders/${order.id}`} className="order-number">#{order.number}</Link><p className="mt-1 text-[9px] text-muted-foreground"><CalendarDays size={11} className="ml-1 inline" />{formatDate(order.createdAt)}</p></div><OrderStatus status={order.status} /></div>
                   <div className="mt-3 flex items-center gap-2.5 border-y border-border/50 py-3"><span className="order-avatar"><UserRound size={15} /></span><div className="min-w-0"><p className="truncate text-xs font-semibold">{order.customer?.name || order.customerNameSnapshot || 'زائر'}</p><p className="mt-1 text-[10px] text-muted-foreground" dir="ltr">{order.customer?.phone || order.customerPhoneSnapshot || '—'}</p></div></div>
-                  <div className="mt-3 flex flex-wrap items-center justify-between gap-2"><div><p className="text-[9px] text-muted-foreground">الإجمالي · {order.items?.length || 0} منتج</p><p className="mt-1 text-sm font-bold text-[var(--gold-muted)]">{formatMoney(order.total)}</p></div><div className="text-left"><PaymentStatus status={order.paymentStatus} /><p className="mt-1 text-[9px] text-muted-foreground">{paymentMethodLabels[order.paymentMethod] || order.paymentMethod || '—'}</p></div></div>
+                  <div className="mt-3 flex flex-wrap items-center justify-between gap-2"><div><p className="text-[9px] text-muted-foreground">الإجمالي · {order.items?.length || 0} منتج</p><p className="mt-1 text-sm font-bold text-(--gold-muted)">{formatMoney(order.total)}</p></div><div className="text-left"><PaymentStatus status={order.paymentStatus} /><p className="mt-1 text-[9px] text-muted-foreground">{paymentMethodLabels[order.paymentMethod] || order.paymentMethod || '—'}</p></div></div>
                   <Link href={`/admin/orders/${order.id}`} className="order-mobile-action">فتح تفاصيل الطلب <ArrowDownLeft size={15} /></Link>
                 </article>)}
               </div>
@@ -141,7 +141,7 @@ export default function Orders() {
             </>
           )}
         </section>
-        <p className="flex items-center justify-center gap-2 pb-2 text-center text-[10px] text-muted-foreground"><CheckCircle2 size={13} className="text-[var(--gold-muted)]" /> تحديث الحالة وخط سير الطلب متاحان من صفحة تفاصيل كل طلب.</p>
+        <p className="flex items-center justify-center gap-2 pb-2 text-center text-[10px] text-muted-foreground"><CheckCircle2 size={13} className="text-(--gold-muted)" /> تحديث الحالة وخط سير الطلب متاحان من صفحة تفاصيل كل طلب.</p>
       </div>
     </main>
   );

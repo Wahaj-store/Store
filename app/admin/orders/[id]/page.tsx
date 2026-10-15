@@ -100,7 +100,7 @@ export default function OrderDetail({ params }: { params: Promise<{ id: string }
   }
 
   return (
-    <main className="min-h-screen bg-[var(--bg)] px-3 py-5 text-foreground sm:px-5 sm:py-7 lg:px-8" dir="rtl">
+    <main className="min-h-screen bg-(--bg) px-3 py-5 text-foreground sm:px-5 sm:py-7 lg:px-8" dir="rtl">
       <div className="mx-auto w-full max-w-[1440px] space-y-5 sm:space-y-6">
         <header className="order-page-hero order-detail-hero">
           <div className="relative z-10 min-w-0"><Link href="/admin/orders" className="order-page-back"><ArrowUpLeft size={14} /> قائمة الطلبات</Link>
@@ -129,10 +129,10 @@ export default function OrderDetail({ params }: { params: Promise<{ id: string }
               <section className="order-detail-panel">
                 <div className="order-detail-panel__head"><span className="orders-section-icon"><Clock3 size={17} /></span><div><h2 className="font-serif text-base font-bold sm:text-lg">حالة الطلب وخط السير</h2><p className="mt-1 text-[10px] text-muted-foreground">تغيير الحالة يسجل حدثًا ويربط التحديث بالشحنة.</p></div></div>
                 <div className="p-4 sm:p-5">
-                  <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-border/50 bg-[var(--surface)]/65 p-3"><span className="text-xs text-muted-foreground">الحالة الحالية</span><OrderStatus status={order.status} /></div>
+                  <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-border/50 bg-(--surface)/65 p-3"><span className="text-xs text-muted-foreground">الحالة الحالية</span><OrderStatus status={order.status} /></div>
                   {!!order.timeline?.length && <div className="mt-4"><p className="mb-3 text-xs font-semibold">سجل التحديثات</p><div className="order-timeline">{[...order.timeline].reverse().map((entry: any, index: number) => <div key={entry.id || index} className="order-timeline__item"><span className="order-timeline__dot"><CheckCircle2 size={12} /></span><div className="min-w-0 flex-1"><div className="flex flex-wrap items-center justify-between gap-2"><b className="text-xs">{orderStatusLabels[entry.status] || entry.status}</b><time className="text-[9px] text-muted-foreground" dir="ltr">{formatDateTime(entry.createdAt)}</time></div>{entry.note && <p className="mt-1 text-[10px] leading-5 text-muted-foreground">{entry.note}</p>}</div></div>)}</div></div>}
 
-                  {order.status === 'PROCESSING' && <div className="mt-4 rounded-2xl border border-[var(--gold)]/20 bg-[var(--gold)]/5 p-3 sm:p-4"><p className="text-xs font-semibold">بيانات الشحن عند تأكيد الإرسال</p><div className="mt-3 grid gap-3 sm:grid-cols-2"><label className="order-field">شركة الشحن<input value={shippingProvider} onChange={event => setShippingProvider(event.target.value)} placeholder="مثال: بوسطة أو أرامكس" className="order-input" /></label><label className="order-field">رقم التتبع<input value={trackingNumber} onChange={event => setTrackingNumber(event.target.value)} placeholder="Tracking number" dir="ltr" className="order-input" /></label></div></div>}
+                  {order.status === 'PROCESSING' && <div className="mt-4 rounded-2xl border border-(--gold)/20 bg-(--gold)/5 p-3 sm:p-4"><p className="text-xs font-semibold">بيانات الشحن عند تأكيد الإرسال</p><div className="mt-3 grid gap-3 sm:grid-cols-2"><label className="order-field">شركة الشحن<input value={shippingProvider} onChange={event => setShippingProvider(event.target.value)} placeholder="مثال: بوسطة أو أرامكس" className="order-input" /></label><label className="order-field">رقم التتبع<input value={trackingNumber} onChange={event => setTrackingNumber(event.target.value)} placeholder="Tracking number" dir="ltr" className="order-input" /></label></div></div>}
 
                   {['NEW', 'PROCESSING', 'SHIPPED'].includes(order.status) && <label className="order-field mt-4 block">ملاحظة اختيارية للتحديث<input value={generalNote} onChange={event => setGeneralNote(event.target.value)} placeholder="أضف ملاحظة تظهر في سجل الطلب…" className="order-input" /></label>}
 
@@ -148,15 +148,15 @@ export default function OrderDetail({ params }: { params: Promise<{ id: string }
 
               <section className="order-detail-panel">
                 <div className="order-detail-panel__head"><span className="orders-section-icon"><ShoppingBag size={17} /></span><div><h2 className="font-serif text-base font-bold sm:text-lg">منتجات الطلب</h2><p className="mt-1 text-[10px] text-muted-foreground">تفاصيل الكميات والأسعار كما سُجلت عند إنشاء الطلب.</p></div></div>
-                <div className="divide-y divide-border/50 px-4 sm:px-5">{items.map((item: any) => <article key={item.id} className="order-line-item"><div className="min-w-0"><p className="truncate text-sm font-semibold">{item.product?.name || item.name || 'منتج المتجر'}</p>{item.variantName && <p className="mt-1 text-[10px] text-muted-foreground">الخيار: {item.variantName}</p>}<p className="mt-1 text-[10px] text-muted-foreground">الكمية: {Number(item.quantity || 0).toLocaleString('ar-EG')} × {money(item.price)}</p></div><b className="shrink-0 text-sm text-[var(--gold-muted)]">{money(Number(item.price || 0) * Number(item.quantity || 0))}</b></article>)}{!items.length && <div className="py-8 text-center text-xs text-muted-foreground">لا توجد عناصر مسجلة لهذا الطلب.</div>}</div>
-                <div className="mx-4 mb-4 flex items-center justify-between gap-3 rounded-xl border border-[var(--gold)]/20 bg-[var(--gold)]/5 px-4 py-3 sm:mx-5 sm:mb-5"><span className="text-xs font-semibold">الإجمالي النهائي</span><b className="text-lg text-[var(--gold-muted)]">{money(order.total)}</b></div>
+                <div className="divide-y divide-border/50 px-4 sm:px-5">{items.map((item: any) => <article key={item.id} className="order-line-item"><div className="min-w-0"><p className="truncate text-sm font-semibold">{item.product?.name || item.name || 'منتج المتجر'}</p>{item.variantName && <p className="mt-1 text-[10px] text-muted-foreground">الخيار: {item.variantName}</p>}<p className="mt-1 text-[10px] text-muted-foreground">الكمية: {Number(item.quantity || 0).toLocaleString('ar-EG')} × {money(item.price)}</p></div><b className="shrink-0 text-sm text-(--gold-muted)">{money(Number(item.price || 0) * Number(item.quantity || 0))}</b></article>)}{!items.length && <div className="py-8 text-center text-xs text-muted-foreground">لا توجد عناصر مسجلة لهذا الطلب.</div>}</div>
+                <div className="mx-4 mb-4 flex items-center justify-between gap-3 rounded-xl border border-(--gold)/20 bg-(--gold)/5 px-4 py-3 sm:mx-5 sm:mb-5"><span className="text-xs font-semibold">الإجمالي النهائي</span><b className="text-lg text-(--gold-muted)">{money(order.total)}</b></div>
               </section>
 
               <section className="order-detail-panel">
                 <div className="order-detail-panel__head"><span className="orders-section-icon"><Truck size={17} /></span><div><h2 className="font-serif text-base font-bold sm:text-lg">الشحن والتوصيل</h2><p className="mt-1 text-[10px] text-muted-foreground">حالة الشحنة وأحداثها من مركز الطلب.</p></div></div>
                 <div className="space-y-3 p-4 sm:p-5">
                   {!shipments.length && <p className="rounded-xl border border-dashed border-border/60 p-4 text-center text-xs text-muted-foreground">لم يتم إنشاء شحنة لهذا الطلب بعد.</p>}
-                  {shipments.map((shipment: any, index: number) => <article key={shipment.id || index} className="rounded-xl border border-border/50 bg-[var(--surface)]/55 p-3">
+                  {shipments.map((shipment: any, index: number) => <article key={shipment.id || index} className="rounded-xl border border-border/50 bg-(--surface)/55 p-3">
                     <div className="flex flex-wrap items-center justify-between gap-2"><b className="text-xs">{shipment.provider || 'شركة الشحن غير محددة'}</b><span className="order-status order-status--blue"><i />{shipmentStatusLabels[shipment.status] || shipment.status}</span></div>
                     <div className="mt-3 space-y-2"><InfoRow label="رقم التتبع" value={shipment.trackingNumber || 'غير مسجل'} ltr /><InfoRow label="تاريخ الإنشاء" value={formatDateTime(shipment.createdAt)} /></div>
                     {!!shipment.events?.length && <div className="mt-3 border-t border-border/50 pt-3"><p className="mb-2 text-[10px] font-semibold">آخر أحداث الشحنة</p><div className="space-y-2">{[...shipment.events].reverse().slice(0, 4).map((event: any, eventIndex: number) => <div key={event.id || eventIndex} className="flex items-start justify-between gap-2 text-[10px]"><span className="text-muted-foreground">{event.note || shipmentStatusLabels[event.status] || event.status}</span><time dir="ltr" className="shrink-0 text-[9px] text-muted-foreground">{formatDateTime(event.createdAt)}</time></div>)}</div></div>}
@@ -168,7 +168,7 @@ export default function OrderDetail({ params }: { params: Promise<{ id: string }
                 <div className="order-detail-panel__head"><span className="orders-section-icon"><RefreshCw size={17} /></span><div><h2 className="font-serif text-base font-bold sm:text-lg">المرتجعات والاستبدال</h2><p className="mt-1 text-[10px] text-muted-foreground">متابعة طلبات الإرجاع المرتبطة بهذا الطلب.</p></div></div>
                 <div className="space-y-3 p-4 sm:p-5">
                   {!returns.length && <p className="rounded-xl border border-dashed border-border/60 p-4 text-center text-xs text-muted-foreground">لا توجد طلبات إرجاع مرتبطة بهذا الطلب.</p>}
-                  {returns.map((returnRequest: any, index: number) => <article key={returnRequest.id || index} className="rounded-xl border border-border/50 bg-[var(--surface)]/55 p-3"><div className="flex flex-wrap items-center justify-between gap-2"><b className="text-xs">{returnRequest.number || 'طلب إرجاع'}</b><span className="text-[10px] font-bold text-[var(--gold-muted)]">{returnStatusLabels[returnRequest.status] || returnRequest.status}</span></div><div className="mt-3 space-y-2"><InfoRow label="سبب الإرجاع" value={returnRequest.reason || 'غير محدد'} /><InfoRow label="تاريخ الطلب" value={formatDateTime(returnRequest.requestedAt)} />{returnRequest.adminNote && <InfoRow label="ملاحظة الإدارة" value={returnRequest.adminNote} />}</div></article>)}
+                  {returns.map((returnRequest: any, index: number) => <article key={returnRequest.id || index} className="rounded-xl border border-border/50 bg-(--surface)/55 p-3"><div className="flex flex-wrap items-center justify-between gap-2"><b className="text-xs">{returnRequest.number || 'طلب إرجاع'}</b><span className="text-[10px] font-bold text-(--gold-muted)">{returnStatusLabels[returnRequest.status] || returnRequest.status}</span></div><div className="mt-3 space-y-2"><InfoRow label="سبب الإرجاع" value={returnRequest.reason || 'غير محدد'} /><InfoRow label="تاريخ الطلب" value={formatDateTime(returnRequest.requestedAt)} />{returnRequest.adminNote && <InfoRow label="ملاحظة الإدارة" value={returnRequest.adminNote} />}</div></article>)}
                 </div>
               </section>
             </div>
@@ -176,7 +176,7 @@ export default function OrderDetail({ params }: { params: Promise<{ id: string }
             <aside className="space-y-5">
               <section className="order-detail-panel">
                 <div className="order-detail-panel__head"><span className="orders-section-icon"><UserRound size={17} /></span><div><h2 className="font-serif text-base font-bold">بيانات العميل</h2><p className="mt-1 text-[10px] text-muted-foreground">بيانات التواصل المسجلة مع الطلب.</p></div></div>
-                <div className="space-y-3 p-4 sm:p-5"><div className="rounded-2xl border border-border/50 bg-[var(--surface)]/55 p-3.5"><div className="flex items-center gap-2"><span className="order-avatar"><UserRound size={15} /></span><b className="text-sm">{order.customer?.name || order.customerNameSnapshot || 'زائر'}</b></div><div className="mt-3 space-y-2">{(order.customer?.phone || order.customerPhoneSnapshot) && <a href={`tel:${order.customer?.phone || order.customerPhoneSnapshot}`} dir="ltr" className="flex items-center justify-end gap-2 text-xs text-muted-foreground"><Phone size={13} />{order.customer?.phone || order.customerPhoneSnapshot}</a>}{order.customer?.email && <a href={`mailto:${order.customer.email}`} dir="ltr" className="flex items-center justify-end gap-2 break-all text-xs text-muted-foreground"><span>{order.customer.email}</span></a>}</div>{order.customer?.id && <Link href={`/admin/customers/${order.customer.id}`} className="order-open-link mt-3">ملف العميل <ArrowDownLeft size={14} /></Link>}</div>
+                <div className="space-y-3 p-4 sm:p-5"><div className="rounded-2xl border border-border/50 bg-(--surface)/55 p-3.5"><div className="flex items-center gap-2"><span className="order-avatar"><UserRound size={15} /></span><b className="text-sm">{order.customer?.name || order.customerNameSnapshot || 'زائر'}</b></div><div className="mt-3 space-y-2">{(order.customer?.phone || order.customerPhoneSnapshot) && <a href={`tel:${order.customer?.phone || order.customerPhoneSnapshot}`} dir="ltr" className="flex items-center justify-end gap-2 text-xs text-muted-foreground"><Phone size={13} />{order.customer?.phone || order.customerPhoneSnapshot}</a>}{order.customer?.email && <a href={`mailto:${order.customer.email}`} dir="ltr" className="flex items-center justify-end gap-2 break-all text-xs text-muted-foreground"><span>{order.customer.email}</span></a>}</div>{order.customer?.id && <Link href={`/admin/customers/${order.customer.id}`} className="order-open-link mt-3">ملف العميل <ArrowDownLeft size={14} /></Link>}</div>
                   <div className="space-y-2 border-t border-border/50 pt-3"><InfoRow label="حالة الطلب" value={orderStatusLabels[order.status] || order.status} /><InfoRow label="طريقة الدفع" value={paymentMethodLabels[order.paymentMethod] || order.paymentMethod} /><InfoRow label="حالة الدفع" value={paymentStatusLabels[order.paymentStatus] || order.paymentStatus} />{order.shippingProvider && <InfoRow label="شركة الشحن" value={order.shippingProvider} />}{order.trackingNumber && <InfoRow label="رقم التتبع" value={order.trackingNumber} ltr />}</div>
                 </div>
               </section>
@@ -184,7 +184,7 @@ export default function OrderDetail({ params }: { params: Promise<{ id: string }
               {!!payments.length && <section className="order-detail-panel">
                 <div className="order-detail-panel__head"><span className="orders-section-icon"><Banknote size={17} /></span><div><h2 className="font-serif text-base font-bold sm:text-lg">بيانات الدفع</h2><p className="mt-1 text-[10px] text-muted-foreground">بيانات الدفع المسجلة مع الطلب.</p></div></div>
                 <div className="space-y-2 p-4 sm:p-5">
-                  {payments.map((payment: any, index: number) => <div key={payment.id || index} className="rounded-xl border border-border/50 bg-[var(--surface)]/55 p-3">
+                  {payments.map((payment: any, index: number) => <div key={payment.id || index} className="rounded-xl border border-border/50 bg-(--surface)/55 p-3">
                     <div className="space-y-2">
                       <InfoRow label="طريقة الدفع" value={paymentMethodLabels[payment.method] || payment.method} />
                       <InfoRow label="رقم عملية التحويل" value={payment.reference || 'غير مسجل'} ltr />
@@ -211,7 +211,7 @@ export default function OrderDetail({ params }: { params: Promise<{ id: string }
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label="فتح إثبات الدفع بالحجم الكامل"
-                    className="block overflow-hidden rounded-xl border border-border/60 bg-[var(--surface)]"
+                    className="block overflow-hidden rounded-xl border border-border/60 bg-(--surface)"
                   >
                     <img
                       src={`/api/admin/orders/${orderId}/payment-proof`}
@@ -230,7 +230,7 @@ export default function OrderDetail({ params }: { params: Promise<{ id: string }
               </section>
             </aside>
           </div>
-          <p className="flex items-center justify-center gap-2 pb-2 text-center text-[10px] text-muted-foreground"><ShieldCheck size={13} className="text-[var(--gold-muted)]" /> تحديثات الطلب تُحفظ عبر واجهات الإدارة الحالية وتظهر في خط السير.</p>
+          <p className="flex items-center justify-center gap-2 pb-2 text-center text-[10px] text-muted-foreground"><ShieldCheck size={13} className="text-(--gold-muted)" /> تحديثات الطلب تُحفظ عبر واجهات الإدارة الحالية وتظهر في خط السير.</p>
         </>}
       </div>
     </main>

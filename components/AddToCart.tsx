@@ -82,7 +82,7 @@ export default function AddToCart({
         href={`/product/${product.slug}`}
         prefetch={false}
         aria-label={`اختاري خيارات ${product.name}`}
-        className="group relative flex min-h-[58px] w-full items-center justify-center overflow-hidden rounded-[22px] border border-[var(--gold)] bg-[var(--gold)] px-5 text-sm font-bold text-[var(--gold-contrast)] shadow-[0_10px_28px_color-mix(in_srgb,var(--gold)_20%,transparent)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_14px_34px_color-mix(in_srgb,var(--gold)_28%,transparent)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--gold)] focus-visible:ring-offset-2 md:min-h-[62px] md:text-base"
+        className="group relative flex min-h-[58px] w-full items-center justify-center overflow-hidden rounded-[22px] border border-(--gold) bg-(--gold) px-5 text-sm font-bold text-(--gold-contrast) shadow-[0_10px_28px_color-mix(in_srgb,var(--gold)_20%,transparent)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_14px_34px_color-mix(in_srgb,var(--gold)_28%,transparent)] focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-(--gold) focus-visible:ring-offset-2 md:min-h-[62px] md:text-base"
       >
         <span aria-hidden="true" className="absolute inset-0 -translate-x-full bg-white/15 transition-transform duration-700 group-hover:translate-x-full" />
         <span className="relative z-10 inline-flex items-center justify-center gap-2.5">
@@ -101,7 +101,7 @@ export default function AddToCart({
       aria-live="polite"
       className={[
         'group relative w-full overflow-hidden font-bold transition-all duration-300',
-        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--gold)] focus-visible:ring-offset-2',
+        'focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-(--gold) focus-visible:ring-offset-2',
         'disabled:cursor-not-allowed disabled:opacity-55',
         isDetail
           ? 'min-h-[54px] rounded-2xl px-6 text-sm md:min-h-[58px] md:text-base'
@@ -110,7 +110,7 @@ export default function AddToCart({
           ? 'border border-border bg-muted/40 text-muted-foreground shadow-none'
           : done
             ? 'border border-emerald-700/20 bg-emerald-600 text-white shadow-[0_10px_28px_rgba(5,150,105,0.20)]'
-            : 'border border-[var(--gold)] bg-[var(--gold)] text-[var(--gold-contrast)] shadow-[0_10px_28px_color-mix(in_srgb,var(--gold)_20%,transparent)] hover:-translate-y-0.5 hover:shadow-[0_14px_34px_color-mix(in_srgb,var(--gold)_28%,transparent)] active:translate-y-0',
+            : 'border border-(--gold) bg-(--gold) text-(--gold-contrast) shadow-[0_10px_28px_color-mix(in_srgb,var(--gold)_20%,transparent)] hover:-translate-y-0.5 hover:shadow-[0_14px_34px_color-mix(in_srgb,var(--gold)_28%,transparent)] active:translate-y-0',
       ].join(' ')}
     >
       {!disabled && !done && (

@@ -15,7 +15,7 @@ const typeLabels: Record<string, string> = {
   OPENING: 'رصيد افتتاحي', SALE: 'بيع', RESTOCK: 'توريد / زيادة',
   ADJUSTMENT: 'تسوية', ORDER_RELEASE: 'إلغاء طلب / إعادة',
 };
-const fieldClass = 'mt-1.5 h-12 w-full rounded-xl border border-border/70 bg-[var(--bg)] px-3.5 text-sm text-foreground outline-none transition placeholder:text-muted-foreground/70 focus:border-[var(--gold)] focus:ring-2 focus:ring-[var(--gold)]/10 disabled:cursor-not-allowed disabled:opacity-55';
+const fieldClass = 'mt-1.5 h-12 w-full rounded-xl border border-border/70 bg-(--bg) px-3.5 text-sm text-foreground outline-hidden transition placeholder:text-muted-foreground/70 focus:border-(--gold) focus:ring-2 focus:ring-(--gold)/10 disabled:cursor-not-allowed disabled:opacity-55';
 
 function InventoryMetric({ icon: Icon, label, value, note, tone = 'gold' }: any) {
   return <article className="inventory-metric"><span className={`inventory-metric__icon inventory-metric__icon--${tone}`}><Icon size={19} /></span><div className="min-w-0"><p className="text-xs text-muted-foreground">{label}</p><p className="mt-1 text-2xl font-bold tracking-tight">{value}</p><p className="mt-1 text-[10px] text-muted-foreground">{note}</p></div></article>;
@@ -114,7 +114,7 @@ export default function InventoryPage() {
   }), [entries, typeFilter, normalizedQuery]);
 
   return (
-    <main className="min-h-screen bg-[var(--bg)] px-3 py-5 text-foreground sm:px-5 sm:py-7 lg:px-8" dir="rtl">
+    <main className="min-h-screen bg-(--bg) px-3 py-5 text-foreground sm:px-5 sm:py-7 lg:px-8" dir="rtl">
       <div className="mx-auto w-full max-w-[1440px] space-y-5 sm:space-y-6">
         <header className="inventory-hero">
           <div className="relative z-10 min-w-0">
@@ -189,13 +189,13 @@ export default function InventoryPage() {
               {visibleEntries.map(entry => <article key={entry.id} className="inventory-entry-card">
                 <div className="flex items-start justify-between gap-3"><div className="min-w-0"><p className="text-[10px] text-muted-foreground">{entry.createdAt ? new Date(entry.createdAt).toLocaleString('ar-EG', { dateStyle: 'medium', timeStyle: 'short' }) : 'تاريخ غير متوفر'}</p><p className="mt-1 truncate text-sm font-bold">{entry.productNameSnapshot || entry.product?.name || 'منتج غير معروف'}</p>{(entry.variantNameSnapshot || entry.variant?.name) && <p className="mt-1 text-[10px] text-muted-foreground">{entry.variantNameSnapshot || entry.variant?.name}: {entry.variantValueSnapshot || entry.variant?.value}</p>}</div><span className={`inventory-quantity ${Number(entry.quantity) > 0 ? 'is-positive' : Number(entry.quantity) < 0 ? 'is-negative' : ''}`} dir="ltr">{Number(entry.quantity) > 0 ? '+' : ''}{Number(entry.quantity).toLocaleString('ar-EG')}</span></div>
                 <div className="mt-3 flex flex-wrap items-center justify-between gap-2"><MovementBadge type={entry.type} /><span className="inventory-balance">الرصيد بعدها: {Number(entry.balanceAfter).toLocaleString('ar-EG')}</span></div>
-                {(entry.reason || entry.order?.number) && <div className="mt-3 rounded-xl bg-[var(--surface)]/70 p-3 text-[11px] leading-5 text-muted-foreground">{entry.reason || '—'}{entry.order?.number && <span className="mr-2">· طلب {entry.order.number}</span>}</div>}
+                {(entry.reason || entry.order?.number) && <div className="mt-3 rounded-xl bg-(--surface)/70 p-3 text-[11px] leading-5 text-muted-foreground">{entry.reason || '—'}{entry.order?.number && <span className="mr-2">· طلب {entry.order.number}</span>}</div>}
               </article>)}
               {!visibleEntries.length && <InventoryEmpty hasQuery={Boolean(query || typeFilter !== 'ALL')} />}
             </div>
           </>}
         </section>
-        <p className="flex items-center justify-center gap-2 pb-2 text-center text-[10px] text-muted-foreground"><ShieldCheck size={13} className="text-[var(--gold-muted)]" /> كل حركة مرتبطة بسبب، ويُحدّث الرصيد عبر نظام المخزون.</p>
+        <p className="flex items-center justify-center gap-2 pb-2 text-center text-[10px] text-muted-foreground"><ShieldCheck size={13} className="text-(--gold-muted)" /> كل حركة مرتبطة بسبب، ويُحدّث الرصيد عبر نظام المخزون.</p>
       </div>
     </main>
   );

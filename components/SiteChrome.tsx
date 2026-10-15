@@ -263,13 +263,13 @@ export default function SiteChrome() {
       )}
 
       {/* الهيدر العلوي الاحترافي */}
-      <header className="wahaj-header wahaj-header--luxury sticky top-0 z-40 border-b border-[var(--gold)]/20 bg-[var(--bg)]/95 backdrop-blur-md">
+      <header className="wahaj-header wahaj-header--luxury sticky top-0 z-40 border-b border-(--gold)/20 bg-(--bg)/95 backdrop-blur-md">
         <div className="container wahaj-header__inner flex items-center justify-between py-3.5 px-4">
           <div className="flex items-center gap-3">
             <button
               type="button"
               ref={menuButtonRef}
-              className="wahaj-header__menu md:hidden text-foreground hover:text-[var(--gold)] transition-colors"
+              className="wahaj-header__menu md:hidden text-foreground hover:text-(--gold) transition-colors"
               onClick={() => setMenu(true)}
               aria-label="فتح القائمة"
               aria-haspopup="dialog"
@@ -285,7 +285,7 @@ export default function SiteChrome() {
               aria-label="وَهَج - الصفحة الرئيسية"
             >
               <span className="font-bold text-lg tracking-wider text-foreground">{settings.brand_name || 'وَهَج'}</span>
-              <small className="text-[9px] tracking-widest text-[var(--gold)]">Wahaj Store</small>
+              <small className="text-[9px] tracking-widest text-(--gold)">Wahaj Store</small>
             </SiteLink>
           </div>
 
@@ -299,7 +299,7 @@ export default function SiteChrome() {
                 <SiteLink
                   key={`${x.href}-${x.label}`}
                   href={x.href}
-                  className={`transition-colors hover:text-[var(--gold)] ${pathname === x.href ? 'text-[var(--gold)] font-bold border-b-2 border-[var(--gold)] pb-0.5' : 'text-foreground/80'}`}
+                  className={`transition-colors hover:text-(--gold) ${pathname === x.href ? 'text-(--gold) font-bold border-b-2 border-(--gold) pb-0.5' : 'text-foreground/80'}`}
                 >
                   {x.label}
                 </SiteLink>
@@ -310,7 +310,7 @@ export default function SiteChrome() {
           <div className="wahaj-header__actions flex items-center gap-4">
             <SiteLink
               href="/shop"
-              className="wahaj-header__action text-foreground/80 hover:text-[var(--gold)] transition-colors p-1"
+              className="wahaj-header__action text-foreground/80 hover:text-(--gold) transition-colors p-1"
               aria-label="البحث"
               title="البحث"
             >
@@ -319,7 +319,7 @@ export default function SiteChrome() {
 
             <SiteLink
               href="/account"
-              className="wahaj-header__action text-foreground/80 hover:text-[var(--gold)] transition-colors p-1"
+              className="wahaj-header__action text-foreground/80 hover:text-(--gold) transition-colors p-1"
               aria-label="حسابي"
               title="حسابي"
             >
@@ -329,7 +329,7 @@ export default function SiteChrome() {
             {darkModeEnabled && <button
               type="button"
               onClick={() => setTheme(themeIsDark ? 'light' : 'dark')}
-              className="wahaj-header__action text-foreground/80 hover:text-[var(--gold)] transition-colors p-1"
+              className="wahaj-header__action text-foreground/80 hover:text-(--gold) transition-colors p-1"
               aria-label="تبديل الوضع"
               title={themeIsDark ? 'الوضع النهاري' : 'الوضع الليلي'}
             >
@@ -341,20 +341,20 @@ export default function SiteChrome() {
                 type="button"
                 ref={cartButtonRef}
                 onClick={() => setCartDrawerOpen(true)}
-                className="wahaj-header__action wahaj-header__cart relative text-foreground/80 hover:text-[var(--gold)] transition-colors p-1"
+                className="wahaj-header__action wahaj-header__cart relative text-foreground/80 hover:text-(--gold) transition-colors p-1"
                 aria-label={`فتح السلة الجانبية (${cartCount})`}
                 title="السلة"
               >
                 <ShoppingBag size={20} />
-                {cartCount > 0 && <span className="absolute -top-1.5 -end-2 flex h-4 w-4 items-center justify-center rounded-full bg-[var(--gold)] text-[9px] font-bold text-[var(--gold-contrast)] shadow-sm">{cartCount}</span>}
+                {cartCount > 0 && <span className="absolute -top-1.5 -inset-e-2 flex h-4 w-4 items-center justify-center rounded-full bg-(--gold) text-[9px] font-bold text-(--gold-contrast) shadow-xs">{cartCount}</span>}
               </button>
-            ) : <SiteLink href="/cart" className="wahaj-header__action wahaj-header__cart relative text-foreground/80 hover:text-[var(--gold)] transition-colors p-1" aria-label="السلة" title="السلة">
+            ) : <SiteLink href="/cart" className="wahaj-header__action wahaj-header__cart relative text-foreground/80 hover:text-(--gold) transition-colors p-1" aria-label="السلة" title="السلة">
               <ShoppingBag size={20} />
-              {cartCount > 0 && <span className="absolute -top-1.5 -end-2 flex h-4 w-4 items-center justify-center rounded-full bg-[var(--gold)] text-[9px] font-bold text-[var(--gold-contrast)] shadow-sm">{cartCount}</span>}
+              {cartCount > 0 && <span className="absolute -top-1.5 -inset-e-2 flex h-4 w-4 items-center justify-center rounded-full bg-(--gold) text-[9px] font-bold text-(--gold-contrast) shadow-xs">{cartCount}</span>}
             </SiteLink>}
           </div>
         </div>
-        <div className="wahaj-header__accent h-[1px] bg-gradient-to-r from-transparent via-[var(--gold)]/40 to-transparent" />
+        <div className="wahaj-header__accent h-px bg-linear-to-r from-transparent via-(--gold)/40 to-transparent" />
       </header>
 
       {/* القائمة الجانبية للموبايل */}

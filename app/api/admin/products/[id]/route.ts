@@ -6,14 +6,16 @@ import { recordInventoryEntry } from '@/lib/inventory';
 import { buildProductSearchText } from '@/lib/product-search';
 import { revalidateShopProducts } from '@/lib/shop-cache';
 
-export async function GET(_: Request, { params }: { params: { id: string } }) {
+export async function GET(_: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const auth = await requirePermission('productsRead');
   if (!auth.user) return NextResponse.json({ error: 'غير مصرح' }, { status: auth.status });
   const p = await prisma.product.findUnique({ where: { id: params.id }, include: { images: { orderBy: { sortOrder: 'asc' } }, variants: true, category: true, reviews: { include: { customer: { select: { id: true, name: true, phone: true, email: true } } }, orderBy: { createdAt: 'desc' } } } });
   return p ? NextResponse.json(p) : NextResponse.json({ error: 'المنتج غير موجود' }, { status: 404 });
 }
 
-export async function PUT(req: Request, { params }: { params: { id: string } }) {
+export async function PUT(req: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const auth = await requirePermission('productsWrite');
   if (!auth.user) return NextResponse.json({ error: 'غير مصرح' }, { status: auth.status });
   try {
@@ -77,7 +79,8 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
   }
 }
 
-export async function DELETE(_: Request, { params }: { params: { id: string } }) {
+export async function DELETE(_: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const auth = await requirePermission('productsWrite');
   if (!auth.user || !['OWNER', 'ADMIN', 'MANAGER'].includes(auth.user.role)) return NextResponse.json({ error: 'غير مصرح' }, { status: auth.user ? 403 : 401 });
   const refs = await prisma.orderItem.count({ where: { productId: params.id } });

@@ -26,7 +26,7 @@ export async function POST(req: Request) {
       where: { id: customer.id },
       data: { passwordHash: await hashPassword(newPassword), sessionVersion: { increment: 1 } },
     });
-    cookies().delete('wahaj_customer');
+    (await cookies()).delete('wahaj_customer');
     return NextResponse.json({ ok: true, message: 'تم تحديث كلمة المرور بنجاح' });
   } catch (error: any) {
     if (error?.message === 'كلمة المرور يجب أن تكون 8 أحرف على الأقل') {

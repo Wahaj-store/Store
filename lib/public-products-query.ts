@@ -2,9 +2,34 @@ import type { Prisma } from '@prisma/client';
 import { normalizeProductSearchText } from '@/lib/product-search';
 
 export const PUBLIC_PRODUCTS_PAGE_SIZE = 24;
-export const PUBLIC_PRODUCTS_MAX_PAGE = 10_000;
+export const PUBLIC_PRODUCTS_MAX_PAGE = 1_000;
 
 export type PublicProductsSort = 'newest' | 'price-asc' | 'price-desc' | 'name-asc';
+
+export const PUBLIC_PRODUCT_LIST_SELECT = {
+  id: true,
+  slug: true,
+  name: true,
+  description: true,
+  price: true,
+  comparePrice: true,
+  stock: true,
+  featured: true,
+  newArrival: true,
+  bestSeller: true,
+  images: {
+    select: { url: true, alt: true },
+    orderBy: { sortOrder: 'asc' },
+    take: 1,
+  },
+  category: { select: { name: true } },
+  // The public list only needs to know if purchasable variants exist.
+  variants: {
+    select: { id: true, stock: true },
+    orderBy: { stock: 'desc' },
+    take: 1,
+  },
+} satisfies Prisma.ProductSelect;
 
 export type PublicProductsQuery = {
   rawQuery: string;
@@ -61,7 +86,14 @@ export function buildPublicProductsWhere(query: PublicProductsQuery): Prisma.Pro
           },
         }
       : {}),
-    ...(query.inStock ? { stock: { gt: 0 } } : {}),
+    ...(query.inStock
+      ? {
+          OR: [
+            { stock: { gt: 0 } },
+            { variants: { some: { stock: { gt: 0 } } } },
+          ],
+        }
+      : {}),
   };
 }
 

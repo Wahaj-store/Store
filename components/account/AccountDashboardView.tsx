@@ -160,19 +160,19 @@ export default function AccountDashboardView(props: any) {
   const canStartReturn = selectedOrder?.status === 'DELIVERED' && (!returnRequest || ['REJECTED', 'CANCELLED'].includes(returnRequest.status));
 
   return (
-    <main className="wahaj-account-dashboard min-h-screen py-12 px-4 md:px-8 bg-[var(--bg)] text-foreground transition-colors duration-300" data-account-tab={tab} dir="rtl">
+    <main className="wahaj-account-dashboard min-h-screen py-12 px-4 md:px-8 bg-(--bg) text-foreground transition-colors duration-300" data-account-tab={tab} dir="rtl">
       <div className="container max-w-6xl mx-auto space-y-8">
         
         {/* الترويسة العلوية */}
         <div className="wahaj-account-welcome flex flex-wrap items-center justify-between gap-4 border-b border-border/40 pb-6">
           <div className="space-y-1">
-            <span className="text-[var(--gold)] font-medium text-xs uppercase tracking-widest flex items-center gap-1.5">
+            <span className="text-(--gold) font-medium text-xs uppercase tracking-widest flex items-center gap-1.5">
               <Sparkles size={16} /> لوحة التحكم 
             </span>
             <h1 className="text-2xl md:text-3xl font-serif font-bold">مرحبًا بكِ، {c.name}</h1>
           </div>
           <button
-            className="wahaj-account-logout inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-muted/10 border border-border/60 text-foreground hover:border-red-500/50 hover:text-red-500 transition text-sm font-medium shadow-xs"
+            className="wahaj-account-logout inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-muted/10 border border-border/60 text-foreground hover:border-red-500/50 hover:text-red-500 transition text-sm font-medium shadow-2xs"
             onClick={logout}
           >
             <LogOut size={16} />
@@ -184,7 +184,7 @@ export default function AccountDashboardView(props: any) {
         <div className="flex flex-col lg:grid lg:grid-cols-[280px_1fr] gap-8 items-start">
           
           {/* القائمة الجانبية */}
-          <aside className="w-full bg-muted/10 border border-border/40 rounded-3xl p-3 shadow-xs space-y-1.5">
+          <aside className="w-full bg-muted/10 border border-border/40 rounded-3xl p-3 shadow-2xs space-y-1.5">
             {[
               ['profile', 'حسابي والبيانات', UserRound],
               ['orders', 'الطلبات ومتابعتها', Package],
@@ -198,13 +198,13 @@ export default function AccountDashboardView(props: any) {
                 onClick={() => { setTab(k); setSelectedOrder(null); setReturnRequest(null); setReturnFormOpen(false); }}
                 className={`w-full flex items-center gap-3 p-3.5 text-start rounded-2xl text-sm font-medium transition-all ${
                   tab === k
-                    ? 'bg-[var(--gold)] text-[var(--gold-contrast)] font-bold shadow-md'
-                    : 'text-muted-foreground hover:text-foreground hover:bg-[var(--bg)]/60'
+                    ? 'bg-(--gold) text-(--gold-contrast) font-bold shadow-md'
+                    : 'text-muted-foreground hover:text-foreground hover:bg-(--bg)/60'
                 }`}
               >
                 <I size={18} className="shrink-0" />
                 <span className="flex-1">{t}</span>
-                <ChevronLeft size={16} className={tab === k ? 'text-[var(--gold-contrast)]' : 'text-muted-foreground'} />
+                <ChevronLeft size={16} className={tab === k ? 'text-(--gold-contrast)' : 'text-muted-foreground'} />
               </button>
             ))}
 
@@ -214,7 +214,7 @@ export default function AccountDashboardView(props: any) {
           <section className="wahaj-account-content w-full space-y-6">
             
             {tab === 'profile' && (
-              <div className="wahaj-account-profile-card bg-muted/10 border border-border/40 rounded-3xl p-6 md:p-8 shadow-xs space-y-6">
+              <div className="wahaj-account-profile-card bg-muted/10 border border-border/40 rounded-3xl p-6 md:p-8 shadow-2xs space-y-6">
                 <h2 className="text-xl font-serif font-bold border-b border-border/30 pb-4">البيانات الشخصية</h2>
                 
                 <div className="wahaj-account-profile-grid">
@@ -222,7 +222,7 @@ export default function AccountDashboardView(props: any) {
                     <label htmlFor="account-profile-name" className="text-xs font-medium text-muted-foreground">الاسم الكامل</label>
                     <input
                       id="account-profile-name"
-                      className="w-full px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[var(--gold)] transition shadow-xs"
+                      className="w-full px-4 py-3 rounded-2xl bg-(--bg) border border-border/60 text-foreground text-sm focus:outline-hidden focus:border-(--gold) transition shadow-2xs"
                       value={c.name || ''}
                       onChange={e => setC({ ...c, name: e.target.value })}
                     />
@@ -232,7 +232,7 @@ export default function AccountDashboardView(props: any) {
                     <label htmlFor="account-profile-phone" className="text-xs font-medium text-muted-foreground">رقم الهاتف</label>
                     <input
                       id="account-profile-phone"
-                      className="w-full px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[var(--gold)] transition shadow-xs"
+                      className="w-full px-4 py-3 rounded-2xl bg-(--bg) border border-border/60 text-foreground text-sm focus:outline-hidden focus:border-(--gold) transition shadow-2xs"
                       value={c.phone || ''}
                       dir="ltr"
                       readOnly
@@ -245,7 +245,7 @@ export default function AccountDashboardView(props: any) {
                     <label htmlFor="account-profile-secondary-phone" className="text-xs font-medium text-muted-foreground">رقم هاتف إضافي (اختياري)</label>
                     <input
                       id="account-profile-secondary-phone"
-                      className="w-full px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[var(--gold)] transition shadow-xs"
+                      className="w-full px-4 py-3 rounded-2xl bg-(--bg) border border-border/60 text-foreground text-sm focus:outline-hidden focus:border-(--gold) transition shadow-2xs"
                       value={c.secondaryPhone || ''}
                       dir="ltr"
                       onChange={e => setC({ ...c, secondaryPhone: e.target.value })}
@@ -257,7 +257,7 @@ export default function AccountDashboardView(props: any) {
                     <input
                       id="account-profile-email"
                       type="email"
-                      className="w-full px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[var(--gold)] transition shadow-xs"
+                      className="w-full px-4 py-3 rounded-2xl bg-(--bg) border border-border/60 text-foreground text-sm focus:outline-hidden focus:border-(--gold) transition shadow-2xs"
                       value={c.email || ''}
                       dir="ltr"
                       onChange={e => setC({ ...c, email: e.target.value })}
@@ -267,7 +267,7 @@ export default function AccountDashboardView(props: any) {
 
                 <button
                   type="button"
-                  className="inline-flex items-center gap-2 px-6 py-3.5 rounded-2xl bg-[var(--gold)] text-[var(--gold-contrast)] font-serif font-bold text-sm shadow-md hover:opacity-95 transition"
+                  className="inline-flex items-center gap-2 px-6 py-3.5 rounded-2xl bg-(--gold) text-(--gold-contrast) font-serif font-bold text-sm shadow-md hover:opacity-95 transition"
                   onClick={async () => {
                     const response = await fetch('/api/customer/me', {
                       method: 'PUT',
@@ -289,38 +289,38 @@ export default function AccountDashboardView(props: any) {
                   <span>حفظ التغييرات</span>
                 </button>
 
-                {msg && <p className="text-sm text-[var(--gold)] font-medium pt-2">{msg}</p>}
+                {msg && <p className="text-sm text-(--gold) font-medium pt-2">{msg}</p>}
               </div>
             )}
 
             {tab === 'orders' && (
-              <div className="wahaj-orders-panel bg-muted/10 border border-border/40 rounded-3xl p-6 md:p-8 shadow-xs space-y-6">
+              <div className="wahaj-orders-panel bg-muted/10 border border-border/40 rounded-3xl p-6 md:p-8 shadow-2xs space-y-6">
                 {selectedOrder ? (
                   <div className="wahaj-order-detail space-y-6">
                     <div className="wahaj-order-detail__header flex items-center justify-between border-b border-border/30 pb-4">
                       <div>
                         <h2 className="text-xl font-serif font-bold">تفاصيل الطلب: #{selectedOrder.number}</h2>
-                        <span className="text-xs text-muted-foreground font-light">حالة الطلب الحالية: <b className="text-[var(--gold)]">{selectedOrder.status}</b></span>
+                        <span className="text-xs text-muted-foreground font-light">حالة الطلب الحالية: <b className="text-(--gold)">{selectedOrder.status}</b></span>
                       </div>
                       <button 
                         onClick={() => { setSelectedOrder(null); setReturnRequest(null); setReturnFormOpen(false); }}
-                        className="px-4 py-2 rounded-xl bg-[var(--bg)] border border-border/60 text-xs font-medium hover:border-[var(--gold)] transition shadow-xs"
+                        className="px-4 py-2 rounded-xl bg-(--bg) border border-border/60 text-xs font-medium hover:border-(--gold) transition shadow-2xs"
                       >
                         العودة للطلبات
                       </button>
                     </div>
 
                     {selectedOrder.notes && (
-                      <div className="p-4 rounded-2xl bg-[var(--gold)]/10 border border-[var(--gold)]/30 space-y-1.5 shadow-xs">
-                        <span className="font-serif font-bold text-xs text-[var(--gold)] flex items-center gap-1.5">
+                      <div className="p-4 rounded-2xl bg-(--gold)/10 border border-(--gold)/30 space-y-1.5 shadow-2xs">
+                        <span className="font-serif font-bold text-xs text-(--gold) flex items-center gap-1.5">
                           <MessageSquareText size={16} /> ملاحظة من الإدارة على الطلب:
                         </span>
                         <p className="text-xs md:text-sm text-foreground/90 leading-relaxed font-light">{selectedOrder.notes}</p>
                       </div>
                     )}
 
-                    <div className="wahaj-order-tracking p-5 rounded-2xl bg-[var(--bg)] border border-border/60 space-y-4 shadow-xs">
-                      <h3 className="font-serif font-bold text-sm flex items-center gap-2 text-[var(--gold)]">
+                    <div className="wahaj-order-tracking p-5 rounded-2xl bg-(--bg) border border-border/60 space-y-4 shadow-2xs">
+                      <h3 className="font-serif font-bold text-sm flex items-center gap-2 text-(--gold)">
                         <Clock size={16} /> خط سير ومتابعة الطلب
                       </h3>
 
@@ -333,9 +333,9 @@ export default function AccountDashboardView(props: any) {
                       ) : (
                         <div className="wahaj-order-timeline grid grid-cols-1 sm:grid-cols-4 gap-3 text-center text-xs font-medium">
                           
-                          <div className={`p-3.5 rounded-2xl border flex flex-col items-center justify-center gap-1 shadow-xs ${
+                          <div className={`p-3.5 rounded-2xl border flex flex-col items-center justify-center gap-1 shadow-2xs ${
                             ['NEW', 'PROCESSING', 'SHIPPED', 'DELIVERED'].includes(selectedOrder.status)
-                              ? 'bg-[var(--gold)]/15 border-[var(--gold)] text-[var(--gold)] font-bold'
+                              ? 'bg-(--gold)/15 border-(--gold) text-(--gold) font-bold'
                               : 'border-border/60 text-muted-foreground'
                           }`}>
                             <div className="flex items-center gap-1">
@@ -346,9 +346,9 @@ export default function AccountDashboardView(props: any) {
                             </span>
                           </div>
 
-                          <div className={`p-3.5 rounded-2xl border flex flex-col items-center justify-center gap-1 shadow-xs ${
+                          <div className={`p-3.5 rounded-2xl border flex flex-col items-center justify-center gap-1 shadow-2xs ${
                             ['PROCESSING', 'SHIPPED', 'DELIVERED'].includes(selectedOrder.status)
-                              ? 'bg-[var(--gold)]/15 border-[var(--gold)] text-[var(--gold)] font-bold'
+                              ? 'bg-(--gold)/15 border-(--gold) text-(--gold) font-bold'
                               : 'border-border/60 text-muted-foreground'
                           }`}>
                             <div className="flex items-center gap-1">
@@ -359,9 +359,9 @@ export default function AccountDashboardView(props: any) {
                             </span>
                           </div>
 
-                          <div className={`p-3.5 rounded-2xl border flex flex-col items-center justify-center gap-1 shadow-xs ${
+                          <div className={`p-3.5 rounded-2xl border flex flex-col items-center justify-center gap-1 shadow-2xs ${
                             ['SHIPPED', 'DELIVERED'].includes(selectedOrder.status)
-                              ? 'bg-[var(--gold)]/15 border-[var(--gold)] text-[var(--gold)] font-bold'
+                              ? 'bg-(--gold)/15 border-(--gold) text-(--gold) font-bold'
                               : 'border-border/60 text-muted-foreground'
                           }`}>
                             <div className="flex items-center gap-1">
@@ -372,9 +372,9 @@ export default function AccountDashboardView(props: any) {
                             </span>
                           </div>
 
-                          <div className={`p-3.5 rounded-2xl border flex flex-col items-center justify-center gap-1 shadow-xs ${
+                          <div className={`p-3.5 rounded-2xl border flex flex-col items-center justify-center gap-1 shadow-2xs ${
                             selectedOrder.status === 'DELIVERED'
-                              ? 'bg-[var(--gold)] text-[var(--gold-contrast)] border-[var(--gold)] font-bold'
+                              ? 'bg-(--gold) text-(--gold-contrast) border-(--gold) font-bold'
                               : 'border-border/60 text-muted-foreground'
                           }`}>
                             <div className="flex items-center gap-1">
@@ -389,7 +389,7 @@ export default function AccountDashboardView(props: any) {
                       )}
 
                       {(selectedOrder.shippingProvider || selectedOrder.trackingNumber) && (
-                        <div className="wahaj-order-shipping p-3.5 rounded-2xl bg-muted/20 border border-border/50 text-xs flex flex-wrap justify-between gap-2 mt-3 shadow-xs">
+                        <div className="wahaj-order-shipping p-3.5 rounded-2xl bg-muted/20 border border-border/50 text-xs flex flex-wrap justify-between gap-2 mt-3 shadow-2xs">
                           {selectedOrder.shippingProvider && <span><b>شركة الشحن:</b> {selectedOrder.shippingProvider}</span>}
                           {selectedOrder.trackingNumber && <span dir="ltr"><b>رقم التتبع:</b> {selectedOrder.trackingNumber}</span>}
                         </div>
@@ -399,19 +399,19 @@ export default function AccountDashboardView(props: any) {
                     <div className="wahaj-order-items space-y-3">
                       <h3 className="font-serif font-bold text-sm">المنتجات في هذا الطلب</h3>
                       {(selectedOrder.items || []).map((item: any, idx: number) => (
-                        <div key={idx} className="flex justify-between items-center p-3.5 rounded-2xl bg-[var(--bg)] border border-border/60 text-sm shadow-xs">
+                        <div key={idx} className="flex justify-between items-center p-3.5 rounded-2xl bg-(--bg) border border-border/60 text-sm shadow-2xs">
                           <span>{item.name || item.product?.name || 'منتج'} × {item.quantity}</span>
-                          <span className="text-[var(--gold)] font-bold">{Number(item.price).toLocaleString('ar-EG')} ج.م</span>
+                          <span className="text-(--gold) font-bold">{Number(item.price).toLocaleString('ar-EG')} ج.م</span>
                         </div>
                       ))}
                     </div>
 
                     {selectedOrder.status === 'DELIVERED' && (
-                      <div className="rounded-2xl border border-border/60 bg-[var(--bg)] p-5 space-y-4 shadow-xs">
+                      <div className="rounded-2xl border border-border/60 bg-(--bg) p-5 space-y-4 shadow-2xs">
                         <div className="flex flex-wrap items-center justify-between gap-3">
                           <div>
                             <h3 className="font-serif font-bold text-sm flex items-center gap-2">
-                              <RotateCcw size={17} className="text-[var(--gold)]" /> طلب إرجاع
+                              <RotateCcw size={17} className="text-(--gold)" /> طلب إرجاع
                             </h3>
                             <p className="text-xs text-muted-foreground font-light mt-1">يمكنك طلب إرجاع المنتجات من هذا الطلب بعد التسليم.</p>
                           </div>
@@ -419,10 +419,10 @@ export default function AccountDashboardView(props: any) {
                         </div>
 
                         {returnRequest && (
-                          <div className="p-4 rounded-2xl bg-[var(--gold)]/10 border border-[var(--gold)]/30 space-y-2">
+                          <div className="p-4 rounded-2xl bg-(--gold)/10 border border-(--gold)/30 space-y-2">
                             <div className="flex flex-wrap items-center justify-between gap-2">
                               <span className="font-serif font-bold text-sm">طلب {returnRequest.number}</span>
-                              <span className="text-xs px-2.5 py-1 rounded-full bg-[var(--gold)]/15 text-[var(--gold)] font-bold">
+                              <span className="text-xs px-2.5 py-1 rounded-full bg-(--gold)/15 text-(--gold) font-bold">
                                 {returnStatusLabels[returnRequest.status] || returnRequest.status}
                               </span>
                             </div>
@@ -431,7 +431,7 @@ export default function AccountDashboardView(props: any) {
                         )}
 
                         {returnMsg && (
-                          <p className={`text-xs font-medium ${returnMsg.includes('بنجاح') ? 'text-[var(--gold)]' : 'text-red-500'}`}>
+                          <p className={`text-xs font-medium ${returnMsg.includes('بنجاح') ? 'text-(--gold)' : 'text-red-500'}`}>
                             {returnMsg}
                           </p>
                         )}
@@ -440,7 +440,7 @@ export default function AccountDashboardView(props: any) {
                           <button
                             type="button"
                             onClick={() => { setReturnFormOpen(true); setReturnMsg(''); }}
-                            className="inline-flex items-center gap-2 px-5 py-3 rounded-2xl bg-[var(--gold)] text-[var(--gold-contrast)] text-xs font-serif font-bold shadow-md hover:opacity-95 transition"
+                            className="inline-flex items-center gap-2 px-5 py-3 rounded-2xl bg-(--gold) text-(--gold-contrast) text-xs font-serif font-bold shadow-md hover:opacity-95 transition"
                           >
                             <RotateCcw size={16} />
                             تقديم طلب إرجاع
@@ -455,13 +455,13 @@ export default function AccountDashboardView(props: any) {
                                 {(selectedOrder.items || []).map((item: any) => {
                                   const selectedQuantity = returnItems[item.id] || 0;
                                   return (
-                                    <div key={item.id} className={`rounded-2xl border p-3.5 transition ${selectedQuantity ? 'border-[var(--gold)] bg-[var(--gold)]/5' : 'border-border/60'}`}>
+                                    <div key={item.id} className={`rounded-2xl border p-3.5 transition ${selectedQuantity ? 'border-(--gold) bg-(--gold)/5' : 'border-border/60'}`}>
                                       <div className="flex items-center gap-3">
                                         <input
                                           type="checkbox"
                                           checked={selectedQuantity > 0}
                                           onChange={() => toggleReturnItem(item)}
-                                          className="w-4 h-4 accent-[var(--gold)] shrink-0"
+                                          className="w-4 h-4 accent-(--gold) shrink-0"
                                         />
                                         <div className="flex-1 min-w-0">
                                           <p className="text-sm font-medium truncate">{item.name || 'منتج'}</p>
@@ -474,7 +474,7 @@ export default function AccountDashboardView(props: any) {
                                             max={item.quantity}
                                             value={selectedQuantity}
                                             onChange={e => setReturnQuantity(item, Number(e.target.value))}
-                                            className="w-20 px-2 py-2 rounded-xl bg-[var(--bg)] border border-border/60 text-xs text-center"
+                                            className="w-20 px-2 py-2 rounded-xl bg-(--bg) border border-border/60 text-xs text-center"
                                           />
                                         )}
                                       </div>
@@ -489,7 +489,7 @@ export default function AccountDashboardView(props: any) {
                               <select
                                 value={returnReason}
                                 onChange={e => setReturnReason(e.target.value)}
-                                className="w-full px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-sm text-foreground focus:outline-none focus:border-[var(--gold)]"
+                                className="w-full px-4 py-3 rounded-2xl bg-(--bg) border border-border/60 text-sm text-foreground focus:outline-hidden focus:border-(--gold)"
                               >
                                 {returnReasons.map(([value, label]) => <option key={value} value={value}>{label}</option>)}
                               </select>
@@ -503,7 +503,7 @@ export default function AccountDashboardView(props: any) {
                                 maxLength={1000}
                                 rows={4}
                                 placeholder="اكتبي أي تفاصيل تساعدنا في مراجعة طلب الإرجاع..."
-                                className="w-full px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-sm text-foreground resize-none focus:outline-none focus:border-[var(--gold)]"
+                                className="w-full px-4 py-3 rounded-2xl bg-(--bg) border border-border/60 text-sm text-foreground resize-none focus:outline-hidden focus:border-(--gold)"
                               />
                             </div>
 
@@ -520,7 +520,7 @@ export default function AccountDashboardView(props: any) {
                                 type="button"
                                 onClick={submitReturnRequest}
                                 disabled={returnBusy}
-                                className="px-5 py-2.5 rounded-xl bg-[var(--gold)] text-[var(--gold-contrast)] text-xs font-serif font-bold shadow-sm disabled:opacity-60"
+                                className="px-5 py-2.5 rounded-xl bg-(--gold) text-(--gold-contrast) text-xs font-serif font-bold shadow-xs disabled:opacity-60"
                               >
                                 {returnBusy ? 'جاري الإرسال...' : 'إرسال طلب الإرجاع'}
                               </button>
@@ -532,7 +532,7 @@ export default function AccountDashboardView(props: any) {
 
                     <div className="wahaj-order-total flex justify-between items-center border-t border-border/30 pt-4 font-serif font-bold text-base">
                       <span>الإجمالي الكلي</span>
-                      <span className="wahaj-order-total__amount text-[var(--gold)] text-lg">{Number(selectedOrder.total).toLocaleString('ar-EG')} ج.م</span>
+                      <span className="wahaj-order-total__amount text-(--gold) text-lg">{Number(selectedOrder.total).toLocaleString('ar-EG')} ج.م</span>
                     </div>
                   </div>
                 ) : (
@@ -542,23 +542,23 @@ export default function AccountDashboardView(props: any) {
                       {(c.orders || []).map((o: any) => (
                         <div
                           key={o.id}
-                          className="wahaj-order-row flex flex-wrap items-center justify-between gap-4 p-4.5 rounded-2xl bg-[var(--bg)] border border-border/65 hover:border-[var(--gold)]/50 transition shadow-xs"
+                          className="wahaj-order-row flex flex-wrap items-center justify-between gap-4 p-4.5 rounded-2xl bg-(--bg) border border-border/65 hover:border-(--gold)/50 transition shadow-2xs"
                         >
                           <div className="space-y-1">
                             <b className="text-foreground font-serif">طلب #{o.number}</b>
                             <div className="flex items-center gap-2">
-                              <span className="text-xs px-2.5 py-0.5 rounded-full bg-[var(--gold)]/10 text-[var(--gold)] font-medium">
+                              <span className="text-xs px-2.5 py-0.5 rounded-full bg-(--gold)/10 text-(--gold) font-medium">
                                 {o.status}
                               </span>
                             </div>
                           </div>
                           <div className="flex items-center gap-4">
-                            <strong className="text-[var(--gold)] text-base font-serif">
+                            <strong className="text-(--gold) text-base font-serif">
                               {Number(o.total).toLocaleString('ar-EG')} ج.م
                             </strong>
                             <button
                               onClick={() => openOrder(o)}
-                              className="px-4 py-2 rounded-xl bg-[var(--gold)] text-[var(--gold-contrast)] text-xs font-serif font-bold hover:opacity-95 transition shadow-xs"
+                              className="px-4 py-2 rounded-xl bg-(--gold) text-(--gold-contrast) text-xs font-serif font-bold hover:opacity-95 transition shadow-2xs"
                             >
                               التفاصيل والمتابعة
                             </button>
@@ -566,7 +566,7 @@ export default function AccountDashboardView(props: any) {
                               <button
                                 type="button"
                                 onClick={() => openOrder(o).then(() => setReturnFormOpen(true))}
-                                className="px-4 py-2 rounded-xl bg-[var(--bg)] border border-[var(--gold)]/50 text-[var(--gold)] text-xs font-serif font-bold hover:bg-[var(--gold)]/10 transition shadow-xs"
+                                className="px-4 py-2 rounded-xl bg-(--bg) border border-(--gold)/50 text-(--gold) text-xs font-serif font-bold hover:bg-(--gold)/10 transition shadow-2xs"
                               >
                                 <span className="inline-flex items-center gap-1.5">
                                   <RotateCcw size={14} />
@@ -587,12 +587,12 @@ export default function AccountDashboardView(props: any) {
             )}
 
             {tab === 'addresses' && (
-              <div className="bg-muted/10 border border-border/40 rounded-3xl p-6 md:p-8 shadow-xs space-y-6">
+              <div className="bg-muted/10 border border-border/40 rounded-3xl p-6 md:p-8 shadow-2xs space-y-6">
                 <div className="flex justify-between items-center border-b border-border/30 pb-4">
                   <h2 className="text-xl font-serif font-bold">عناوين الشحن المحفوظة</h2>
                   <button 
                     onClick={() => setShowAddressForm(!showAddressForm)}
-                    className="px-4 py-2.5 rounded-2xl bg-[var(--gold)] text-[var(--gold-contrast)] text-xs font-serif font-bold hover:opacity-95 transition shadow-xs"
+                    className="px-4 py-2.5 rounded-2xl bg-(--gold) text-(--gold-contrast) text-xs font-serif font-bold hover:opacity-95 transition shadow-2xs"
                   >
                     {showAddressForm ? 'إلغاء' : '+ إضافة عنوان جديد'}
                   </button>
@@ -635,49 +635,49 @@ export default function AccountDashboardView(props: any) {
                         setAddressFormMsg(err.message);
                       }
                     }}
-                    className="p-6 rounded-2xl bg-[var(--bg)] border border-[var(--gold)]/40 space-y-4 text-xs shadow-sm"
+                    className="p-6 rounded-2xl bg-(--bg) border border-(--gold)/40 space-y-4 text-xs shadow-xs"
                   >
-                    <h3 className="font-serif font-bold text-sm text-[var(--gold)]">تفاصيل عنوان الشحن الجديد</h3>
+                    <h3 className="font-serif font-bold text-sm text-(--gold)">تفاصيل عنوان الشحن الجديد</h3>
                     <div className="wahaj-address-form-grid grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <div>
                         <label className="block mb-1 font-medium text-muted-foreground">مسمى العنوان (مثال: المنزل، العمل)</label>
-                        <input name="label" defaultValue="المنزل" required className="w-full px-3.5 py-3 rounded-xl bg-muted/10 border border-border/60 text-foreground text-xs shadow-xs" />
+                        <input name="label" defaultValue="المنزل" required className="w-full px-3.5 py-3 rounded-xl bg-muted/10 border border-border/60 text-foreground text-xs shadow-2xs" />
                       </div>
                       <div>
                         <label className="block mb-1 font-medium text-muted-foreground">اسم المستلم</label>
-                        <input name="name" defaultValue={c.name || ''} required className="w-full px-3.5 py-3 rounded-xl bg-muted/10 border border-border/60 text-foreground text-xs shadow-xs" />
+                        <input name="name" defaultValue={c.name || ''} required className="w-full px-3.5 py-3 rounded-xl bg-muted/10 border border-border/60 text-foreground text-xs shadow-2xs" />
                       </div>
                       <div>
                         <label className="block mb-1 font-medium text-muted-foreground">رقم الهاتف الأساسي</label>
-                        <input name="phone" defaultValue={c.phone || ''} required dir="ltr" className="w-full px-3.5 py-3 rounded-xl bg-muted/10 border border-border/60 text-foreground text-xs shadow-xs" />
+                        <input name="phone" defaultValue={c.phone || ''} required dir="ltr" className="w-full px-3.5 py-3 rounded-xl bg-muted/10 border border-border/60 text-foreground text-xs shadow-2xs" />
                       </div>
                       <div>
                         <label className="block mb-1 font-medium text-muted-foreground">رقم هاتف إضافي (اختياري)</label>
-                        <input name="secondaryPhone" dir="ltr" className="w-full px-3.5 py-3 rounded-xl bg-muted/10 border border-border/60 text-foreground text-xs shadow-xs" />
+                        <input name="secondaryPhone" dir="ltr" className="w-full px-3.5 py-3 rounded-xl bg-muted/10 border border-border/60 text-foreground text-xs shadow-2xs" />
                       </div>
                       <div>
                         <label htmlFor="shipping-governorate" className="block mb-1 font-medium text-muted-foreground">المحافظة</label>
-                        <select id="shipping-governorate" name="governorate" required defaultValue="" disabled={shippingGovernoratesLoading || shippingGovernorates.length === 0} aria-describedby={shippingGovernoratesError ? 'shipping-governorate-error' : undefined} className="wahaj-account-select w-full px-3.5 py-3 rounded-xl bg-muted/10 border border-border/60 text-foreground text-xs shadow-xs">
+                        <select id="shipping-governorate" name="governorate" required defaultValue="" disabled={shippingGovernoratesLoading || shippingGovernorates.length === 0} aria-describedby={shippingGovernoratesError ? 'shipping-governorate-error' : undefined} className="wahaj-account-select w-full px-3.5 py-3 rounded-xl bg-muted/10 border border-border/60 text-foreground text-xs shadow-2xs">
                           <option value="" disabled>{shippingGovernoratesLoading ? 'جارٍ تحميل المحافظات...' : 'اختاري المحافظة'}</option>
                           {shippingGovernorates.map(governorate => <option key={governorate} value={governorate}>{governorate}</option>)}
                         </select>
                       </div>
                       <div>
                         <label className="block mb-1 font-medium text-muted-foreground">المدينة / المركز</label>
-                        <input name="city" placeholder="مدينة نصر، الهرم..." required className="w-full px-3.5 py-3 rounded-xl bg-muted/10 border border-border/60 text-foreground text-xs shadow-xs" />
+                        <input name="city" placeholder="مدينة نصر، الهرم..." required className="w-full px-3.5 py-3 rounded-xl bg-muted/10 border border-border/60 text-foreground text-xs shadow-2xs" />
                       </div>
                     </div>
-                    {shippingGovernoratesError && <p id="shipping-governorate-error" role="status" className="text-[var(--danger)] text-[11px]">{shippingGovernoratesError}</p>}
+                    {shippingGovernoratesError && <p id="shipping-governorate-error" role="status" className="text-(--danger) text-[11px]">{shippingGovernoratesError}</p>}
                     <div>
                       <label className="block mb-1 font-medium text-muted-foreground">العنوان بالتفصيل</label>
-                      <input name="address" placeholder="اسم الشارع، رقم العمارة، رقم الشقة" required className="w-full px-3.5 py-3 rounded-xl bg-muted/10 border border-border/60 text-foreground text-xs shadow-xs" />
+                      <input name="address" placeholder="اسم الشارع، رقم العمارة، رقم الشقة" required className="w-full px-3.5 py-3 rounded-xl bg-muted/10 border border-border/60 text-foreground text-xs shadow-2xs" />
                     </div>
                     <div>
                       <label className="block mb-1 font-medium text-muted-foreground">ملاحظات للتوصيل (اختياري)</label>
-                      <input name="notes" placeholder="علامة مميزة بجوار المنزل" className="w-full px-3.5 py-3 rounded-xl bg-muted/10 border border-border/60 text-foreground text-xs shadow-xs" />
+                      <input name="notes" placeholder="علامة مميزة بجوار المنزل" className="w-full px-3.5 py-3 rounded-xl bg-muted/10 border border-border/60 text-foreground text-xs shadow-2xs" />
                     </div>
                     <div className="flex items-center gap-2 pt-1">
-                      <input type="checkbox" name="isDefault" id="isDefault" className="w-4 h-4 accent-[var(--gold)]" />
+                      <input type="checkbox" name="isDefault" id="isDefault" className="w-4 h-4 accent-(--gold)" />
                       <label htmlFor="isDefault" className="cursor-pointer font-light">تعيين كعنوان أساسي للشحن</label>
                     </div>
 
@@ -693,7 +693,7 @@ export default function AccountDashboardView(props: any) {
                       </button>
                       <button 
                         type="submit" 
-                        className="px-5 py-2.5 rounded-xl bg-[var(--gold)] text-[var(--gold-contrast)] font-serif font-bold shadow-sm"
+                        className="px-5 py-2.5 rounded-xl bg-(--gold) text-(--gold-contrast) font-serif font-bold shadow-xs"
                       >
                         حفظ العنوان
                       </button>
@@ -703,20 +703,20 @@ export default function AccountDashboardView(props: any) {
 
                 <div className="grid gap-4">
                   {(c.addresses || []).map((addr: any) => (
-                    <div key={addr.id} className="wahaj-saved-address p-4.5 rounded-2xl bg-[var(--bg)] border border-border/60 flex items-start justify-between gap-4 shadow-xs">
+                    <div key={addr.id} className="wahaj-saved-address p-4.5 rounded-2xl bg-(--bg) border border-border/60 flex items-start justify-between gap-4 shadow-2xs">
                       <div className="wahaj-saved-address__details space-y-1 text-sm">
                         <div className="flex items-center gap-2">
                           <span className="font-serif font-bold text-foreground">{addr.label || 'عنوان'}</span>
                           {addr.isDefault && (
-                            <span className="text-[10px] px-2 py-0.5 rounded-full bg-[var(--gold)]/15 text-[var(--gold)] font-bold">
+                            <span className="text-[10px] px-2 py-0.5 rounded-full bg-(--gold)/15 text-(--gold) font-bold">
                               الأساسي
                             </span>
                           )}
                         </div>
-                        <p className="text-muted-foreground text-xs font-light break-words">
+                        <p className="text-muted-foreground text-xs font-light wrap-break-word">
                           {addr.governorate} - {addr.city} - {addr.address}
                         </p>
-                        <span className="text-[var(--gold)] text-xs font-medium block pt-1" dir="ltr">
+                        <span className="text-(--gold) text-xs font-medium block pt-1" dir="ltr">
                           المستلم: {addr.name} | الهاتف: {addr.phone}
                         </span>
                       </div>
@@ -751,14 +751,14 @@ export default function AccountDashboardView(props: any) {
             )}
 
             {tab === 'wishlist' && (
-              <div className="bg-muted/10 border border-border/40 rounded-3xl p-6 md:p-8 shadow-xs space-y-6">
+              <div className="bg-muted/10 border border-border/40 rounded-3xl p-6 md:p-8 shadow-2xs space-y-6">
                 <h2 className="text-xl font-serif font-bold border-b border-border/30 pb-4">قائمة المفضلة</h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                   {(c.wishlist || []).map((w: any) => (
                     <a
                       href={`/product/${w.product.slug}`}
                       key={w.id}
-                      className="group p-3 rounded-2xl bg-[var(--bg)] border border-border/60 hover:border-[var(--gold)]/50 transition space-y-2 block shadow-xs"
+                      className="group p-3 rounded-2xl bg-(--bg) border border-border/60 hover:border-(--gold)/50 transition space-y-2 block shadow-2xs"
                     >
                       <Image
                         className="aspect-square w-full object-cover rounded-xl"
@@ -768,7 +768,7 @@ export default function AccountDashboardView(props: any) {
                         height={600}
                         sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                       />
-                      <p className="text-sm font-medium group-hover:text-[var(--gold)] transition line-clamp-1">
+                      <p className="text-sm font-medium group-hover:text-(--gold) transition line-clamp-1">
                         {w.product.name}
                       </p>
                     </a>
@@ -783,14 +783,14 @@ export default function AccountDashboardView(props: any) {
             )}
 
             {tab === 'recent' && (
-              <div className="bg-muted/10 border border-border/40 rounded-3xl p-6 md:p-8 shadow-xs space-y-6">
+              <div className="bg-muted/10 border border-border/40 rounded-3xl p-6 md:p-8 shadow-2xs space-y-6">
                 <h2 className="text-xl font-serif font-bold border-b border-border/30 pb-4">المنتجات التي شاهدتها مؤخراً</h2>
                 {recentProducts.length === 0 ? (
                   <p className="text-muted-foreground text-sm text-center py-12 font-light">لم تقومي بمشاهدة أي منتجات مؤخراً.</p>
                 ) : (
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                     {recentProducts.map((prod: any, idx: number) => (
-                      <a href={`/product/${prod.slug}`} key={idx} className="p-3 rounded-2xl bg-[var(--bg)] border border-border/60 space-y-2 block shadow-xs">
+                      <a href={`/product/${prod.slug}`} key={idx} className="p-3 rounded-2xl bg-(--bg) border border-border/60 space-y-2 block shadow-2xs">
                         <Image
                           src={prod.image || '/placeholder.svg'}
                           alt={prod.name}
@@ -800,7 +800,7 @@ export default function AccountDashboardView(props: any) {
                           className="aspect-square w-full object-cover rounded-xl"
                         />
                         <h3 className="text-sm font-medium line-clamp-1">{prod.name}</h3>
-                        <span className="text-[var(--gold)] font-bold text-xs">{prod.price} ج.م</span>
+                        <span className="text-(--gold) font-bold text-xs">{prod.price} ج.م</span>
                       </a>
                     ))}
                   </div>
@@ -809,7 +809,7 @@ export default function AccountDashboardView(props: any) {
             )}
 
             {tab === 'security' && (
-              <div className="bg-muted/10 border border-border/40 rounded-3xl p-6 md:p-8 shadow-xs space-y-6">
+              <div className="bg-muted/10 border border-border/40 rounded-3xl p-6 md:p-8 shadow-2xs space-y-6">
                 <h2 className="text-xl font-serif font-bold border-b border-border/30 pb-4">تغيير كلمة المرور</h2>
                 <form onSubmit={async (e) => { 
                   e.preventDefault(); 
@@ -833,7 +833,7 @@ export default function AccountDashboardView(props: any) {
                       required
                       value={passwords.current} 
                       onChange={e => setPasswords({ ...passwords, current: e.target.value })} 
-                      className="w-full px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[var(--gold)] shadow-xs" 
+                      className="w-full px-4 py-3 rounded-2xl bg-(--bg) border border-border/60 text-foreground text-sm focus:outline-hidden focus:border-(--gold) shadow-2xs"
                       dir="ltr"
                     />
                   </div>
@@ -844,7 +844,7 @@ export default function AccountDashboardView(props: any) {
                       required
                       value={passwords.newPass} 
                       onChange={e => setPasswords({ ...passwords, newPass: e.target.value })} 
-                      className="w-full px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[var(--gold)] shadow-xs" 
+                      className="w-full px-4 py-3 rounded-2xl bg-(--bg) border border-border/60 text-foreground text-sm focus:outline-hidden focus:border-(--gold) shadow-2xs"
                       dir="ltr"
                     />
                   </div>
@@ -855,14 +855,14 @@ export default function AccountDashboardView(props: any) {
                       required
                       value={passwords.confirmPass} 
                       onChange={e => setPasswords({ ...passwords, confirmPass: e.target.value })} 
-                      className="w-full px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[var(--gold)] shadow-xs" 
+                      className="w-full px-4 py-3 rounded-2xl bg-(--bg) border border-border/60 text-foreground text-sm focus:outline-hidden focus:border-(--gold) shadow-2xs"
                       dir="ltr"
                     />
                   </div>
-                  <button type="submit" className="px-6 py-3.5 rounded-2xl bg-[var(--gold)] text-[var(--gold-contrast)] font-serif font-bold text-sm shadow-md hover:opacity-95 transition">
+                  <button type="submit" className="px-6 py-3.5 rounded-2xl bg-(--gold) text-(--gold-contrast) font-serif font-bold text-sm shadow-md hover:opacity-95 transition">
                     تحديث كلمة المرور
                   </button>
-                  {msg && <p className="text-sm text-[var(--gold)] font-medium pt-2">{msg}</p>}
+                  {msg && <p className="text-sm text-(--gold) font-medium pt-2">{msg}</p>}
                 </form>
               </div>
             )}

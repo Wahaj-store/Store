@@ -10,7 +10,8 @@ const schema = z.object({
 }).refine(value => value.email || value.phone, { message: 'أدخل البريد أو الهاتف' })
   .refine(value => !value.phone || value.phone.replace(/\D/g, '').length >= 8, { message: 'رقم الهاتف غير صالح' });
 
-export async function POST(req: Request, { params }: { params: { id: string } }) {
+export async function POST(req: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const limit = await rateLimit(`stock:${params.id}:${getClientKey(req)}`, 5, 10 * 60 * 1000);
   if (!limit.ok) {
     return NextResponse.json(

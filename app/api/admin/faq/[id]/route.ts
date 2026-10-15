@@ -26,10 +26,8 @@ function handleFaqError(error: any, action: 'update' | 'delete') {
   return NextResponse.json({ error: action === 'update' ? 'تعذر تحديث السؤال الشائع. تحققي من البيانات ثم أعيدي المحاولة.' : 'تعذر حذف السؤال الشائع.' }, { status: 500 });
 }
 
-export async function PUT(
-  request: Request,
-  { params }: { params: { id: string } }
-) {
+export async function PUT(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   try {
     const auth = await requirePermission('faqWrite');
     if (!auth.user) return NextResponse.json({ error: 'غير مصرح' }, { status: auth.status });
@@ -50,10 +48,8 @@ export async function PUT(
   }
 }
 
-export async function DELETE(
-  _request: Request,
-  { params }: { params: { id: string } }
-) {
+export async function DELETE(_request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   try {
     const auth = await requirePermission('faqWrite');
     if (!auth.user) return NextResponse.json({ error: 'غير مصرح' }, { status: auth.status });

@@ -4,10 +4,8 @@ import { requirePermission } from "@/lib/auth";
 import { can } from "@/lib/rbac";
 
 // تعديل سعر أو بيانات محافظة
-export async function PUT(
-  req: Request,
-  { params }: { params: { id: string } }
-) {
+export async function PUT(req: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   try {
     const auth = await requirePermission("shippingWrite");
     if (!auth.user) return NextResponse.json({ error: "غير مصرح" }, { status: auth.status });
@@ -32,10 +30,8 @@ export async function PUT(
 }
 
 // حذف محافظة
-export async function DELETE(
-  req: Request,
-  { params }: { params: { id: string } }
-) {
+export async function DELETE(req: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   try {
     const auth = await requirePermission("shippingWrite");
     if (!auth.user) return NextResponse.json({ error: "غير مصرح" }, { status: auth.status });

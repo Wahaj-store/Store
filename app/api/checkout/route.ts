@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server';
+import { after, NextResponse } from 'next/server';
 import crypto from 'crypto';
 import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
@@ -9,7 +9,7 @@ import { put } from '@vercel/blob';
 import { getCustomerSegmentKey } from '@/lib/customer-segment';
 import { calculatePricing, type OfferPricing } from '@/lib/pricing';
 import { recordInventoryEntry } from '@/lib/inventory';
-import { processNotificationOutboxItem } from '@/lib/notification-outbox';
+import { processOrderNotificationOutbox } from '@/lib/notification-outbox';
 import { markLatestCartRecovered } from '@/lib/abandoned-cart';
 import { hashGiftCardCode, normalizeGiftCardCode } from '@/lib/gift-card';
 import { findActiveShippingZone } from '@/lib/shipping';
@@ -30,6 +30,8 @@ const S = z.object({
   paymentMethod: z.nativeEnum(PaymentMethod), giftCardCode: z.string().trim().max(40).optional(), giftWrap: z.boolean().optional(),
   idempotencyKey: z.string().uuid(), addressId: z.string().min(1).optional(), items: z.array(Item).min(1).max(100), paymentReference: z.string().trim().max(100).optional()
 });
+
+export const maxDuration = 60;
 
 export async function POST(req: Request) {
   let idempotencyKey = '';
@@ -327,23 +329,25 @@ export async function POST(req: Request) {
       }
     }
 
-    // محاولة فورية بمهلة محدودة؛ أي فشل يبقى محفوظاً ليستعيده عامل Cron اليومي.
-    try {
-      const pendingNotifications = await prisma.notificationOutbox.findMany({
-        where: { orderId: order.id, status: 'PENDING', nextAttemptAt: { lte: new Date() } },
-        select: { id: true },
-      });
-      const deliveryResults = await Promise.allSettled(
-        pendingNotifications.map(({ id }) => processNotificationOutboxItem(id)),
-      );
-      for (const result of deliveryResults) {
-        if (result.status === 'rejected') {
-          console.error('CHECKOUT_NOTIFICATION_OUTBOX_ERROR:', result.reason instanceof Error ? result.reason.message : 'unknown');
+    // The durable outbox is committed before response; provider latency no longer
+    // blocks checkout. Cron remains the recovery path if this post-response task
+    // is interrupted by the hosting platform.
+    after(async () => {
+      try {
+        const result = await processOrderNotificationOutbox(order.id);
+        if (result.failed > 0) {
+          console.error('CHECKOUT_NOTIFICATION_OUTBOX_PARTIAL_FAILURE:', {
+            orderId: order.id,
+            ...result,
+          });
         }
+      } catch (error) {
+        console.error(
+          'CHECKOUT_NOTIFICATION_OUTBOX_ERROR:',
+          error instanceof Error ? error.message : 'unknown',
+        );
       }
-    } catch (error) {
-      console.error('CHECKOUT_NOTIFICATION_OUTBOX_ERROR:', error instanceof Error ? error.message : 'unknown');
-    }
+    });
 
     return NextResponse.json({ ok: true, orderNumber: order.number, subtotal, shipping, discount, total });
   } catch (e: any) {

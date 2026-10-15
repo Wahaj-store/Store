@@ -28,7 +28,7 @@ export async function createCustomerSession(id: string, rememberMe = false, expe
     .setExpirationTime('30d')
     .sign(secret());
   
-  cookies().set('wahaj_customer', token, {
+  (await cookies()).set('wahaj_customer', token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'lax',
@@ -38,7 +38,7 @@ export async function createCustomerSession(id: string, rememberMe = false, expe
 }
 
 export async function getCustomer() {
-  const token = cookies().get('wahaj_customer')?.value;
+  const token = (await cookies()).get('wahaj_customer')?.value;
   if (!token) return null;
   try {
     const { payload } = await jwtVerify(token, secret(), { audience: 'customer' });

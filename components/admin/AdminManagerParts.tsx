@@ -15,8 +15,8 @@ import { adminApi as api } from '@/lib/admin-api';
 
 function AdminPanel({ children, className = '' }: { children: React.ReactNode; className?: string }) {
   return (
-    <section className={`relative overflow-hidden rounded-[28px] border border-border/50 bg-background/80 shadow-[0_10px_35px_rgba(0,0,0,0.04)] backdrop-blur-sm ${className}`}>
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[var(--gold)]/35 to-transparent" />
+    <section className={`relative overflow-hidden rounded-[28px] border border-border/50 bg-background/80 shadow-[0_10px_35px_rgba(0,0,0,0.04)] backdrop-blur-xs ${className}`}>
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-(--gold)/35 to-transparent" />
       {children}
     </section>
   );
@@ -37,7 +37,7 @@ function AdminSectionTitle({ title, description, action }: { title: string; desc
 function AdminEmpty({ children }: { children: React.ReactNode }) {
   return (
     <div className="rounded-[24px] border border-dashed border-border/70 bg-muted/5 px-6 py-12 text-center">
-      <div className="mx-auto mb-3 flex h-11 w-11 items-center justify-center rounded-2xl bg-[var(--gold)]/10 text-[var(--gold)]">
+      <div className="mx-auto mb-3 flex h-11 w-11 items-center justify-center rounded-2xl bg-(--gold)/10 text-(--gold)">
         <FileText size={19} />
       </div>
       <p className="text-sm text-muted-foreground">{children}</p>
@@ -57,25 +57,25 @@ export function Editor({ tab, value, cats, onCancel, onSave, upload }: any) {
 
   if (tab === 'settings') return (
     <div className="bg-background/70 border border-border/50 rounded-[28px] p-5 md:p-7 space-y-5 shadow-[0_10px_35px_rgba(0,0,0,0.035)] transition-all duration-200">
-      <h3 className="font-serif font-bold text-lg text-[var(--gold)]">إعدادات المتجر العامة</h3>
+      <h3 className="font-serif font-bold text-lg text-(--gold)">إعدادات المتجر العامة</h3>
       <div className="grid gap-4 md:grid-cols-2">
         <Field label="المفتاح (Key)" value={v.key || ''} onChange={(x: any) => set('key', x)} />
         <Field label="القيمة (Value)" value={v.value || ''} onChange={(x: any) => set('value', x)} />
       </div>
       <div className="flex gap-3 pt-3">
-        <button className="px-6 py-3 rounded-2xl bg-[var(--gold)] text-[var(--gold-contrast)] font-serif font-bold text-sm shadow-sm hover:opacity-95 focus:outline-none focus:ring-2 focus:ring-[var(--gold)]/20 transition-all duration-200 inline-flex items-center gap-2 cursor-pointer" onClick={() => onSave(v)}><Save size={17} /> حفظ الإعداد</button>
-        <button className="px-5 py-3 rounded-2xl bg-muted/20 border border-border/60 text-muted-foreground text-sm font-medium hover:bg-muted/30 hover:border-[var(--gold)]/30 focus:outline-none focus:ring-2 focus:ring-[var(--gold)]/10 transition-all duration-200 cursor-pointer" onClick={onCancel}>إلغاء</button>
+        <button className="px-6 py-3 rounded-2xl bg-(--gold) text-(--gold-contrast) font-serif font-bold text-sm shadow-xs hover:opacity-95 focus:outline-hidden focus:ring-2 focus:ring-(--gold)/20 transition-all duration-200 inline-flex items-center gap-2 cursor-pointer" onClick={() => onSave(v)}><Save size={17} /> حفظ الإعداد</button>
+        <button className="px-5 py-3 rounded-2xl bg-muted/20 border border-border/60 text-muted-foreground text-sm font-medium hover:bg-muted/30 hover:border-(--gold)/30 focus:outline-hidden focus:ring-2 focus:ring-(--gold)/10 transition-all duration-200 cursor-pointer" onClick={onCancel}>إلغاء</button>
       </div>
     </div>
   );
 
   if (tab === 'faq') return (
     <div className="bg-background/70 border border-border/50 rounded-[28px] p-5 md:p-7 space-y-5 shadow-[0_10px_35px_rgba(0,0,0,0.035)] transition-all duration-200">
-      <h3 className="font-serif font-bold text-lg text-[var(--gold)]">{v.id ? 'تعديل السؤال' : 'إضافة سؤال جديد'}</h3>
+      <h3 className="font-serif font-bold text-lg text-(--gold)">{v.id ? 'تعديل السؤال' : 'إضافة سؤال جديد'}</h3>
       <div className="grid gap-4 md:grid-cols-2">
         <Field label="السؤال" value={v.question || ''} onChange={(x: any) => set('question', x)} />
         <label className="text-xs md:text-sm font-medium text-muted-foreground">القسم
-          <select className="w-full mt-1 px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[var(--gold)]" value={v.category || 'general'} onChange={e => set('category', e.target.value)}>
+          <select className="w-full mt-1 px-4 py-3 rounded-2xl bg-(--bg) border border-border/60 text-foreground text-sm focus:outline-hidden focus:border-(--gold)" value={v.category || 'general'} onChange={e => set('category', e.target.value)}>
             <option value="general">عام</option>
             <option value="shipping">الشحن والتوصيل</option>
             <option value="payment">الدفع</option>
@@ -85,15 +85,15 @@ export function Editor({ tab, value, cats, onCancel, onSave, upload }: any) {
         </label>
         <Field label="ترتيب الظهور" type="number" value={v.displayOrder ?? 0} onChange={(x: any) => set('displayOrder', Number(x))} />
         <label className="flex items-center gap-2.5 pt-6 text-sm font-light cursor-pointer">
-          <input type="checkbox" className="w-4 h-4 accent-[var(--gold)]" checked={!!v.published} onChange={e => set('published', e.target.checked)} /> منشور في المتجر
+          <input type="checkbox" className="w-4 h-4 accent-(--gold)" checked={!!v.published} onChange={e => set('published', e.target.checked)} /> منشور في المتجر
         </label>
         <label className="md:col-span-2 text-xs md:text-sm font-medium text-muted-foreground">الإجابة
-          <textarea className="w-full mt-1 px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[var(--gold)] min-h-28" value={v.answer || ''} onChange={e => set('answer', e.target.value)} />
+          <textarea className="w-full mt-1 px-4 py-3 rounded-2xl bg-(--bg) border border-border/60 text-foreground text-sm focus:outline-hidden focus:border-(--gold) min-h-28" value={v.answer || ''} onChange={e => set('answer', e.target.value)} />
         </label>
       </div>
       <div className="flex gap-3 pt-3">
-        <button className="px-6 py-3 rounded-2xl bg-[var(--gold)] text-[var(--gold-contrast)] font-serif font-bold text-sm shadow-sm hover:opacity-95 focus:outline-none focus:ring-2 focus:ring-[var(--gold)]/20 transition-all duration-200 inline-flex items-center gap-2 cursor-pointer" onClick={() => onSave(v)}><Save size={17} /> حفظ</button>
-        <button className="px-5 py-3 rounded-2xl bg-muted/20 border border-border/60 text-muted-foreground text-sm font-medium hover:bg-muted/30 hover:border-[var(--gold)]/30 focus:outline-none focus:ring-2 focus:ring-[var(--gold)]/10 transition-all duration-200 cursor-pointer" onClick={onCancel}>إلغاء</button>
+        <button className="px-6 py-3 rounded-2xl bg-(--gold) text-(--gold-contrast) font-serif font-bold text-sm shadow-xs hover:opacity-95 focus:outline-hidden focus:ring-2 focus:ring-(--gold)/20 transition-all duration-200 inline-flex items-center gap-2 cursor-pointer" onClick={() => onSave(v)}><Save size={17} /> حفظ</button>
+        <button className="px-5 py-3 rounded-2xl bg-muted/20 border border-border/60 text-muted-foreground text-sm font-medium hover:bg-muted/30 hover:border-(--gold)/30 focus:outline-hidden focus:ring-2 focus:ring-(--gold)/10 transition-all duration-200 cursor-pointer" onClick={onCancel}>إلغاء</button>
       </div>
     </div>
   );
@@ -105,14 +105,14 @@ export function Editor({ tab, value, cats, onCancel, onSave, upload }: any) {
         <Field label="ترتيب الظهور" value={v.displayOrder || 0} onChange={(x: any) => set('displayOrder', x)} type="number" />
         <Field label="اسم الحساب" value={v.accountName || ''} onChange={(x: any) => set('accountName', x)} />
         <Field label="رقم/معرف الحساب" value={v.accountNumber || ''} onChange={(x: any) => set('accountNumber', x)} />
-        <label className="md:col-span-2 text-xs md:text-sm font-medium text-muted-foreground">الوصف<textarea className="w-full mt-1 px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[var(--gold)]" value={v.description || ''} onChange={e => set('description', e.target.value)} /></label>
-        <label className="md:col-span-2 text-xs md:text-sm font-medium text-muted-foreground">تعليمات الدفع<textarea className="w-full mt-1 px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[var(--gold)] min-h-28" value={v.instructions || ''} onChange={e => set('instructions', e.target.value)} /></label>
-        <label className="flex items-center gap-2.5 text-sm font-light cursor-pointer"><input type="checkbox" className="w-4 h-4 accent-[var(--gold)]" checked={!!v.enabled} onChange={e => set('enabled', e.target.checked)} /> مفعلة</label>
-        <label className="flex items-center gap-2.5 text-sm font-light cursor-pointer"><input type="checkbox" className="w-4 h-4 accent-[var(--gold)]" checked={!!v.proofRequired} onChange={e => set('proofRequired', e.target.checked)} /> طلب إثبات دفع</label>
+        <label className="md:col-span-2 text-xs md:text-sm font-medium text-muted-foreground">الوصف<textarea className="w-full mt-1 px-4 py-3 rounded-2xl bg-(--bg) border border-border/60 text-foreground text-sm focus:outline-hidden focus:border-(--gold)" value={v.description || ''} onChange={e => set('description', e.target.value)} /></label>
+        <label className="md:col-span-2 text-xs md:text-sm font-medium text-muted-foreground">تعليمات الدفع<textarea className="w-full mt-1 px-4 py-3 rounded-2xl bg-(--bg) border border-border/60 text-foreground text-sm focus:outline-hidden focus:border-(--gold) min-h-28" value={v.instructions || ''} onChange={e => set('instructions', e.target.value)} /></label>
+        <label className="flex items-center gap-2.5 text-sm font-light cursor-pointer"><input type="checkbox" className="w-4 h-4 accent-(--gold)" checked={!!v.enabled} onChange={e => set('enabled', e.target.checked)} /> مفعلة</label>
+        <label className="flex items-center gap-2.5 text-sm font-light cursor-pointer"><input type="checkbox" className="w-4 h-4 accent-(--gold)" checked={!!v.proofRequired} onChange={e => set('proofRequired', e.target.checked)} /> طلب إثبات دفع</label>
       </div>
       <div className="mt-5 flex gap-3">
-        <button className="px-6 py-3 rounded-2xl bg-[var(--gold)] text-[var(--gold-contrast)] font-serif font-bold text-sm shadow-sm hover:opacity-95 focus:outline-none focus:ring-2 focus:ring-[var(--gold)]/20 transition-all duration-200 inline-flex items-center gap-2 cursor-pointer" onClick={() => onSave(v)}><Save size={17} /> حفظ</button>
-        <button className="px-5 py-3 rounded-2xl bg-muted/20 border border-border/60 text-muted-foreground text-sm font-medium hover:bg-muted/30 hover:border-[var(--gold)]/30 focus:outline-none focus:ring-2 focus:ring-[var(--gold)]/10 transition-all duration-200 cursor-pointer" onClick={onCancel}>إلغاء</button>
+        <button className="px-6 py-3 rounded-2xl bg-(--gold) text-(--gold-contrast) font-serif font-bold text-sm shadow-xs hover:opacity-95 focus:outline-hidden focus:ring-2 focus:ring-(--gold)/20 transition-all duration-200 inline-flex items-center gap-2 cursor-pointer" onClick={() => onSave(v)}><Save size={17} /> حفظ</button>
+        <button className="px-5 py-3 rounded-2xl bg-muted/20 border border-border/60 text-muted-foreground text-sm font-medium hover:bg-muted/30 hover:border-(--gold)/30 focus:outline-hidden focus:ring-2 focus:ring-(--gold)/10 transition-all duration-200 cursor-pointer" onClick={onCancel}>إلغاء</button>
       </div>
     </div>
   );
@@ -132,7 +132,7 @@ export function Editor({ tab, value, cats, onCancel, onSave, upload }: any) {
       <div className="grid gap-4 md:grid-cols-2">
         <Field label="اسم العرض" value={v.name || ''} onChange={(x: any) => set('name', x)} />
         <label className="text-xs md:text-sm font-medium text-muted-foreground">نوع العرض
-          <select className="w-full mt-1 px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[var(--gold)]" value={v.type || 'FLASH_SALE'} onChange={e => set('type', e.target.value)}>
+          <select className="w-full mt-1 px-4 py-3 rounded-2xl bg-(--bg) border border-border/60 text-foreground text-sm focus:outline-hidden focus:border-(--gold)" value={v.type || 'FLASH_SALE'} onChange={e => set('type', e.target.value)}>
             {['FLASH_SALE', 'BUY_X_GET_Y', 'FREE_SHIPPING', 'FIRST_ORDER', 'SEASONAL'].map((x: any) => <option key={x}>{x}</option>)}
           </select>
         </label>
@@ -141,8 +141,8 @@ export function Editor({ tab, value, cats, onCancel, onSave, upload }: any) {
         <Field label="ينتهي" value={v.endsAt || ''} onChange={(x: any) => set('endsAt', x)} />
       </div>
       <div className="mt-5 flex gap-3">
-        <button className="px-6 py-3 rounded-2xl bg-[var(--gold)] text-[var(--gold-contrast)] font-serif font-bold text-sm shadow-sm hover:opacity-95 focus:outline-none focus:ring-2 focus:ring-[var(--gold)]/20 transition-all duration-200 inline-flex items-center gap-2 cursor-pointer" onClick={() => onSave(v)}><Save size={17} /> حفظ</button>
-        <button className="px-5 py-3 rounded-2xl bg-muted/20 border border-border/60 text-muted-foreground text-sm font-medium hover:bg-muted/30 hover:border-[var(--gold)]/30 focus:outline-none focus:ring-2 focus:ring-[var(--gold)]/10 transition-all duration-200 cursor-pointer" onClick={onCancel}>إلغاء</button>
+        <button className="px-6 py-3 rounded-2xl bg-(--gold) text-(--gold-contrast) font-serif font-bold text-sm shadow-xs hover:opacity-95 focus:outline-hidden focus:ring-2 focus:ring-(--gold)/20 transition-all duration-200 inline-flex items-center gap-2 cursor-pointer" onClick={() => onSave(v)}><Save size={17} /> حفظ</button>
+        <button className="px-5 py-3 rounded-2xl bg-muted/20 border border-border/60 text-muted-foreground text-sm font-medium hover:bg-muted/30 hover:border-(--gold)/30 focus:outline-hidden focus:ring-2 focus:ring-(--gold)/10 transition-all duration-200 cursor-pointer" onClick={onCancel}>إلغاء</button>
       </div>
     </div>
   );
@@ -155,8 +155,8 @@ export function Editor({ tab, value, cats, onCancel, onSave, upload }: any) {
         <Field label="كود التحويل" value={v.statusCode || 301} onChange={(x: any) => set('statusCode', x)} type="number" />
       </div>
       <div className="mt-5 flex gap-3">
-        <button className="px-6 py-3 rounded-2xl bg-[var(--gold)] text-[var(--gold-contrast)] font-serif font-bold text-sm shadow-sm hover:opacity-95 focus:outline-none focus:ring-2 focus:ring-[var(--gold)]/20 transition-all duration-200 inline-flex items-center gap-2 cursor-pointer" onClick={() => onSave(v)}><Save size={17} /> حفظ</button>
-        <button className="px-5 py-3 rounded-2xl bg-muted/20 border border-border/60 text-muted-foreground text-sm font-medium hover:bg-muted/30 hover:border-[var(--gold)]/30 focus:outline-none focus:ring-2 focus:ring-[var(--gold)]/10 transition-all duration-200 cursor-pointer" onClick={onCancel}>إلغاء</button>
+        <button className="px-6 py-3 rounded-2xl bg-(--gold) text-(--gold-contrast) font-serif font-bold text-sm shadow-xs hover:opacity-95 focus:outline-hidden focus:ring-2 focus:ring-(--gold)/20 transition-all duration-200 inline-flex items-center gap-2 cursor-pointer" onClick={() => onSave(v)}><Save size={17} /> حفظ</button>
+        <button className="px-5 py-3 rounded-2xl bg-muted/20 border border-border/60 text-muted-foreground text-sm font-medium hover:bg-muted/30 hover:border-(--gold)/30 focus:outline-hidden focus:ring-2 focus:ring-(--gold)/10 transition-all duration-200 cursor-pointer" onClick={onCancel}>إلغاء</button>
       </div>
     </div>
   );
@@ -173,13 +173,13 @@ export function Editor({ tab, value, cats, onCancel, onSave, upload }: any) {
             <Field label="السعر قبل الخصم" value={v.comparePrice} onChange={(x: any) => set('comparePrice', x)} type="number" />
             <Field label="المخزون" value={v.stock} onChange={(x: any) => set('stock', x)} type="number" />
             <label className="text-xs md:text-sm font-medium text-muted-foreground">التصنيف
-              <select className="w-full mt-1 px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[var(--gold)]" value={v.categoryId} onChange={e => set('categoryId', e.target.value)}>
+              <select className="w-full mt-1 px-4 py-3 rounded-2xl bg-(--bg) border border-border/60 text-foreground text-sm focus:outline-hidden focus:border-(--gold)" value={v.categoryId} onChange={e => set('categoryId', e.target.value)}>
                 <option value="">اختر التصنيف</option>
                 {cats.map((c: any) => <option key={c.id} value={c.id}>{c.name}</option>)}
               </select>
             </label>
             <label className="text-xs md:text-sm font-medium text-muted-foreground">الحالة
-              <select className="w-full mt-1 px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[var(--gold)]" value={v.status} onChange={e => set('status', e.target.value)}>
+              <select className="w-full mt-1 px-4 py-3 rounded-2xl bg-(--bg) border border-border/60 text-foreground text-sm focus:outline-hidden focus:border-(--gold)" value={v.status} onChange={e => set('status', e.target.value)}>
                 {['DRAFT', 'PUBLISHED', 'HIDDEN', 'ARCHIVED'].map((x: any) => <option key={x}>{x}</option>)}
               </select>
             </label>
@@ -190,20 +190,20 @@ export function Editor({ tab, value, cats, onCancel, onSave, upload }: any) {
             <div className="md:col-span-2 grid grid-cols-2 md:grid-cols-3 gap-3 pt-2">
               {[['featured', 'مميز'], ['newArrival', 'وصل حديثًا'], ['bestSeller', 'الأكثر مبيعًا']].map(([k, l]) => (
                 <label key={k} className="flex items-center gap-2.5 text-sm font-light cursor-pointer">
-                  <input type="checkbox" className="w-4 h-4 accent-[var(--gold)]" checked={!!v[k]} onChange={e => set(k, e.target.checked)} />{l}
+                  <input type="checkbox" className="w-4 h-4 accent-(--gold)" checked={!!v[k]} onChange={e => set(k, e.target.checked)} />{l}
                 </label>
               ))}
             </div>
             <label className="md:col-span-2 text-xs md:text-sm font-medium text-muted-foreground">الوصف
-              <textarea className="w-full mt-1 px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[var(--gold)] min-h-28" value={v.description || ''} onChange={e => set('description', e.target.value)} />
+              <textarea className="w-full mt-1 px-4 py-3 rounded-2xl bg-(--bg) border border-border/60 text-foreground text-sm focus:outline-hidden focus:border-(--gold) min-h-28" value={v.description || ''} onChange={e => set('description', e.target.value)} />
             </label>
             <div className="md:col-span-2 space-y-2">
-              <p className="text-sm font-serif font-bold text-[var(--gold)]">صور المنتج</p>
+              <p className="text-sm font-serif font-bold text-(--gold)">صور المنتج</p>
               <div className="flex flex-wrap gap-3">
                 {v.images.map((im: any, i: number) => (
                   <div key={i} className="relative">
-                    <Image src={im.url} width={96} height={96} alt={im.alt || v.name || "صورة المنتج"} className="h-24 w-24 rounded-2xl object-cover border border-border/60 shadow-xs" />
-                    <button className="absolute -top-2 -end-2 rounded-full bg-red-500 w-6 h-6 flex items-center justify-center text-white text-xs font-bold shadow-xs cursor-pointer" onClick={() => set('images', v.images.filter((_: any, j: number) => j !== i))}>×</button>
+                    <Image src={im.url} width={96} height={96} alt={im.alt || v.name || "صورة المنتج"} className="h-24 w-24 rounded-2xl object-cover border border-border/60 shadow-2xs" />
+                    <button className="absolute -top-2 -inset-e-2 rounded-full bg-red-500 w-6 h-6 flex items-center justify-center text-white text-xs font-bold shadow-2xs cursor-pointer" onClick={() => set('images', v.images.filter((_: any, j: number) => j !== i))}>×</button>
                   </div>
                 ))}
                 <div className="flex items-center gap-2">
@@ -213,18 +213,18 @@ export function Editor({ tab, value, cats, onCancel, onSave, upload }: any) {
             </div>
             <div className="md:col-span-2 space-y-3 pt-2 border-t border-border/30">
               <div className="flex items-center justify-between">
-                <b className="font-serif font-bold text-sm text-[var(--gold)]">Variants / الخيارات</b>
-                <button className="px-4 py-2 rounded-xl bg-muted/20 border border-border/60 text-xs font-medium hover:bg-muted/30 hover:border-[var(--gold)]/30 focus:outline-none focus:ring-2 focus:ring-[var(--gold)]/10 transition-all duration-200 cursor-pointer" onClick={addVar}>+ إضافة خيار</button>
+                <b className="font-serif font-bold text-sm text-(--gold)">Variants / الخيارات</b>
+                <button className="px-4 py-2 rounded-xl bg-muted/20 border border-border/60 text-xs font-medium hover:bg-muted/30 hover:border-(--gold)/30 focus:outline-hidden focus:ring-2 focus:ring-(--gold)/10 transition-all duration-200 cursor-pointer" onClick={addVar}>+ إضافة خيار</button>
               </div>
               {v.variants.map((x: any, i: number) => (
-                <div className="grid gap-2.5 md:grid-cols-5 items-center p-3 rounded-2xl bg-[var(--bg)] border border-border/60 shadow-xs" key={i}>
-                  <input className="w-full px-3 py-2 rounded-xl bg-muted/10 border border-border/60 text-xs text-foreground focus:outline-none focus:border-[var(--gold)]" placeholder="النوع" value={x.name} onChange={e => { const a = [...v.variants]; a[i].name = e.target.value; set('variants', a); }} />
-                  <input className="w-full px-3 py-2 rounded-xl bg-muted/10 border border-border/60 text-xs text-foreground focus:outline-none focus:border-[var(--gold)]" placeholder="القيمة" value={x.value} onChange={e => { const a = [...v.variants]; a[i].value = e.target.value; set('variants', a); }} />
-                  <input className="w-full px-3 py-2 rounded-xl bg-muted/10 border border-border/60 text-xs text-foreground focus:outline-none focus:border-[var(--gold)]" type="number" placeholder="المخزون" value={x.stock} onChange={e => { const a = [...v.variants]; a[i].stock = Number(e.target.value); set('variants', a); }} />
-                  <input className="w-full px-3 py-2 rounded-xl bg-muted/10 border border-border/60 text-xs text-foreground focus:outline-none focus:border-[var(--gold)]" type="number" placeholder="سعر خاص" value={x.price ?? ""} onChange={e => { const a = [...v.variants]; a[i].price = e.target.value === '' ? null : Number(e.target.value); set('variants', a); }} />
+                <div className="grid gap-2.5 md:grid-cols-5 items-center p-3 rounded-2xl bg-(--bg) border border-border/60 shadow-2xs" key={i}>
+                  <input className="w-full px-3 py-2 rounded-xl bg-muted/10 border border-border/60 text-xs text-foreground focus:outline-hidden focus:border-(--gold)" placeholder="النوع" value={x.name} onChange={e => { const a = [...v.variants]; a[i].name = e.target.value; set('variants', a); }} />
+                  <input className="w-full px-3 py-2 rounded-xl bg-muted/10 border border-border/60 text-xs text-foreground focus:outline-hidden focus:border-(--gold)" placeholder="القيمة" value={x.value} onChange={e => { const a = [...v.variants]; a[i].value = e.target.value; set('variants', a); }} />
+                  <input className="w-full px-3 py-2 rounded-xl bg-muted/10 border border-border/60 text-xs text-foreground focus:outline-hidden focus:border-(--gold)" type="number" placeholder="المخزون" value={x.stock} onChange={e => { const a = [...v.variants]; a[i].stock = Number(e.target.value); set('variants', a); }} />
+                  <input className="w-full px-3 py-2 rounded-xl bg-muted/10 border border-border/60 text-xs text-foreground focus:outline-hidden focus:border-(--gold)" type="number" placeholder="سعر خاص" value={x.price ?? ""} onChange={e => { const a = [...v.variants]; a[i].price = e.target.value === '' ? null : Number(e.target.value); set('variants', a); }} />
                   <div className="flex gap-2">
-                    <input className="w-full px-3 py-2 rounded-xl bg-muted/10 border border-border/60 text-xs text-foreground focus:outline-none focus:border-[var(--gold)]" placeholder="SKU" value={x.sku || ""} onChange={e => { const a = [...v.variants]; a[i].sku = e.target.value; set('variants', a); }} />
-                    <button className="p-2 rounded-xl border border-red-400 text-red-500 hover:bg-red-500/10 focus:outline-none focus:ring-2 focus:ring-red-500/10 transition-all duration-200 cursor-pointer" onClick={() => set('variants', v.variants.filter((_: any, j: number) => j !== i))}><Trash2 size={16} /></button>
+                    <input className="w-full px-3 py-2 rounded-xl bg-muted/10 border border-border/60 text-xs text-foreground focus:outline-hidden focus:border-(--gold)" placeholder="SKU" value={x.sku || ""} onChange={e => { const a = [...v.variants]; a[i].sku = e.target.value; set('variants', a); }} />
+                    <button className="p-2 rounded-xl border border-red-400 text-red-500 hover:bg-red-500/10 focus:outline-hidden focus:ring-2 focus:ring-red-500/10 transition-all duration-200 cursor-pointer" onClick={() => set('variants', v.variants.filter((_: any, j: number) => j !== i))}><Trash2 size={16} /></button>
                   </div>
                 </div>
               ))}
@@ -233,13 +233,13 @@ export function Editor({ tab, value, cats, onCancel, onSave, upload }: any) {
         ) : tab === 'homepage' ? (
           <>
             <label className="text-xs md:text-sm font-medium text-muted-foreground">نوع القسم
-              <select className="w-full mt-1 px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[var(--gold)]" value={v.type || 'hero'} onChange={e => set('type', e.target.value)}>
+              <select className="w-full mt-1 px-4 py-3 rounded-2xl bg-(--bg) border border-border/60 text-foreground text-sm focus:outline-hidden focus:border-(--gold)" value={v.type || 'hero'} onChange={e => set('type', e.target.value)}>
                 {['hero', 'products', 'collections', 'offers', 'trust', 'story', 'testimonials', 'social', 'newsletter'].map(type => <option key={type} value={type}>{type}</option>)}
               </select>
             </label>
             <Field label="العنوان الظاهر" value={v.title || ''} onChange={(x: any) => set('title', x)} />
             <label className="md:col-span-2 text-xs md:text-sm font-medium text-muted-foreground">الوصف الظاهر
-              <textarea className="w-full mt-1 min-h-24 rounded-2xl border border-border/60 bg-[var(--bg)] px-4 py-3 text-sm text-foreground focus:outline-none focus:border-[var(--gold)]" value={v.subtitle || ''} onChange={e => set('subtitle', e.target.value)} />
+              <textarea className="w-full mt-1 min-h-24 rounded-2xl border border-border/60 bg-(--bg) px-4 py-3 text-sm text-foreground focus:outline-hidden focus:border-(--gold)" value={v.subtitle || ''} onChange={e => set('subtitle', e.target.value)} />
             </label>
             <Field label="نص الزر" value={v.ctaText || ''} onChange={(x: any) => set('ctaText', x)} />
             <Field label="رابط الزر" value={v.ctaUrl || ''} onChange={(x: any) => set('ctaUrl', x)} />
@@ -268,8 +268,8 @@ export function Editor({ tab, value, cats, onCancel, onSave, upload }: any) {
       )}
 
       <div className="mt-6 flex gap-3 pt-4 border-t border-border/30">
-        <button className="px-6 py-3 rounded-2xl bg-[var(--gold)] text-[var(--gold-contrast)] font-serif font-bold text-sm shadow-sm hover:opacity-95 focus:outline-none focus:ring-2 focus:ring-[var(--gold)]/20 transition-all duration-200 inline-flex items-center gap-2 cursor-pointer" onClick={() => onSave(v)}><Save size={17} /> حفظ</button>
-        <button className="px-5 py-3 rounded-2xl bg-muted/20 border border-border/60 text-muted-foreground text-sm font-medium hover:bg-muted/30 hover:border-[var(--gold)]/30 focus:outline-none focus:ring-2 focus:ring-[var(--gold)]/10 transition-all duration-200 cursor-pointer" onClick={onCancel}>إلغاء</button>
+        <button className="px-6 py-3 rounded-2xl bg-(--gold) text-(--gold-contrast) font-serif font-bold text-sm shadow-xs hover:opacity-95 focus:outline-hidden focus:ring-2 focus:ring-(--gold)/20 transition-all duration-200 inline-flex items-center gap-2 cursor-pointer" onClick={() => onSave(v)}><Save size={17} /> حفظ</button>
+        <button className="px-5 py-3 rounded-2xl bg-muted/20 border border-border/60 text-muted-foreground text-sm font-medium hover:bg-muted/30 hover:border-(--gold)/30 focus:outline-hidden focus:ring-2 focus:ring-(--gold)/10 transition-all duration-200 cursor-pointer" onClick={onCancel}>إلغاء</button>
       </div>
     </div>
   );
@@ -279,7 +279,7 @@ export function Field({ label, value, onChange, type = 'text' }: any) {
   return (
     <label className="text-xs md:text-sm font-medium text-muted-foreground space-y-1 block">
       {label}
-      <input className="w-full mt-1 px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[var(--gold)] focus:ring-2 focus:ring-[var(--gold)]/10 transition shadow-xs" type={type} value={value ?? ''} onChange={e => onChange(e.target.value)} />
+      <input className="w-full mt-1 px-4 py-3 rounded-2xl bg-(--bg) border border-border/60 text-foreground text-sm focus:outline-hidden focus:border-(--gold) focus:ring-2 focus:ring-(--gold)/10 transition shadow-2xs" type={type} value={value ?? ''} onChange={e => onChange(e.target.value)} />
     </label>
   );
 }
@@ -288,7 +288,7 @@ export function Select({ label, value, options, onChange }: any) {
   return (
     <label className="mt-4 block text-xs md:text-sm font-medium text-muted-foreground space-y-1">
       {label}
-      <select className="w-full mt-1 px-4 py-3 rounded-2xl bg-[var(--bg)] border border-border/60 text-foreground text-sm focus:outline-none focus:border-[var(--gold)] focus:ring-2 focus:ring-[var(--gold)]/10 transition shadow-xs" value={value} onChange={e => onChange(e.target.value)}>
+      <select className="w-full mt-1 px-4 py-3 rounded-2xl bg-(--bg) border border-border/60 text-foreground text-sm focus:outline-hidden focus:border-(--gold) focus:ring-2 focus:ring-(--gold)/10 transition shadow-2xs" value={value} onChange={e => onChange(e.target.value)}>
         {options.map((x: string) => <option key={x}>{x}</option>)}
       </select>
     </label>
@@ -302,7 +302,7 @@ export function Content({ tab, data, onEdit, onDelete, onRefresh, onReorder }: a
   if (tab === 'faq') return (
     <div className="space-y-4">
       {data.map((faq: any) => (
-        <div key={faq.id} className="bg-muted/10 border border-border/40 rounded-3xl p-6 space-y-3 shadow-xs transition-all duration-200 hover:border-[var(--gold)]/20">
+        <div key={faq.id} className="bg-muted/10 border border-border/40 rounded-3xl p-6 space-y-3 shadow-2xs transition-all duration-200 hover:border-(--gold)/20">
           <div className="flex justify-between items-start gap-4">
             <div className="space-y-1">
               <b className="text-base font-serif font-bold text-foreground">{faq.question}</b>
@@ -317,11 +317,11 @@ export function Content({ tab, data, onEdit, onDelete, onRefresh, onReorder }: a
               </div>
             </div>
             <div className="flex gap-2">
-              <button className="px-4 py-2 rounded-xl bg-muted/20 border border-border/60 text-xs font-medium hover:bg-muted/30 hover:border-[var(--gold)]/30 focus:outline-none focus:ring-2 focus:ring-[var(--gold)]/10 transition-all duration-200 cursor-pointer" onClick={() => onEdit(faq)}>تعديل</button>
-              <button className="p-2 rounded-xl border border-red-400 text-red-500 hover:bg-red-500/10 focus:outline-none focus:ring-2 focus:ring-red-500/10 transition-all duration-200 cursor-pointer" onClick={() => onDelete(faq.id)}><Trash2 size={16} /></button>
+              <button className="px-4 py-2 rounded-xl bg-muted/20 border border-border/60 text-xs font-medium hover:bg-muted/30 hover:border-(--gold)/30 focus:outline-hidden focus:ring-2 focus:ring-(--gold)/10 transition-all duration-200 cursor-pointer" onClick={() => onEdit(faq)}>تعديل</button>
+              <button className="p-2 rounded-xl border border-red-400 text-red-500 hover:bg-red-500/10 focus:outline-hidden focus:ring-2 focus:ring-red-500/10 transition-all duration-200 cursor-pointer" onClick={() => onDelete(faq.id)}><Trash2 size={16} /></button>
             </div>
           </div>
-          <p className="text-xs md:text-sm text-muted-foreground/90 bg-[var(--bg)]/60 border border-border/40 p-4 rounded-2xl font-light leading-relaxed">
+          <p className="text-xs md:text-sm text-muted-foreground/90 bg-(--bg)/60 border border-border/40 p-4 rounded-2xl font-light leading-relaxed">
             {faq.answer}
           </p>
         </div>
@@ -333,7 +333,7 @@ export function Content({ tab, data, onEdit, onDelete, onRefresh, onReorder }: a
   if (tab === 'contact') return (
     <div className="space-y-4">
       {data.map((msg: any) => (
-        <div key={msg.id} className="bg-muted/10 border border-border/40 rounded-3xl p-6 space-y-4 shadow-xs transition-all duration-200 hover:border-[var(--gold)]/20">
+        <div key={msg.id} className="bg-muted/10 border border-border/40 rounded-3xl p-6 space-y-4 shadow-2xs transition-all duration-200 hover:border-(--gold)/20">
           <div className="flex flex-wrap justify-between items-start gap-4 border-b border-border/30 pb-4">
             <div className="space-y-1">
               <b className="text-base font-serif font-bold text-foreground">{msg.name}</b>
@@ -344,17 +344,17 @@ export function Content({ tab, data, onEdit, onDelete, onRefresh, onReorder }: a
               </div>
             </div>
             <div className="flex items-center gap-3">
-              <span className="px-3 py-1 rounded-full text-xs bg-[var(--gold)]/10 text-[var(--gold)] font-medium border border-[var(--gold)]/20">
+              <span className="px-3 py-1 rounded-full text-xs bg-(--gold)/10 text-(--gold) font-medium border border-(--gold)/20">
                 {msg.subject || 'استفسار عام'}
               </span>
-              <button className="p-2 rounded-xl border border-red-400 text-red-500 hover:bg-red-500/10 focus:outline-none focus:ring-2 focus:ring-red-500/10 transition-all duration-200 cursor-pointer" onClick={() => onDelete(msg.id)} title="حذف الرسالة"><Trash2 size={16} /></button>
+              <button className="p-2 rounded-xl border border-red-400 text-red-500 hover:bg-red-500/10 focus:outline-hidden focus:ring-2 focus:ring-red-500/10 transition-all duration-200 cursor-pointer" onClick={() => onDelete(msg.id)} title="حذف الرسالة"><Trash2 size={16} /></button>
             </div>
           </div>
-          <p className="text-xs md:text-sm text-foreground/90 bg-[var(--bg)]/60 border border-border/40 p-4 rounded-2xl leading-relaxed whitespace-pre-wrap font-light">
+          <p className="text-xs md:text-sm text-foreground/90 bg-(--bg)/60 border border-border/40 p-4 rounded-2xl leading-relaxed whitespace-pre-wrap font-light">
             {msg.message}
           </p>
           <div className="flex justify-end">
-            <a href={`https://wa.me/${msg.phone}`} target="_blank" rel="noopener noreferrer" className="px-5 py-2.5 rounded-xl bg-[var(--gold)] text-[var(--gold-contrast)] text-xs font-serif font-bold shadow-sm hover:opacity-95 focus:outline-none focus:ring-2 focus:ring-[var(--gold)]/20 transition-all duration-200 inline-flex items-center gap-1.5 cursor-pointer">
+            <a href={`https://wa.me/${msg.phone}`} target="_blank" rel="noopener noreferrer" className="px-5 py-2.5 rounded-xl bg-(--gold) text-(--gold-contrast) text-xs font-serif font-bold shadow-xs hover:opacity-95 focus:outline-hidden focus:ring-2 focus:ring-(--gold)/20 transition-all duration-200 inline-flex items-center gap-1.5 cursor-pointer">
               الرد عبر واتساب مباشرة
             </a>
           </div>
@@ -367,17 +367,17 @@ export function Content({ tab, data, onEdit, onDelete, onRefresh, onReorder }: a
   if (tab === 'payments') return (
     <div className="grid gap-3.5">
       {data.map((x: any) => (
-        <div className="bg-background/70 border border-border/50 rounded-[24px] p-5 shadow-xs space-y-3 transition-all duration-200 hover:border-[var(--gold)]/20" key={x.method}>
+        <div className="bg-background/70 border border-border/50 rounded-[24px] p-5 shadow-2xs space-y-3 transition-all duration-200 hover:border-(--gold)/20" key={x.method}>
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
               <b className="font-serif font-bold text-foreground">{x.label}</b>
               <p className="text-muted-foreground text-xs font-light mt-0.5">{x.description}</p>
             </div>
             <div className="flex gap-2.5">
-              <button className={`px-4 py-2 rounded-xl text-xs font-medium transition cursor-pointer ${x.enabled ? 'bg-[var(--gold)] text-[var(--gold-contrast)] font-bold shadow-xs' : 'bg-muted/20 border border-border/60 text-muted-foreground'}`} onClick={async () => { await api('/api/admin/payments', 'PUT', { ...x, enabled: !x.enabled }); onRefresh(); }}>
+              <button className={`px-4 py-2 rounded-xl text-xs font-medium transition cursor-pointer ${x.enabled ? 'bg-(--gold) text-(--gold-contrast) font-bold shadow-2xs' : 'bg-muted/20 border border-border/60 text-muted-foreground'}`} onClick={async () => { await api('/api/admin/payments', 'PUT', { ...x, enabled: !x.enabled }); onRefresh(); }}>
                 {x.enabled ? 'مفعل' : 'متوقف'}
               </button>
-              <button className="px-4 py-2 rounded-xl bg-muted/20 border border-border/60 text-xs font-medium hover:bg-muted/30 hover:border-[var(--gold)]/30 focus:outline-none focus:ring-2 focus:ring-[var(--gold)]/10 transition-all duration-200 cursor-pointer" onClick={() => onEdit(x)}>إدارة</button>
+              <button className="px-4 py-2 rounded-xl bg-muted/20 border border-border/60 text-xs font-medium hover:bg-muted/30 hover:border-(--gold)/30 focus:outline-hidden focus:ring-2 focus:ring-(--gold)/10 transition-all duration-200 cursor-pointer" onClick={() => onEdit(x)}>إدارة</button>
             </div>
           </div>
           <p className="text-xs text-muted-foreground font-light pt-2 border-t border-border/30">
@@ -391,12 +391,12 @@ export function Content({ tab, data, onEdit, onDelete, onRefresh, onReorder }: a
   if (tab === 'features') return (
     <div className="grid gap-3.5">
       {data.map((x: any) => (
-        <div className="bg-background/70 border border-border/50 rounded-[24px] p-5 flex items-center justify-between shadow-xs transition-all duration-200 hover:border-[var(--gold)]/20" key={x.id}>
+        <div className="bg-background/70 border border-border/50 rounded-[24px] p-5 flex items-center justify-between shadow-2xs transition-all duration-200 hover:border-(--gold)/20" key={x.id}>
           <div>
             <b className="font-serif font-bold text-foreground">{x.key}</b>
             <p className="text-muted-foreground text-xs font-light mt-0.5">{x.description || 'ميزة قابلة للتفعيل'}</p>
           </div>
-          <button className={`px-5 py-2.5 rounded-2xl text-xs font-medium transition cursor-pointer ${x.enabled ? 'bg-[var(--gold)] text-[var(--gold-contrast)] font-bold shadow-xs' : 'bg-muted/20 border border-border/60 text-muted-foreground'}`} onClick={async () => { await api('/api/admin/features', 'PUT', { key: x.key, enabled: !x.enabled }); onRefresh(); }}>
+          <button className={`px-5 py-2.5 rounded-2xl text-xs font-medium transition cursor-pointer ${x.enabled ? 'bg-(--gold) text-(--gold-contrast) font-bold shadow-2xs' : 'bg-muted/20 border border-border/60 text-muted-foreground'}`} onClick={async () => { await api('/api/admin/features', 'PUT', { key: x.key, enabled: !x.enabled }); onRefresh(); }}>
             {x.enabled ? 'مفعل' : 'متوقف'}
           </button>
         </div>
@@ -408,7 +408,7 @@ export function Content({ tab, data, onEdit, onDelete, onRefresh, onReorder }: a
   if (tab === 'security') return (
     <div className="space-y-2.5">
       {(data[0]?.logs || data || []).map((x: any) => (
-        <div className="bg-background/70 border border-border/50 rounded-[22px] p-4 shadow-xs transition-all duration-200 hover:border-[var(--gold)]/20" key={x.id || Math.random()}>
+        <div className="bg-background/70 border border-border/50 rounded-[22px] p-4 shadow-2xs transition-all duration-200 hover:border-(--gold)/20" key={x.id || Math.random()}>
           <b className="font-serif font-bold text-sm text-foreground">{x.action || 'سجل نشاط'}</b>
           <span className="text-muted-foreground text-xs mr-3 font-light">{x.entity || ''}</span>
           <div className="text-muted-foreground text-[11px] mt-1 font-light">{x.createdAt ? new Date(x.createdAt).toLocaleString('ar-EG') : ''}</div>
@@ -424,15 +424,15 @@ export function Content({ tab, data, onEdit, onDelete, onRefresh, onReorder }: a
   if (tab === 'users') return (
     <div className="space-y-3">
       {data.map((x: any) => (
-        <div className="bg-background/70 border border-border/50 rounded-[22px] p-4 flex flex-wrap items-center gap-4 shadow-xs transition-all duration-200 hover:border-[var(--gold)]/20" key={x.id}>
+        <div className="bg-background/70 border border-border/50 rounded-[22px] p-4 flex flex-wrap items-center gap-4 shadow-2xs transition-all duration-200 hover:border-(--gold)/20" key={x.id}>
           <div className="flex-1">
             <b className="font-serif font-bold text-foreground">{x.name || x.email}</b>
             <p className="text-muted-foreground text-xs font-light mt-0.5">{x.email}</p>
           </div>
-          <select className="px-3 py-2 rounded-xl bg-[var(--bg)] border border-border/60 text-xs text-foreground focus:outline-none focus:border-[var(--gold)]" value={x.role} onChange={async e => { await api('/api/admin/users', 'PUT', { id: x.id, role: e.target.value, active: x.active }); onRefresh(); }}>
+          <select className="px-3 py-2 rounded-xl bg-(--bg) border border-border/60 text-xs text-foreground focus:outline-hidden focus:border-(--gold)" value={x.role} onChange={async e => { await api('/api/admin/users', 'PUT', { id: x.id, role: e.target.value, active: x.active }); onRefresh(); }}>
             {['OWNER', 'ADMIN', 'MANAGER', 'EDITOR', 'ORDER_MANAGER', 'VIEWER'].map(r => <option key={r}>{r}</option>)}
           </select>
-          <button className={`px-4 py-2 rounded-xl text-xs font-medium transition cursor-pointer ${x.active ? 'bg-[var(--gold)] text-[var(--gold-contrast)] font-bold shadow-xs' : 'bg-muted/20 border border-border/60 text-muted-foreground'}`} onClick={async () => { await api('/api/admin/users', 'PUT', { id: x.id, role: x.role, active: !x.active }); onRefresh(); }}>
+          <button className={`px-4 py-2 rounded-xl text-xs font-medium transition cursor-pointer ${x.active ? 'bg-(--gold) text-(--gold-contrast) font-bold shadow-2xs' : 'bg-muted/20 border border-border/60 text-muted-foreground'}`} onClick={async () => { await api('/api/admin/users', 'PUT', { id: x.id, role: x.role, active: !x.active }); onRefresh(); }}>
             {x.active ? 'نشط' : 'موقوف'}
           </button>
         </div>
@@ -447,7 +447,7 @@ export function Content({ tab, data, onEdit, onDelete, onRefresh, onReorder }: a
   return (
     <div className="space-y-3">
       {data.map((x: any) => (
-        <div className="bg-background/70 border border-border/50 rounded-[22px] p-4 flex items-center justify-between gap-4 shadow-xs transition-all duration-200 hover:border-[var(--gold)]/20" key={x.id || x.key}>
+        <div className="bg-background/70 border border-border/50 rounded-[22px] p-4 flex items-center justify-between gap-4 shadow-2xs transition-all duration-200 hover:border-(--gold)/20" key={x.id || x.key}>
           <div>
             <b className="font-serif font-bold text-foreground text-sm">{x.name || x.title || x.code || x.governorate || x.type || x.key}</b>
             <p className="text-muted-foreground text-xs font-light mt-1">
@@ -455,8 +455,8 @@ export function Content({ tab, data, onEdit, onDelete, onRefresh, onReorder }: a
             </p>
           </div>
           <div className="flex gap-2.5">
-            <button className="px-4 py-2 rounded-xl bg-muted/20 border border-border/60 text-xs font-medium hover:bg-muted/30 hover:border-[var(--gold)]/30 focus:outline-none focus:ring-2 focus:ring-[var(--gold)]/10 transition-all duration-200 cursor-pointer" onClick={() => onEdit(x)}>تعديل</button>
-            <button className="p-2 rounded-xl border border-red-400 text-red-500 hover:bg-red-500/10 focus:outline-none focus:ring-2 focus:ring-red-500/10 transition-all duration-200 cursor-pointer" onClick={() => onDelete(x.id)}><Trash2 size={16} /></button>
+            <button className="px-4 py-2 rounded-xl bg-muted/20 border border-border/60 text-xs font-medium hover:bg-muted/30 hover:border-(--gold)/30 focus:outline-hidden focus:ring-2 focus:ring-(--gold)/10 transition-all duration-200 cursor-pointer" onClick={() => onEdit(x)}>تعديل</button>
+            <button className="p-2 rounded-xl border border-red-400 text-red-500 hover:bg-red-500/10 focus:outline-hidden focus:ring-2 focus:ring-red-500/10 transition-all duration-200 cursor-pointer" onClick={() => onDelete(x.id)}><Trash2 size={16} /></button>
           </div>
         </div>
       ))}
@@ -470,16 +470,16 @@ export function Analytics({ data }: any) {
     <AdminPanel>
       <AdminSectionTitle title="نظرة عامة على الأداء" description="ملخص سريع لأهم مؤشرات المتجر الحالية." />
       <div className="grid gap-4 p-4 md:grid-cols-3 md:p-5">
-        <div className="relative overflow-hidden rounded-[24px] border border-[var(--gold)]/20 bg-[var(--gold)]/[0.045] p-5 shadow-sm">
-          <div className="absolute -end-8 -top-8 h-24 w-24 rounded-full bg-[var(--gold)]/10 blur-2xl" />
+        <div className="relative overflow-hidden rounded-[24px] border border-(--gold)/20 bg-(--gold)/4.5 p-5 shadow-xs">
+          <div className="absolute -inset-e-8 -top-8 h-24 w-24 rounded-full bg-(--gold)/10 blur-2xl" />
           <p className="relative text-muted-foreground text-xs font-light">إجمالي المبيعات</p>
-          <h3 className="relative mt-1 text-2xl font-serif font-bold text-[var(--gold)]">{data.totalSales || 0} ج.م</h3>
+          <h3 className="relative mt-1 text-2xl font-serif font-bold text-(--gold)">{data.totalSales || 0} ج.م</h3>
         </div>
-        <div className="rounded-[24px] border border-border/50 bg-muted/10 p-5 shadow-sm">
+        <div className="rounded-[24px] border border-border/50 bg-muted/10 p-5 shadow-xs">
           <p className="text-muted-foreground text-xs font-light">إجمالي الطلبات</p>
           <h3 className="mt-1 text-2xl font-serif font-bold text-foreground">{data.totalOrders || 0}</h3>
         </div>
-        <div className="rounded-[24px] border border-border/50 bg-muted/10 p-5 shadow-sm">
+        <div className="rounded-[24px] border border-border/50 bg-muted/10 p-5 shadow-xs">
           <p className="text-muted-foreground text-xs font-light">إجمالي العملاء</p>
           <h3 className="mt-1 text-2xl font-serif font-bold text-foreground">{data.totalCustomers || 0}</h3>
         </div>
@@ -492,7 +492,7 @@ export function Customers({ data }: any) {
   return (
     <div className="space-y-2.5">
       {data.map((c: any) => (
-        <div className="bg-background/70 border border-border/50 rounded-[22px] p-4 flex justify-between items-center shadow-xs transition-all duration-200 hover:border-[var(--gold)]/20" key={c.id}>
+        <div className="bg-background/70 border border-border/50 rounded-[22px] p-4 flex justify-between items-center shadow-2xs transition-all duration-200 hover:border-(--gold)/20" key={c.id}>
           <div>
             <b className="font-serif font-bold text-foreground">{c.name}</b>
             <p className="text-muted-foreground text-xs font-light mt-0.5">{c.phone} • {c.email || 'بدون إيميل'}</p>
@@ -508,16 +508,16 @@ export function Orders({ data, onRefresh }: any) {
   return (
     <div className="space-y-2.5">
       {data.map((o: any) => (
-        <div className="bg-background/70 border border-border/50 rounded-[22px] p-4 flex justify-between items-center shadow-xs transition-all duration-200 hover:border-[var(--gold)]/20" key={o.id}>
+        <div className="bg-background/70 border border-border/50 rounded-[22px] p-4 flex justify-between items-center shadow-2xs transition-all duration-200 hover:border-(--gold)/20" key={o.id}>
           <div>
-            <Link href={`/admin/orders/${o.id}`} className="text-[var(--gold)] font-serif font-bold hover:underline inline-block text-base cursor-pointer">
+            <Link href={`/admin/orders/${o.id}`} className="text-(--gold) font-serif font-bold hover:underline inline-block text-base cursor-pointer">
               طلب #{o.number} 🔗
             </Link>
             <p className="text-muted-foreground text-xs font-light mt-1">
-              {o.customerNameSnapshot || 'عميل'} • {o.total} ج.م • <span className="text-[var(--gold)] font-medium">{o.status}</span>
+              {o.customerNameSnapshot || 'عميل'} • {o.total} ج.م • <span className="text-(--gold) font-medium">{o.status}</span>
             </p>
           </div>
-          <Link href={`/admin/orders/${o.id}`} className="px-4 py-2 rounded-xl bg-[var(--gold)] text-[var(--gold-contrast)] text-xs font-serif font-bold hover:opacity-95 focus:outline-none focus:ring-2 focus:ring-[var(--gold)]/20 transition-all duration-200 shadow-xs cursor-pointer">
+          <Link href={`/admin/orders/${o.id}`} className="px-4 py-2 rounded-xl bg-(--gold) text-(--gold-contrast) text-xs font-serif font-bold hover:opacity-95 focus:outline-hidden focus:ring-2 focus:ring-(--gold)/20 transition-all duration-200 shadow-2xs cursor-pointer">
             إدارة الطلب ←
           </Link>
         </div>
@@ -535,14 +535,14 @@ export function Sortable({ data, onEdit, onDelete, onReorder }: any) {
   return (
     <div className="space-y-2.5">
       {items.map((x: any, i: number) => (
-        <div key={x.id} draggable onDragStart={() => setDrag(i)} onDragOver={e => e.preventDefault()} onDrop={async () => { if (drag === null || drag === i) return; const a = [...items]; const [m] = a.splice(drag, 1); a.splice(i, 0, m); setDrag(null); await onReorder(a, '/api/admin/homepage'); }} className="bg-muted/10 border border-border/40 rounded-2xl flex items-center gap-3 p-4 cursor-move shadow-xs">
+        <div key={x.id} draggable onDragStart={() => setDrag(i)} onDragOver={e => e.preventDefault()} onDrop={async () => { if (drag === null || drag === i) return; const a = [...items]; const [m] = a.splice(drag, 1); a.splice(i, 0, m); setDrag(null); await onReorder(a, '/api/admin/homepage'); }} className="bg-muted/10 border border-border/40 rounded-2xl flex items-center gap-3 p-4 cursor-move shadow-2xs">
           <GripVertical className="text-muted-foreground" />
           <div className="flex-1">
             <b className="font-serif font-bold text-foreground text-sm">{x.title || x.type}</b>
             <p className="text-muted-foreground text-xs font-light mt-0.5">{x.visible ? 'ظاهر' : 'مخفي'} • ترتيب {i + 1}</p>
           </div>
-          <button className="px-4 py-2 rounded-xl bg-muted/20 border border-border/60 text-xs font-medium hover:bg-muted/30 hover:border-[var(--gold)]/30 focus:outline-none focus:ring-2 focus:ring-[var(--gold)]/10 transition-all duration-200 cursor-pointer" onClick={() => onEdit(x)}>تعديل</button>
-          <button className="p-2 rounded-xl border border-red-400 text-red-500 hover:bg-red-500/10 focus:outline-none focus:ring-2 focus:ring-red-500/10 transition-all duration-200 cursor-pointer" onClick={() => onDelete(x.id)}><Trash2 size={16} /></button>
+          <button className="px-4 py-2 rounded-xl bg-muted/20 border border-border/60 text-xs font-medium hover:bg-muted/30 hover:border-(--gold)/30 focus:outline-hidden focus:ring-2 focus:ring-(--gold)/10 transition-all duration-200 cursor-pointer" onClick={() => onEdit(x)}>تعديل</button>
+          <button className="p-2 rounded-xl border border-red-400 text-red-500 hover:bg-red-500/10 focus:outline-hidden focus:ring-2 focus:ring-red-500/10 transition-all duration-200 cursor-pointer" onClick={() => onDelete(x.id)}><Trash2 size={16} /></button>
         </div>
       ))}
     </div>
@@ -571,7 +571,7 @@ export function Media({ data, onDelete, onRefresh }: any) {
         title="مكتبة الوسائط"
         description="إدارة الصور المستخدمة داخل المتجر والمنتجات."
         action={
-          <label className="px-5 py-3 rounded-2xl bg-[var(--gold)] text-[var(--gold-contrast)] font-serif font-bold text-xs shadow-sm hover:opacity-95 focus:outline-none focus:ring-2 focus:ring-[var(--gold)]/20 transition-all duration-200 inline-flex items-center gap-2 cursor-pointer">
+          <label className="px-5 py-3 rounded-2xl bg-(--gold) text-(--gold-contrast) font-serif font-bold text-xs shadow-xs hover:opacity-95 focus:outline-hidden focus:ring-2 focus:ring-(--gold)/20 transition-all duration-200 inline-flex items-center gap-2 cursor-pointer">
         <Upload size={17} /> {busy ? 'جارٍ الرفع…' : 'رفع صورة'}
         <input hidden type="file" accept="image/*" onChange={e => { const f = e.target.files?.[0]; if (f) upload(f); }} />
       </label>
@@ -579,11 +579,11 @@ export function Media({ data, onDelete, onRefresh }: any) {
       />
       <div className="grid grid-cols-2 gap-4 p-4 md:grid-cols-4 md:p-5">
         {data.map((x: any) => (
-          <div key={x.id} className="bg-background/70 border border-border/50 rounded-[24px] overflow-hidden shadow-xs transition-all duration-200 hover:border-[var(--gold)]/20">
+          <div key={x.id} className="bg-background/70 border border-border/50 rounded-[24px] overflow-hidden shadow-2xs transition-all duration-200 hover:border-(--gold)/20">
             <Image src={x.url} width={600} height={600} alt={x.name || "صورة من مكتبة الوسائط"} sizes="(max-width: 768px) 50vw, 25vw" className="aspect-square w-full object-cover" />
             <div className="p-3.5 space-y-2">
               <p className="truncate text-xs text-foreground font-light">{x.name}</p>
-              <button className="w-full py-2 rounded-xl border border-red-400 text-red-500 text-xs font-medium hover:bg-red-500/10 focus:outline-none focus:ring-2 focus:ring-red-500/10 transition-all duration-200 cursor-pointer" onClick={() => onDelete(x.id)}>حذف</button>
+              <button className="w-full py-2 rounded-xl border border-red-400 text-red-500 text-xs font-medium hover:bg-red-500/10 focus:outline-hidden focus:ring-2 focus:ring-red-500/10 transition-all duration-200 cursor-pointer" onClick={() => onDelete(x.id)}>حذف</button>
             </div>
           </div>
         ))}
@@ -597,12 +597,12 @@ export function Reviews({ data, onRefresh }: any) {
   return (
     <div className="space-y-2.5">
       {data.map((x: any) => (
-        <div className="bg-background/70 border border-border/50 rounded-[22px] p-4 flex flex-wrap items-center gap-4 shadow-xs transition-all duration-200 hover:border-[var(--gold)]/20" key={x.id}>
+        <div className="bg-background/70 border border-border/50 rounded-[22px] p-4 flex flex-wrap items-center gap-4 shadow-2xs transition-all duration-200 hover:border-(--gold)/20" key={x.id}>
           <div className="flex-1 space-y-1">
             <b className="font-serif font-bold text-foreground text-sm">{x.customer?.name || 'عميل'} — {x.product?.name}</b>
             <p className="text-xs text-foreground font-light">{'★'.repeat(x.rating)} <span className="text-muted-foreground">{x.text || ''}</span></p>
           </div>
-          <button className={`px-4 py-2 rounded-xl text-xs font-medium transition cursor-pointer ${x.approved ? 'bg-[var(--gold)] text-[var(--gold-contrast)] font-bold shadow-xs' : 'bg-muted/20 border border-border/60 text-muted-foreground'}`} onClick={async () => { await api('/api/admin/reviews', 'PUT', { id: x.id, approved: !x.approved }); onRefresh(); }}>
+          <button className={`px-4 py-2 rounded-xl text-xs font-medium transition cursor-pointer ${x.approved ? 'bg-(--gold) text-(--gold-contrast) font-bold shadow-2xs' : 'bg-muted/20 border border-border/60 text-muted-foreground'}`} onClick={async () => { await api('/api/admin/reviews', 'PUT', { id: x.id, approved: !x.approved }); onRefresh(); }}>
             {x.approved ? 'معتمد' : 'معلق'}
           </button>
         </div>

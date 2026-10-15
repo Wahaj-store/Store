@@ -84,14 +84,14 @@ export default function AdminFaqPage() {
       <div className="flex justify-between items-center border-b pb-4">
         <div>
           <h1 className="text-2xl font-bold flex items-center gap-2">
-            <HelpCircle className="text-[var(--gold)]" /> إدارة الأسئلة الشائعة (FAQ)
+            <HelpCircle className="text-(--gold)" /> إدارة الأسئلة الشائعة (FAQ)
           </h1>
           <p className="text-xs text-gray-500 mt-1">إضافة وتعديل الأسئلة التي تظهر للعملاء في صفحة الأسئلة الشائعة.</p>
         </div>
       </div>
 
       {/* نموذج الإضافة والتعديل */}
-      <form onSubmit={handleSubmit} className="bg-white p-6 rounded-2xl border shadow-sm space-y-4">
+      <form onSubmit={handleSubmit} className="bg-white p-6 rounded-2xl border shadow-xs space-y-4">
         <h2 className="font-semibold text-lg">{isEditing ? 'تعديل السؤال' : 'إضافة سؤال جديد'}</h2>
         
         {error && <p className="text-xs text-red-600 font-medium">{error}</p>}
@@ -149,7 +149,7 @@ export default function AdminFaqPage() {
                 type="checkbox" 
                 checked={formData.published} 
                 onChange={e => setFormData({ ...formData, published: e.target.checked })}
-                className="w-4 h-4 accent-[var(--gold)]"
+                className="w-4 h-4 accent-(--gold)"
               />
               منشور في المتجر
             </label>
@@ -157,7 +157,7 @@ export default function AdminFaqPage() {
         </div>
 
         <div className="flex gap-3 pt-2">
-          <button type="submit" className="px-6 py-2.5 bg-[var(--gold)] text-white rounded-xl text-sm font-medium">
+          <button type="submit" className="px-6 py-2.5 bg-(--gold) text-white rounded-xl text-sm font-medium">
             {isEditing ? 'حفظ التعديلات' : 'إضافة السؤال'}
           </button>
           {isEditing && (
@@ -173,7 +173,7 @@ export default function AdminFaqPage() {
       </form>
 
       {/* جدول عرض الأسئلة */}
-      <div className="bg-white rounded-2xl border shadow-sm overflow-hidden">
+      <div className="bg-white rounded-2xl border shadow-xs overflow-hidden">
         <table className="w-full text-start border-collapse">
           <thead>
             <tr className="border-b bg-gray-50 text-xs text-gray-500 text-start">
