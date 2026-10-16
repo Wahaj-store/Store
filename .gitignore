@@ -22,3 +22,6 @@ coverage/
 playwright-report/
 test-results/
 blob-report/
+
+# Local project archives
+*.zip
