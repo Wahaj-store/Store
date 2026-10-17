@@ -406,12 +406,14 @@ function CheckoutContent() {
     switch (methodKey.toLowerCase()) {
       case 'cod':
       case 'cash':
-        return <Truck size={20} className="text-(--gold)" />;
+      case 'cash_on_delivery':
+        return <img src="/images/payment-cash-on-delivery.png" alt="الدفع عند الاستلام" className="wahaj-payment-logo wahaj-payment-logo--cod" />;
       case 'vodafone':
       case 'vodafone_cash':
-        return <span className="text-red-500 font-bold text-xs">V-CASH</span>;
+      case 'vodafone cash':
+        return <img src="/images/payment-wallet.png" alt="فودافون كاش" className="wahaj-payment-logo wahaj-payment-logo--wallet" />;
       case 'instapay':
-        return <span className="text-purple-600 font-bold text-xs">InstaPay</span>;
+        return <img src="/images/payment-instapay.png" alt="InstaPay" className="wahaj-payment-logo wahaj-payment-logo--instapay" />;
       default:
         return <CreditCard size={20} className="text-(--gold)" />;
     }
