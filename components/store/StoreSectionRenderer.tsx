@@ -385,10 +385,14 @@ export default function StoreSectionRenderer({
         {sections.map((sec: any) => {
           if (sec.type === "hero") {
             const fallbackImage = sec.imageUrl || data?.products?.[0]?.images?.[0]?.url || "/placeholder.svg";
-            const gallery = (Array.isArray(sec.images) ? sec.images : [])
-              .map((item: any) => typeof item === "string" ? item : item?.url || item?.imageUrl)
-              .filter(Boolean).slice(0, 4);
-            const panels = gallery.length ? gallery : [fallbackImage, fallbackImage, fallbackImage, fallbackImage];
+            const heroImage = sec.imageUrl ||
+              (Array.isArray(sec.images)
+                ? (typeof sec.images[0] === "string"
+                    ? sec.images[0]
+                    : sec.images[0]?.url || sec.images[0]?.imageUrl)
+                : null) ||
+              data?.products?.[0]?.images?.[0]?.url ||
+              "/placeholder.svg";
             const marqueeItems = [
               ...((Array.isArray(offers) ? offers : []).filter((o: any) => o && (o.name || o.title)).map((o: any) => ({
                 text: o.name || o.title, href: `/offers/${o.id}`,
@@ -401,11 +405,14 @@ export default function StoreSectionRenderer({
               <Fragment key={sec.id}>
                 <section className="wahaj-editorial-hero" aria-label="وَهَج — لأن أناقتك تستحق أن تتألّق" style={{ "--wahaj-hero-height-desktop": `${Math.max(260, Math.min(700, Number(s.hero_height_desktop || 420)))}px`, "--wahaj-hero-height-mobile": `${Math.max(220, Math.min(600, Number(s.hero_height_mobile || 320)))}px` } as React.CSSProperties}>
                   <div className="wahaj-editorial-hero__collage" aria-hidden="true">
-                    {panels.map((src: string, index: number) => (
-                      <div className={`wahaj-editorial-hero__panel wahaj-editorial-hero__panel--${index + 1}`} key={`${src}-${index}`}>
-                        <Image src={src} alt="" fill sizes="(max-width: 700px) 25vw, 25vw" priority={index < 2} className="wahaj-editorial-hero__image" />
-                      </div>
-                    ))}
+                    <Image
+                      src={heroImage}
+                      alt=""
+                      fill
+                      priority
+                      sizes="100vw"
+                      className="wahaj-editorial-hero__image"
+                    />
                   </div>
                   <div className="wahaj-editorial-hero__shade" aria-hidden="true" />
                   <div className="wahaj-editorial-hero__content">
