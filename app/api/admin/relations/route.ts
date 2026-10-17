@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
-import { requireUser } from '@/lib/auth';
+import { requirePermission, requireUser } from '@/lib/auth';
 import { can } from '@/lib/rbac';
 
 const relationSchema = z.object({
@@ -63,8 +63,8 @@ async function findDuplicate(type: string, fromProductId: string, toProductId: s
 
 export async function GET() {
   try {
-    const user = await requireUser();
-    if (!user) return NextResponse.json({ error: 'غير مصرح' }, { status: 401 });
+    const auth = await requirePermission('productsRead');
+    if (!auth.user) return NextResponse.json({ error: 'غير مصرح' }, { status: auth.status });
 
     const relations = await prisma.productRelation.findMany({
       include: {
