@@ -399,7 +399,7 @@ export default function StoreSectionRenderer({
             const speed = Math.max(12, Math.min(90, Number(s.hero_marquee_speed || 28)));
             return (
               <Fragment key={sec.id}>
-                <section className="wahaj-editorial-hero" aria-label="وَهَج — لأن أناقتك تستحق أن تتألّق">
+                <section className="wahaj-editorial-hero" aria-label="وَهَج — لأن أناقتك تستحق أن تتألّق" style={{ "--wahaj-hero-height-desktop": `${Math.max(260, Math.min(700, Number(s.hero_height_desktop || 420)))}px`, "--wahaj-hero-height-mobile": `${Math.max(220, Math.min(600, Number(s.hero_height_mobile || 320)))}px` } as React.CSSProperties}>
                   <div className="wahaj-editorial-hero__collage" aria-hidden="true">
                     {panels.map((src: string, index: number) => (
                       <div className={`wahaj-editorial-hero__panel wahaj-editorial-hero__panel--${index + 1}`} key={`${src}-${index}`}>
