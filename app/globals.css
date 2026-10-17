@@ -3098,7 +3098,7 @@ a:focus-visible {
 .wahaj-account-dashboard > .container > div:nth-child(2) > aside button { min-height:43px; border-radius:11px; font-size:11px; }
 .wahaj-account-dashboard > .container > div:nth-child(2) > aside button[class*='bg-[var(--gold)]'] { box-shadow:0 7px 16px color-mix(in srgb,var(--gold) 20%,transparent); }
 .wahaj-account-dashboard > .container > div:nth-child(2) > section > div { border-color:var(--border); border-radius:18px; background:var(--card); box-shadow:var(--shadow-soft); }
-.wahaj-account-dashboard input:not([type='checkbox']),.wahaj-account-dashboard textarea,.wahaj-account-dashboard select { border-radius:10px; }
+.wahaj-account-dashboard input:not([type='checkbox']),.wahaj-account-dashboard textarea,.wahaj-account-dashboard select { border-radius:10px !important; }
 .wahaj-account-dashboard .font-serif { font-family:var(--font-wahaj),'Tajawal',sans-serif; }
 @media (max-width:900px) { .wahaj-account-dashboard > .container > div:nth-child(2) > aside { position:static; } }
 @media (max-width:700px) { .wahaj-account-dashboard { padding-top:28px !important; } .wahaj-account-dashboard > .container > div:first-child { min-height:105px; padding:18px 16px; border-radius:15px; } .wahaj-account-dashboard > .container > div:first-child::after { inset-inline-start:3%; top:-40px; font-size:170px; } .wahaj-account-dashboard > .container > div:nth-child(2) { gap:14px; } }
@@ -5670,125 +5670,41 @@ body:has(.wahaj-maintenance) .wahaj-footer { display:none !important; }
   .wahaj-shop-filter-disclosure[open] > .wahaj-shop-filters { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
 }
 
-
-/* =========================================================
-   WAHAJ — Phase 2 accessibility & editorial consistency
-   Uses the existing warm palette; text contrast is separate from decorative gold.
-   ========================================================= */
-:root {
-  --gold-text: #84652F;
-  --type-caption: 0.75rem;
-  --type-body: 0.875rem;
-  --type-heading: clamp(1.65rem, 3vw, 2.35rem);
-  --space-1: 0.375rem;
-  --space-2: 0.75rem;
-  --space-3: 1rem;
-  --space-4: 1.5rem;
-  --space-5: 2rem;
-  --focus-ring: color-mix(in srgb, var(--gold-text) 72%, transparent);
-}
-.dark {
-  --gold-text: #D5B878;
-  --focus-ring: color-mix(in srgb, var(--gold) 82%, transparent);
-}
-
-.gold,
-.eyebrow,
-.wahaj-section-heading__eyebrow,
-.wahaj-shop-section-kicker,
-.wahaj-commerce-kicker,
-.wahaj-footer__tagline,
-.wahaj-product-card__category,
-.wahaj-product-card__price,
-.wahaj-product-purchase__price-line strong,
-.wahaj-product-eyebrow,
-.wahaj-shop-results b,
-.wahaj-admin-page__eyebrow {
-  color: var(--gold-text);
-}
-
-.wahaj-skip-link {
-  position: fixed;
-  z-index: 200;
-  inset-block-start: 12px;
-  inset-inline-start: 12px;
-  transform: translateY(-160%);
-  padding: 12px 18px;
-  border: 1px solid var(--gold-text);
-  border-radius: 10px;
-  background: var(--card);
-  color: var(--foreground);
-  box-shadow: var(--shadow-luxury);
-  font-size: 14px;
-  font-weight: 700;
-  transition: transform var(--transition);
-}
-.wahaj-skip-link:focus { transform: translateY(0); }
-#main-content:focus,
-#admin-main-content:focus,
-#admin-login-panel:focus { outline: none; }
-
-:where(a, button, input, textarea, select, [role="button"], [role="radio"]):focus-visible {
-  outline: 2px solid var(--focus-ring);
-  outline-offset: 3px;
-}
-button:disabled,
-[aria-disabled="true"] { cursor: not-allowed; }
-
-.wahaj-header__menu,
-.wahaj-header__action { min-width: 44px; min-height: 44px; width: 44px; height: 44px; flex-basis: 44px; }
-.wahaj-product-card__action { min-height: 44px; padding-inline: 11px; }
-.wahaj-shop-category,
-.wahaj-shop-filter-submit { min-height: 44px; }
-.wahaj-footer__social-link { width: 44px; height: 44px; }
-.wahaj-admin__sidebar nav a,
-.wahaj-admin__sidebar > a { min-height: 44px; }
-
-.wahaj-section-heading__eyebrow,
-.wahaj-shop-section-kicker,
-.wahaj-commerce-kicker,
-.wahaj-footer__tagline,
-.wahaj-product-card__category,
-.wahaj-admin-page__eyebrow { font-size: max(11px, 0.72rem); }
-.wahaj-footer__links a,
-.wahaj-footer__payment-text,
-.wahaj-footer__bottom,
-.wahaj-trust__text,
-.wahaj-newsletter__message { font-size: max(11px, 0.72rem); }
-.wahaj-shop-price-field,
-.wahaj-shop-stock,
-.wahaj-shop-sort,
-.wahaj-shop-filter-submit { font-size: max(11px, 0.72rem); }
-.wahaj-product-card__availability,
-.wahaj-product-card__old-price { font-size: max(10px, 0.68rem); }
-.wahaj-account-dashboard :where(label, small, .text-xs) { line-height: 1.65; }
-.wahaj-commerce-shell :where(label, small) { line-height: 1.65; }
-
-.wahaj-admin-page,
-.wahaj-storefront,
-.wahaj-commerce-shell { min-width: 0; }
-.wahaj-admin-page__inner { width: min(100%, 1540px); }
-.wahaj-admin-page__inner :where(section, article, aside) { min-width: 0; }
-.wahaj-admin-page :where(table) { max-width: 100%; }
-.wahaj-admin-page :where(pre, code) { overflow-wrap: anywhere; }
-
-@media (max-width: 767px) {
-  .wahaj-header__menu,
-  .wahaj-header__action { min-width: 44px; min-height: 44px; width: 44px; height: 44px; flex-basis: 44px; }
-  .wahaj-product-card__action { min-height: 44px; }
-  .wahaj-footer__main { gap: 24px; }
-  .wahaj-admin-page__inner { width: calc(100% - 20px); }
-  .wahaj-commerce-shell { padding-inline: 12px; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .wahaj-skip-link { transition: none; }
-}
-
-.wahaj-checkout-empty-card {
-  width: min(100%, 720px);
-  min-height: 270px;
-  margin: clamp(24px, 5vw, 56px) auto;
-}
-.wahaj-checkout-empty-card .wahaj-commerce-primary { min-height: 48px; }
-.wahaj-order-status { color: var(--gold-text); }
+/* Luxury category discovery — uses the existing light/dark design tokens. */
+.wahaj-storefront .wahaj-collections { padding-block: var(--home-space); border-bottom: 1px solid var(--border); background: var(--surface); }
+.wahaj-collections__head { display:flex; align-items:end; justify-content:space-between; gap:20px; }
+.wahaj-categories-all { display:inline-flex; align-items:center; gap:8px; flex:0 0 auto; margin-bottom:32px; color:var(--gold-muted); font-size:12px; font-weight:700; }
+.wahaj-categories-all:hover { color:var(--foreground); }
+.wahaj-category-browser { min-width:0; }
+.wahaj-category-controls { display:flex; justify-content:flex-start; gap:8px; margin:-14px 0 14px; }
+.wahaj-category-controls button { display:grid; width:38px; height:38px; place-items:center; border:1px solid var(--border); border-radius:50%; background:var(--card); color:var(--foreground); transition:border-color .2s ease,opacity .2s ease; }
+.wahaj-category-controls button:not(:disabled):hover { border-color:var(--gold); }
+.wahaj-category-controls button:disabled { opacity:.32; cursor:not-allowed; }
+.wahaj-category-track { display:flex; gap:clamp(12px,2vw,22px); overflow-x:auto; overscroll-behavior-x:contain; scroll-snap-type:x mandatory; scrollbar-width:thin; scrollbar-color:var(--border-strong) transparent; padding:4px 2px 18px; touch-action:pan-x pan-y; }
+.wahaj-category-card { display:flex; flex:0 0 clamp(190px,22%,270px); min-width:0; flex-direction:column; scroll-snap-align:start; color:var(--foreground); text-decoration:none; }
+.wahaj-category-card__visual { position:relative; display:block; width:100%; aspect-ratio:4/5; overflow:hidden; border:1px solid color-mix(in srgb,var(--gold) 20%,var(--border)); border-radius:3px 38px 3px 3px; background:var(--card); }
+.wahaj-category-card__image { object-fit:cover; transition:transform .55s ease; }
+.wahaj-category-card:hover .wahaj-category-card__image { transform:scale(1.045); }
+.wahaj-category-card__index { position:absolute; inset-block-start:12px; inset-inline-start:12px; display:grid; min-width:31px; height:31px; place-items:center; border:1px solid color-mix(in srgb,var(--gold) 40%,transparent); border-radius:50%; background:color-mix(in srgb,var(--background) 86%,transparent); color:var(--foreground); font-size:10px; }
+.wahaj-category-card__name { margin-top:13px; font-size:clamp(14px,1.35vw,18px); font-weight:700; }
+.wahaj-category-card__description { margin-top:5px; color:var(--muted-foreground); font-size:11px; line-height:1.8; }
+.wahaj-category-card__link { display:inline-flex; align-items:center; gap:6px; margin-top:9px; color:var(--gold-muted); font-size:10px; font-weight:700; }
+.wahaj-category-browser.is-round .wahaj-category-card__visual { aspect-ratio:1; border-radius:50%; }
+.wahaj-category-browser.is-grid .wahaj-category-track { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); overflow:visible; }
+.wahaj-category-browser.is-grid .wahaj-category-card { width:100%; }
+.wahaj-categories-empty { padding:30px 16px; border:1px dashed var(--border-strong); border-radius:16px; color:var(--muted-foreground); text-align:center; font-size:13px; }
+.wahaj-categories-page { min-height:55vh; padding-block:clamp(38px,6vw,76px) 80px; background:var(--background); }
+.wahaj-categories-page__heading { max-width:700px; margin:0 auto 38px; text-align:center; }
+.wahaj-categories-page__heading .wahaj-home-kicker { display:inline-flex; align-items:center; gap:8px; color:var(--gold-muted); font-size:11px; }
+.wahaj-categories-page__heading h1 { margin-top:12px; color:var(--foreground); font-size:clamp(30px,5vw,52px); font-weight:700; letter-spacing:-.04em; }
+.wahaj-categories-page__heading p { margin-top:12px; color:var(--muted-foreground); font-size:13px; line-height:2; }
+.wahaj-categories-page__grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:clamp(14px,2.3vw,28px); }
+.wahaj-categories-page__grid .wahaj-category-card { width:100%; }
+.wahaj-categories-page__empty { padding:52px 20px; border:1px solid var(--border); border-radius:22px; text-align:center; color:var(--muted-foreground); }
+.wahaj-categories-page__empty > svg { margin:0 auto 12px; color:var(--gold-muted); }
+.wahaj-categories-page__empty h2 { color:var(--foreground); font-size:21px; }
+.wahaj-categories-page__empty p { margin:8px 0 18px; font-size:12px; }
+.wahaj-categories-page__empty a { display:inline-flex; align-items:center; gap:8px; color:var(--gold-muted); font-size:12px; font-weight:700; }
+@media (max-width:900px) { .wahaj-categories-page__grid,.wahaj-category-browser.is-grid .wahaj-category-track { grid-template-columns:repeat(3,minmax(0,1fr)); } .wahaj-category-card { flex-basis:clamp(180px,30%,240px); } }
+@media (max-width:600px) { .wahaj-collections__head { align-items:flex-start; gap:10px; } .wahaj-collections__head .wahaj-section-heading { margin-bottom:22px; } .wahaj-categories-all { margin-top:5px; margin-bottom:22px; font-size:10px; } .wahaj-category-card { flex-basis:66%; } .wahaj-category-card__visual { border-radius:3px 28px 3px 3px; } .wahaj-category-browser.is-grid .wahaj-category-track { grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px 11px; } .wahaj-categories-page__grid { grid-template-columns:repeat(2,minmax(0,1fr)); gap:20px 12px; } .wahaj-categories-page__heading { margin-bottom:27px; } .wahaj-category-card__name { font-size:13px; } }
+@media (prefers-reduced-motion:reduce) { .wahaj-category-card__image,.wahaj-category-controls button { transition:none; } }
