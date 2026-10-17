@@ -13,7 +13,6 @@ export default function CategoryCarousel({ categories, layout = "carousel" }: { 
   const update = () => {
     const el = trackRef.current;
     if (!el) return;
-    // scrollLeft may be negative in RTL; use its absolute position for robust edge checks.
     const max = el.scrollWidth - el.clientWidth;
     const position = Math.abs(el.scrollLeft);
     setHasOverflow(max > 4);
@@ -41,9 +40,10 @@ export default function CategoryCarousel({ categories, layout = "carousel" }: { 
 
   if (!categories.length) return <div className="wahaj-categories-empty">نعمل على تجهيز تصنيفات وَهَج لكِ قريبًا.</div>;
   return <div className={`wahaj-category-browser${isGrid ? " is-grid" : ""}${isRound ? " is-round" : ""}`}>
-    {!isGrid && hasOverflow && <div className="wahaj-category-controls" aria-label="التنقل بين التصنيفات">
-      <button type="button" onClick={() => scroll(-1)} disabled={!canPrev} aria-label="التصنيفات السابقة"><ArrowRight size={17} /></button>
-      <button type="button" onClick={() => scroll(1)} disabled={!canNext} aria-label="التصنيفات التالية"><ArrowLeft size={17} /></button>
+    {!isGrid && hasOverflow && <div className="wahaj-category-controls" role="group" aria-label="التنقل بين التصنيفات">
+      <button className="wahaj-category-controls__button" type="button" onClick={() => scroll(-1)} disabled={!canPrev} aria-label="التصنيفات السابقة"><ArrowRight size={16} aria-hidden="true" /><span>السابق</span></button>
+      <span className="wahaj-category-controls__divider" aria-hidden="true" />
+      <button className="wahaj-category-controls__button" type="button" onClick={() => scroll(1)} disabled={!canNext} aria-label="التصنيفات التالية"><span>التالي</span><ArrowLeft size={16} aria-hidden="true" /></button>
     </div>}
     <div className="wahaj-category-track" ref={trackRef} onScroll={update} role="list" aria-label="تصنيفات المتجر">
       {categories.map((category, index) => <Link role="listitem" key={category.id} href={`/shop?category=${encodeURIComponent(category.slug)}`} prefetch={false} className="wahaj-category-card">
