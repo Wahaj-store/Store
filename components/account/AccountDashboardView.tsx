@@ -7,6 +7,18 @@ import {
   CheckCircle2, ChevronLeft, Trash2, XCircle, Truck, PackageCheck, MessageSquareText, RotateCcw
 } from 'lucide-react';
 
+const orderStatusLabels: Record<string, string> = {
+  NEW: 'تم استلام الطلب',
+  PROCESSING: 'قيد التجهيز',
+  SHIPPED: 'تم الشحن',
+  DELIVERED: 'تم التسليم',
+  CANCELLED: 'تم إلغاء الطلب',
+};
+
+function orderStatusLabel(status: unknown) {
+  return typeof status === 'string' ? orderStatusLabels[status] || 'حالة الطلب قيد التحديث' : 'حالة الطلب قيد التحديث';
+}
+
 export default function AccountDashboardView(props: any) {
   const {
     c, setC, logout, tab, setTab, setSelectedOrder, selectedOrder, recentProducts,
@@ -300,7 +312,7 @@ export default function AccountDashboardView(props: any) {
                     <div className="wahaj-order-detail__header flex items-center justify-between border-b border-border/30 pb-4">
                       <div>
                         <h2 className="text-xl font-serif font-bold">تفاصيل الطلب: #{selectedOrder.number}</h2>
-                        <span className="text-xs text-muted-foreground font-light">حالة الطلب الحالية: <b className="text-(--gold)">{selectedOrder.status}</b></span>
+                          <span className="text-xs text-muted-foreground font-light">حالة الطلب الحالية: <b className="text-(--gold)">{orderStatusLabel(selectedOrder.status)}</b></span>
                       </div>
                       <button 
                         onClick={() => { setSelectedOrder(null); setReturnRequest(null); setReturnFormOpen(false); }}
@@ -547,8 +559,8 @@ export default function AccountDashboardView(props: any) {
                           <div className="space-y-1">
                             <b className="text-foreground font-serif">طلب #{o.number}</b>
                             <div className="flex items-center gap-2">
-                              <span className="text-xs px-2.5 py-0.5 rounded-full bg-(--gold)/10 text-(--gold) font-medium">
-                                {o.status}
+                              <span className="wahaj-order-status text-xs px-2.5 py-0.5 rounded-full bg-(--gold)/10 text-(--gold) font-medium">
+                                {orderStatusLabel(o.status)}
                               </span>
                             </div>
                           </div>
