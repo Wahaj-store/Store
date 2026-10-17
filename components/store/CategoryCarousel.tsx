@@ -37,10 +37,10 @@ export default function CategoryCarousel({ categories, layout = "carousel" }: { 
     const el = trackRef.current;
     const card = el?.querySelectorAll<HTMLElement>(".wahaj-category-card")[index];
     if (!el || !card) return;
-    const direction = window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth";
-    const rtl = getComputedStyle(el).direction === "rtl";
-    const left = rtl ? card.offsetLeft - (el.scrollWidth - el.clientWidth) : card.offsetLeft;
-    el.scrollTo({ left, behavior: direction });
+    const behavior: ScrollBehavior = window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth";
+    // scrollIntoView handles RTL scrollLeft differences across browsers more reliably.
+    // Restrict vertical movement so clicking a dot does not jump the whole page.
+    card.scrollIntoView({ behavior, block: "nearest", inline: "start" });
     setActiveDot(index);
   };
 
