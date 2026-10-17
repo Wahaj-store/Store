@@ -2,30 +2,69 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Eye, Heart, ShoppingBag, X } from "lucide-react";
 import AddToCart from "./AddToCart";
 import WishlistButton from "./WishlistButton";
 import { useFeatureFlags } from "@/lib/use-feature-flags";
 
 function QuickView({ p, onClose }: { p: any; onClose: () => void }) {
+  const panelRef = useRef<HTMLDivElement>(null);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
   const price = Number(p.price);
   const compare = p.comparePrice ? Number(p.comparePrice) : 0;
+
+  useEffect(() => {
+    const previouslyFocused = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    closeButtonRef.current?.focus();
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        onClose();
+        return;
+      }
+      if (event.key !== 'Tab' || !panelRef.current) return;
+      const focusable = Array.from(panelRef.current.querySelectorAll<HTMLElement>(
+        'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])',
+      ));
+      if (!focusable.length) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+      document.body.style.overflow = previousOverflow;
+      previouslyFocused?.focus();
+    };
+  }, [onClose]);
 
   return (
     <div
       className="wahaj-product-modal fixed inset-0 z-80 grid place-items-center p-4"
       role="dialog"
       aria-modal="true"
-      aria-label={`عرض سريع: ${p.name}`}
+      aria-labelledby={`quick-view-title-${p.id}`}
       onClick={onClose}
     >
       <div
+        ref={panelRef}
         className="wahaj-product-modal__panel w-full max-w-3xl overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
         <button
           type="button"
+          ref={closeButtonRef}
           onClick={onClose}
           aria-label="إغلاق العرض السريع"
           className="wahaj-product-modal__close"
@@ -52,7 +91,7 @@ function QuickView({ p, onClose }: { p: any; onClose: () => void }) {
               </span>
             )}
 
-            <h2 className="mt-2 text-2xl md:text-3xl font-semibold leading-tight">
+            <h2 id={`quick-view-title-${p.id}`} className="mt-2 text-2xl md:text-3xl font-semibold leading-tight">
               {p.name}
             </h2>
 
@@ -105,6 +144,7 @@ export default function ProductCard({
   variant?: "default" | "shop";
 }) {
   const [quickView, setQuickView] = useState(false);
+  const closeQuickView = useCallback(() => setQuickView(false), []);
   const { flags } = useFeatureFlags();
   const price = Number(product.price);
   const compare = product.comparePrice ? Number(product.comparePrice) : 0;
@@ -217,7 +257,7 @@ export default function ProductCard({
       </article>
 
       {flags.quick_view && quickView && (
-        <QuickView p={product} onClose={() => setQuickView(false)} />
+        <QuickView p={product} onClose={closeQuickView} />
       )}
     </>
   );
