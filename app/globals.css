@@ -5669,3 +5669,200 @@ body:has(.wahaj-maintenance) .wahaj-footer { display:none !important; }
   .wahaj-shop-search__submit { min-height: 44px; padding-inline: 8px; font-size: 11px; }
   .wahaj-shop-filter-disclosure[open] > .wahaj-shop-filters { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
 }
+
+/* =========================================================
+   وَهَج — Phase 2 editorial accessibility & responsive polish
+   Additive overrides only: preserve existing components, data and API contracts.
+   ========================================================= */
+:where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 3px;
+}
+
+:where(button, input, select, textarea):disabled {
+  cursor: not-allowed;
+  opacity: .58;
+}
+
+html {
+  overflow-x: hidden;
+}
+
+body {
+  min-width: 320px;
+  overflow-x: hidden;
+}
+
+.wahaj-product-card__action,
+.wahaj-product-card__top button,
+.wahaj-product-gallery__thumb,
+.wahaj-quantity-control button,
+.wahaj-product-variant,
+.wahaj-shop-category,
+.wahaj-shop-page-number,
+.wahaj-shop-page-arrow {
+  min-height: 44px;
+}
+
+.wahaj-product-card__top button,
+.wahaj-product-gallery__thumb {
+  min-width: 44px;
+}
+
+.wahaj-admin-page button,
+.wahaj-admin-page a,
+.wahaj-admin-page input,
+.wahaj-admin-page select,
+.wahaj-admin-page textarea {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.wahaj-admin-page table {
+  max-width: 100%;
+}
+
+@media (max-width: 900px) {
+  .wahaj-admin-page {
+    padding-inline: 10px;
+  }
+
+  .wahaj-admin-page__bar {
+    top: 6px;
+    min-height: 62px;
+    padding-inline: 10px;
+    border-radius: 14px;
+  }
+
+  .wahaj-admin-page__bar-actions {
+    gap: 5px;
+  }
+
+  .wahaj-admin-page__secure {
+    display: none;
+  }
+
+  .wahaj-admin-page__store-link,
+  .wahaj-admin-page__logout {
+    min-width: 42px;
+    min-height: 42px;
+    padding-inline: 9px;
+  }
+
+  .wahaj-admin-page__store-link span,
+  .wahaj-admin-page__logout span {
+    display: none;
+  }
+
+  .wahaj-admin-page .mt-4 {
+    margin-top: 10px;
+  }
+}
+
+@media (max-width: 700px) {
+  .wahaj-commerce-shell {
+    width: min(100% - 24px, 600px);
+    padding-block: 28px 58px;
+  }
+
+  .wahaj-commerce-header {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 15px;
+    margin-bottom: 20px;
+    padding-bottom: 20px;
+  }
+
+  .wahaj-commerce-header h1 {
+    font-size: clamp(28px, 9vw, 40px);
+  }
+
+  .wahaj-commerce-ghost {
+    min-height: 44px;
+  }
+
+  .wahaj-order-steps {
+    grid-template-columns: 1fr 20px 1fr 20px 1fr;
+    gap: 3px;
+    margin-bottom: 22px;
+    padding: 5px;
+  }
+
+  .wahaj-order-steps > div {
+    min-height: 44px;
+    gap: 5px;
+    font-size: 10px;
+  }
+
+  .wahaj-order-steps b {
+    width: 23px;
+    height: 23px;
+  }
+
+  .wahaj-cart-layout,
+  .wahaj-checkout-layout {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 22px;
+  }
+
+  .wahaj-cart-summary,
+  .wahaj-checkout-summary {
+    position: static;
+  }
+
+  .wahaj-cart-product {
+    gap: 11px;
+    padding: 10px;
+  }
+
+  .wahaj-cart-product__image {
+    flex-basis: 88px;
+    height: 112px;
+    border-radius: 9px;
+  }
+
+  .wahaj-cart-product__topline {
+    gap: 6px;
+  }
+
+  .wahaj-cart-product h3 {
+    font-size: 14px;
+  }
+
+  .wahaj-cart-product__footer {
+    flex-wrap: wrap;
+    gap: 9px 14px;
+    padding-top: 10px;
+  }
+
+  .wahaj-cart-line-total {
+    margin-inline-start: auto;
+  }
+
+  .wahaj-cart-remove {
+    min-height: 40px;
+    padding-inline: 4px;
+  }
+
+  .wahaj-checkout-page form {
+    gap: 18px;
+  }
+
+  .wahaj-checkout-page input:not([type="checkbox"]),
+  .wahaj-checkout-page select,
+  .wahaj-checkout-page textarea {
+    min-height: 44px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wahaj-product-card,
+  .wahaj-product-card__image,
+  .wahaj-product-card__actions,
+  .wahaj-product-card__action,
+  .wahaj-cart-product,
+  .wahaj-commerce-ghost,
+  .wahaj-shop-filter-toggle > svg:last-child {
+    animation: none !important;
+    transition: none !important;
+  }
+}
