@@ -49,7 +49,6 @@ export default function CategoryCarousel({ categories, layout = "carousel" }: { 
       {categories.map((category, index) => <Link role="listitem" key={category.id} href={`/shop?category=${encodeURIComponent(category.slug)}`} prefetch={false} className="wahaj-category-card">
         <span className="wahaj-category-card__visual">
           <Image src={category.imageUrl || "/placeholder.svg"} alt={category.imageUrl ? category.name : `صورة غير متاحة لتصنيف ${category.name}`} fill sizes="(max-width: 600px) 66vw, (max-width: 900px) 30vw, 20vw" className="wahaj-category-card__image" loading={index < 2 ? "eager" : "lazy"} />
-          <span className="wahaj-category-card__index">{String(index + 1).padStart(2, "0")}</span>
         </span>
         <span className="wahaj-category-card__name">{category.name}</span>
         {category.description ? <span className="wahaj-category-card__description">{category.description}</span> : null}
