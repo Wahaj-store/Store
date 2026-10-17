@@ -5670,26 +5670,30 @@ body:has(.wahaj-maintenance) .wahaj-footer { display:none !important; }
   .wahaj-shop-filter-disclosure[open] > .wahaj-shop-filters { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
 }
 
-/* Luxury category discovery — uses the existing light/dark design tokens. */
-.wahaj-storefront .wahaj-collections { padding-block: var(--home-space); border-bottom: 1px solid var(--border); background: var(--surface); }
+/* Premium category cards — keep the existing carousel, grid and round display modes. */
+.wahaj-storefront .wahaj-collections { padding-block: var(--home-space); border-bottom: 1px solid var(--border); background:var(--surface); }
 .wahaj-collections__head { display:flex; align-items:end; justify-content:space-between; gap:20px; }
 .wahaj-categories-all { display:inline-flex; align-items:center; gap:8px; flex:0 0 auto; margin-bottom:32px; color:var(--gold-muted); font-size:12px; font-weight:700; }
 .wahaj-categories-all:hover { color:var(--foreground); }
 .wahaj-category-browser { min-width:0; }
 .wahaj-category-controls { display:flex; justify-content:flex-start; gap:8px; margin:-14px 0 14px; }
-.wahaj-category-controls button { display:grid; width:38px; height:38px; place-items:center; border:1px solid var(--border); border-radius:50%; background:var(--card); color:var(--foreground); transition:border-color .2s ease,opacity .2s ease; }
-.wahaj-category-controls button:not(:disabled):hover { border-color:var(--gold); }
+.wahaj-category-controls button { display:grid; width:40px; height:40px; place-items:center; border:1px solid var(--border); border-radius:50%; background:var(--card); color:var(--foreground); transition:border-color .2s ease,opacity .2s ease,transform .2s ease; }
+.wahaj-category-controls button:not(:disabled):hover { border-color:var(--gold); transform:translateY(-2px); }
 .wahaj-category-controls button:disabled { opacity:.32; cursor:not-allowed; }
-.wahaj-category-track { display:flex; gap:clamp(12px,2vw,22px); overflow-x:auto; overscroll-behavior-x:contain; scroll-snap-type:x mandatory; scrollbar-width:thin; scrollbar-color:var(--border-strong) transparent; padding:4px 2px 18px; touch-action:pan-x pan-y; }
-.wahaj-category-card { display:flex; flex:0 0 clamp(190px,22%,270px); min-width:0; flex-direction:column; scroll-snap-align:start; color:var(--foreground); text-decoration:none; }
-.wahaj-category-card__visual { position:relative; display:block; width:100%; aspect-ratio:4/5; overflow:hidden; border:1px solid color-mix(in srgb,var(--gold) 20%,var(--border)); border-radius:3px 38px 3px 3px; background:var(--card); }
-.wahaj-category-card__image { object-fit:cover; transition:transform .55s ease; }
-.wahaj-category-card:hover .wahaj-category-card__image { transform:scale(1.045); }
-.wahaj-category-card__index { position:absolute; inset-block-start:12px; inset-inline-start:12px; display:grid; min-width:31px; height:31px; place-items:center; border:1px solid color-mix(in srgb,var(--gold) 40%,transparent); border-radius:50%; background:color-mix(in srgb,var(--background) 86%,transparent); color:var(--foreground); font-size:10px; }
-.wahaj-category-card__name { margin-top:13px; font-size:clamp(14px,1.35vw,18px); font-weight:700; }
-.wahaj-category-card__description { margin-top:5px; color:var(--muted-foreground); font-size:11px; line-height:1.8; }
-.wahaj-category-card__link { display:inline-flex; align-items:center; gap:6px; margin-top:9px; color:var(--gold-muted); font-size:10px; font-weight:700; }
+.wahaj-category-track { display:flex; gap:clamp(14px,2.1vw,24px); overflow-x:auto; overscroll-behavior-x:contain; scroll-snap-type:x mandatory; scrollbar-width:thin; scrollbar-color:var(--border-strong) transparent; padding:5px 3px 20px; touch-action:pan-x pan-y; }
+.wahaj-category-card { display:flex; flex:0 0 clamp(205px,23%,290px); min-width:0; flex-direction:column; scroll-snap-align:start; color:var(--foreground); text-decoration:none; border-radius:20px; outline-offset:5px; }
+.wahaj-category-card__visual { position:relative; display:block; width:100%; aspect-ratio:4/4.8; overflow:hidden; border:1px solid color-mix(in srgb,var(--gold) 24%,var(--border)); border-radius:22px; background:var(--card); box-shadow:0 5px 18px color-mix(in srgb,var(--foreground) 5%,transparent); isolation:isolate; }
+.wahaj-category-card__visual::after { content:""; position:absolute; z-index:1; inset:35% 0 0; pointer-events:none; background:linear-gradient(180deg,transparent,color-mix(in srgb,#17120d 24%,transparent)); opacity:.55; transition:opacity .3s ease; }
+.wahaj-category-card__image { object-fit:cover; transition:transform .65s cubic-bezier(.2,.7,.2,1); }
+.wahaj-category-card:hover .wahaj-category-card__image { transform:scale(1.055); }
+.wahaj-category-card:hover .wahaj-category-card__visual { border-color:color-mix(in srgb,var(--gold) 65%,var(--border)); box-shadow:0 12px 30px color-mix(in srgb,var(--foreground) 10%,transparent); }
+.wahaj-category-card__name { margin-top:14px; font-size:clamp(15px,1.4vw,19px); font-weight:750; line-height:1.5; letter-spacing:-.015em; transition:color .2s ease; }
+.wahaj-category-card:hover .wahaj-category-card__name { color:var(--gold-muted); }
+.wahaj-category-card__description { margin-top:5px; color:var(--muted-foreground); font-size:12px; line-height:1.85; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+.wahaj-category-card__link { display:inline-flex; align-items:center; align-self:flex-start; gap:7px; margin-top:11px; padding:7px 11px; border:1px solid color-mix(in srgb,var(--gold) 28%,var(--border)); border-radius:999px; color:var(--gold-muted); font-size:11px; font-weight:750; transition:background .2s ease,border-color .2s ease,color .2s ease; }
+.wahaj-category-card:hover .wahaj-category-card__link { background:var(--gold); border-color:var(--gold); color:var(--gold-contrast); }
 .wahaj-category-browser.is-round .wahaj-category-card__visual { aspect-ratio:1; border-radius:50%; }
+.wahaj-category-browser.is-round .wahaj-category-card__visual::after { border-radius:50%; }
 .wahaj-category-browser.is-grid .wahaj-category-track { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); overflow:visible; }
 .wahaj-category-browser.is-grid .wahaj-category-card { width:100%; }
 .wahaj-categories-empty { padding:30px 16px; border:1px dashed var(--border-strong); border-radius:16px; color:var(--muted-foreground); text-align:center; font-size:13px; }
@@ -5698,13 +5702,13 @@ body:has(.wahaj-maintenance) .wahaj-footer { display:none !important; }
 .wahaj-categories-page__heading .wahaj-home-kicker { display:inline-flex; align-items:center; gap:8px; color:var(--gold-muted); font-size:11px; }
 .wahaj-categories-page__heading h1 { margin-top:12px; color:var(--foreground); font-size:clamp(30px,5vw,52px); font-weight:700; letter-spacing:-.04em; }
 .wahaj-categories-page__heading p { margin-top:12px; color:var(--muted-foreground); font-size:13px; line-height:2; }
-.wahaj-categories-page__grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:clamp(14px,2.3vw,28px); }
+.wahaj-categories-page__grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:clamp(18px,2.5vw,32px); }
 .wahaj-categories-page__grid .wahaj-category-card { width:100%; }
 .wahaj-categories-page__empty { padding:52px 20px; border:1px solid var(--border); border-radius:22px; text-align:center; color:var(--muted-foreground); }
 .wahaj-categories-page__empty > svg { margin:0 auto 12px; color:var(--gold-muted); }
 .wahaj-categories-page__empty h2 { color:var(--foreground); font-size:21px; }
 .wahaj-categories-page__empty p { margin:8px 0 18px; font-size:12px; }
 .wahaj-categories-page__empty a { display:inline-flex; align-items:center; gap:8px; color:var(--gold-muted); font-size:12px; font-weight:700; }
-@media (max-width:900px) { .wahaj-categories-page__grid,.wahaj-category-browser.is-grid .wahaj-category-track { grid-template-columns:repeat(3,minmax(0,1fr)); } .wahaj-category-card { flex-basis:clamp(180px,30%,240px); } }
-@media (max-width:600px) { .wahaj-collections__head { align-items:flex-start; gap:10px; } .wahaj-collections__head .wahaj-section-heading { margin-bottom:22px; } .wahaj-categories-all { margin-top:5px; margin-bottom:22px; font-size:10px; } .wahaj-category-card { flex-basis:66%; } .wahaj-category-card__visual { border-radius:3px 28px 3px 3px; } .wahaj-category-browser.is-grid .wahaj-category-track { grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px 11px; } .wahaj-categories-page__grid { grid-template-columns:repeat(2,minmax(0,1fr)); gap:20px 12px; } .wahaj-categories-page__heading { margin-bottom:27px; } .wahaj-category-card__name { font-size:13px; } }
-@media (prefers-reduced-motion:reduce) { .wahaj-category-card__image,.wahaj-category-controls button { transition:none; } }
+@media (max-width:900px) { .wahaj-categories-page__grid,.wahaj-category-browser.is-grid .wahaj-category-track { grid-template-columns:repeat(3,minmax(0,1fr)); } .wahaj-category-card { flex-basis:clamp(190px,31%,250px); } }
+@media (max-width:600px) { .wahaj-collections__head { align-items:flex-start; gap:10px; } .wahaj-collections__head .wahaj-section-heading { margin-bottom:22px; } .wahaj-categories-all { margin-top:5px; margin-bottom:22px; font-size:10px; } .wahaj-category-card { flex-basis:70%; } .wahaj-category-card__visual { border-radius:18px; } .wahaj-category-browser.is-grid .wahaj-category-track { grid-template-columns:repeat(2,minmax(0,1fr)); gap:19px 12px; } .wahaj-categories-page__grid { grid-template-columns:repeat(2,minmax(0,1fr)); gap:22px 13px; } .wahaj-categories-page__heading { margin-bottom:27px; } .wahaj-category-card__name { margin-top:11px; font-size:14px; } .wahaj-category-card__description { font-size:11px; } .wahaj-category-card__link { margin-top:9px; padding:6px 9px; font-size:10px; } }
+@media (prefers-reduced-motion:reduce) { .wahaj-category-card__image,.wahaj-category-controls button,.wahaj-category-card__visual::after,.wahaj-category-card__name,.wahaj-category-card__link { transition:none; } }
