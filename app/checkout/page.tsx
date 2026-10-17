@@ -4,7 +4,7 @@
 import { useEffect, useRef, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { Truck, CreditCard, ShieldCheck, ArrowRight, Upload, CheckCircle2, Sparkles } from 'lucide-react';
+import { Truck, CreditCard, ShieldCheck, ArrowRight, Upload, CheckCircle2, Sparkles, ShoppingBag } from 'lucide-react';
 
 interface Address {
   id: string;
@@ -55,28 +55,30 @@ function AddressSelector({ selectedId, onSelectAddress, onAuthState }: { selecte
   if (addresses.length === 0) return <p className="checkout-addresses__empty">لا توجد عناوين محفوظة بعد. يمكنكِ إدخال عنوان جديد أدناه.</p>;
 
   return (
-    <div className="space-y-3 mb-6 p-5 rounded-3xl bg-muted/10 border border-border/40 shadow-2xs">
-      <label className="block text-xs font-semibold text-foreground tracking-wide">اختاري من عناوينك المحفوظة:</label>
+    <fieldset className="space-y-3 mb-6 p-5 rounded-3xl bg-muted/10 border border-border/40 shadow-2xs">
+      <legend className="block text-xs font-semibold text-foreground tracking-wide">اختاري من عناوينك المحفوظة:</legend>
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         {addresses.map((addr) => (
-          <div
+          <button
+            type="button"
             key={addr.id}
             onClick={() => onSelectAddress(addr)}
-            className={`cursor-pointer rounded-2xl border p-4 transition-all text-xs ${
+            aria-pressed={selectedId === addr.id}
+            className={`w-full cursor-pointer rounded-2xl border p-4 text-right text-foreground transition-all text-xs focus-visible:outline-2 focus-visible:outline-(--gold) ${
               selectedId === addr.id
                 ? 'border-(--gold) bg-(--gold)/10 ring-1 ring-(--gold)'
                 : 'border-border/40 bg-(--bg) hover:border-(--gold)/40 shadow-2xs'
             }`}
           >
-            <div className="flex items-center justify-between mb-1.5">
+            <span className="mb-1.5 flex items-center justify-between">
               <span className="font-serif font-bold text-foreground">{addr.label || 'عنوان'}</span>
               {addr.isDefault && (
                 <span className="rounded-full bg-(--gold) px-2 py-0.5 text-[10px] text-(--gold-contrast) font-bold">أساسي</span>
               )}
-            </div>
-            <p className="text-muted-foreground font-light">{addr.name} - {addr.phone}</p>
-            <p className="text-[11px] text-muted-foreground mt-1 truncate font-light">{addr.governorate}، {addr.city} - {addr.address}</p>
-          </div>
+            </span>
+            <span className="block text-muted-foreground font-light">{addr.name} - {addr.phone}</span>
+            <span className="mt-1 block truncate text-[11px] text-muted-foreground font-light">{addr.governorate}، {addr.city} - {addr.address}</span>
+          </button>
         ))}
       </div>
       <button
@@ -86,13 +88,14 @@ function AddressSelector({ selectedId, onSelectAddress, onAuthState }: { selecte
       >
         أو إدخال عنوان جديد لهذا الطلب
       </button>
-    </div>
+    </fieldset>
   );
 }
 
 function CheckoutContent() {
   const idempotencyKeyRef = useRef<string | null>(null);
   const [c, setC] = useState<any[]>([]);
+  const [cartLoaded, setCartLoaded] = useState(false);
   const [pay, setPay] = useState('COD');
   const [methods, setMethods] = useState<any[]>([]);
   const [shippingZones, setShippingZones] = useState<any[]>([]);
@@ -127,7 +130,14 @@ function CheckoutContent() {
   const sp = useSearchParams();
 
   useEffect(() => {
-    setC(JSON.parse(localStorage.getItem('wahaj_cart') || '[]'));
+    try {
+      const storedCart = JSON.parse(localStorage.getItem('wahaj_cart') || '[]');
+      setC(Array.isArray(storedCart) ? storedCart : []);
+    } catch {
+      setC([]);
+    } finally {
+      setCartLoaded(true);
+    }
     setCoupon(sp.get('coupon') || '');
 
     fetch('/api/customer/auth', { credentials: 'include' })
@@ -227,6 +237,8 @@ function CheckoutContent() {
     const timer = window.setTimeout(async () => {
       if (!c.length) {
         setPricing({ subtotal: 0, discount: 0, shipping: 0, total: 0, freeShipping: false, appliedOffers: [] });
+        setPricingLoading(false);
+        setPricingMessage('');
         return;
       }
       setPricingLoading(true);
@@ -418,12 +430,22 @@ function CheckoutContent() {
         </header>
 
         <nav className="wahaj-order-steps" aria-label="مراحل الطلب">
-          <Link href="/cart"><b>01</b><span>السلة</span></Link><i />
-          <div className="is-active"><b>02</b><span>الشحن والدفع</span></div><i />
+          <Link href="/cart" className={cartLoaded && c.length === 0 ? 'is-active' : ''} aria-current={cartLoaded && c.length === 0 ? 'step' : undefined}><b>01</b><span>السلة</span></Link><i />
+          <div className={cartLoaded && c.length === 0 ? '' : 'is-active'}><b>02</b><span>الشحن والدفع</span></div><i />
           <div><b>03</b><span>التأكيد</span></div>
         </nav>
 
-        <form onSubmit={submit} className="wahaj-checkout-layout">
+        {!cartLoaded ? (
+          <div className="wahaj-checkout-empty-card" role="status" aria-live="polite">جارٍ التحقق من سلتكِ...</div>
+        ) : c.length === 0 ? (
+          <div className="wahaj-cart-empty-card wahaj-checkout-empty-card">
+            <div className="wahaj-cart-empty-card__icon"><ShoppingBag size={32} strokeWidth={1.5} /></div>
+            <span className="wahaj-commerce-kicker"><Sparkles size={14} /> وَهَج للأناقة</span>
+            <h2>لا توجد منتجات في سلتكِ</h2>
+            <p>أضيفي اختياراتكِ إلى السلة أولًا، ثم سنجهز لكِ خطوات الشحن والدفع.</p>
+            <Link href="/shop" className="wahaj-commerce-primary"><ArrowRight size={17} /> اكتشفي المجموعة</Link>
+          </div>
+        ) : <form onSubmit={submit} className="wahaj-checkout-layout">
           <section className="wahaj-checkout-main">
             <div className="wahaj-checkout-card">
               <div className="wahaj-checkout-card__heading"><span className="wahaj-checkout-icon"><Truck size={19} /></span><div><span>التوصيل إلى بابكِ</span><h2>بيانات الشحن</h2></div><em>01</em></div>
@@ -457,7 +479,7 @@ function CheckoutContent() {
             <button disabled={busy || !c.length || !methods.length} className="wahaj-commerce-primary wahaj-checkout-submit">{busy ? 'جارٍ إرسال الطلب...' : 'تأكيد وإتمام الطلب'}<CheckCircle2 size={18} /></button>
             <p className="wahaj-summary-note"><ShieldCheck size={14} /> بياناتكِ وطلبكِ محميان بعناية</p>
           </aside>
-        </form>
+        </form>}
       </div>
     </main>
   );
