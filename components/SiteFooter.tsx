@@ -79,9 +79,17 @@ export default function SiteFooter() {
     { label: 'تواصل معنا', href: '/contact' },
     { label: 'الأسئلة الشائعة', href: '/faq' },
   ]);
+  const staticFooterPaths = new Set(['/shop', '/about', '/contact', '/faq', '/policies/shipping', '/policies/returns', '/policies/privacy', '/policies/terms']);
+  const seenFooterPaths = new Set<string>();
   const quickLinks = Array.isArray(footerLinks)
-    ? footerLinks.filter(link => link && link.href && link.label && link.active !== false).slice(0, 5)
+    ? footerLinks.filter(link => {
+      if (!link || !link.href || !link.label || link.active === false || staticFooterPaths.has(link.href) || seenFooterPaths.has(link.href)) return false;
+      seenFooterPaths.add(link.href);
+      return true;
+    }).slice(0, 5)
     : [];
+  const configuredSocials = SOCIAL_NETWORKS.map(({ key, label, setting }) => ({ key, label, href: safeExternalUrl(settings[setting], key) }))
+    .filter((network): network is typeof network & { href: string } => Boolean(network.href));
   const brandName = typeof settings.brand_name === 'string' && settings.brand_name.trim()
     ? settings.brand_name
     : 'وَهَج';
@@ -110,13 +118,10 @@ export default function SiteFooter() {
             <p className="wahaj-footer__bio">{brandStory}</p>
             <p className="wahaj-footer__tagline">{tagline}</p>
 
-            <div className="wahaj-footer__social-block">
+            {configuredSocials.length > 0 && <div className="wahaj-footer__social-block">
               <h3>تابعينا على</h3>
               <div className="wahaj-footer__socials" aria-label="حسابات وَهَج على شبكات التواصل الاجتماعي">
-                {SOCIAL_NETWORKS.map(({ key, label, setting }) => {
-                  const href = safeExternalUrl(settings[setting], key);
-                  const icon = <SocialIcon network={key} />;
-                  return href ? (
+                {configuredSocials.map(({ key, label, href }) => (
                     <a
                       key={key}
                       className="wahaj-footer__social-link"
@@ -126,21 +131,11 @@ export default function SiteFooter() {
                       aria-label={`تابعي وَهَج على ${label}`}
                       title={label}
                     >
-                      {icon}
+                      <SocialIcon network={key} />
                     </a>
-                  ) : (
-                    <span
-                      key={key}
-                      className="wahaj-footer__social-link is-unconfigured"
-                      aria-label={`${label} — أضيفي الرابط من إعدادات المتجر`}
-                      title={`${label} — أضيفي الرابط من إعدادات المتجر`}
-                    >
-                      {icon}
-                    </span>
-                  );
-                })}
+                ))}
               </div>
-            </div>
+            </div>}
           </section>
 
           <nav className="wahaj-footer__column" aria-label="روابط المتجر">
