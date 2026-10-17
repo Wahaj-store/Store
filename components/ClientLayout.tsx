@@ -15,8 +15,11 @@ export default function ClientLayout({ children }: { children: ReactNode }) {
 
   return (
     <>
+      <a className="wahaj-skip-link" href="#main-content">تخطي إلى المحتوى الرئيسي</a>
       <SiteChrome />
-      {children}
+      <div id="main-content" tabIndex={-1}>
+        {children}
+      </div>
       <SiteFooter />
     </>
   );
