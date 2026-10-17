@@ -244,6 +244,21 @@ export function Editor({ tab, value, cats, onCancel, onSave, upload }: any) {
             <Field label="نص الزر" value={v.ctaText || ''} onChange={(x: any) => set('ctaText', x)} />
             <Field label="رابط الزر" value={v.ctaUrl || ''} onChange={(x: any) => set('ctaUrl', x)} />
             <Field label="ترتيب القسم" type="number" value={v.sortOrder ?? 0} onChange={(x: any) => set('sortOrder', Number(x))} />
+          {['categories', 'collections'].includes(v.type || '') && (() => {
+            let config: any = {};
+            try { config = typeof v.config === 'string' ? JSON.parse(v.config || '{}') : (v.config || {}); } catch { config = {}; }
+            const selectedIds: string[] = Array.isArray(config.categoryIds) ? config.categoryIds : [];
+            const updateConfig = (patch: any) => set('config', { ...config, ...patch });
+            return <div className="md:col-span-2 space-y-4 rounded-2xl border border-border/50 bg-muted/5 p-4">
+              <h4 className="font-bold text-sm text-foreground">إعدادات عرض التصنيفات</h4>
+              <div className="grid gap-3 sm:grid-cols-2">
+                <label className="text-xs font-medium text-muted-foreground">نمط العرض<select className="mt-1 w-full rounded-xl border border-border/60 bg-(--bg) px-3 py-2.5 text-foreground" value={config.layout || 'carousel'} onChange={e => updateConfig({ layout: e.target.value })}><option value="carousel">سلايدر أفقي</option><option value="grid">شبكة</option><option value="round">دائري</option></select></label>
+                <label className="text-xs font-medium text-muted-foreground">عدد التصنيفات المعروضة<input type="number" min={1} max={24} className="mt-1 w-full rounded-xl border border-border/60 bg-(--bg) px-3 py-2.5 text-foreground" value={config.limit ?? 8} onChange={e => updateConfig({ limit: Math.max(1, Math.min(24, Number(e.target.value) || 1)) })} /></label>
+              </div>
+              <p className="text-xs text-muted-foreground">اختاري التصنيفات التي ستظهر في الرئيسية. عند عدم اختيار أي تصنيف، تُعرض التصنيفات النشطة حسب ترتيبها الأساسي.</p>
+              <div className="grid gap-2 sm:grid-cols-2">{cats.filter((category: any) => category.active !== false).map((category: any) => <label key={category.id} className="flex items-center gap-2 rounded-xl border border-border/40 p-2.5 text-xs text-foreground"><input type="checkbox" checked={selectedIds.includes(category.id)} onChange={e => updateConfig({ categoryIds: e.target.checked ? [...selectedIds, category.id] : selectedIds.filter(id => id !== category.id) })} /><span>{category.name}</span></label>)}</div>
+            </div>;
+          })()}
           </>
         ) : (
           common[tab]?.map((f: any) => <Field key={f[0]} label={f[1]} value={v[f[0]] ?? ''} onChange={(x: any) => set(f[0], x)} />)
