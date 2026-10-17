@@ -5676,10 +5676,12 @@ body:has(.wahaj-maintenance) .wahaj-footer { display:none !important; }
 .wahaj-categories-all { display:inline-flex; align-items:center; gap:8px; flex:0 0 auto; margin-bottom:32px; color:var(--gold-muted); font-size:12px; font-weight:700; }
 .wahaj-categories-all:hover { color:var(--foreground); }
 .wahaj-category-browser { min-width:0; }
-.wahaj-category-controls { display:flex; justify-content:flex-start; gap:8px; margin:-14px 0 14px; }
-.wahaj-category-controls button { display:grid; width:40px; height:40px; place-items:center; border:1px solid var(--border); border-radius:50%; background:var(--card); color:var(--foreground); transition:border-color .2s ease,opacity .2s ease,transform .2s ease; }
-.wahaj-category-controls button:not(:disabled):hover { border-color:var(--gold); transform:translateY(-2px); }
-.wahaj-category-controls button:disabled { opacity:.32; cursor:not-allowed; }
+.wahaj-category-controls { display:flex; align-items:center; justify-content:center; gap:5px; width:max-content; max-width:100%; margin:0 auto 20px; padding:5px; border:1px solid color-mix(in srgb,var(--gold) 25%,var(--border)); border-radius:999px; background:color-mix(in srgb,var(--card) 92%,var(--gold) 8%); box-shadow:0 5px 18px color-mix(in srgb,var(--foreground) 6%,transparent); }
+.wahaj-category-controls__button { display:inline-flex; align-items:center; justify-content:center; gap:8px; min-width:100px; min-height:38px; padding:0 15px; border:1px solid transparent; border-radius:999px; background:transparent; color:var(--foreground); font:inherit; font-size:12px; font-weight:700; cursor:pointer; transition:background .2s ease,border-color .2s ease,color .2s ease,opacity .2s ease,transform .2s ease; }
+.wahaj-category-controls__button:not(:disabled):hover { border-color:color-mix(in srgb,var(--gold) 38%,transparent); background:var(--gold); color:var(--gold-contrast); transform:translateY(-1px); }
+.wahaj-category-controls__button:focus-visible { outline:2px solid var(--gold); outline-offset:2px; }
+.wahaj-category-controls__button:disabled { opacity:.32; cursor:not-allowed; }
+.wahaj-category-controls__divider { width:1px; height:22px; background:color-mix(in srgb,var(--border-strong) 75%,transparent); }
 .wahaj-category-track { display:flex; gap:clamp(14px,2.1vw,24px); overflow-x:auto; overscroll-behavior-x:contain; scroll-snap-type:x mandatory; scrollbar-width:thin; scrollbar-color:var(--border-strong) transparent; padding:5px 3px 20px; touch-action:pan-x pan-y; }
 .wahaj-category-card { display:flex; flex:0 0 clamp(205px,23%,290px); min-width:0; flex-direction:column; scroll-snap-align:start; color:var(--foreground); text-decoration:none; border-radius:20px; outline-offset:5px; }
 .wahaj-category-card__visual { position:relative; display:block; width:100%; aspect-ratio:4/4.8; overflow:hidden; border:1px solid color-mix(in srgb,var(--gold) 24%,var(--border)); border-radius:22px; background:var(--card); box-shadow:0 5px 18px color-mix(in srgb,var(--foreground) 5%,transparent); isolation:isolate; }
@@ -5712,75 +5714,3 @@ body:has(.wahaj-maintenance) .wahaj-footer { display:none !important; }
 @media (max-width:900px) { .wahaj-categories-page__grid,.wahaj-category-browser.is-grid .wahaj-category-track { grid-template-columns:repeat(3,minmax(0,1fr)); } .wahaj-category-card { flex-basis:clamp(190px,31%,250px); } }
 @media (max-width:600px) { .wahaj-collections__head { align-items:flex-start; gap:10px; } .wahaj-collections__head .wahaj-section-heading { margin-bottom:22px; } .wahaj-categories-all { margin-top:5px; margin-bottom:22px; font-size:10px; } .wahaj-category-card { flex-basis:70%; } .wahaj-category-card__visual { border-radius:18px; } .wahaj-category-browser.is-grid .wahaj-category-track { grid-template-columns:repeat(2,minmax(0,1fr)); gap:19px 12px; } .wahaj-categories-page__grid { grid-template-columns:repeat(2,minmax(0,1fr)); gap:22px 13px; } .wahaj-categories-page__heading { margin-bottom:27px; } .wahaj-category-card__name { margin-top:11px; font-size:14px; } .wahaj-category-card__description { font-size:11px; } .wahaj-category-card__link { margin-top:9px; padding:6px 9px; font-size:10px; } }
 @media (prefers-reduced-motion:reduce) { .wahaj-category-card__image,.wahaj-category-controls button,.wahaj-category-card__visual::after,.wahaj-category-card__name,.wahaj-category-card__link { transition:none; } }
-
-/* Mobile-only sizing refinement: smaller category and collection cards. */
-@media (max-width: 600px) {
-  /* Horizontal category carousel: show more cards at once. */
-  .wahaj-category-card {
-    flex-basis: 54%;
-  }
-
-  .wahaj-category-card__visual {
-    aspect-ratio: 1 / 1.08;
-  }
-
-  /* Category grids: keep two columns, with shorter cards and tighter spacing. */
-  .wahaj-category-browser.is-grid .wahaj-category-track {
-    gap: 15px 10px;
-  }
-
-  .wahaj-categories-page__grid {
-    gap: 17px 10px;
-  }
-
-  .wahaj-categories-page__grid .wahaj-category-card__visual,
-  .wahaj-category-browser.is-grid .wahaj-category-card__visual {
-    aspect-ratio: 1 / 1.08;
-  }
-
-  /* Homepage collection cards: reduce height while preserving the two-column layout. */
-  .wahaj-storefront .wahaj-collections__grid {
-    gap: 8px;
-  }
-
-  .wahaj-storefront .wahaj-collection {
-    aspect-ratio: .94 / 1;
-    min-height: 0;
-  }
-
-  .wahaj-storefront .wahaj-collection:nth-child(even) {
-    margin-top: 8px;
-  }
-
-  .wahaj-storefront .wahaj-collection__content {
-    right: 8px;
-    left: 8px;
-    bottom: 9px;
-  }
-
-  .wahaj-storefront .wahaj-collection__name {
-    font-size: 11px;
-    line-height: 1.35;
-  }
-
-  .wahaj-storefront .wahaj-collection__link {
-    margin-top: 5px;
-    padding-top: 4px;
-    font-size: 8px;
-  }
-}
-
-@media (max-width: 380px) {
-  .wahaj-category-card {
-    flex-basis: 58%;
-  }
-
-  .wahaj-category-card__name {
-    font-size: 12px;
-  }
-
-  .wahaj-category-card__link {
-    padding: 5px 7px;
-    font-size: 9px;
-  }
-}
