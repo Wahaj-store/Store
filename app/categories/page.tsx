@@ -27,7 +27,7 @@ export default async function CategoriesPage() {
       </header>
       {categories.length ? <div className="wahaj-categories-page__grid">
         {categories.map((category, index) => <Link key={category.id} href={`/shop?category=${encodeURIComponent(category.slug)}`} className="wahaj-category-card">
-          <span className="wahaj-category-card__visual"><Image src={category.imageUrl || '/placeholder.svg'} alt={category.imageUrl ? category.name : `صورة غير متاحة لتصنيف ${category.name}`} fill sizes="(max-width:600px) 44vw, (max-width:900px) 30vw, 22vw" className="wahaj-category-card__image" loading={index < 4 ? 'eager' : 'lazy'} /><span className="wahaj-category-card__index">{String(index + 1).padStart(2, '0')}</span></span>
+          <span className="wahaj-category-card__visual"><Image src={category.imageUrl || '/placeholder.svg'} alt={category.imageUrl ? category.name : `صورة غير متاحة لتصنيف ${category.name}`} fill sizes="(max-width:600px) 44vw, (max-width:900px) 30vw, 22vw" className="wahaj-category-card__image" loading={index < 4 ? 'eager' : 'lazy'} /></span>
           <span className="wahaj-category-card__name">{category.name}</span>
           {category.description ? <span className="wahaj-category-card__description">{category.description}</span> : null}
           <span className="wahaj-category-card__link">تصفّحي التصنيف <ArrowLeft size={14} /></span>
