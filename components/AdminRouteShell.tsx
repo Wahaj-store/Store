@@ -124,7 +124,6 @@ export default function AdminRouteShell({ children }: { children: ReactNode }) {
   return (
     <div className="wahaj-admin-page" dir="rtl">
       <div className="wahaj-admin-page__inner">
-        <a className="wahaj-skip-link" href="#admin-main-content">تخطي إلى مساحة العمل</a>
         <AdminTopbar onMenuClick={() => setMenuOpen(true)} menuOpen={menuOpen} />
         <div className="mt-4 flex min-h-[calc(100vh-130px)] items-start gap-4">
           {menuOpen && <button type="button" className="fixed inset-0 z-40 bg-black/45 md:hidden" onClick={() => setMenuOpen(false)} aria-label="إغلاق القائمة" />}
@@ -151,7 +150,7 @@ export default function AdminRouteShell({ children }: { children: ReactNode }) {
             </nav>
             <Link href="/admin" className="mt-2 flex min-h-10 items-center gap-2 rounded-xl border border-border/50 px-3 text-xs text-muted-foreground hover:text-foreground"><LayoutDashboard size={15} /> العودة للوحة الرئيسية</Link>
           </aside>
-          <section id="admin-main-content" tabIndex={-1} className="min-w-0 flex-1">{children}</section>
+          <section className="min-w-0 flex-1">{children}</section>
         </div>
       </div>
     </div>
