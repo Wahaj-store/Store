@@ -8,6 +8,7 @@ import { useFeatureFlags } from "@/lib/use-feature-flags";
 import dynamic from "next/dynamic";
 import Image from "next/image";
 import Link from "next/link";
+import CategoryCarousel from "./CategoryCarousel";
 const ProductCard = dynamic(() => import("../ProductCard"), {
   ssr: true,
   loading: () => <div className="wahaj-product-card wahaj-product-card--loading" aria-hidden="true" />,
@@ -473,53 +474,26 @@ export default function StoreSectionRenderer({
           }
 
           if (sec.type === "collections" || sec.type === "categories") {
+            let categoryConfig: any = {};
+            try { categoryConfig = typeof sec.config === "string" ? JSON.parse(sec.config || "{}") : (sec.config || {}); } catch { categoryConfig = {}; }
+            const selectedIds = Array.isArray(categoryConfig.categoryIds) ? categoryConfig.categoryIds : [];
+            const eligibleCategories = categories.filter((category: any) => category?.active !== false);
+            const orderedCategories = selectedIds.length
+              ? selectedIds.map((id: string) => eligibleCategories.find((category: any) => category.id === id)).filter(Boolean)
+              : eligibleCategories;
+            const visibleCategories = orderedCategories.slice(0, Math.max(1, Math.min(24, Number(categoryConfig.limit) || 8)));
             return (
               <Fragment key={sec.id}>
                 <section id="collections" className="wahaj-collections">
-                <div className="container">
-                  <SectionHeading
-                    eyebrow={sec.eyebrow || "مختارات وَهَج"}
-                    title={sec.title === "المجموعات" ? "مجموعات تُشبهك" : (sec.title || "مجموعات تُشبهك")}
-                    subtitle={sec.subtitle || "تصفّحي عوالم مختارة بعناية، وصمّمي تفاصيلك على طريقتك."}
-                    align="right"
-                  />
-                  <div className="wahaj-collections__grid">
-                    {categories.map((c: any, index: number) => (
-                      <Link
-                        key={c.id}
-                        href={`/shop?category=${c.slug}`}
-                        prefetch={false}
-                        className="wahaj-collection"
-                      >
-                        <Image
-                          src={c.imageUrl || data?.products?.[0]?.images?.[0]?.url || "/placeholder.svg"}
-                          alt={c.name}
-                          fill
-                          sizes="(max-width: 520px) 50vw, (max-width: 900px) 50vw, 25vw"
-                          className="wahaj-collection__image"
-                          loading="lazy"
-                        />
-                        <span className="wahaj-collection__shade" aria-hidden="true" />
-                        <span className="wahaj-collection__number">
-                          {String(index + 1).padStart(2, "0")}
-                        </span>
-                        <span className="wahaj-collection__content">
-                          <span className="wahaj-collection__name">{c.name}</span>
-                          <span className="wahaj-collection__link">
-                            اكتشفي المجموعة
-                            <ChevronLeft size={15} />
-                          </span>
-                        </span>
-                      </Link>
-                    ))}
+                  <div className="container">
+                    <div className="wahaj-collections__head">
+                      <SectionHeading eyebrow={sec.eyebrow || "مختارات وَهَج"} title={sec.title || "تسوّقي حسب الفئة"} subtitle={sec.subtitle || "اكتشفي قطعًا تعبّر عن أناقتكِ."} align="right" />
+                      <Link href="/categories" className="wahaj-categories-all">كل التصنيفات <ArrowLeft size={15} /></Link>
+                    </div>
+                    <CategoryCarousel categories={visibleCategories} layout={categoryConfig.layout || "carousel"} />
                   </div>
-                </div>
                 </section>
-                <GiftSection
-                  categories={categories}
-                  products={Array.isArray(data?.products) ? data.products : []}
-                  settings={s}
-                />
+                <GiftSection categories={categories} products={Array.isArray(data?.products) ? data.products : []} settings={s} />
               </Fragment>
             );
           }
