@@ -106,7 +106,7 @@ export default function Admin() {
               <div className="wahaj-admin-page__welcome-copy">
                 <span className="wahaj-admin-page__eyebrow"><ShieldCheck size={14} /> لوحة تحكم آمنة</span>
                 <h1>أهلًا بعودتك، <span>{user?.name || user?.email}</span></h1>
-                <p>تابع متجرك وأدر تفاصيله اليومية من لوحه التحكم الاحترافيه.</p>
+                <p>تابع متجرك وأدر تفاصيله اليومية من لوحة التحكم الاحترافية.</p>
               </div>
               <div className="wahaj-admin-page__welcome-actions">
                 <span className="wahaj-admin-page__role"><ShieldCheck size={15} /><span>الصلاحية</span><b>{user?.role}</b></span>
