@@ -3,21 +3,23 @@
 import { useRef, useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowLeft, ArrowRight, ChevronLeft } from "lucide-react";
+import { ChevronLeft } from "lucide-react";
 
 export default function CategoryCarousel({ categories, layout = "carousel" }: { categories: any[]; layout?: string }) {
   const trackRef = useRef<HTMLDivElement>(null);
-  const [canPrev, setCanPrev] = useState(false);
-  const [canNext, setCanNext] = useState(false);
   const [hasOverflow, setHasOverflow] = useState(false);
+  const [activeDot, setActiveDot] = useState(0);
   const update = () => {
     const el = trackRef.current;
     if (!el) return;
+    // scrollLeft may be negative in RTL; use its absolute position for robust edge checks.
     const max = el.scrollWidth - el.clientWidth;
     const position = Math.abs(el.scrollLeft);
     setHasOverflow(max > 4);
-    setCanPrev(position > 4);
-    setCanNext(max - position > 4);
+    const card = el.querySelector<HTMLElement>(".wahaj-category-card");
+    const gap = card ? parseFloat(getComputedStyle(el).columnGap || "0") : 0;
+    const stride = card ? card.getBoundingClientRect().width + gap : el.clientWidth;
+    setActiveDot(Math.max(0, Math.min(categories.length - 1, Math.round(position / Math.max(1, stride)))));
   };
   useEffect(() => {
     update();
@@ -31,20 +33,19 @@ export default function CategoryCarousel({ categories, layout = "carousel" }: { 
 
   const isGrid = layout === "grid";
   const isRound = layout === "round" || layout === "circular";
-  const scroll = (direction: -1 | 1) => {
+  const scrollToCategory = (index: number) => {
     const el = trackRef.current;
-    if (!el) return;
-    const amount = Math.max(220, el.clientWidth * 0.72) * direction;
-    el.scrollBy({ left: amount, behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+    const card = el?.querySelectorAll<HTMLElement>(".wahaj-category-card")[index];
+    if (!el || !card) return;
+    const direction = window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth";
+    const rtl = getComputedStyle(el).direction === "rtl";
+    const left = rtl ? card.offsetLeft - (el.scrollWidth - el.clientWidth) : card.offsetLeft;
+    el.scrollTo({ left, behavior: direction });
+    setActiveDot(index);
   };
 
   if (!categories.length) return <div className="wahaj-categories-empty">نعمل على تجهيز تصنيفات وَهَج لكِ قريبًا.</div>;
   return <div className={`wahaj-category-browser${isGrid ? " is-grid" : ""}${isRound ? " is-round" : ""}`}>
-    {!isGrid && hasOverflow && <div className="wahaj-category-controls" role="group" aria-label="التنقل بين التصنيفات">
-      <button className="wahaj-category-controls__button" type="button" onClick={() => scroll(-1)} disabled={!canPrev} aria-label="التصنيفات السابقة"><ArrowRight size={16} aria-hidden="true" /><span>السابق</span></button>
-      <span className="wahaj-category-controls__divider" aria-hidden="true" />
-      <button className="wahaj-category-controls__button" type="button" onClick={() => scroll(1)} disabled={!canNext} aria-label="التصنيفات التالية"><span>التالي</span><ArrowLeft size={16} aria-hidden="true" /></button>
-    </div>}
     <div className="wahaj-category-track" ref={trackRef} onScroll={update} role="list" aria-label="تصنيفات المتجر">
       {categories.map((category, index) => <Link role="listitem" key={category.id} href={`/shop?category=${encodeURIComponent(category.slug)}`} prefetch={false} className="wahaj-category-card">
         <span className="wahaj-category-card__visual">
@@ -55,5 +56,8 @@ export default function CategoryCarousel({ categories, layout = "carousel" }: { 
         <span className="wahaj-category-card__link">اكتشفي الفئة <ChevronLeft size={14} /></span>
       </Link>)}
     </div>
+    {!isGrid && hasOverflow && <nav className="wahaj-category-dots" aria-label="اختيار مجموعة التصنيفات">
+      {categories.map((category, index) => <button key={category.id} type="button" className={activeDot === index ? "is-active" : ""} onClick={() => scrollToCategory(index)} aria-label={`عرض التصنيف ${category.name}`} aria-current={activeDot === index ? "true" : undefined} />)}
+    </nav>}
   </div>;
 }
