@@ -62,7 +62,6 @@ export default function AdminLoginPage() {
 
   return (
     <main className="wahaj-login" dir="rtl">
-      <a className="wahaj-skip-link" href="#admin-login-panel">تخطي إلى نموذج الدخول</a>
       <div className="wahaj-login__frame">
         <section className="wahaj-login__brand-panel" aria-label="هوية متجر وهج">
           <div className="wahaj-login__brand-top">
@@ -90,7 +89,7 @@ export default function AdminLoginPage() {
           </div>
         </section>
 
-        <section id="admin-login-panel" tabIndex={-1} className="wahaj-login__form-panel">
+        <section className="wahaj-login__form-panel">
           <Link className="wahaj-login__back" href="/"><ArrowUpLeft size={16} /> العودة للمتجر</Link>
           <div className="wahaj-login__form-wrap">
             <div className="wahaj-login__mobile-brand">
