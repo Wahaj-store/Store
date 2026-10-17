@@ -5731,4 +5731,45 @@ body:has(.wahaj-maintenance) .wahaj-footer { display:none !important; }
 .wahaj-offer-marquee:hover .wahaj-offer-marquee__track,.wahaj-offer-marquee:focus-within .wahaj-offer-marquee__track{animation-play-state:paused}
 @keyframes wahaj-offer-marquee-scroll{from{transform:translateX(0)}to{transform:translateX(25%)}}
 @media(prefers-reduced-motion:reduce){.wahaj-editorial-hero__image,.wahaj-editorial-hero__cta{transition:none}.wahaj-offer-marquee__track{animation:none;transform:none;flex-wrap:wrap;width:100%}.wahaj-offer-marquee__group[aria-hidden="true"]{display:none}}
-@media(max-width:700px){.wahaj-editorial-hero{height:var(--wahaj-hero-height-mobile,320px);min-height:220px;max-height:600px;background:#211b12}.wahaj-editorial-hero__image{object-fit:contain;object-position:center}.wahaj-editorial-hero__shade{background:linear-gradient(0deg,rgba(12,10,8,.58),rgba(12,10,8,.18) 75%),linear-gradient(90deg,rgba(12,10,8,.12),rgba(12,10,8,.25))}.wahaj-editorial-hero__content{width:calc(100% - 28px);padding:32px 0}.wahaj-editorial-hero__content h1{font-size:clamp(1.85rem,8vw,3rem)}.wahaj-editorial-hero__content p{font-size:.92rem}.wahaj-editorial-hero__cta{margin-top:24px;min-height:44px;padding:10px 22px}.wahaj-offer-marquee__item{padding-block:15px}}
+@media(max-width:700px){
+  /* تجديد الارتفاع ليتناسب مع أبعاد الصورة العريضة بدون ترك فراغات كبيرة */
+  .wahaj-editorial-hero {
+    height: auto !important;
+    min-height: 220px;
+    aspect-ratio: 16 / 9; /* يضبط أبعاد الهيرو ليناسب أبعاد الصورة العريضة تماماً */
+    background: #211b12;
+  }
+
+  /* تغطية الهيرو بالكامل مع قص طفيف جداً لا يذكر للطرفين لحفظ الأبعاد */
+  .wahaj-editorial-hero__image {
+    object-fit: cover !important;
+    object-position: center !important;
+  }
+
+  .wahaj-editorial-hero__shade {
+    background: linear-gradient(0deg, rgba(12,10,8,0.65), rgba(12,10,8,0.25) 70%);
+  }
+
+  .wahaj-editorial-hero__content {
+    width: calc(100% - 28px);
+    padding: 20px 0;
+  }
+
+  .wahaj-editorial-hero__content h1 {
+    font-size: clamp(1.4rem, 6vw, 2.2rem);
+  }
+
+  .wahaj-editorial-hero__content p {
+    font-size: 0.85rem;
+  }
+
+  .wahaj-editorial-hero__cta {
+    margin-top: 16px;
+    min-height: 40px;
+    padding: 8px 20px;
+  }
+
+  .wahaj-offer-marquee__item {
+    padding-block: 15px;
+  }
+}
