@@ -53,6 +53,7 @@ export default async function Page() {
         sortOrder: true,
         startsAt: true,
         endsAt: true,
+        config: true,
       },
       orderBy: { sortOrder: 'asc' },
     }),
@@ -82,7 +83,7 @@ export default async function Page() {
     }),
     prisma.category.findMany({
       where: { active: true },
-      select: { id: true, name: true, slug: true, imageUrl: true },
+      select: { id: true, name: true, slug: true, description: true, imageUrl: true, active: true },
       orderBy: { sortOrder: 'asc' },
     }),
     prisma.siteSetting.findMany({ select: { key: true, value: true } }),
