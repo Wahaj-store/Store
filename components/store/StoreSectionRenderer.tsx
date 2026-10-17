@@ -384,58 +384,47 @@ export default function StoreSectionRenderer({
       <main>
         {sections.map((sec: any) => {
           if (sec.type === "hero") {
-            const image =
-              sec.imageUrl || data?.products?.[0]?.images?.[0]?.url || "/placeholder.svg";
-
+            const fallbackImage = sec.imageUrl || data?.products?.[0]?.images?.[0]?.url || "/placeholder.svg";
+            const gallery = (Array.isArray(sec.images) ? sec.images : [])
+              .map((item: any) => typeof item === "string" ? item : item?.url || item?.imageUrl)
+              .filter(Boolean).slice(0, 4);
+            const panels = gallery.length ? gallery : [fallbackImage, fallbackImage, fallbackImage, fallbackImage];
+            const marqueeItems = [
+              ...((Array.isArray(offers) ? offers : []).filter((o: any) => o && (o.name || o.title)).map((o: any) => ({
+                text: o.name || o.title, href: `/offers/${o.id}`,
+              }))),
+              ...(s.announcement ? String(s.announcement).split(/\n|\|/).map((text: string) => ({ text: text.trim(), href: "/offers" })).filter((x: any) => x.text) : []),
+            ];
+            const marqueeText = marqueeItems.length ? marqueeItems : [{ text: "عروض وَهَج المختارة — اكتشفي تألقك", href: "/offers" }];
+            const speed = Math.max(12, Math.min(90, Number(s.hero_marquee_speed || 28)));
             return (
               <Fragment key={sec.id}>
-                <section className="wahaj-hero">
-                <div className="wahaj-hero__ornament" aria-hidden="true" />
-                <div className="wahaj-hero__inner">
-                  <div className="wahaj-hero__content">
-                    <span className="wahaj-hero__eyebrow">
-                      {sec.badge || "وَهَج — تفاصيل تصنع الفرق"}
-                    </span>
-                    <h1 className="wahaj-hero__title">
-                      {sec.title || "لأن أناقتك تستحق أن تتألّق"}
-                    </h1>
-                    <p className="wahaj-hero__description">
-                      {sec.subtitle ||
-                        "قطع مختارة بعناية لتضيف لمسة من الوهج والفخامة إلى كل إطلالة."}
-                    </p>
-                    <div className="wahaj-hero__actions">
-                      <Link href={sec.ctaUrl || "/shop"} prefetch={false} className="wahaj-hero__primary">
-                        {sec.ctaText || "اكتشفي المجموعة"}
-                        <ChevronLeft size={18} />
-                      </Link>
-                      <Link href="/shop" prefetch={false} className="wahaj-hero__secondary">
-                        تسوقي الآن
-                        <ArrowLeft size={16} />
-                      </Link>
-                    </div>
-                    <div className="wahaj-hero__meta">
-                      <span><Check size={14} /> مختارات بعناية</span>
-                      <span><Check size={14} /> جودة تليق بك</span>
-                      <span><Check size={14} /> تجربة تسوق راقية</span>
-                    </div>
+                <section className="wahaj-editorial-hero" aria-label="وَهَج — لأن أناقتك تستحق أن تتألّق">
+                  <div className="wahaj-editorial-hero__collage" aria-hidden="true">
+                    {panels.map((src: string, index: number) => (
+                      <div className={`wahaj-editorial-hero__panel wahaj-editorial-hero__panel--${index + 1}`} key={`${src}-${index}`}>
+                        <Image src={src} alt="" fill sizes="(max-width: 700px) 25vw, 25vw" priority={index < 2} className="wahaj-editorial-hero__image" />
+                      </div>
+                    ))}
                   </div>
-
-                  <div className="wahaj-hero__visual">
-                    <Image
-                      src={image}
-                      alt="مجموعة وَهَج"
-                      fill
-                      sizes="(max-width: 800px) 100vw, 50vw"
-                      priority
-                      className="wahaj-hero__image"
-                    />
-                    <div className="wahaj-hero__frame" aria-hidden="true" />
-                    <div className="wahaj-hero__badge">
-                      <Sparkles size={14} />
-                      <span>مصممة لتبقى في الذاكرة</span>
-                    </div>
+                  <div className="wahaj-editorial-hero__shade" aria-hidden="true" />
+                  <div className="wahaj-editorial-hero__content">
+                    <span className="wahaj-editorial-hero__eyebrow">{sec.badge || "وَهَج · تفاصيل تصنع الفرق"}</span>
+                    <h1>{sec.title || "لأن أناقتك تستحق أن تتألّق"}</h1>
+                    {sec.subtitle ? <p>{sec.subtitle}</p> : null}
+                    <Link href={sec.ctaUrl || "/shop"} prefetch={false} className="wahaj-editorial-hero__cta">
+                      {sec.ctaText || "تسوّقي الآن"}<ArrowLeft size={17} aria-hidden="true" />
+                    </Link>
                   </div>
-                </div>
+                </section>
+                <section className="wahaj-offer-marquee" aria-label="عروض وَهَج" style={{ "--wahaj-marquee-duration": `${speed}s`, "--wahaj-marquee-bg": s.hero_marquee_bg || "#171513", "--wahaj-marquee-color": s.hero_marquee_color || "#ffffff", "--wahaj-marquee-accent": s.hero_marquee_accent || "var(--gold)" } as React.CSSProperties}>
+                  <div className="wahaj-offer-marquee__track">
+                    {[0, 1, 2, 3].map((copy) => <div className="wahaj-offer-marquee__group" key={copy} aria-hidden={copy > 0}>
+                      {marqueeText.map((item: any, index: number) => <Link href={item.href || "/offers"} key={`${copy}-${index}`} className="wahaj-offer-marquee__item" tabIndex={copy > 0 ? -1 : undefined}>
+                        <span className="wahaj-offer-marquee__dot" aria-hidden="true">•</span><span>{item.text}</span>
+                      </Link>)}
+                    </div>)}
+                  </div>
                 </section>
                 <HomeTrustStrip section={sections.find((item: any) => item.type === "trust")} />
               </Fragment>
