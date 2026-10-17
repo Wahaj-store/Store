@@ -299,7 +299,8 @@ export default function SiteChrome() {
                 <SiteLink
                   key={`${x.href}-${x.label}`}
                   href={x.href}
-                  className={`transition-colors hover:text-(--gold) ${pathname === x.href ? 'text-(--gold) font-bold border-b-2 border-(--gold) pb-0.5' : 'text-foreground/80'}`}
+                  aria-current={isRouteActive(x.href) ? 'page' : undefined}
+                  className={`transition-colors hover:text-(--gold) ${isRouteActive(x.href) ? 'text-(--gold) font-bold border-b-2 border-(--gold) pb-0.5' : 'text-foreground/80'}`}
                 >
                   {x.label}
                 </SiteLink>
@@ -311,8 +312,8 @@ export default function SiteChrome() {
             <SiteLink
               href="/shop"
               className="wahaj-header__action text-foreground/80 hover:text-(--gold) transition-colors p-1"
-              aria-label="البحث"
-              title="البحث"
+              aria-label="المتجر والبحث عن المنتجات"
+              title="المتجر والبحث عن المنتجات"
             >
               <Search size={20} />
             </SiteLink>
@@ -565,17 +566,17 @@ export default function SiteChrome() {
       )}
 
       <nav className="wahaj-mobile-bottom-nav" aria-label="التنقل السريع">
-        <SiteLink href="/" className={pathname === '/' ? 'is-active' : ''} aria-label="الرئيسية">
+        <SiteLink href="/" className={pathname === '/' ? 'is-active' : ''} aria-label="الرئيسية" aria-current={pathname === '/' ? 'page' : undefined}>
           <Home size={18} /><span>الرئيسية</span>
         </SiteLink>
-        <SiteLink href="/shop" className={pathname?.startsWith('/shop') ? 'is-active' : ''} aria-label="المتجر">
+        <SiteLink href="/shop" className={pathname?.startsWith('/shop') ? 'is-active' : ''} aria-label="المتجر" aria-current={pathname?.startsWith('/shop') ? 'page' : undefined}>
           <Store size={18} /><span>المتجر</span>
         </SiteLink>
-        <SiteLink href="/cart" className={pathname?.startsWith('/cart') ? 'is-active wahaj-mobile-bottom-nav__cart' : 'wahaj-mobile-bottom-nav__cart'} aria-label="السلة">
+        <SiteLink href="/cart" className={pathname?.startsWith('/cart') ? 'is-active wahaj-mobile-bottom-nav__cart' : 'wahaj-mobile-bottom-nav__cart'} aria-label="السلة" aria-current={pathname?.startsWith('/cart') ? 'page' : undefined}>
           <ShoppingBag size={18} /><span>السلة</span>
           {cartCount > 0 && <b>{cartCount > 99 ? '99+' : cartCount}</b>}
         </SiteLink>
-        <SiteLink href="/account" className={pathname?.startsWith('/account') ? 'is-active' : ''} aria-label="حسابي">
+        <SiteLink href="/account" className={pathname?.startsWith('/account') ? 'is-active' : ''} aria-label="حسابي" aria-current={pathname?.startsWith('/account') ? 'page' : undefined}>
           <User size={18} /><span>حسابي</span>
         </SiteLink>
       </nav>
