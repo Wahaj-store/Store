@@ -5777,3 +5777,82 @@ body:has(.wahaj-maintenance) .wahaj-footer { display:none !important; }
   }
   .wahaj-offer-marquee__banner { height: 22px; max-width: 76px; }
 }
+
+/* Compact vertical rhythm across storefront sections and content pages. */
+:root { --wahaj-section-space: clamp(44px, 4.5vw, 62px); }
+.section { padding-block: 52px; }
+.section-sm { padding-block: 30px; }
+
+.wahaj-storefront { --home-space: var(--wahaj-section-space); }
+.wahaj-storefront .wahaj-section-heading { margin-bottom: 18px; }
+.wahaj-storefront .wahaj-collections,
+.wahaj-storefront .wahaj-products-section,
+.wahaj-storefront .wahaj-story,
+.wahaj-storefront .wahaj-offers,
+.wahaj-storefront .wahaj-testimonials,
+.wahaj-storefront .wahaj-social-world,
+.wahaj-storefront .wahaj-newsletter,
+.wahaj-storefront .wahaj-most-requested,
+.wahaj-storefront .wahaj-gift-section { padding-block: var(--wahaj-section-space); }
+
+.wahaj-categories-page { padding-block: clamp(30px, 4vw, 52px) 56px; }
+.wahaj-categories-page__heading { margin-bottom: 28px; }
+.wahaj-shop-page { padding-block: clamp(24px, 3.5vw, 44px) 58px; }
+.wahaj-shop-catalog { padding-top: clamp(28px, 4vw, 48px); }
+.wahaj-product-page { padding-block: 28px 58px; }
+.wahaj-product-breadcrumb { margin-bottom: 24px; }
+.wahaj-product-lower-grid,
+.wahaj-product-related { margin-top: clamp(30px, 4.5vw, 56px); }
+.wahaj-offers-page__hero { padding-block: 28px 20px; }
+.wahaj-offers-page__list { padding-block: 28px 58px; }
+.wahaj-offer-detail { padding-block: 28px 58px; }
+.wahaj-commerce-shell,
+.wahaj-contact-shell,
+.wahaj-help-shell,
+.wahaj-policy-shell,
+.wahaj-about-shell,
+.wahaj-terms-shell { padding-block: clamp(28px, 4vw, 52px) 58px; }
+.wahaj-success-shell,
+.wahaj-track-shell { padding-bottom: 58px; }
+
+@media (max-width: 760px) {
+  .wahaj-storefront { --home-space: 30px; }
+  .wahaj-storefront .wahaj-section-heading { margin-bottom: 15px; }
+}
+
+@media (max-width: 620px) {
+  :root { --wahaj-section-space: 28px; }
+  .section { padding-block: 32px; }
+  .section-sm { padding-block: 22px; }
+  .wahaj-storefront { --home-space: 24px; }
+  .wahaj-storefront .wahaj-section-heading { margin-bottom: 14px; }
+  .wahaj-storefront .wahaj-collections,
+  .wahaj-storefront .wahaj-products-section,
+  .wahaj-storefront .wahaj-story,
+  .wahaj-storefront .wahaj-offers,
+  .wahaj-storefront .wahaj-testimonials,
+  .wahaj-storefront .wahaj-social-world,
+  .wahaj-storefront .wahaj-newsletter,
+  .wahaj-storefront .wahaj-most-requested,
+  .wahaj-storefront .wahaj-gift-section { padding-block: 28px; }
+  .wahaj-storefront .wahaj-collections { padding-block: 24px; }
+  .wahaj-categories-page { min-height: 0; padding-block: 26px 42px; }
+  .wahaj-categories-page__heading { margin-bottom: 22px; }
+  .wahaj-shop-page { padding-block: 18px 42px; }
+  .wahaj-shop-catalog { padding-top: 18px; }
+  .wahaj-product-page { padding-block: 20px 44px; }
+  .wahaj-product-breadcrumb { margin-bottom: 18px; }
+  .wahaj-product-lower-grid,
+  .wahaj-product-related { margin-top: 30px; }
+  .wahaj-offers-page__hero { padding-block: 20px 14px; }
+  .wahaj-offers-page__list { padding-block: 20px 42px; }
+  .wahaj-offer-detail { padding-block: 20px 44px; }
+  .wahaj-commerce-shell,
+  .wahaj-contact-shell,
+  .wahaj-help-shell,
+  .wahaj-policy-shell,
+  .wahaj-about-shell,
+  .wahaj-terms-shell { padding-block: 22px 44px; }
+  .wahaj-success-shell,
+  .wahaj-track-shell { padding-bottom: 44px; }
+}
