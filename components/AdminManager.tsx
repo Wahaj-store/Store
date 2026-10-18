@@ -1211,11 +1211,12 @@ function GeneralSettingsPanel({ data, onEdit, onDelete, onToggleMaintenance, onT
     seo_title: 'عنوان محركات البحث', seo_description: 'وصف محركات البحث', social_facebook: 'رابط فيسبوك',
     social_instagram: 'رابط إنستغرام', social_tiktok: 'رابط تيك توك', header_menu: 'روابط القائمة العلوية', footer_links: 'روابط التذييل',
     store_name: 'اسم المتجر', shipping_free_above: 'حد الشحن المجاني', contact_phone: 'رقم الهاتف', contact_email: 'البريد الإلكتروني',
-    hero_marquee_speed: 'سرعة شريط العروض', hero_marquee_bg: 'لون خلفية شريط العروض', hero_marquee_color: 'لون نص شريط العروض',
+    hero_marquee_speed: 'مدة دورة حركة العروض', hero_marquee_items: 'الإعلانات والبنرات المخصصة لشريط العروض',
+    hero_marquee_bg: 'لون خلفية شريط العروض', hero_marquee_color: 'لون نص شريط العروض',
     hero_marquee_accent: 'لون فواصل شريط العروض', hero_height_desktop: 'ارتفاع الواجهة الرئيسية على الكمبيوتر',
     hero_height_mobile: 'ارتفاع الواجهة الرئيسية على الهاتف',
   };
-  const preferredOrder = ['brand_name', 'brand_tagline', 'brand_story', 'currency', 'announcement', 'whatsapp', 'minimum_order', 'free_shipping', 'seo_title', 'seo_description', 'social_facebook', 'social_instagram', 'social_tiktok', 'header_menu', 'footer_links'];
+  const preferredOrder = ['brand_name', 'brand_tagline', 'brand_story', 'currency', 'announcement', 'hero_marquee_speed', 'hero_marquee_items', 'whatsapp', 'minimum_order', 'free_shipping', 'seo_title', 'seo_description', 'social_facebook', 'social_instagram', 'social_tiktok', 'header_menu', 'footer_links'];
   const regularSettings = (Array.isArray(data) ? data : []).filter((item: any) => !specialKeys.has(item.key)).sort((a: any, b: any) => {
     const ai = preferredOrder.indexOf(a.key);
     const bi = preferredOrder.indexOf(b.key);
@@ -1248,7 +1249,11 @@ function GeneralSettingsPanel({ data, onEdit, onDelete, onToggleMaintenance, onT
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="min-w-0"><b className="font-serif font-bold text-foreground">{label}</b></div>
           <div className="flex flex-wrap items-center gap-2">
-            <button type="button" disabled={!canManageSettings} onClick={() => onEdit(item)} className={editButtonClass}><Pencil size={13} /> تعديل</button>
+            {item.key === 'hero_marquee_items' ? (
+              <Link href="/admin/settings" aria-disabled={!canManageSettings} className={`${editButtonClass}${canManageSettings ? '' : ' pointer-events-none'}`}><Pencil size={13} /> إدارة الإعلانات</Link>
+            ) : (
+              <button type="button" disabled={!canManageSettings} onClick={() => onEdit(item)} className={editButtonClass}><Pencil size={13} /> تعديل</button>
+            )}
             <button type="button" disabled={!canManageSettings} onClick={() => onDelete(item.id)} className={deleteButtonClass}><Trash2 size={13} /> حذف الإعداد</button>
           </div>
         </div>
