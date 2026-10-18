@@ -5887,3 +5887,17 @@ body:has(.wahaj-maintenance) .wahaj-footer { display:none !important; }
   .wahaj-header__menu { display: grid; }
   .wahaj-drawer-overlay { display: block; }
 }
+
+/* Give homepage category cards a little more breathing room. */
+.wahaj-storefront .wahaj-collections .wahaj-category-track {
+  gap: clamp(16px, 2.2vw, 26px);
+}
+.wahaj-storefront .wahaj-collections .wahaj-category-browser.is-grid .wahaj-category-track {
+  gap: clamp(18px, 2.2vw, 26px);
+}
+@media (max-width: 600px) {
+  .wahaj-storefront .wahaj-collections .wahaj-category-track { gap: 16px; }
+  .wahaj-storefront .wahaj-collections .wahaj-category-browser.is-grid .wahaj-category-track {
+    gap: 18px 14px;
+  }
+}
