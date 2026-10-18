@@ -1238,7 +1238,6 @@ function GeneralSettingsPanel({ data, onEdit, onDelete, onToggleMaintenance, onT
       </div>
       <div className="flex flex-wrap items-center gap-2">
         <SettingStatusButton enabled={maintenanceEnabled} canManage={canManageSettings} onToggle={onToggleMaintenance} label="وضع الصيانة" />
-        <button type="button" disabled={!canManageSettings || !data.some((item: any) => item.key === 'maintenance_mode')} onClick={() => { const item = data.find((setting: any) => setting.key === 'maintenance_mode'); if (item) onDelete(item.id); }} className={deleteButtonClass}><Trash2 size={13} /> حذف الإعداد</button>
       </div>
     </article>
 
