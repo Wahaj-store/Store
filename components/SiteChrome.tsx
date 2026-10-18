@@ -19,6 +19,22 @@ function SiteLink({ href, ...props }: SiteLinkProps) {
     : <a href={href} {...props} />;
 }
 
+function lockBodyScroll() {
+  const body = document.body;
+  const previousOverflow = body.style.overflow;
+  const previousPaddingInlineEnd = body.style.paddingInlineEnd;
+  const scrollbarWidth = Math.max(0, window.innerWidth - document.documentElement.clientWidth);
+  if (scrollbarWidth > 0) {
+    const currentPadding = Number.parseFloat(window.getComputedStyle(body).paddingInlineEnd) || 0;
+    body.style.paddingInlineEnd = `${currentPadding + scrollbarWidth}px`;
+  }
+  body.style.overflow = 'hidden';
+  return () => {
+    body.style.overflow = previousOverflow;
+    body.style.paddingInlineEnd = previousPaddingInlineEnd;
+  };
+}
+
 export default function SiteChrome() {
   const pathname = usePathname();
   const { theme, resolvedTheme, setTheme } = useTheme();
@@ -80,9 +96,8 @@ export default function SiteChrome() {
   useEffect(() => {
     if (!menu) return;
 
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-    menuCloseButtonRef.current?.focus();
+    const unlockBodyScroll = lockBodyScroll();
+    menuCloseButtonRef.current?.focus({ preventScroll: true });
 
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
@@ -110,18 +125,17 @@ export default function SiteChrome() {
 
     document.addEventListener('keydown', handleKeyDown);
     return () => {
-      document.body.style.overflow = previousOverflow;
+      unlockBodyScroll();
       document.removeEventListener('keydown', handleKeyDown);
-      menuButtonRef.current?.focus();
+      menuButtonRef.current?.focus({ preventScroll: true });
     };
   }, [menu]);
 
   useEffect(() => {
     if (!cartDrawerOpen) return;
 
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-    cartCloseButtonRef.current?.focus();
+    const unlockBodyScroll = lockBodyScroll();
+    cartCloseButtonRef.current?.focus({ preventScroll: true });
 
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
@@ -149,9 +163,9 @@ export default function SiteChrome() {
 
     document.addEventListener('keydown', handleKeyDown);
     return () => {
-      document.body.style.overflow = previousOverflow;
+      unlockBodyScroll();
       document.removeEventListener('keydown', handleKeyDown);
-      cartButtonRef.current?.focus();
+      cartButtonRef.current?.focus({ preventScroll: true });
     };
   }, [cartDrawerOpen]);
 
