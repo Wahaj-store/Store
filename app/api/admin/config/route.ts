@@ -21,9 +21,11 @@ const DEFAULTS: Record<string, string> = {
   social_facebook: '',
   social_instagram: '',
   social_tiktok: '',
+  hero_marquee_speed: '28',
+  hero_marquee_items: '[]',
 };
 
-const settingSchema = z.record(z.string().max(5000));
+const settingSchema = z.record(z.string().max(20000));
 const popupConfigSchema = z.object({
   title: z.string().trim().min(1).max(120),
   message: z.string().max(700),
@@ -33,6 +35,12 @@ const popupConfigSchema = z.object({
   delaySeconds: z.number().int().min(0).max(60),
   frequency: z.enum(['session', 'daily', 'always']),
 });
+
+const marqueeItemsSchema = z.array(z.object({
+  text: z.string().trim().min(1).max(120),
+  href: z.string().trim().max(1000),
+  imageUrl: z.string().trim().max(1000),
+})).max(8);
 
 function isSafePopupUrl(value: string, allowHash = false) {
   const input = value.trim();
@@ -96,6 +104,28 @@ export async function PUT(req: Request) {
     const settings = body?.settings ? settingSchema.parse(body.settings) : null;
 
     if (settings) {
+      if (settings.hero_marquee_speed !== undefined) {
+        const speed = Number(settings.hero_marquee_speed);
+        if (!Number.isInteger(speed) || speed < 12 || speed > 90) {
+          throw new Error('مدة دورة حركة العروض يجب أن تكون رقمًا صحيحًا من 12 إلى 90 ثانية.');
+        }
+        settings.hero_marquee_speed = String(speed);
+      }
+      if (settings.hero_marquee_items !== undefined) {
+        let rawMarqueeItems: unknown;
+        try {
+          rawMarqueeItems = JSON.parse(settings.hero_marquee_items);
+        } catch {
+          throw new Error('قائمة إعلانات الشريط غير صالحة.');
+        }
+        const marqueeItems = marqueeItemsSchema.parse(rawMarqueeItems).map((item) => {
+          if (!isSafePopupUrl(item.href, true) || !isSafePopupUrl(item.imageUrl)) {
+            throw new Error('استخدمي روابط داخلية أو روابط HTTP/HTTPS صالحة للإعلان والبنر.');
+          }
+          return { ...item, href: item.href || '/offers' };
+        });
+        settings.hero_marquee_items = JSON.stringify(marqueeItems);
+      }
       if (settings.popup_enabled !== undefined && !['true', 'false'].includes(settings.popup_enabled.trim().toLowerCase())) {
         throw new Error('قيمة popup_enabled يجب أن تكون true أو false.');
       }
