@@ -378,9 +378,18 @@ function safeMarqueeUrl(value: unknown, fallback = ''): string {
   }
 }
 
+function parseConfigRecord(value: unknown): Record<string, any> {
+  try {
+    const parsed = typeof value === 'string' ? JSON.parse(value) : value;
+    return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed as Record<string, any> : {};
+  } catch {
+    return {};
+  }
+}
+
 function parseCustomMarqueeItems(value: unknown): Array<{ text: string; href: string; imageUrl: string }> {
   try {
-    const parsed = JSON.parse(typeof value === 'string' ? value : '[]');
+    const parsed = Array.isArray(value) ? value : JSON.parse(typeof value === 'string' ? value : '[]');
     if (!Array.isArray(parsed)) return [];
     return parsed.slice(0, 8).map((item: any) => ({
       text: String(item?.text || '').trim(),
@@ -412,6 +421,9 @@ export default function StoreSectionRenderer({
       <main>
         {sections.map((sec: any) => {
           if (sec.type === "hero") {
+            const sectionConfig = parseConfigRecord(sec.config);
+            const heroSettings = parseConfigRecord(sectionConfig.wahajOfferMarquee);
+            const getHeroSetting = (key: string, fallback: unknown) => heroSettings[key] ?? s[key] ?? fallback;
             const fallbackImage = sec.imageUrl || data?.products?.[0]?.images?.[0]?.url || "/placeholder.svg";
             const heroImage = sec.imageUrl ||
               (Array.isArray(sec.images)
@@ -426,14 +438,19 @@ export default function StoreSectionRenderer({
                 text: o.name || o.title, href: `/offers/${o.id}`,
               }))),
               ...(s.announcement ? String(s.announcement).split(/\n|\|/).map((text: string) => ({ text: text.trim(), href: "/offers" })).filter((x: any) => x.text) : []),
-              ...parseCustomMarqueeItems(s.hero_marquee_items),
+              ...parseCustomMarqueeItems(getHeroSetting('hero_marquee_items', '[]')),
             ];
             const marqueeText = marqueeItems.length ? marqueeItems : [{ text: "عروض وَهَج المختارة — اكتشفي تألقك", href: "/offers" }];
-            const configuredSpeed = Number(s.hero_marquee_speed ?? 28);
+            const configuredSpeed = Number(getHeroSetting('hero_marquee_speed', 28));
             const speed = Number.isFinite(configuredSpeed) ? Math.max(12, Math.min(90, configuredSpeed)) : 28;
+            const heroHeightDesktop = Math.max(260, Math.min(700, Number(getHeroSetting('hero_height_desktop', 420)) || 420));
+            const heroHeightMobile = Math.max(220, Math.min(600, Number(getHeroSetting('hero_height_mobile', 320)) || 320));
+            const marqueeBg = getHeroSetting('hero_marquee_bg', '#171513');
+            const marqueeColor = getHeroSetting('hero_marquee_color', '#ffffff');
+            const marqueeAccent = getHeroSetting('hero_marquee_accent', 'var(--gold)');
             return (
               <Fragment key={sec.id}>
-                <section className="wahaj-editorial-hero" aria-label="وَهَج — لأن أناقتك تستحق أن تتألّق" style={{ "--wahaj-hero-height-desktop": `${Math.max(260, Math.min(700, Number(s.hero_height_desktop || 420)))}px`, "--wahaj-hero-height-mobile": `${Math.max(220, Math.min(600, Number(s.hero_height_mobile || 320)))}px` } as React.CSSProperties}>
+                <section className="wahaj-editorial-hero" aria-label="وَهَج — لأن أناقتك تستحق أن تتألّق" style={{ "--wahaj-hero-height-desktop": `${heroHeightDesktop}px`, "--wahaj-hero-height-mobile": `${heroHeightMobile}px` } as React.CSSProperties}>
                   <div className="wahaj-editorial-hero__collage" aria-hidden="true">
                     <Image
                       src={heroImage}
@@ -454,7 +471,7 @@ export default function StoreSectionRenderer({
                     </Link>
                   </div>
                 </section>
-                <section className="wahaj-offer-marquee" aria-label="عروض وَهَج" style={{ "--wahaj-marquee-duration": `${speed}s`, "--wahaj-marquee-bg": s.hero_marquee_bg || "#171513", "--wahaj-marquee-color": s.hero_marquee_color || "#ffffff", "--wahaj-marquee-accent": s.hero_marquee_accent || "var(--gold)" } as React.CSSProperties}>
+                <section className="wahaj-offer-marquee" aria-label="عروض وَهَج" style={{ "--wahaj-marquee-duration": `${speed}s`, "--wahaj-marquee-bg": String(marqueeBg), "--wahaj-marquee-color": String(marqueeColor), "--wahaj-marquee-accent": String(marqueeAccent) } as React.CSSProperties}>
                   <div className="wahaj-offer-marquee__track" style={{ animationDuration: `${speed}s` }}>
                     {[0, 1, 2, 3].map((copy) => <div className="wahaj-offer-marquee__group" key={copy} aria-hidden={copy > 0}>
                       {marqueeText.map((item: any, index: number) => <Link href={item.href || "/offers"} key={`${copy}-${index}`} className="wahaj-offer-marquee__item" tabIndex={copy > 0 ? -1 : undefined}>
