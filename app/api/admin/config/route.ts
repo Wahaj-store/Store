@@ -21,10 +21,10 @@ const DEFAULTS: Record<string, string> = {
   social_facebook: '',
   social_instagram: '',
   social_tiktok: '',
-  hero_marquee_speed: '28',
-  hero_marquee_items: '[]',
 };
 
+const HERO_SETTINGS_CONFIG_KEY = 'wahajOfferMarquee';
+const HERO_SETTING_KEYS = ['hero_marquee_speed', 'hero_marquee_items', 'hero_marquee_bg', 'hero_marquee_color', 'hero_marquee_accent', 'hero_height_desktop', 'hero_height_mobile'];
 const settingSchema = z.record(z.string().max(20000));
 const popupConfigSchema = z.object({
   title: z.string().trim().min(1).max(120),
@@ -41,6 +41,33 @@ const marqueeItemsSchema = z.array(z.object({
   href: z.string().trim().max(1000),
   imageUrl: z.string().trim().max(1000),
 })).max(8);
+const heroSettingsSchema = z.object({
+  hero_marquee_speed: z.coerce.number().int().min(12).max(90),
+  hero_marquee_items: marqueeItemsSchema,
+  hero_marquee_bg: z.string().regex(/^#[0-9a-f]{6}$/i),
+  hero_marquee_color: z.string().regex(/^#[0-9a-f]{6}$/i),
+  hero_marquee_accent: z.string().regex(/^#[0-9a-f]{6}$/i),
+  hero_height_desktop: z.coerce.number().int().min(260).max(700),
+  hero_height_mobile: z.coerce.number().int().min(220).max(600),
+});
+
+function parseJsonRecord(value: unknown): Record<string, any> {
+  try {
+    const parsed = typeof value === 'string' ? JSON.parse(value) : value;
+    return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed as Record<string, any> : {};
+  } catch {
+    return {};
+  }
+}
+
+function parseLegacyMarqueeItems(value: unknown) {
+  try {
+    const parsed = typeof value === 'string' ? JSON.parse(value) : value;
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
 
 function isSafePopupUrl(value: string, allowHash = false) {
   const input = value.trim();
@@ -71,13 +98,28 @@ async function readConfig() {
     prisma.paymentSetting.findMany({ orderBy: { displayOrder: 'asc' } }),
   ]);
 
-  const storedSettings = Object.fromEntries(rows.map((row) => [row.key, row.value]));
+  const allStoredSettings = Object.fromEntries(rows.map((row) => [row.key, row.value]));
+  const storedSettings = Object.fromEntries(Object.entries(allStoredSettings).filter(([key]) => !HERO_SETTING_KEYS.includes(key)));
   const settings = {
     ...DEFAULTS,
     ...storedSettings,
   };
+  const heroSection = sections.find((section) => section.type === 'hero');
+  const sectionConfig = parseJsonRecord(heroSection?.config);
+  const savedHeroSettings = parseJsonRecord(sectionConfig[HERO_SETTINGS_CONFIG_KEY]);
+  const heroSettings = {
+    hero_marquee_speed: String(savedHeroSettings.hero_marquee_speed ?? allStoredSettings.hero_marquee_speed ?? '28'),
+    hero_marquee_items: Array.isArray(savedHeroSettings.hero_marquee_items)
+      ? savedHeroSettings.hero_marquee_items
+      : parseLegacyMarqueeItems(allStoredSettings.hero_marquee_items),
+    hero_marquee_bg: String(savedHeroSettings.hero_marquee_bg ?? allStoredSettings.hero_marquee_bg ?? '#171513'),
+    hero_marquee_color: String(savedHeroSettings.hero_marquee_color ?? allStoredSettings.hero_marquee_color ?? '#ffffff'),
+    hero_marquee_accent: String(savedHeroSettings.hero_marquee_accent ?? allStoredSettings.hero_marquee_accent ?? '#c8a96b'),
+    hero_height_desktop: String(savedHeroSettings.hero_height_desktop ?? allStoredSettings.hero_height_desktop ?? '420'),
+    hero_height_mobile: String(savedHeroSettings.hero_height_mobile ?? allStoredSettings.hero_height_mobile ?? '320'),
+  };
 
-  return { settings, storedSettings, theme: theme ? { ...theme, fontFamily: 'Tajawal' } : null, sections, payments };
+  return { settings, storedSettings, heroSettings, theme: theme ? { ...theme, fontFamily: 'Tajawal' } : null, sections, payments };
 }
 
 export async function GET() {
@@ -102,29 +144,12 @@ export async function PUT(req: Request) {
 
     const body = await req.json();
     const settings = body?.settings ? settingSchema.parse(body.settings) : null;
+    const heroSettings = body?.heroSettings ? heroSettingsSchema.parse(body.heroSettings) : null;
 
     if (settings) {
-      if (settings.hero_marquee_speed !== undefined) {
-        const speed = Number(settings.hero_marquee_speed);
-        if (!Number.isInteger(speed) || speed < 12 || speed > 90) {
-          throw new Error('مدة دورة حركة العروض يجب أن تكون رقمًا صحيحًا من 12 إلى 90 ثانية.');
-        }
-        settings.hero_marquee_speed = String(speed);
-      }
-      if (settings.hero_marquee_items !== undefined) {
-        let rawMarqueeItems: unknown;
-        try {
-          rawMarqueeItems = JSON.parse(settings.hero_marquee_items);
-        } catch {
-          throw new Error('قائمة إعلانات الشريط غير صالحة.');
-        }
-        const marqueeItems = marqueeItemsSchema.parse(rawMarqueeItems).map((item) => {
-          if (!isSafePopupUrl(item.href, true) || !isSafePopupUrl(item.imageUrl)) {
-            throw new Error('استخدمي روابط داخلية أو روابط HTTP/HTTPS صالحة للإعلان والبنر.');
-          }
-          return { ...item, href: item.href || '/offers' };
-        });
-        settings.hero_marquee_items = JSON.stringify(marqueeItems);
+      const reservedKeys = Object.keys(settings).filter((key) => HERO_SETTING_KEYS.includes(key));
+      if (reservedKeys.length) {
+        throw new Error('إعدادات الواجهة وشريط العروض تُحفظ من محررها المخصص فقط.');
       }
       if (settings.popup_enabled !== undefined && !['true', 'false'].includes(settings.popup_enabled.trim().toLowerCase())) {
         throw new Error('قيمة popup_enabled يجب أن تكون true أو false.');
@@ -151,6 +176,27 @@ export async function PUT(req: Request) {
           }),
         ),
       );
+    }
+
+    if (heroSettings) {
+      const items = heroSettings.hero_marquee_items.map((item) => {
+        if (!isSafePopupUrl(item.href, true) || !isSafePopupUrl(item.imageUrl)) {
+          throw new Error('استخدمي روابط داخلية أو روابط HTTP/HTTPS صالحة للإعلان والبنر.');
+        }
+        return { ...item, href: item.href || '/offers' };
+      });
+      const heroSection = await prisma.homepageSection.findFirst({
+        where: { type: 'hero' },
+        orderBy: { sortOrder: 'asc' },
+        select: { id: true, config: true },
+      });
+      if (!heroSection) throw new Error('لا يوجد قسم واجهة رئيسية لحفظ هذه الإعدادات. أضيفي قسم الواجهة من إدارة الصفحة الرئيسية أولًا.');
+      const sectionConfig = parseJsonRecord(heroSection.config);
+      sectionConfig[HERO_SETTINGS_CONFIG_KEY] = { ...heroSettings, hero_marquee_items: items };
+      await prisma.$transaction([
+        prisma.homepageSection.update({ where: { id: heroSection.id }, data: { config: JSON.stringify(sectionConfig) } }),
+        prisma.siteSetting.deleteMany({ where: { key: { in: HERO_SETTING_KEYS } } }),
+      ]);
     }
 
     if (body?.theme) {
@@ -192,7 +238,7 @@ export async function PUT(req: Request) {
         action: 'UPDATE_CONFIG',
         entity: 'StoreConfiguration',
         severity: 'INFO',
-        metadata: JSON.stringify({ settings: settings ? Object.keys(settings) : [], theme: Boolean(body?.theme) }),
+        metadata: JSON.stringify({ settings: settings ? Object.keys(settings) : [], heroSettings: Boolean(heroSettings), theme: Boolean(body?.theme) }),
       },
     });
 
@@ -212,6 +258,9 @@ export async function DELETE(req: Request) {
     if (!can(user.role, 'settingsWrite')) return forbidden();
 
     const body = z.object({ key: z.string().min(1).max(255) }).parse(await req.json());
+    if (HERO_SETTING_KEYS.includes(body.key)) {
+      return NextResponse.json({ error: 'إعدادات الواجهة تُدار من صفحة إعدادات الواجهة وشريط العروض.' }, { status: 400 });
+    }
     if (['popup_enabled', 'popup_config', 'gift_wrap_fee'].includes(body.key)) {
       return NextResponse.json({ error: 'لا يمكن حذف إعدادات النافذة المنبثقة أو رسوم تغليف الهدايا.' }, { status: 400 });
     }
