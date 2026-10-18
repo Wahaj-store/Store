@@ -364,6 +364,34 @@ function GiftSection({ categories, products, settings }: { categories: any[]; pr
 
 
 
+function safeMarqueeUrl(value: unknown, fallback = ''): string {
+  if (typeof value !== 'string') return fallback;
+  const input = value.trim();
+  if (!input) return fallback;
+  if (input.startsWith('/') && !input.startsWith('//')) return input;
+  if (/^#[\w-]+$/.test(input)) return input;
+  try {
+    const url = new URL(input);
+    return url.protocol === 'https:' || url.protocol === 'http:' ? input : fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+function parseCustomMarqueeItems(value: unknown): Array<{ text: string; href: string; imageUrl: string }> {
+  try {
+    const parsed = JSON.parse(typeof value === 'string' ? value : '[]');
+    if (!Array.isArray(parsed)) return [];
+    return parsed.slice(0, 8).map((item: any) => ({
+      text: String(item?.text || '').trim(),
+      href: safeMarqueeUrl(item?.href, '/offers'),
+      imageUrl: safeMarqueeUrl(item?.imageUrl),
+    })).filter(item => item.text);
+  } catch {
+    return [];
+  }
+}
+
 export default function StoreSectionRenderer({
   data,
   sections,
@@ -398,9 +426,11 @@ export default function StoreSectionRenderer({
                 text: o.name || o.title, href: `/offers/${o.id}`,
               }))),
               ...(s.announcement ? String(s.announcement).split(/\n|\|/).map((text: string) => ({ text: text.trim(), href: "/offers" })).filter((x: any) => x.text) : []),
+              ...parseCustomMarqueeItems(s.hero_marquee_items),
             ];
             const marqueeText = marqueeItems.length ? marqueeItems : [{ text: "عروض وَهَج المختارة — اكتشفي تألقك", href: "/offers" }];
-            const speed = Math.max(12, Math.min(90, Number(s.hero_marquee_speed || 28)));
+            const configuredSpeed = Number(s.hero_marquee_speed ?? 28);
+            const speed = Number.isFinite(configuredSpeed) ? Math.max(12, Math.min(90, configuredSpeed)) : 28;
             return (
               <Fragment key={sec.id}>
                 <section className="wahaj-editorial-hero" aria-label="وَهَج — لأن أناقتك تستحق أن تتألّق" style={{ "--wahaj-hero-height-desktop": `${Math.max(260, Math.min(700, Number(s.hero_height_desktop || 420)))}px`, "--wahaj-hero-height-mobile": `${Math.max(220, Math.min(600, Number(s.hero_height_mobile || 320)))}px` } as React.CSSProperties}>
@@ -425,10 +455,10 @@ export default function StoreSectionRenderer({
                   </div>
                 </section>
                 <section className="wahaj-offer-marquee" aria-label="عروض وَهَج" style={{ "--wahaj-marquee-duration": `${speed}s`, "--wahaj-marquee-bg": s.hero_marquee_bg || "#171513", "--wahaj-marquee-color": s.hero_marquee_color || "#ffffff", "--wahaj-marquee-accent": s.hero_marquee_accent || "var(--gold)" } as React.CSSProperties}>
-                  <div className="wahaj-offer-marquee__track">
+                  <div className="wahaj-offer-marquee__track" style={{ animationDuration: `${speed}s` }}>
                     {[0, 1, 2, 3].map((copy) => <div className="wahaj-offer-marquee__group" key={copy} aria-hidden={copy > 0}>
                       {marqueeText.map((item: any, index: number) => <Link href={item.href || "/offers"} key={`${copy}-${index}`} className="wahaj-offer-marquee__item" tabIndex={copy > 0 ? -1 : undefined}>
-                        <span className="wahaj-offer-marquee__dot" aria-hidden="true">•</span><span>{item.text}</span>
+                        <span className="wahaj-offer-marquee__dot" aria-hidden="true">•</span>{item.imageUrl ? <Image src={item.imageUrl} alt={item.text} width={88} height={32} className="wahaj-offer-marquee__banner" /> : null}<span>{item.text}</span>
                       </Link>)}
                     </div>)}
                   </div>
