@@ -5881,3 +5881,9 @@ body:has(.wahaj-maintenance) .wahaj-footer { display:none !important; }
   .wahaj-header--luxury .wahaj-header__menu,
   .wahaj-header--luxury .wahaj-header__action { width: 34px; height: 34px; }
 }
+
+/* The header hamburger is also available on wide layouts; keep its drawer visible there. */
+@media (min-width: 768px) {
+  .wahaj-header__menu { display: grid; }
+  .wahaj-drawer-overlay { display: block; }
+}
