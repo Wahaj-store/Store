@@ -242,7 +242,7 @@ export default function AdminManager({ sidebarOpen, setSidebarOpen, topContent, 
           segmentKeys: Array.isArray(targets[offer.id]) ? targets[offer.id] : [],
         })));
       } else if (tab === 'settings') {
-        const settings = x?.settings || {};
+        const settings = x?.storedSettings || x?.settings || {};
         setData(Object.entries(settings).map(([key, value]) => ({ id: `setting:${key}`, key, value })));
       } else {
         setData(Array.isArray(x) ? x : [x]);
@@ -334,7 +334,15 @@ export default function AdminManager({ sidebarOpen, setSidebarOpen, topContent, 
   const togglePopup = (enabled: boolean) => toggleConfigFlag('popup_enabled', enabled, 'النافذة المنبثقة');
 
   async function del(id: string) {
-    if (!confirm('هل أنت متأكد من الحذف؟')) return;
+    const settingToDelete = tab === 'settings' ? data.find((x: any) => x.id === id) : null;
+    if (tab === 'settings' && (!settingToDelete?.key || ['popup_enabled', 'popup_config', 'gift_wrap_fee'].includes(settingToDelete.key))) {
+      setMsg('لا يمكن حذف هذا الإعداد من هذه الشاشة.');
+      return;
+    }
+    const confirmation = tab === 'settings' && settingToDelete?.key
+      ? 'هل أنت متأكد من حذف هذا الإعداد؟'
+      : 'هل أنت متأكد من الحذف؟';
+    if (!confirm(confirmation)) return;
     try {
       if (tab === 'contact') {
         await api(`/api/admin/contact?id=${id}`, 'DELETE');
@@ -1192,7 +1200,7 @@ function SettingStatusButton({ enabled, canManage, onToggle, label }: { enabled:
 }
 
 
-function GeneralSettingsPanel({ data, onEdit, onToggleMaintenance, onTogglePopup, canManageSettings }: any) {
+function GeneralSettingsPanel({ data, onEdit, onDelete, onToggleMaintenance, onTogglePopup, canManageSettings }: any) {
   const settings = Object.fromEntries((Array.isArray(data) ? data : []).map((item: any) => [item.key, item.value]));
   const maintenanceEnabled = settings.maintenance_mode === true || String(settings.maintenance_mode ?? '').trim().toLowerCase() === 'true';
   const popupEnabled = settings.popup_enabled === true || String(settings.popup_enabled ?? '').trim().toLowerCase() === 'true';
@@ -1202,6 +1210,10 @@ function GeneralSettingsPanel({ data, onEdit, onToggleMaintenance, onTogglePopup
     announcement: 'شريط الإعلان', whatsapp: 'رقم واتساب', minimum_order: 'الحد الأدنى للطلب', free_shipping: 'حد الشحن المجاني',
     seo_title: 'عنوان محركات البحث', seo_description: 'وصف محركات البحث', social_facebook: 'رابط فيسبوك',
     social_instagram: 'رابط إنستغرام', social_tiktok: 'رابط تيك توك', header_menu: 'روابط القائمة العلوية', footer_links: 'روابط التذييل',
+    store_name: 'اسم المتجر', shipping_free_above: 'حد الشحن المجاني', contact_phone: 'رقم الهاتف', contact_email: 'البريد الإلكتروني',
+    hero_marquee_speed: 'سرعة شريط العروض', hero_marquee_bg: 'لون خلفية شريط العروض', hero_marquee_color: 'لون نص شريط العروض',
+    hero_marquee_accent: 'لون فواصل شريط العروض', hero_height_desktop: 'ارتفاع الواجهة الرئيسية على الكمبيوتر',
+    hero_height_mobile: 'ارتفاع الواجهة الرئيسية على الهاتف',
   };
   const preferredOrder = ['brand_name', 'brand_tagline', 'brand_story', 'currency', 'announcement', 'whatsapp', 'minimum_order', 'free_shipping', 'seo_title', 'seo_description', 'social_facebook', 'social_instagram', 'social_tiktok', 'header_menu', 'footer_links'];
   const regularSettings = (Array.isArray(data) ? data : []).filter((item: any) => !specialKeys.has(item.key)).sort((a: any, b: any) => {
@@ -1210,6 +1222,7 @@ function GeneralSettingsPanel({ data, onEdit, onToggleMaintenance, onTogglePopup
     return (ai < 0 ? preferredOrder.length : ai) - (bi < 0 ? preferredOrder.length : bi);
   });
   const editButtonClass = 'inline-flex min-h-9 shrink-0 items-center justify-center gap-1.5 rounded-xl border border-border/60 bg-(--bg) px-4 py-2 text-[10px] font-medium text-foreground transition hover:border-(--gold)/40 hover:bg-muted/20 disabled:cursor-not-allowed disabled:opacity-50';
+  const deleteButtonClass = 'inline-flex min-h-9 shrink-0 items-center justify-center gap-1.5 rounded-xl border border-red-500/25 bg-red-500/5 px-4 py-2 text-[10px] font-medium text-red-600 transition hover:border-red-500/50 hover:bg-red-500/10 disabled:cursor-not-allowed disabled:opacity-50 dark:text-red-300';
 
   return <div className="grid gap-3.5" dir="rtl">
     <div className="rounded-2xl border border-border/40 bg-muted/5 p-4 text-xs leading-6 text-muted-foreground">
@@ -1222,16 +1235,22 @@ function GeneralSettingsPanel({ data, onEdit, onToggleMaintenance, onTogglePopup
         <b className="font-serif font-bold text-foreground">وضع الصيانة</b>
         <p className="text-muted-foreground text-xs font-light mt-0.5">{maintenanceEnabled ? 'المتجر متوقف مؤقتًا أمام الزوار.' : 'المتجر متاح للزوار حاليًا.'} يبقى الوصول إلى لوحة الإدارة متاحًا للتحكم في الوضع.</p>
       </div>
-      <SettingStatusButton enabled={maintenanceEnabled} canManage={canManageSettings} onToggle={onToggleMaintenance} label="وضع الصيانة" />
+      <div className="flex flex-wrap items-center gap-2">
+        <SettingStatusButton enabled={maintenanceEnabled} canManage={canManageSettings} onToggle={onToggleMaintenance} label="وضع الصيانة" />
+        <button type="button" disabled={!canManageSettings || !data.some((item: any) => item.key === 'maintenance_mode')} onClick={() => { const item = data.find((setting: any) => setting.key === 'maintenance_mode'); if (item) onDelete(item.id); }} className={deleteButtonClass}><Trash2 size={13} /> حذف الإعداد</button>
+      </div>
     </article>
 
     {regularSettings.map((item: any) => {
-      const label = settingLabels[item.key] || String(item.key || '').replaceAll('_', ' ');
+      const label = settingLabels[item.key] || 'إعداد مخصص';
       const value = item.value == null || item.value === '' ? 'غير مضبوط' : String(item.value);
       return <article key={item.id || item.key} className="bg-muted/10 border border-border/40 rounded-3xl p-5 flex flex-col gap-3 shadow-2xs">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div className="min-w-0"><b className="font-serif font-bold text-foreground">{label}</b><span className="mt-0.5 block text-[9px] text-muted-foreground" dir="ltr">{item.key}</span></div>
-          <button type="button" disabled={!canManageSettings} onClick={() => onEdit(item)} className={editButtonClass}><Pencil size={13} /> تعديل</button>
+          <div className="min-w-0"><b className="font-serif font-bold text-foreground">{label}</b></div>
+          <div className="flex flex-wrap items-center gap-2">
+            <button type="button" disabled={!canManageSettings} onClick={() => onEdit(item)} className={editButtonClass}><Pencil size={13} /> تعديل</button>
+            <button type="button" disabled={!canManageSettings} onClick={() => onDelete(item.id)} className={deleteButtonClass}><Trash2 size={13} /> حذف الإعداد</button>
+          </div>
         </div>
         <p title={value} dir="auto" className="wrap-break-word border-t border-border/30 pt-3 text-xs font-light leading-6 text-muted-foreground wrap-anywhere">{value}</p>
       </article>;
@@ -1257,7 +1276,7 @@ function GeneralSettingsPanel({ data, onEdit, onToggleMaintenance, onTogglePopup
 
 function Content({ tab, data, onEdit, onDelete, onRefresh, onReorder, onSavePopup, onToggleMaintenance, onTogglePopup, canManageSettings, canManageNewsletter }: any) {
   if (tab === 'settings') {
-    return <GeneralSettingsPanel data={data} onEdit={onEdit} onToggleMaintenance={onToggleMaintenance} onTogglePopup={onTogglePopup} canManageSettings={canManageSettings} />;
+    return <GeneralSettingsPanel data={data} onEdit={onEdit} onDelete={onDelete} onToggleMaintenance={onToggleMaintenance} onTogglePopup={onTogglePopup} canManageSettings={canManageSettings} />;
   }
   if (tab === 'analytics') return <Analytics data={data[0] || {}} />;
   if (tab === 'newsletter') return <NewsletterSubscribers data={data} onRefresh={onRefresh} canManage={canManageNewsletter} />;
