@@ -63,12 +63,13 @@ async function readConfig() {
     prisma.paymentSetting.findMany({ orderBy: { displayOrder: 'asc' } }),
   ]);
 
+  const storedSettings = Object.fromEntries(rows.map((row) => [row.key, row.value]));
   const settings = {
     ...DEFAULTS,
-    ...Object.fromEntries(rows.map((row) => [row.key, row.value])),
+    ...storedSettings,
   };
 
-  return { settings, theme: theme ? { ...theme, fontFamily: 'Tajawal' } : null, sections, payments };
+  return { settings, storedSettings, theme: theme ? { ...theme, fontFamily: 'Tajawal' } : null, sections, payments };
 }
 
 export async function GET() {
@@ -181,6 +182,9 @@ export async function DELETE(req: Request) {
     if (!can(user.role, 'settingsWrite')) return forbidden();
 
     const body = z.object({ key: z.string().min(1).max(255) }).parse(await req.json());
+    if (['popup_enabled', 'popup_config', 'gift_wrap_fee'].includes(body.key)) {
+      return NextResponse.json({ error: 'لا يمكن حذف إعدادات النافذة المنبثقة أو رسوم تغليف الهدايا.' }, { status: 400 });
+    }
     await prisma.siteSetting.delete({ where: { key: body.key } });
 
     await prisma.activityLog.create({
