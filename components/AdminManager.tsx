@@ -1226,9 +1226,9 @@ function GeneralSettingsPanel({ data, onEdit, onDelete, onToggleMaintenance, onT
   const deleteButtonClass = 'inline-flex min-h-9 shrink-0 items-center justify-center gap-1.5 rounded-xl border border-red-500/25 bg-red-500/5 px-4 py-2 text-[10px] font-medium text-red-600 transition hover:border-red-500/50 hover:bg-red-500/10 disabled:cursor-not-allowed disabled:opacity-50 dark:text-red-300';
 
   return <div className="grid gap-3.5" dir="rtl">
-    <div className="rounded-2xl border border-border/40 bg-muted/5 p-4 text-xs leading-6 text-muted-foreground">
-      <b className="text-foreground">إدارة إعدادات متجرك</b>
-      <span> — تُعرض الإعدادات في قائمة واحدة؛ اضغط «تعديل» لفتح محرر الإعداد، واستخدم زر الحالة للإعدادات القابلة للتفعيل.</span>
+    <div className="flex flex-col gap-3 rounded-2xl border border-border/40 bg-muted/5 p-4 text-xs leading-6 text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
+      <div><b className="text-foreground">إدارة إعدادات متجرك</b><span> — تُعرض الإعدادات في قائمة واحدة؛ اضغط «تعديل» لفتح محرر الإعداد، واستخدم زر الحالة للإعدادات القابلة للتفعيل.</span></div>
+      <Link href="/admin/settings" className="inline-flex min-h-10 shrink-0 items-center justify-center gap-2 rounded-xl border border-(--gold)/35 bg-(--gold)/10 px-4 py-2 text-[11px] font-semibold text-foreground transition hover:border-(--gold)/60 hover:bg-(--gold)/15"><Pencil size={14} /> إعدادات الواجهة وشريط العروض</Link>
     </div>
 
     <article className="bg-muted/10 border border-border/40 rounded-3xl p-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between shadow-2xs">
