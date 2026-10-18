@@ -1204,7 +1204,7 @@ function GeneralSettingsPanel({ data, onEdit, onDelete, onToggleMaintenance, onT
   const settings = Object.fromEntries((Array.isArray(data) ? data : []).map((item: any) => [item.key, item.value]));
   const maintenanceEnabled = settings.maintenance_mode === true || String(settings.maintenance_mode ?? '').trim().toLowerCase() === 'true';
   const popupEnabled = settings.popup_enabled === true || String(settings.popup_enabled ?? '').trim().toLowerCase() === 'true';
-  const specialKeys = new Set(['popup_enabled', 'popup_config', 'gift_wrap_fee', 'maintenance_mode']);
+  const specialKeys = new Set(['popup_enabled', 'popup_config', 'gift_wrap_fee', 'maintenance_mode', 'hero_marquee_speed', 'hero_marquee_items', 'hero_marquee_bg', 'hero_marquee_color', 'hero_marquee_accent', 'hero_height_desktop', 'hero_height_mobile']);
   const settingLabels: Record<string, string> = {
     brand_name: 'اسم المتجر', brand_tagline: 'العبارة التعريفية', brand_story: 'نبذة عن المتجر', currency: 'العملة',
     announcement: 'شريط الإعلان', whatsapp: 'رقم واتساب', minimum_order: 'الحد الأدنى للطلب', free_shipping: 'حد الشحن المجاني',
