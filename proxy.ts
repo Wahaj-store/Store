@@ -43,7 +43,7 @@ export async function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
   if (pathname.startsWith('/api') && !isSameOriginMutation(req)) {
-    return csrfDeniedResponse();
+    return applySecurityHeaders(csrfDeniedResponse());
   }
 
   const isAdminPage = pathname.startsWith('/admin') && pathname !== '/admin/login';
@@ -55,10 +55,10 @@ export async function proxy(req: NextRequest) {
     const maintenanceEnabled = await isMaintenanceEnabled(req);
     if (maintenanceEnabled) {
       if (pathname.startsWith('/api/')) {
-        return NextResponse.json(
+        return applySecurityHeaders(NextResponse.json(
           { error: 'المتجر في وضع الصيانة حاليًا. يرجى المحاولة لاحقًا.' },
           { status: 503, headers: { 'Retry-After': '300', 'Cache-Control': 'no-store' } },
-        );
+        ));
       }
       const maintenanceUrl = req.nextUrl.clone();
       maintenanceUrl.pathname = '/maintenance';
@@ -81,9 +81,9 @@ export async function proxy(req: NextRequest) {
 
   const deny = () => {
     if (isAdminApi) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return applySecurityHeaders(NextResponse.json({ error: 'Unauthorized' }, { status: 401 }));
     }
-    return NextResponse.redirect(new URL('/admin/login', req.url));
+    return applySecurityHeaders(NextResponse.redirect(new URL('/admin/login', req.url)));
   };
 
   if (!secretValue || secretValue.length < 32 || !token) return deny();
@@ -107,6 +107,15 @@ function applySecurityHeaders(response: NextResponse) {
   response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
   response.headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
   response.headers.set('X-Frame-Options', 'SAMEORIGIN');
+  // Start in report-only mode so legitimate Next.js and store assets are not blocked.
+  response.headers.set(
+    'Content-Security-Policy-Report-Only',
+    "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'self'; form-action 'self' https:; img-src 'self' data: blob: https:; font-src 'self' data: https:; style-src 'self' 'unsafe-inline' https:; script-src 'self' 'unsafe-inline' https:; connect-src 'self' https: wss:",
+  );
+  if (process.env.NODE_ENV === 'production') {
+    response.headers.set('Strict-Transport-Security', 'max-age=15552000');
+  }
+  return response;
 }
 
 export const config = {
