@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
 import { requireUser } from '@/lib/auth';
 import { can } from '@/lib/rbac';
+import { revalidateHomepageData } from '@/lib/homepage-data';
 
 function unauthorized() {
   return NextResponse.json({ error: 'غير مصرح: يلزم تسجيل الدخول إلى لوحة الإدارة.' }, { status: 401 });
@@ -68,6 +69,7 @@ export async function PUT(req: Request) {
       },
     });
 
+    revalidateHomepageData();
     return NextResponse.json(review);
   } catch (error: any) {
     const message = error?.issues?.[0]?.message || error?.message || 'تعذر تحديث المراجعة.';
@@ -93,6 +95,7 @@ export async function DELETE(req: Request) {
       },
     });
 
+    revalidateHomepageData();
     return NextResponse.json({ ok: true });
   } catch (error: any) {
     const message = error?.issues?.[0]?.message || error?.message || 'تعذر حذف المراجعة.';
