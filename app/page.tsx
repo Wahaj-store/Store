@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
-import { prisma } from '@/lib/prisma';
 import Store from '@/components/Store';
+import { getHomepageData } from '@/lib/homepage-data';
 
 const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || 'https://wahaj-store.vercel.app').replace(/\/+$/, '');
 const SITE_NAME = 'وَهَج';
@@ -37,75 +37,7 @@ export const metadata: Metadata = {
 export const dynamic = 'force-dynamic';
 
 export default async function Page() {
-  // جلب البيانات المعروضة فقط بالتوازي، مع إبقاء المحتوى محدثًا فورًا.
-  const [sections, products, categories, settings, offers, testimonials] = await Promise.all([
-    prisma.homepageSection.findMany({
-      where: { visible: true },
-      select: {
-        id: true,
-        type: true,
-        title: true,
-        subtitle: true,
-        imageUrl: true,
-        ctaText: true,
-        ctaUrl: true,
-        visible: true,
-        sortOrder: true,
-        startsAt: true,
-        endsAt: true,
-        config: true,
-      },
-      orderBy: { sortOrder: 'asc' },
-    }),
-    prisma.product.findMany({
-      where: { status: 'PUBLISHED' },
-      select: {
-        id: true,
-        slug: true,
-        name: true,
-        description: true,
-        price: true,
-        comparePrice: true,
-        stock: true,
-        newArrival: true,
-        bestSeller: true,
-        images: {
-          select: { url: true, alt: true },
-          orderBy: { sortOrder: 'asc' },
-          take: 1,
-        },
-        category: { select: { name: true } },
-        // بطاقة الرئيسية تحتاج معرفة وجود متغيرات فقط لتعطيل الإضافة المباشرة.
-        variants: { select: { id: true }, take: 1 },
-      },
-      orderBy: { createdAt: 'desc' },
-      take: 12,
-    }),
-    prisma.category.findMany({
-      where: { active: true },
-      select: { id: true, name: true, slug: true, description: true, imageUrl: true, active: true },
-      orderBy: { sortOrder: 'asc' },
-    }),
-    prisma.siteSetting.findMany({ select: { key: true, value: true } }),
-    prisma.offer.findMany({
-      where: { active: true },
-      select: { id: true, name: true, type: true, discountType: true, discountValue: true, endsAt: true, createdAt: true },
-      orderBy: { createdAt: 'desc' },
-    }),
-    prisma.review.findMany({
-      where: { approved: true, text: { not: null }, product: { is: { status: 'PUBLISHED' } } },
-      select: {
-        id: true,
-        rating: true,
-        text: true,
-        verified: true,
-        customer: { select: { name: true } },
-        product: { select: { name: true, slug: true } },
-      },
-      orderBy: { createdAt: 'desc' },
-      take: 6,
-    }),
-  ]);
+  const { sections, products, categories, settings, offers, testimonials } = await getHomepageData();
 
   const structuredData = {
     '@context': 'https://schema.org',
@@ -146,23 +78,11 @@ export default async function Page() {
       <Store
         data={{
           sections,
-          products: products.map((p) => ({
-            ...p,
-            price: Number(p.price),
-            comparePrice: p.comparePrice ? Number(p.comparePrice) : null,
-          })),
+          products,
           categories,
-          settings: Object.fromEntries(settings.map((s) => [s.key, s.value])),
+          settings,
           offers,
-          testimonials: testimonials.map((review) => ({
-            id: review.id,
-            rating: review.rating,
-            text: review.text,
-            verified: review.verified,
-            customerName: String(review.customer.name || '').trim().split(/\s+/)[0] || 'عميلة وَهَج',
-            productName: review.product.name,
-            productSlug: review.product.slug,
-          })),
+          testimonials,
         }}
       />
     </>
