@@ -55,22 +55,30 @@ export default function SiteChrome() {
   const cartButtonRef = useRef<HTMLButtonElement>(null);
   const cartCloseButtonRef = useRef<HTMLButtonElement>(null);
   const cartPanelRef = useRef<HTMLElement>(null);
+  const settingsLoadedRef = useRef(false);
+  const settingsRequestRef = useRef(false);
   const themeIsDark = (resolvedTheme || theme) === 'dark';
 
   useEffect(() => {
-    if (pathname?.startsWith('/admin')) return;
+    if (pathname?.startsWith('/admin')) {
+      settingsLoadedRef.current = false;
+      return;
+    }
 
-    let mounted = true;
-
-    fetch('/api/settings', { cache: 'no-store' })
-      .then(r => r.ok ? r.json() : null)
-      .then(data => {
-        if (!mounted || !data) return;
-        setSettings(data.settings || {});
-        setPayments(Array.isArray(data.payments) ? data.payments : []);
-        setThemeSettings(data.theme || null);
-      })
-      .catch(() => {});
+    if (!settingsLoadedRef.current && !settingsRequestRef.current) {
+      settingsRequestRef.current = true;
+      fetch('/api/settings', { cache: 'no-store' })
+        .then(r => r.ok ? r.json() : null)
+        .then(data => {
+          if (!data) return;
+          setSettings(data.settings || {});
+          setPayments(Array.isArray(data.payments) ? data.payments : []);
+          setThemeSettings(data.theme || null);
+          settingsLoadedRef.current = true;
+        })
+        .catch(() => {})
+        .finally(() => { settingsRequestRef.current = false; });
+    }
 
     const sync = () => {
       try {
@@ -87,7 +95,6 @@ export default function SiteChrome() {
     window.addEventListener('storage', sync);
 
     return () => {
-      mounted = false;
       window.removeEventListener('wahaj-cart-change', sync);
       window.removeEventListener('storage', sync);
     };
