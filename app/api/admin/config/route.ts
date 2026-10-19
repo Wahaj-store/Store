@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma';
 import { requireUser } from '@/lib/auth';
 import { can } from '@/lib/rbac';
 import { DEFAULT_POPUP_CONFIG } from '@/lib/popup-config';
+import { revalidateHomepageData } from '@/lib/homepage-data';
 
 const DEFAULTS: Record<string, string> = {
   brand_name: 'وَهَج',
@@ -242,6 +243,8 @@ export async function PUT(req: Request) {
       },
     });
 
+    if (settings || heroSettings || body?.theme) revalidateHomepageData();
+
     return NextResponse.json(await readConfig(), {
       headers: { 'Cache-Control': 'no-store' },
     });
@@ -275,6 +278,7 @@ export async function DELETE(req: Request) {
       },
     });
 
+    revalidateHomepageData();
     return NextResponse.json({ ok: true });
   } catch (error: any) {
     const message = error?.issues?.[0]?.message || error?.message || 'تعذر حذف الإعداد.';
