@@ -390,7 +390,13 @@ export async function resetRateLimit(
 
 /** Accepts only an address supplied by a trusted deployment proxy. */
 export function getClientKey(req: Request): string {
-  const trustedIp = req.headers.get('x-real-ip')?.trim();
-  if (!trustedIp || isIP(trustedIp) === 0) return 'unknown';
-  return trustedIp;
+  const realIp = req.headers.get('x-real-ip')?.trim();
+  if (realIp && isIP(realIp) !== 0) return realIp;
+
+  // Vercel وبعض البروكسيات المدارة ترسل العنوان في أول قيمة من
+  // X-Forwarded-For. نستخدمه فقط كقيمة بديلة بعد فشل x-real-ip.
+  const forwarded = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim();
+  if (forwarded && isIP(forwarded) !== 0) return forwarded;
+
+  return 'unknown';
 }
