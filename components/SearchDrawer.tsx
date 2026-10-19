@@ -14,6 +14,12 @@ type SearchProduct = {
   category?: { name: string } | null;
 };
 
+type SearchCategory = {
+  id: string;
+  name: string;
+  slug: string;
+};
+
 type SearchDrawerProps = {
   open: boolean;
   onClose: () => void;
@@ -21,33 +27,30 @@ type SearchDrawerProps = {
 };
 
 export default function SearchDrawer({ open, onClose, closeButtonRef }: SearchDrawerProps) {
-  const [mounted, setMounted] = useState(open);
   const [query, setQuery] = useState('');
+  const [categories, setCategories] = useState<SearchCategory[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState('');
   const [products, setProducts] = useState<SearchProduct[]>([]);
   const [loading, setLoading] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const requestId = useRef(0);
 
   useEffect(() => {
-    if (open) {
-      setMounted(true);
-      return;
-    }
-
-    const timer = window.setTimeout(() => setMounted(false), 310);
-    return () => window.clearTimeout(timer);
-  }, [open]);
-
-  useEffect(() => {
     if (!open) return;
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
-    const timer = window.setTimeout(() => inputRef.current?.focus(), 80);
     return () => {
-      window.clearTimeout(timer);
       document.body.style.overflow = previousOverflow;
     };
   }, [open]);
+
+  useEffect(() => {
+    if (!open || categories.length) return;
+    fetch('/api/categories', { cache: 'no-store' })
+      .then((response) => response.ok ? response.json() : [])
+      .then((data) => setCategories(Array.isArray(data) ? data.filter((item) => item?.id && item?.name && item?.slug).slice(0, 12) : []))
+      .catch(() => setCategories([]));
+  }, [open, categories.length]);
 
   useEffect(() => {
     if (!open) return;
@@ -63,7 +66,8 @@ export default function SearchDrawer({ open, onClose, closeButtonRef }: SearchDr
     const timer = window.setTimeout(async () => {
       setLoading(true);
       try {
-        const response = await fetch(`/api/products?q=${encodeURIComponent(value)}&page=1&sort=newest`, {
+        const categoryParam = selectedCategory ? `&category=${encodeURIComponent(selectedCategory)}` : '';
+        const response = await fetch(`/api/products?q=${encodeURIComponent(value)}&page=1&sort=newest${categoryParam}`, {
           signal: controller.signal,
           cache: 'no-store',
         });
@@ -83,9 +87,28 @@ export default function SearchDrawer({ open, onClose, closeButtonRef }: SearchDr
       window.clearTimeout(timer);
       controller.abort();
     };
-  }, [open, query]);
+  }, [open, query, selectedCategory]);
 
-  if (!mounted) return null;
+  useEffect(() => {
+    if (!open || !selectedCategory || query.trim()) return;
+    const controller = new AbortController();
+    const currentRequest = ++requestId.current;
+    setLoading(true);
+    fetch(`/api/products?page=1&sort=newest&category=${encodeURIComponent(selectedCategory)}`, { signal: controller.signal, cache: 'no-store' })
+      .then((response) => response.ok ? response.json() : { items: [] })
+      .then((data) => {
+        if (currentRequest === requestId.current) setProducts(Array.isArray(data.items) ? data.items.slice(0, 8) : []);
+      })
+      .catch((error) => {
+        if (error.name !== 'AbortError' && currentRequest === requestId.current) setProducts([]);
+      })
+      .finally(() => {
+        if (currentRequest === requestId.current) setLoading(false);
+      });
+    return () => controller.abort();
+  }, [open, selectedCategory, query]);
+
+  if (!open) return null;
 
   return (
     <div className={`wahaj-search-drawer-overlay${open ? ' is-open' : ''}`} role="presentation" onMouseDown={onClose}>
@@ -124,23 +147,29 @@ export default function SearchDrawer({ open, onClose, closeButtonRef }: SearchDr
             {query && <button type="button" onClick={() => setQuery('')} aria-label="مسح البحث"><X size={15} /></button>}
           </label>
 
-          <Link href="/shop" onClick={onClose} className="wahaj-search-drawer__discover">
-            <span className="wahaj-search-drawer__discover-mark">وَ</span>
-            <span className="wahaj-search-drawer__discover-copy">
-              <b>اكتشفي عالم وَهَج.</b>
-              <strong>اختاري ما يشبهكِ.</strong>
-              <small>قطع مختارة بعناية، بتفاصيل تمنح كل إطلالة لمستها الخاصة. تصفّحي المجموعة واكتشفي القطعة الأقرب لذوقكِ.</small>
-            </span>
-            <ArrowLeft size={17} aria-hidden="true" />
-          </Link>
+          {categories.length > 0 && (
+            <div className="wahaj-search-drawer__categories" aria-label="فلترة سريعة حسب التصنيف">
+              <button type="button" className={!selectedCategory ? 'is-active' : ''} onClick={() => setSelectedCategory('')}>الكل</button>
+              {categories.map((category) => (
+                <button
+                  type="button"
+                  key={category.id}
+                  className={selectedCategory === category.slug ? 'is-active' : ''}
+                  onClick={() => setSelectedCategory(category.slug)}
+                >
+                  {category.name}
+                </button>
+              ))}
+            </div>
+          )}
 
           <div className="wahaj-search-drawer__results" aria-live="polite">
             {loading ? (
               <div className="wahaj-search-drawer__status"><LoaderCircle className="wahaj-search-drawer__spin" size={19} /> جارٍ البحث...</div>
-            ) : query.trim() ? (
+            ) : query.trim() || selectedCategory ? (
               products.length ? (
                 <>
-                  <div className="wahaj-search-drawer__results-heading"><span>نتائج البحث</span><b>{products.length}{products.length === 8 ? '+' : ''} قطع</b></div>
+                  <div className="wahaj-search-drawer__results-heading"><span>{selectedCategory && !query.trim() ? 'منتجات التصنيف' : 'نتائج البحث'}</span><b>{products.length}{products.length === 8 ? '+' : ''} قطع</b></div>
                   <div className="wahaj-search-drawer__products">
                     {products.map((product) => (
                       <Link key={product.id} href={`/product/${product.slug}`} onClick={onClose} className="wahaj-search-drawer__product">
@@ -154,10 +183,10 @@ export default function SearchDrawer({ open, onClose, closeButtonRef }: SearchDr
                       </Link>
                     ))}
                   </div>
-                  <Link href={`/shop?q=${encodeURIComponent(query.trim())}`} onClick={onClose} className="wahaj-search-drawer__all">عرض كل النتائج <ArrowLeft size={14} /></Link>
+                  <Link href={`/shop${query.trim() ? `?q=${encodeURIComponent(query.trim())}` : ''}${selectedCategory ? `${query.trim() ? '&' : '?'}category=${encodeURIComponent(selectedCategory)}` : ''}`} onClick={onClose} className="wahaj-search-drawer__all">عرض كل النتائج <ArrowLeft size={14} /></Link>
                 </>
               ) : (
-                <div className="wahaj-search-drawer__status">لم نعثر على قطعة بهذا الاسم. جرّبي كلمة أخرى.</div>
+                <div className="wahaj-search-drawer__status">لم نعثر على منتجات بهذه الخيارات. جرّبي تصنيفًا آخر.</div>
               )
             ) : (
               <div className="wahaj-search-drawer__hint"><Search size={17} /><span>ابدئي الكتابة لتظهر النتائج هنا مباشرة</span></div>
