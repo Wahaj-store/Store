@@ -132,7 +132,13 @@ export function shouldFailClosedRateLimit(
   nodeEnv: string | undefined,
   distributedStoreAvailable: boolean,
 ): boolean {
-  return nodeEnv === 'production' && !distributedStoreAvailable;
+  // لا نرفض أول طلب لكل المستخدمين إذا كانت متغيرات Upstash غير موجودة
+  // أو كانت الخدمة متوقفة؛ نستخدم الحماية المحلية المؤقتة بدلًا من ذلك.
+  // يمكن تفعيل الرفض الصارم صراحةً في بيئة إنتاج مجهزة بالكامل عبر:
+  // RATE_LIMIT_FAIL_CLOSED=true
+  return nodeEnv === 'production'
+    && process.env.RATE_LIMIT_FAIL_CLOSED === 'true'
+    && !distributedStoreAvailable;
 }
 
 function getUpstashConfig(): { url: string; token: string; timeoutMs: number } | null {
