@@ -5901,3 +5901,57 @@ body:has(.wahaj-maintenance) .wahaj-footer { display:none !important; }
     gap: 18px 14px;
   }
 }
+
+
+/* =========================================================
+   لوحة البحث السريع — دخول جانبي خفيف ومتناسق مع السلة
+   ========================================================= */
+.wahaj-search-drawer-overlay { position:fixed; z-index:95; inset:0; overflow:hidden; background:rgba(20,15,13,.56); -webkit-backdrop-filter:blur(4px); backdrop-filter:blur(4px); animation:wahaj-search-overlay-in .2s ease both; -webkit-tap-highlight-color:transparent; }
+.dark .wahaj-search-drawer-overlay { background:rgba(0,0,0,.68); }
+.wahaj-search-drawer { position:absolute; inset-block:0; inset-inline-end:0; display:flex; width:min(500px,100vw); max-width:100%; height:100dvh; max-height:100dvh; flex-direction:column; overflow:hidden; border-inline-start:1px solid color-mix(in srgb,var(--gold) 34%,var(--border)); background:linear-gradient(180deg,color-mix(in srgb,var(--gold) 7%,var(--background)) 0%,var(--background) 310px); color:var(--foreground); box-shadow:-22px 0 70px rgba(20,14,12,.28); animation:wahaj-search-panel-in .28s cubic-bezier(.2,.75,.25,1) both; }
+.dark .wahaj-search-drawer { box-shadow:-22px 0 70px rgba(0,0,0,.48); }
+.wahaj-search-drawer__header { display:flex; min-height:119px; flex:0 0 auto; align-items:center; justify-content:space-between; gap:14px; padding:20px 23px 16px; border-bottom:1px solid var(--border); }
+.wahaj-search-drawer__heading { min-width:0; }
+.wahaj-search-drawer__eyebrow { color:var(--gold-muted); font-size:9px; font-weight:900; letter-spacing:.08em; }
+.wahaj-search-drawer__heading h2 { margin:5px 0 3px; color:var(--foreground); font-size:20px; font-weight:800; letter-spacing:-.03em; }
+.wahaj-search-drawer__heading p { margin:0; color:var(--muted-foreground); font-size:10px; line-height:1.7; }
+.wahaj-search-drawer__close { display:grid; width:41px; height:41px; flex:0 0 41px; place-items:center; border:1px solid var(--border); border-radius:50%; background:color-mix(in srgb,var(--card) 82%,transparent); color:var(--foreground-secondary); transition:transform .18s ease,border-color .18s ease,background .18s ease,color .18s ease; }
+.wahaj-search-drawer__close:hover { transform:rotate(90deg); border-color:var(--gold); background:var(--gold-soft); color:var(--gold-muted); }
+.wahaj-search-drawer__body { flex:1 1 auto; overflow-y:auto; padding:18px 23px 30px; }
+.wahaj-search-drawer__field { display:flex; min-height:52px; align-items:center; gap:10px; padding:0 14px; border:1px solid color-mix(in srgb,var(--gold) 42%,var(--border)); border-radius:14px; background:var(--card); color:var(--gold-muted); box-shadow:0 8px 24px color-mix(in srgb,var(--gold) 6%,transparent); transition:border-color .18s ease,box-shadow .18s ease; }
+.wahaj-search-drawer__field:focus-within { border-color:var(--gold); box-shadow:0 0 0 4px color-mix(in srgb,var(--gold) 12%,transparent),0 10px 28px color-mix(in srgb,var(--gold) 9%,transparent); }
+.wahaj-search-drawer__field input { min-width:0; flex:1; border:0; outline:0; background:transparent; color:var(--foreground); font-size:12px; }
+.wahaj-search-drawer__field input::placeholder { color:var(--muted-foreground); }
+.wahaj-search-drawer__field button { display:grid; width:26px; height:26px; place-items:center; border:0; border-radius:50%; background:var(--surface); color:var(--muted-foreground); }
+.wahaj-search-drawer__discover { display:flex; align-items:center; gap:12px; margin-top:16px; padding:16px 15px; border:1px solid color-mix(in srgb,var(--gold) 28%,var(--border)); border-radius:16px; background:linear-gradient(115deg,color-mix(in srgb,var(--gold) 14%,var(--card)),var(--card)); color:var(--foreground); box-shadow:var(--shadow-soft); transition:transform .2s ease,border-color .2s ease,box-shadow .2s ease; }
+.wahaj-search-drawer__discover:hover { transform:translateY(-2px); border-color:var(--gold); box-shadow:var(--shadow-luxury); }
+.wahaj-search-drawer__discover-mark { display:grid; width:42px; height:42px; flex:0 0 42px; place-items:center; border:1px solid color-mix(in srgb,var(--gold) 50%,transparent); border-radius:13px; background:var(--gold); color:var(--gold-contrast); font-size:18px; font-weight:900; }
+.wahaj-search-drawer__discover-copy { display:flex; min-width:0; flex:1; flex-direction:column; gap:2px; }
+.wahaj-search-drawer__discover-copy b { color:var(--gold-muted); font-size:9px; }
+.wahaj-search-drawer__discover-copy strong { font-size:14px; font-weight:800; }
+.wahaj-search-drawer__discover-copy small { margin-top:4px; color:var(--muted-foreground); font-size:9px; line-height:1.75; }
+.wahaj-search-drawer__discover > svg { flex:0 0 auto; color:var(--gold-muted); }
+.wahaj-search-drawer__results { margin-top:22px; }
+.wahaj-search-drawer__results-heading { display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; color:var(--foreground-secondary); font-size:11px; font-weight:800; }
+.wahaj-search-drawer__results-heading b { color:var(--gold-muted); font-size:9px; }
+.wahaj-search-drawer__products { display:grid; gap:8px; }
+.wahaj-search-drawer__product { display:flex; min-width:0; align-items:center; gap:11px; padding:9px; border:1px solid var(--border); border-radius:13px; background:color-mix(in srgb,var(--card) 96%,transparent); transition:transform .18s ease,border-color .18s ease,background .18s ease; }
+.wahaj-search-drawer__product:hover { transform:translateX(-2px); border-color:color-mix(in srgb,var(--gold) 45%,var(--border)); background:var(--card-hover); }
+.wahaj-search-drawer__product-image { width:58px; height:67px; flex:0 0 58px; overflow:hidden; border-radius:9px; background:var(--surface); }
+.wahaj-search-drawer__product-image img { display:block; width:100%; height:100%; object-fit:cover; }
+.wahaj-search-drawer__product-copy { display:flex; min-width:0; flex:1; flex-direction:column; gap:2px; }
+.wahaj-search-drawer__product-copy small { color:var(--muted-foreground); font-size:8px; }
+.wahaj-search-drawer__product-copy b { overflow:hidden; color:var(--foreground); font-size:11px; font-weight:800; text-overflow:ellipsis; white-space:nowrap; }
+.wahaj-search-drawer__product-copy > span { color:var(--gold-muted); font-size:10px; font-weight:800; }
+.wahaj-search-drawer__product-copy del { margin-inline-start:5px; color:var(--muted-foreground); font-size:8px; font-weight:500; }
+.wahaj-search-drawer__product > svg { flex:0 0 auto; color:var(--muted-foreground); }
+.wahaj-search-drawer__status,.wahaj-search-drawer__hint { display:flex; min-height:100px; align-items:center; justify-content:center; gap:8px; padding:18px; border:1px dashed var(--border); border-radius:14px; color:var(--muted-foreground); font-size:10px; line-height:1.8; text-align:center; }
+.wahaj-search-drawer__hint svg { color:var(--gold-muted); }
+.wahaj-search-drawer__spin { animation:wahaj-search-spin .8s linear infinite; color:var(--gold-muted); }
+.wahaj-search-drawer__all { display:flex; align-items:center; justify-content:center; gap:6px; min-height:43px; margin-top:12px; border:1px solid color-mix(in srgb,var(--gold) 35%,var(--border)); border-radius:11px; color:var(--gold-muted); font-size:10px; font-weight:800; transition:background .18s ease,border-color .18s ease; }
+.wahaj-search-drawer__all:hover { border-color:var(--gold); background:var(--gold-soft); }
+@keyframes wahaj-search-overlay-in { from { opacity:0; } to { opacity:1; } }
+@keyframes wahaj-search-panel-in { from { opacity:0; transform:translateX(30px); } to { opacity:1; transform:translateX(0); } }
+@keyframes wahaj-search-spin { to { transform:rotate(360deg); } }
+@media (max-width:520px) { .wahaj-search-drawer__header { padding-inline:17px; }.wahaj-search-drawer__body { padding-inline:17px; }.wahaj-search-drawer__discover-copy small { max-width:230px; } }
+@media (prefers-reduced-motion:reduce) { .wahaj-search-drawer-overlay,.wahaj-search-drawer,.wahaj-search-drawer * { animation:none !important; transition:none !important; } }
