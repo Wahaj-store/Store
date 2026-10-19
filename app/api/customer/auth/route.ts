@@ -1,6 +1,6 @@
 'use strict';
 
-import { rateLimit, getClientKey } from '@/lib/rate-limit';
+import { checkRateLimit, rateLimit, getClientKey, resetRateLimit } from '@/lib/rate-limit';
 import { NextResponse } from 'next/server';
 import { customerLogin, customerRegister, getCustomer } from '@/lib/customer-auth';
 import { cookies } from 'next/headers';
@@ -14,6 +14,9 @@ const AuthSchema = z.object({
   password: z.string().min(8).max(200).optional(),
   rememberMe: z.boolean().optional(),
 });
+
+const LOGIN_LIMIT = 8;
+const LOGIN_WINDOW_MS = 15 * 60 * 1000;
 
 function publicCustomer(customer: { id: string; name: string | null; phone: string | null; email: string | null }) {
   return { id: customer.id, name: customer.name, phone: customer.phone, email: customer.email };
@@ -32,18 +35,20 @@ export async function POST(req: Request) {
 
     if (body.action === 'logout') {
       (await cookies()).delete('wahaj_customer');
+      await resetRateLimit(`customer-auth:login:${getClientKey(req)}`, LOGIN_WINDOW_MS);
       return NextResponse.json({ ok: true });
     }
 
-    const limit = await rateLimit(
-      `customer-auth:${body.action}:${getClientKey(req)}`,
-      body.action === 'register' ? 5 : 8,
-      15 * 60 * 1000,
-    );
+    const clientKey = getClientKey(req);
+    const loginKey = `customer-auth:login:${clientKey}`;
+    const limit = body.action === 'login'
+      ? await checkRateLimit(loginKey, LOGIN_LIMIT, LOGIN_WINDOW_MS)
+      : await rateLimit(`customer-auth:register:${clientKey}`, 5, LOGIN_WINDOW_MS);
     if (!limit.ok) {
+      const retryAfter = Math.max(1, Math.ceil((limit.reset - Date.now()) / 1000));
       return NextResponse.json(
-        { error: 'تم تجاوز عدد المحاولات. حاولي مرة أخرى لاحقًا.' },
-        { status: 429, headers: { 'Retry-After': '900', 'Cache-Control': 'no-store' } },
+        { error: `تم تجاوز عدد المحاولات. حاولي مرة أخرى بعد ${Math.ceil(retryAfter / 60)} دقيقة.` },
+        { status: 429, headers: { 'Retry-After': String(retryAfter), 'Cache-Control': 'no-store' } },
       );
     }
 
@@ -52,15 +57,27 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'الاسم ورقم الهاتف مطلوبان للتسجيل' }, { status: 400 });
     }
 
-    const customer = body.action === 'register'
-      ? await customerRegister({
-          name: body.name || '',
-          phone: body.phone || '',
-          email: body.email,
-          password: body.password,
-          rememberMe: Boolean(body.rememberMe),
-        })
-      : await customerLogin(body.email || body.phone || '', body.password, Boolean(body.rememberMe));
+    let customer;
+    try {
+      customer = body.action === 'register'
+        ? await customerRegister({
+            name: body.name || '',
+            phone: body.phone || '',
+            email: body.email,
+            password: body.password,
+            rememberMe: Boolean(body.rememberMe),
+          })
+        : await customerLogin(body.email || body.phone || '', body.password, Boolean(body.rememberMe));
+    } catch (error) {
+      if (body.action === 'login') {
+        await rateLimit(loginKey, LOGIN_LIMIT, LOGIN_WINDOW_MS);
+      }
+      throw error;
+    }
+
+    if (body.action === 'login') {
+      await resetRateLimit(loginKey, LOGIN_WINDOW_MS);
+    }
 
     return NextResponse.json(publicCustomer(customer));
   } catch (error) {
