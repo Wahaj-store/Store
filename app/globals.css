@@ -5906,9 +5906,11 @@ body:has(.wahaj-maintenance) .wahaj-footer { display:none !important; }
 /* =========================================================
    لوحة البحث السريع — دخول جانبي خفيف ومتناسق مع السلة
    ========================================================= */
-.wahaj-search-drawer-overlay { position:fixed; z-index:95; inset:0; overflow:hidden; background:rgba(20,15,13,.56); -webkit-backdrop-filter:blur(4px); backdrop-filter:blur(4px); animation:wahaj-search-overlay-in .2s ease both; -webkit-tap-highlight-color:transparent; }
-.dark .wahaj-search-drawer-overlay { background:rgba(0,0,0,.68); }
-.wahaj-search-drawer { position:absolute; inset-block:0; inset-inline-end:0; display:flex; width:min(500px,100vw); max-width:100%; height:100dvh; max-height:100dvh; flex-direction:column; overflow:hidden; border-inline-start:1px solid color-mix(in srgb,var(--gold) 34%,var(--border)); background:linear-gradient(180deg,color-mix(in srgb,var(--gold) 7%,var(--background)) 0%,var(--background) 310px); color:var(--foreground); box-shadow:-22px 0 70px rgba(20,14,12,.28); animation:wahaj-search-panel-in .28s cubic-bezier(.2,.75,.25,1) both; }
+.wahaj-search-drawer-overlay { position:fixed; z-index:95; inset:0; overflow:hidden; pointer-events:none; background:rgba(20,15,13,0); -webkit-backdrop-filter:blur(0); backdrop-filter:blur(0); transition:background .3s ease,backdrop-filter .3s ease,-webkit-backdrop-filter .3s ease; -webkit-tap-highlight-color:transparent; }
+.wahaj-search-drawer-overlay.is-open { pointer-events:auto; background:rgba(20,15,13,.56); -webkit-backdrop-filter:blur(4px); backdrop-filter:blur(4px); }
+.dark .wahaj-search-drawer-overlay.is-open { background:rgba(0,0,0,.68); }
+.wahaj-search-drawer { position:absolute; inset-block:0; inset-inline-end:0; display:flex; width:min(470px,100vw); max-width:100%; height:100dvh; max-height:100dvh; flex-direction:column; overflow:hidden; border-inline-start:1px solid color-mix(in srgb,var(--gold) 34%,var(--border)); background:linear-gradient(180deg,color-mix(in srgb,var(--gold) 7%,var(--background)) 0%,var(--background) 310px); color:var(--foreground); box-shadow:-22px 0 70px rgba(20,14,12,.28); opacity:0; transform:translateX(30px); transition:opacity .28s ease,transform .32s cubic-bezier(.2,.75,.25,1); will-change:opacity,transform; }
+.wahaj-search-drawer.is-open { opacity:1; transform:translateX(0); }
 .dark .wahaj-search-drawer { box-shadow:-22px 0 70px rgba(0,0,0,.48); }
 .wahaj-search-drawer__header { display:flex; min-height:119px; flex:0 0 auto; align-items:center; justify-content:space-between; gap:14px; padding:20px 23px 16px; border-bottom:1px solid var(--border); }
 .wahaj-search-drawer__heading { min-width:0; }
@@ -5950,8 +5952,6 @@ body:has(.wahaj-maintenance) .wahaj-footer { display:none !important; }
 .wahaj-search-drawer__spin { animation:wahaj-search-spin .8s linear infinite; color:var(--gold-muted); }
 .wahaj-search-drawer__all { display:flex; align-items:center; justify-content:center; gap:6px; min-height:43px; margin-top:12px; border:1px solid color-mix(in srgb,var(--gold) 35%,var(--border)); border-radius:11px; color:var(--gold-muted); font-size:10px; font-weight:800; transition:background .18s ease,border-color .18s ease; }
 .wahaj-search-drawer__all:hover { border-color:var(--gold); background:var(--gold-soft); }
-@keyframes wahaj-search-overlay-in { from { opacity:0; } to { opacity:1; } }
-@keyframes wahaj-search-panel-in { from { opacity:0; transform:translateX(30px); } to { opacity:1; transform:translateX(0); } }
 @keyframes wahaj-search-spin { to { transform:rotate(360deg); } }
 @media (max-width:520px) { .wahaj-search-drawer__header { padding-inline:17px; }.wahaj-search-drawer__body { padding-inline:17px; }.wahaj-search-drawer__discover-copy small { max-width:230px; } }
 @media (prefers-reduced-motion:reduce) { .wahaj-search-drawer-overlay,.wahaj-search-drawer,.wahaj-search-drawer * { animation:none !important; transition:none !important; } }
