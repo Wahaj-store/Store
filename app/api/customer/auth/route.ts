@@ -17,6 +17,14 @@ const AuthSchema = z.object({
 
 const LOGIN_LIMIT = 8;
 const LOGIN_WINDOW_MS = 15 * 60 * 1000;
+const LOGIN_RATE_KEY_VERSION = 'v2';
+
+function loginRateKey(req: Request, identifier: string) {
+  // يضمن عزل عدادات النسخة القديمة، ويمنع أن يؤثر عميل على حساب عميل آخر
+  // عندما تكون الاستضافة خلف عنوان بروكسي مشترك أو لا ترسل عنوان IP واضحًا.
+  const normalizedIdentifier = identifier.trim().toLowerCase().slice(0, 254);
+  return `customer-auth:login:${LOGIN_RATE_KEY_VERSION}:${getClientKey(req)}:${normalizedIdentifier}`;
+}
 
 function publicCustomer(customer: { id: string; name: string | null; phone: string | null; email: string | null }) {
   return { id: customer.id, name: customer.name, phone: customer.phone, email: customer.email };
@@ -35,12 +43,11 @@ export async function POST(req: Request) {
 
     if (body.action === 'logout') {
       (await cookies()).delete('wahaj_customer');
-      await resetRateLimit(`customer-auth:login:${getClientKey(req)}`, LOGIN_WINDOW_MS);
       return NextResponse.json({ ok: true });
     }
 
     const clientKey = getClientKey(req);
-    const loginKey = `customer-auth:login:${clientKey}`;
+    const loginKey = loginRateKey(req, body.email || body.phone || '');
     const limit = body.action === 'login'
       ? await checkRateLimit(loginKey, LOGIN_LIMIT, LOGIN_WINDOW_MS)
       : await rateLimit(`customer-auth:register:${clientKey}`, 5, LOGIN_WINDOW_MS);
