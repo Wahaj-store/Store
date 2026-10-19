@@ -5859,16 +5859,16 @@ body:has(.wahaj-maintenance) .wahaj-footer { display:none !important; }
 
 /* Compact header proportions while keeping the existing icon and brand styling. */
 .wahaj-header--luxury .wahaj-header__inner {
-  min-height: 72px;
-  padding-block: 8px;
+  min-height: 64px;
+  padding-block: 6px;
 }
 .wahaj-header--luxury .wahaj-header__menu { width: 40px; height: 40px; }
 .wahaj-header--luxury .wahaj-header__action { width: 40px; height: 40px; }
 
 @media (max-width: 800px) {
   .wahaj-header--luxury .wahaj-header__inner {
-    min-height: 60px;
-    padding-block: 6px;
+    min-height: 56px;
+    padding-block: 5px;
   }
   .wahaj-header--luxury .wahaj-header__logo span { font-size: 21px; }
   .wahaj-header--luxury .wahaj-header__menu,
@@ -5876,7 +5876,7 @@ body:has(.wahaj-maintenance) .wahaj-footer { display:none !important; }
 }
 
 @media (max-width: 480px) {
-  .wahaj-header--luxury .wahaj-header__inner { min-height: 56px; padding-block: 5px; }
+  .wahaj-header--luxury .wahaj-header__inner { min-height: 52px; padding-block: 3px; }
   .wahaj-header--luxury .wahaj-header__logo span { font-size: 19px; }
   .wahaj-header--luxury .wahaj-header__menu,
   .wahaj-header--luxury .wahaj-header__action { width: 34px; height: 34px; }
@@ -5886,4 +5886,18 @@ body:has(.wahaj-maintenance) .wahaj-footer { display:none !important; }
 @media (min-width: 768px) {
   .wahaj-header__menu { display: grid; }
   .wahaj-drawer-overlay { display: block; }
+}
+
+/* Give homepage category cards a little more breathing room. */
+.wahaj-storefront .wahaj-collections .wahaj-category-track {
+  gap: clamp(16px, 2.2vw, 26px);
+}
+.wahaj-storefront .wahaj-collections .wahaj-category-browser.is-grid .wahaj-category-track {
+  gap: clamp(18px, 2.2vw, 26px);
+}
+@media (max-width: 600px) {
+  .wahaj-storefront .wahaj-collections .wahaj-category-track { gap: 16px; }
+  .wahaj-storefront .wahaj-collections .wahaj-category-browser.is-grid .wahaj-category-track {
+    gap: 18px 14px;
+  }
 }
