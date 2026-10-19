@@ -7,6 +7,7 @@ import { usePathname } from 'next/navigation';
 import { useTheme } from 'next-themes';
 import { ArrowLeft, ChevronLeft, CircleHelp, CreditCard, Menu, X, Search, User, Moon, Sun, ShoppingBag, MessageCircle, Home, Store, Truck, Info, Minus, Plus, ShieldCheck, Trash2 } from 'lucide-react';
 import StorePopup from '@/components/store/StorePopup';
+import SearchDrawer from '@/components/SearchDrawer';
 import { useFeatureFlags } from '@/lib/use-feature-flags';
 
 type SettingMap = Record<string, any>;
@@ -45,6 +46,7 @@ export default function SiteChrome() {
   const [payments, setPayments] = useState<any[]>([]);
   const [themeSettings, setThemeSettings] = useState<any>(null);
   const [cartDrawerOpen, setCartDrawerOpen] = useState(false);
+  const [searchDrawerOpen, setSearchDrawerOpen] = useState(false);
   const [cartItems, setCartItems] = useState<any[]>([]);
   const { enabled: featureEnabled } = useFeatureFlags();
   const cartDrawerEnabled = featureEnabled('cart_drawer', false);
@@ -55,6 +57,8 @@ export default function SiteChrome() {
   const cartButtonRef = useRef<HTMLButtonElement>(null);
   const cartCloseButtonRef = useRef<HTMLButtonElement>(null);
   const cartPanelRef = useRef<HTMLElement>(null);
+  const searchButtonRef = useRef<HTMLButtonElement>(null);
+  const searchCloseButtonRef = useRef<HTMLButtonElement>(null);
   const settingsLoadedRef = useRef(false);
   const settingsRequestRef = useRef(false);
   const themeIsDark = (resolvedTheme || theme) === 'dark';
@@ -175,6 +179,23 @@ export default function SiteChrome() {
       cartButtonRef.current?.focus({ preventScroll: true });
     };
   }, [cartDrawerOpen]);
+
+  useEffect(() => {
+    if (!searchDrawerOpen) return;
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        setSearchDrawerOpen(false);
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+      searchButtonRef.current?.focus({ preventScroll: true });
+    };
+  }, [searchDrawerOpen]);
 
   const saveDrawerCart = (next: any[]) => {
     setCartItems(next);
@@ -330,14 +351,19 @@ export default function SiteChrome() {
 
           {/* الأيقونات العلوية النظيفة والمرتبة */}
           <div className="wahaj-header__actions flex items-center gap-4">
-            <SiteLink
-              href="/shop"
+            <button
+              type="button"
+              ref={searchButtonRef}
+              onClick={() => setSearchDrawerOpen(true)}
               className="wahaj-header__action text-foreground/80 hover:text-(--gold) transition-colors p-1"
               aria-label="المتجر والبحث عن المنتجات"
               title="المتجر والبحث عن المنتجات"
+              aria-haspopup="dialog"
+              aria-expanded={searchDrawerOpen}
+              aria-controls="wahaj-search-drawer"
             >
               <Search size={20} />
-            </SiteLink>
+            </button>
 
             <SiteLink
               href="/account"
@@ -618,6 +644,11 @@ export default function SiteChrome() {
         </span>
         <span className="wahaj-mobile-whatsapp__online" aria-hidden="true" />
       </a>
+      <SearchDrawer
+        open={searchDrawerOpen}
+        onClose={() => setSearchDrawerOpen(false)}
+        closeButtonRef={searchCloseButtonRef}
+      />
       {!popupExcluded && <StorePopup enabled={settings.popup_enabled} config={settings.popup_config} visitKey={pathname || '/'} />}
     </>
   );
