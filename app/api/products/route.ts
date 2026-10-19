@@ -1,33 +1,13 @@
 import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
-import {
-  buildPublicProductsOrder,
-  buildPublicProductsWhere,
-  parsePublicProductsQuery,
-  PUBLIC_PRODUCT_LIST_SELECT,
-  PUBLIC_PRODUCTS_PAGE_SIZE,
-} from '@/lib/public-products-query';
+import { parsePublicProductsQuery, PUBLIC_PRODUCTS_PAGE_SIZE } from '@/lib/public-products-query';
+import { getPublicProductsPage } from '@/lib/public-products-data';
 
 export async function GET(req: Request) {
   const query = parsePublicProductsQuery(new URL(req.url).searchParams);
-  const where = buildPublicProductsWhere(query);
-  const orderBy = buildPublicProductsOrder(query.sort);
-
-  // Count and page now use the exact same database predicate. This keeps
-  // pagination totals consistent with search results and avoids JS filtering.
-  const [total, products] = await Promise.all([
-    prisma.product.count({ where }),
-    prisma.product.findMany({
-      where,
-      select: PUBLIC_PRODUCT_LIST_SELECT,
-      orderBy,
-      skip: (query.page - 1) * PUBLIC_PRODUCTS_PAGE_SIZE,
-      take: PUBLIC_PRODUCTS_PAGE_SIZE,
-    }),
-  ]);
+  const { total, items } = await getPublicProductsPage(query);
 
   return NextResponse.json({
-    items: products,
+    items,
     pagination: {
       page: query.page,
       pageSize: PUBLIC_PRODUCTS_PAGE_SIZE,
