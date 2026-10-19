@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { DiscountType, OfferType } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 import { requireUser } from '@/lib/auth';
+import { revalidateHomepageData } from '@/lib/homepage-data';
 
 const parseDate = (value: unknown) => value ? new Date(String(value)) : null;
 const parseNullableNumber = (value: unknown) => value === '' || value === null || value === undefined ? null : Number(value);
@@ -69,7 +70,9 @@ export async function POST(req: Request) {
   try {
     const data = normalize(await req.json());
     if (!data.name) throw new Error('اسم العرض مطلوب');
-    return NextResponse.json(await prisma.offer.create({ data }), { status: 201 });
+    const offer = await prisma.offer.create({ data });
+    revalidateHomepageData();
+    return NextResponse.json(offer, { status: 201 });
   } catch (e: any) {
     return NextResponse.json({ error: e?.message || 'تعذر إنشاء العرض' }, { status: 400 });
   }
@@ -82,7 +85,9 @@ export async function PUT(req: Request) {
     const b = await req.json();
     const data = normalize(b);
     if (!data.name) throw new Error('اسم العرض مطلوب');
-    return NextResponse.json(await prisma.offer.update({ where: { id: String(b.id) }, data }));
+    const offer = await prisma.offer.update({ where: { id: String(b.id) }, data });
+    revalidateHomepageData();
+    return NextResponse.json(offer);
   } catch (e: any) {
     return NextResponse.json({ error: e?.message || 'تعذر تحديث العرض' }, { status: 400 });
   }
@@ -97,10 +102,12 @@ export async function PATCH(req: Request) {
     if (!id) throw new Error('معرّف العرض مطلوب');
     if (typeof body.active !== 'boolean') throw new Error('حالة العرض غير صالحة');
 
-    return NextResponse.json(await prisma.offer.update({
+    const offer = await prisma.offer.update({
       where: { id },
       data: { active: body.active },
-    }));
+    });
+    revalidateHomepageData();
+    return NextResponse.json(offer);
   } catch (e: any) {
     return NextResponse.json({ error: e?.message || 'تعذر تغيير حالة العرض' }, { status: 400 });
   }
@@ -110,7 +117,9 @@ export async function DELETE(req: Request) {
   const u = await requireUser(['OWNER', 'ADMIN', 'MANAGER']);
   if (!u) return NextResponse.json({ error: 'غير مصرح' }, { status: 403 });
   try {
-    return NextResponse.json(await prisma.offer.delete({ where: { id: String((await req.json()).id) } }));
+    const offer = await prisma.offer.delete({ where: { id: String((await req.json()).id) } });
+    revalidateHomepageData();
+    return NextResponse.json(offer);
   } catch (e: any) {
     return NextResponse.json({ error: e?.message || 'تعذر حذف العرض' }, { status: 400 });
   }
