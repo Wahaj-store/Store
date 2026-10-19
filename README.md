@@ -1,78 +1,67 @@
-# وَهَج | Wahaj Store — V8 Final Candidate
+# وَهَج | Wahaj Store
 
-متجر إلكتروني عربي RTL مبني بـ Next.js 14 + Prisma + PostgreSQL، مع واجهة متجر ولوحة إدارة موحدة.
+متجر إلكتروني عربي باتجاه RTL مبني باستخدام Next.js 16 وReact 19 وPrisma وPostgreSQL، مع واجهة متجر ولوحة إدارة.
 
-## أهم ما تم تضمينه
+## المزايا
 
-- تصميم RTL عربي فاخر + Light/Dark mode.
-
-- إدارة المنتجات، الصور، الخيارات، الأسعار، المخزون، التصنيفات، العروض والكوبونات.
-
-- علاقات المنتجات: مرتبط، مكمل، Upsell، Cross-sell، Frequently Bought.
-
-- تنبيه عند عودة المنتج للمخزون.
-
-- سلة وCheckout مع COD / Vodafone Cash / InstaPay، إثبات الدفع، كوبونات، شحن وIdempotency.
-
-- حسابات العملاء، العناوين، الطلبات، المفضلة، المراجعات.
-
-- Homepage sections، إعدادات الهيدر والفوتر والإعلانات وPopup وSEO.
-
-- إدارة المستخدمين والصلاحيات وسجل النشاط والأمان.
-
-- Analytics، Notifications، Feature Flags، Redirects، Media Library.
-
-- Gift Cards architecture وMarketing/Customer segments architecture.
-
-- SEO metadata، sitemap، robots، Product structured data.
-
-- حماية كلمات المرور والجلسات، rate limiting، validation، وعدم وضع الأسرار داخل الكود.
+- تصميم RTL عربي يدعم الوضع الفاتح والداكن.
+- إدارة المنتجات والتصنيفات والصور والمتغيرات والأسعار والمخزون والعروض.
+- علاقات المنتجات، وسلة وCheckout، وCOD والدفع الإلكتروني وإثبات الدفع الخاص.
+- حسابات العملاء والعناوين والطلبات والمفضلة والمراجعات.
+- أقسام الصفحة الرئيسية وإعدادات الهيدر والفوتر والإعلانات والنافذة المنبثقة.
+- إدارة المستخدمين والصلاحيات وسجل النشاط وFeature Flags.
+- بحث وفهرسة PostgreSQL، وSEO metadata وsitemap وrobots وبيانات المنتجات المنظمة.
+- حماية كلمات المرور والجلسات، وفحص CSRF، وتحديد معدل موزّع، والتحقق من المدخلات.
 
 ## متطلبات البيئة
 
-ضع القيم في Vercel Environment Variables ولا تضعها داخل GitHub:
-`PRISMA_DATABASE_URL`, `PRISMA_DIRECT_URL`, `AUTH_SECRET`, `RATE_LIMIT_SECRET`, `ADMIN_EMAIL`, `ADMIN_PASSWORD`.
+اضبط القيم السرية في بيئة الاستضافة فقط، ولا تودعها في Git:
 
-للبيئة الإنتاجية أضف أيضًا:
+- قاعدة البيانات: `PRISMA_DATABASE_URL` و`PRISMA_DIRECT_URL`.
+- مصادقة الإدارة: `AUTH_SECRET` (سر عشوائي طويل) وبيانات دخول الإدارة اللازمة.
+- الموقع: `NEXT_PUBLIC_SITE_URL`.
+- تحديد المعدل: `UPSTASH_REDIS_REST_URL` و`UPSTASH_REDIS_REST_TOKEN` و`RATE_LIMIT_SECRET`.
+- الوسائط: `BLOB_READ_WRITE_TOKEN` و`BLOB_PUBLIC_READ_WRITE_TOKEN` حسب نوع الملفات.
 
-- `UPSTASH_REDIS_REST_URL` و`UPSTASH_REDIS_REST_TOKEN` لتحديد المعدل عبر جميع Serverless Instances.
+**Upstash إلزامي في الإنتاج:** إذا كان Redis الموزّع غير مضبوط أو غير متاح، يرفض محدد المعدل الطلبات بدل الرجوع إلى عدّاد محلي غير مشترك بين نسخ الخادم. ستظهر رسالة `RATE_LIMIT_LOCAL_FALLBACK` في السجلات؛ عالج سببها فورًا.
 
-- `BLOB_READ_WRITE_TOKEN` لمخزن Blob خاص بإثباتات الدفع.
+ابدأ من `.env.example` وأنشئ أسرارًا جديدة خاصة بكل بيئة. لا تستخدم القيم التوضيحية كما هي.
 
-- `BLOB_PUBLIC_READ_WRITE_TOKEN` لمخزن Blob عام منفصل لصور المنتجات والبنرات.
-
-- لا تستخدم Token المخزن الخاص مع مسار الوسائط العامة.
-
-## تشغيل محلي
+## التشغيل المحلي
 
 ```bash
-npm install
+npm ci
 npm run db:validate
 npm run db:generate
-npm run typecheck
-npm run build
+npm run db:migrate:deploy
+npm run dev
 ```
 
-> ملاحظة: تم إجراء فحص syntax ثابت لجميع ملفات TS/TSX في بيئة التجهيز. تعذر إكمال تثبيت الحزم/Prisma validation الفعلي أثناء التجهيز بسبب انتهاء مهلة الشبكة في بيئة التنفيذ؛ لذلك يجب تنفيذ الأوامر أعلاه مرة واحدة بعد رفع المشروع على بيئة متصلة.
+لإنشاء migration جديد أثناء التطوير، استخدم أدوات Prisma المناسبة وراجع SQL الناتج قبل دمجه. `npm run db:push` مخصص للتطوير المحلي فقط، وليس لنشر مخطط الإنتاج.
 
-## V8 hardening
+## التحقق والاختبارات
 
-- Fixed invalid admin helper imports and completed CRUD routes for product relations and gift cards.
+```bash
+npm run db:validate
+npm run typecheck
+npm run test:unit
+npm run build
+npm run test:e2e
+```
 
-- Secured admin configuration/feature endpoints.
+يعرف GitHub Actions قاعدة PostgreSQL مؤقتة، ويطبق migrations عليها، ثم يشغل فحوص المخطط والأنواع والوحدات والبناء واختبارات Playwright. يجب إبقاء أسرار CI الوهمية محصورة بقاعدة الاختبار.
 
-- Whitelisted theme settings updates to prevent Prisma unknown-field errors.
+## نشر قاعدة البيانات
 
-- Fixed variant stock decrement and minimum-order enforcement.
+- خذ نسخة احتياطية قبل أي تغيير مخطط إنتاجي.
+- راجع ملفات `prisma/migrations/` في مراجعة الشيفرة.
+- شغّل `npm run db:migrate:deploy` على قاعدة الهدف من خطوة نشر محمية ومصرّح بها.
+- لا تشغّل `prisma migrate reset` أو `db:push` على الإنتاج.
+- لا تشغّل `scripts/repair-migrations.sh` إلا عند معالجة مشكلة ترحيل موثقة وبعد مراجعة أثره وأخذ نسخة احتياطية؛ السكربت يعيد توليد baseline.
 
-- Prevented adding products with variants without selecting a variant.
+## رؤوس الأمان والكاش
 
-- Removed customer password hashes from admin responses.
-
-- Added missing placeholder/icon assets.
-
-- Added private checkout payment-proof storage with protected admin access.
-
-- Added a separate public media Blob token to keep product images public without weakening payment-proof privacy.
-
-- Static TypeScript/TSX syntax scan passes; full dependency install/Prisma/build still requires running in GitHub/Vercel because this environment cannot download npm packages.
+- يضيف `proxy.ts` رؤوس الحماية، وCSP حاليًا في وضع `Content-Security-Policy-Report-Only` لتقييم التوافق قبل فرض سياسة تمنع موارد الواجهة.
+- يضاف HSTS في الإنتاج دون `includeSubDomains`؛ وسّع النطاق فقط بعد التأكد من HTTPS على كل النطاقات الفرعية.
+- بيانات الصفحة الرئيسية مخزنة مؤقتًا لمدة قصيرة (15 ثانية)، وتُبطل عند تغييرات الإعدادات والأقسام والمنتجات والتصنيفات والعروض والتقييمات.
+- الصفحات المعاملية للحساب والسلة والدفع مستبعدة من الفهرسة.
