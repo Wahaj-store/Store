@@ -5955,3 +5955,9 @@ body:has(.wahaj-maintenance) .wahaj-footer { display:none !important; }
 @keyframes wahaj-search-spin { to { transform:rotate(360deg); } }
 @media (max-width:520px) { .wahaj-search-drawer__header { padding-inline:17px; }.wahaj-search-drawer__body { padding-inline:17px; }.wahaj-search-drawer__discover-copy small { max-width:230px; } }
 @media (prefers-reduced-motion:reduce) { .wahaj-search-drawer-overlay,.wahaj-search-drawer,.wahaj-search-drawer * { animation:none !important; transition:none !important; } }
+
+.wahaj-search-drawer__categories { display:flex; gap:7px; overflow-x:auto; margin:11px -2px 0; padding:2px 2px 5px; scrollbar-width:none; }
+.wahaj-search-drawer__categories::-webkit-scrollbar { display:none; }
+.wahaj-search-drawer__categories button { flex:0 0 auto; min-height:32px; padding:0 12px; border:1px solid var(--border); border-radius:999px; background:color-mix(in srgb,var(--card) 86%,transparent); color:var(--muted-foreground); font-family:inherit; font-size:9px; font-weight:800; white-space:nowrap; transition:background .18s ease,border-color .18s ease,color .18s ease,transform .18s ease; }
+.wahaj-search-drawer__categories button:hover { transform:translateY(-1px); border-color:color-mix(in srgb,var(--gold) 46%,var(--border)); color:var(--gold-muted); }
+.wahaj-search-drawer__categories button.is-active { border-color:var(--gold); background:var(--gold); color:var(--gold-contrast); box-shadow:0 5px 14px color-mix(in srgb,var(--gold) 18%,transparent); }
