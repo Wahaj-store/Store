@@ -128,6 +128,13 @@ function rejectedResult(windowMs: number): RateLimitResult {
   };
 }
 
+export function shouldFailClosedRateLimit(
+  nodeEnv: string | undefined,
+  distributedStoreAvailable: boolean,
+): boolean {
+  return nodeEnv === 'production' && !distributedStoreAvailable;
+}
+
 function getUpstashConfig(): { url: string; token: string; timeoutMs: number } | null {
   const url = process.env.UPSTASH_REDIS_REST_URL?.trim();
   const token = process.env.UPSTASH_REDIS_REST_TOKEN?.trim();
@@ -302,12 +309,17 @@ async function runRateLimit(
     try {
       return await requestUpstash(key, limit, windowMs, increment);
     } catch (error) {
+      if (shouldFailClosedRateLimit(process.env.NODE_ENV, false)) {
+        warnLocalFallback(`distributed store unavailable; rejecting request: ${error instanceof Error ? error.message : 'unknown error'}`);
+        return rejectedResult(windowMs);
+      }
       warnLocalFallback(error instanceof Error ? error.message : 'Upstash request failed');
       return localResult(bucketKey, limit, windowMs, increment);
     }
   }
 
   warnLocalFallback('Upstash credentials are missing; limits are per-instance only');
+  if (shouldFailClosedRateLimit(process.env.NODE_ENV, false)) return rejectedResult(windowMs);
   return localResult(bucketKey, limit, windowMs, increment);
 }
 
