@@ -301,7 +301,12 @@ function ProductsSection({
         {products.length > 0 ? (
           <div className="wahaj-product-grid">
             {products.map((p: any) => (
-              <ProductCard key={p.id} product={p} variant="shop" />
+              <ProductCard
+                key={p.id}
+                product={p}
+                variant="shop"
+                imageSizes="(max-width: 620px) 43vw, (max-width: 800px) 30vw, (max-width: 1200px) 24vw, 280px"
+              />
             ))}
           </div>
         ) : (
