@@ -5961,3 +5961,20 @@ body:has(.wahaj-maintenance) .wahaj-footer { display:none !important; }
 .wahaj-search-drawer__categories button { flex:0 0 auto; min-height:32px; padding:0 12px; border:1px solid var(--border); border-radius:999px; background:color-mix(in srgb,var(--card) 86%,transparent); color:var(--muted-foreground); font-family:inherit; font-size:9px; font-weight:800; white-space:nowrap; transition:background .18s ease,border-color .18s ease,color .18s ease,transform .18s ease; }
 .wahaj-search-drawer__categories button:hover { transform:translateY(-1px); border-color:color-mix(in srgb,var(--gold) 46%,var(--border)); color:var(--gold-muted); }
 .wahaj-search-drawer__categories button.is-active { border-color:var(--gold); background:var(--gold); color:var(--gold-contrast); box-shadow:0 5px 14px color-mix(in srgb,var(--gold) 18%,transparent); }
+
+/* نفس مقياس السلة مع هامش واضح على الشاشات الصغيرة */
+.wahaj-search-drawer,
+.wahaj-cart-drawer { width:min(470px,calc(100vw - 32px)); }
+.wahaj-search-drawer__recent { margin-top:16px; }
+.wahaj-search-drawer__recent-heading { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:9px; color:var(--muted-foreground); font-size:10px; font-weight:800; }
+.wahaj-search-drawer__recent-heading span { display:flex; align-items:center; gap:6px; }
+.wahaj-search-drawer__recent-heading span svg { color:var(--gold-muted); }
+.wahaj-search-drawer__recent-heading > button { border:0; background:transparent; color:var(--gold-muted); font-family:inherit; font-size:9px; font-weight:800; }
+.wahaj-search-drawer__recent-list { display:grid; gap:6px; }
+.wahaj-search-drawer__recent-item { display:flex; align-items:center; gap:5px; min-height:39px; padding:0 10px; border:1px solid var(--border); border-radius:10px; background:color-mix(in srgb,var(--card) 90%,transparent); }
+.wahaj-search-drawer__recent-item > button:first-child { display:flex; min-width:0; flex:1; align-items:center; gap:8px; overflow:hidden; border:0; background:transparent; color:var(--foreground-secondary); font-family:inherit; font-size:10px; text-align:right; }
+.wahaj-search-drawer__recent-item > button:first-child svg { flex:0 0 auto; color:var(--muted-foreground); }
+.wahaj-search-drawer__recent-item > button:first-child span { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.wahaj-search-drawer__recent-item > button:last-child { display:grid; width:25px; height:25px; flex:0 0 25px; place-items:center; border:0; border-radius:7px; background:transparent; color:var(--muted-foreground); }
+.wahaj-search-drawer__recent-item > button:last-child:hover { background:var(--gold-soft); color:var(--gold-muted); }
+@media (max-width:520px) { .wahaj-search-drawer,.wahaj-cart-drawer { width:calc(100vw - 32px); } }
