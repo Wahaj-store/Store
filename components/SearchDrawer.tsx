@@ -21,11 +21,22 @@ type SearchDrawerProps = {
 };
 
 export default function SearchDrawer({ open, onClose, closeButtonRef }: SearchDrawerProps) {
+  const [mounted, setMounted] = useState(open);
   const [query, setQuery] = useState('');
   const [products, setProducts] = useState<SearchProduct[]>([]);
   const [loading, setLoading] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const requestId = useRef(0);
+
+  useEffect(() => {
+    if (open) {
+      setMounted(true);
+      return;
+    }
+
+    const timer = window.setTimeout(() => setMounted(false), 310);
+    return () => window.clearTimeout(timer);
+  }, [open]);
 
   useEffect(() => {
     if (!open) return;
@@ -74,13 +85,13 @@ export default function SearchDrawer({ open, onClose, closeButtonRef }: SearchDr
     };
   }, [open, query]);
 
-  if (!open) return null;
+  if (!mounted) return null;
 
   return (
-    <div className="wahaj-search-drawer-overlay" role="presentation" onMouseDown={onClose}>
+    <div className={`wahaj-search-drawer-overlay${open ? ' is-open' : ''}`} role="presentation" onMouseDown={onClose}>
       <aside
         id="wahaj-search-drawer"
-        className="wahaj-search-drawer"
+        className={`wahaj-search-drawer${open ? ' is-open' : ''}`}
         role="dialog"
         aria-modal="true"
         aria-labelledby="wahaj-search-drawer-title"
