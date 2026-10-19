@@ -1,14 +1,11 @@
-import Link from 'next/link';
 import type { Metadata } from 'next';
 import { Suspense } from 'react';
 import {
   ArrowLeft,
   Check,
   ChevronDown,
-  Search,
   SlidersHorizontal,
   Sparkles,
-  X,
 } from 'lucide-react';
 import {
   ShopActiveFilters,
@@ -22,7 +19,7 @@ import {
   ShopProductResults,
   ShopTotalCount,
 } from './ShopAsync';
-import { parseShopSearchParams, shopHref, type RawShopSearchParams } from '@/lib/shop-query';
+import { parseShopSearchParams, type RawShopSearchParams } from '@/lib/shop-query';
 
 // The HTML shell is request-specific; only the public catalog data is cached below.
 export const dynamic = 'force-dynamic';
@@ -68,20 +65,6 @@ export default async function Shop(props: { searchParams: Promise<RawShopSearchP
             <span className="wahaj-shop-hero__seal" aria-hidden="true">W</span>
           </aside>
         </div>
-        <form className="wahaj-shop-search" action="/shop" method="get" role="search">
-          {state.category ? <input type="hidden" name="category" value={state.category} /> : null}
-          {state.rawMinPrice ? <input type="hidden" name="minPrice" value={state.rawMinPrice} /> : null}
-          {state.rawMaxPrice ? <input type="hidden" name="maxPrice" value={state.rawMaxPrice} /> : null}
-          {state.inStock ? <input type="hidden" name="stock" value="in-stock" /> : null}
-          {state.sort !== 'newest' ? <input type="hidden" name="sort" value={state.sort} /> : null}
-          <label className="wahaj-shop-search__field">
-            <Search size={19} aria-hidden="true" />
-            <span className="sr-only">البحث في منتجات المتجر</span>
-            <input type="search" name="q" defaultValue={state.q} placeholder="ابحثي باسم القطعة أو رقمها…" maxLength={120} />
-            {state.q ? <Link href={shopHref(state, { q: null })} className="wahaj-shop-search__clear" aria-label="مسح البحث"><X size={15} /></Link> : null}
-          </label>
-          <button type="submit" className="wahaj-shop-search__submit">ابحثي في المتجر <ArrowLeft size={16} /></button>
-        </form>
       </section>
 
       <section className="wahaj-shop-catalog" aria-label="تصفّح المنتجات">
