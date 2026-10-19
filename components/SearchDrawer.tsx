@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { ArrowLeft, LoaderCircle, Search, X } from 'lucide-react';
+import { Clock3, ArrowLeft, LoaderCircle, Search, X } from 'lucide-react';
 import { useEffect, useRef, useState, type RefObject } from 'react';
 
 type SearchProduct = {
@@ -14,12 +14,6 @@ type SearchProduct = {
   category?: { name: string } | null;
 };
 
-type SearchCategory = {
-  id: string;
-  name: string;
-  slug: string;
-};
-
 type SearchDrawerProps = {
   open: boolean;
   onClose: () => void;
@@ -28,8 +22,7 @@ type SearchDrawerProps = {
 
 export default function SearchDrawer({ open, onClose, closeButtonRef }: SearchDrawerProps) {
   const [query, setQuery] = useState('');
-  const [categories, setCategories] = useState<SearchCategory[]>([]);
-  const [selectedCategory, setSelectedCategory] = useState('');
+  const [recentSearches, setRecentSearches] = useState<string[]>([]);
   const [products, setProducts] = useState<SearchProduct[]>([]);
   const [loading, setLoading] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -45,12 +38,14 @@ export default function SearchDrawer({ open, onClose, closeButtonRef }: SearchDr
   }, [open]);
 
   useEffect(() => {
-    if (!open || categories.length) return;
-    fetch('/api/categories', { cache: 'no-store' })
-      .then((response) => response.ok ? response.json() : [])
-      .then((data) => setCategories(Array.isArray(data) ? data.filter((item) => item?.id && item?.name && item?.slug).slice(0, 12) : []))
-      .catch(() => setCategories([]));
-  }, [open, categories.length]);
+    if (!open) return;
+    try {
+      const stored = JSON.parse(localStorage.getItem('wahaj_recent_searches') || '[]');
+      setRecentSearches(Array.isArray(stored) ? stored.filter((item): item is string => typeof item === 'string').slice(0, 6) : []);
+    } catch {
+      setRecentSearches([]);
+    }
+  }, [open]);
 
   useEffect(() => {
     if (!open) return;
@@ -66,8 +61,7 @@ export default function SearchDrawer({ open, onClose, closeButtonRef }: SearchDr
     const timer = window.setTimeout(async () => {
       setLoading(true);
       try {
-        const categoryParam = selectedCategory ? `&category=${encodeURIComponent(selectedCategory)}` : '';
-        const response = await fetch(`/api/products?q=${encodeURIComponent(value)}&page=1&sort=newest${categoryParam}`, {
+        const response = await fetch(`/api/products?q=${encodeURIComponent(value)}&page=1&sort=newest`, {
           signal: controller.signal,
           cache: 'no-store',
         });
@@ -87,26 +81,21 @@ export default function SearchDrawer({ open, onClose, closeButtonRef }: SearchDr
       window.clearTimeout(timer);
       controller.abort();
     };
-  }, [open, query, selectedCategory]);
+  }, [open, query]);
 
-  useEffect(() => {
-    if (!open || !selectedCategory || query.trim()) return;
-    const controller = new AbortController();
-    const currentRequest = ++requestId.current;
-    setLoading(true);
-    fetch(`/api/products?page=1&sort=newest&category=${encodeURIComponent(selectedCategory)}`, { signal: controller.signal, cache: 'no-store' })
-      .then((response) => response.ok ? response.json() : { items: [] })
-      .then((data) => {
-        if (currentRequest === requestId.current) setProducts(Array.isArray(data.items) ? data.items.slice(0, 8) : []);
-      })
-      .catch((error) => {
-        if (error.name !== 'AbortError' && currentRequest === requestId.current) setProducts([]);
-      })
-      .finally(() => {
-        if (currentRequest === requestId.current) setLoading(false);
-      });
-    return () => controller.abort();
-  }, [open, selectedCategory, query]);
+  const saveRecentSearch = (value: string) => {
+    const normalized = value.trim().slice(0, 120);
+    if (!normalized) return;
+    const next = [normalized, ...recentSearches.filter((item) => item.toLowerCase() !== normalized.toLowerCase())].slice(0, 6);
+    setRecentSearches(next);
+    try { localStorage.setItem('wahaj_recent_searches', JSON.stringify(next)); } catch { /* التخزين اختياري */ }
+  };
+
+  const removeRecentSearch = (value: string) => {
+    const next = recentSearches.filter((item) => item !== value);
+    setRecentSearches(next);
+    try { localStorage.setItem('wahaj_recent_searches', JSON.stringify(next)); } catch { /* التخزين اختياري */ }
+  };
 
   if (!open) return null;
 
@@ -143,33 +132,35 @@ export default function SearchDrawer({ open, onClose, closeButtonRef }: SearchDr
               aria-label="البحث في منتجات وَهَج"
               autoComplete="off"
               enterKeyHint="search"
+              onKeyDown={(event) => { if (event.key === 'Enter') saveRecentSearch(query); }}
             />
             {query && <button type="button" onClick={() => setQuery('')} aria-label="مسح البحث"><X size={15} /></button>}
           </label>
 
-          {categories.length > 0 && (
-            <div className="wahaj-search-drawer__categories" aria-label="فلترة سريعة حسب التصنيف">
-              <button type="button" className={!selectedCategory ? 'is-active' : ''} onClick={() => setSelectedCategory('')}>الكل</button>
-              {categories.map((category) => (
-                <button
-                  type="button"
-                  key={category.id}
-                  className={selectedCategory === category.slug ? 'is-active' : ''}
-                  onClick={() => setSelectedCategory(category.slug)}
-                >
-                  {category.name}
-                </button>
-              ))}
-            </div>
+          {recentSearches.length > 0 && !query.trim() && (
+            <section className="wahaj-search-drawer__recent" aria-label="عمليات البحث السابقة">
+              <div className="wahaj-search-drawer__recent-heading">
+                <span><Clock3 size={14} /> عمليات البحث السابقة</span>
+                <button type="button" onClick={() => { setRecentSearches([]); try { localStorage.removeItem('wahaj_recent_searches'); } catch { /* التخزين اختياري */ } }}>مسح الكل</button>
+              </div>
+              <div className="wahaj-search-drawer__recent-list">
+                {recentSearches.map((item) => (
+                  <div key={item} className="wahaj-search-drawer__recent-item">
+                    <button type="button" onClick={() => setQuery(item)}><Clock3 size={13} /><span>{item}</span></button>
+                    <button type="button" onClick={() => removeRecentSearch(item)} aria-label={`حذف البحث ${item}`}><X size={13} /></button>
+                  </div>
+                ))}
+              </div>
+            </section>
           )}
 
           <div className="wahaj-search-drawer__results" aria-live="polite">
             {loading ? (
               <div className="wahaj-search-drawer__status"><LoaderCircle className="wahaj-search-drawer__spin" size={19} /> جارٍ البحث...</div>
-            ) : query.trim() || selectedCategory ? (
+            ) : query.trim() ? (
               products.length ? (
                 <>
-                  <div className="wahaj-search-drawer__results-heading"><span>{selectedCategory && !query.trim() ? 'منتجات التصنيف' : 'نتائج البحث'}</span><b>{products.length}{products.length === 8 ? '+' : ''} قطع</b></div>
+                  <div className="wahaj-search-drawer__results-heading"><span>نتائج البحث</span><b>{products.length}{products.length === 8 ? '+' : ''} قطع</b></div>
                   <div className="wahaj-search-drawer__products">
                     {products.map((product) => (
                       <Link key={product.id} href={`/product/${product.slug}`} onClick={onClose} className="wahaj-search-drawer__product">
@@ -183,10 +174,10 @@ export default function SearchDrawer({ open, onClose, closeButtonRef }: SearchDr
                       </Link>
                     ))}
                   </div>
-                  <Link href={`/shop${query.trim() ? `?q=${encodeURIComponent(query.trim())}` : ''}${selectedCategory ? `${query.trim() ? '&' : '?'}category=${encodeURIComponent(selectedCategory)}` : ''}`} onClick={onClose} className="wahaj-search-drawer__all">عرض كل النتائج <ArrowLeft size={14} /></Link>
+                  <Link href={`/shop?q=${encodeURIComponent(query.trim())}`} onClick={onClose} className="wahaj-search-drawer__all">عرض كل النتائج <ArrowLeft size={14} /></Link>
                 </>
               ) : (
-                <div className="wahaj-search-drawer__status">لم نعثر على منتجات بهذه الخيارات. جرّبي تصنيفًا آخر.</div>
+                <div className="wahaj-search-drawer__status">لم نعثر على قطعة بهذا الاسم. جرّبي كلمة أخرى.</div>
               )
             ) : (
               <div className="wahaj-search-drawer__hint"><Search size={17} /><span>ابدئي الكتابة لتظهر النتائج هنا مباشرة</span></div>
