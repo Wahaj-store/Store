@@ -6082,3 +6082,38 @@ body:has(.wahaj-maintenance) .wahaj-footer { display:none !important; }
   .wahaj-product-spec-list dt { font-size: 9px; }
   .wahaj-product-spec-list dd { font-size: 10px; }
 }
+
+
+/* Desktop product page balance — keep the mobile composition unchanged */
+@media (min-width: 801px) {
+  .wahaj-product-page .wahaj-product-container { width: min(calc(100% - 80px), 1240px); }
+  .wahaj-product-hero {
+    direction: ltr;
+    grid-template-columns: minmax(0, 1.08fr) minmax(380px, .92fr);
+    align-items: start;
+    gap: clamp(38px, 5vw, 76px);
+  }
+  .wahaj-product-hero > .wahaj-product-visual,
+  .wahaj-product-hero > .wahaj-product-information { direction: rtl; }
+  .wahaj-product-hero > .wahaj-product-visual { order: 1; }
+  .wahaj-product-hero > .wahaj-product-information { order: 2; }
+  .wahaj-product-information { inset-block-start: 92px; padding-inline-start: 0; padding-inline-end: clamp(0px, 1.8vw, 24px); border-inline-start: 0; border-inline-end: 1px solid color-mix(in srgb, var(--gold) 16%, var(--border)); }
+  .wahaj-product-lower-grid { grid-template-columns: minmax(0, 1.12fr) minmax(320px, .88fr); gap: clamp(24px, 3.5vw, 42px); margin-top: clamp(52px, 7vw, 86px); }
+  .wahaj-product-specs, .wahaj-product-reviews { border-radius: 18px 4px 18px 18px; }
+  .wahaj-product-specs { padding: 28px; }
+  .wahaj-product-reviews { padding: 28px 24px; }
+  .wahaj-product-section-heading { margin-bottom: 18px; }
+  .wahaj-product-specs__description-block { margin-bottom: 20px; padding: 17px 18px; }
+  .wahaj-product-specs__description { font-size: 13px; line-height: 2.05; }
+  .wahaj-product-spec-list { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+  .wahaj-product-spec-list > div { display: flex; min-height: 154px; flex-direction: column; align-items: flex-start; justify-content: flex-start; gap: 10px; padding: 14px; }
+  .wahaj-product-spec-list dt { font-size: 10px; }
+  .wahaj-product-spec-list dd { font-size: 11px; line-height: 1.9; }
+  .wahaj-product-review-list { max-height: 520px; }
+  .wahaj-product-related { margin-top: clamp(52px, 7vw, 86px); }
+  .wahaj-product-related__grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 20px; }
+}
+@media (min-width: 1280px) {
+  .wahaj-product-hero { gap: 82px; }
+  .wahaj-product-gallery__stage { max-height: 680px; }
+}
