@@ -92,7 +92,7 @@ export async function ShopActiveFilters({ state }: { state: ShopSearchState }) {
 export function ShopGridFallback() {
   return (
     <div className="wahaj-shop-product-grid wahaj-shop-product-grid--loading" aria-label="جارٍ تحميل المنتجات" aria-busy="true">
-      {Array.from({ length: 8 }, (_, index) => <div className="wahaj-shop-product-skeleton" key={index}><span /><i /><i /><b /></div>)}
+      {Array.from({ length: SHOP_PAGE_SIZE }, (_, index) => <div className="wahaj-shop-product-skeleton" key={index}><span /><i /><i /><b /></div>)}
     </div>
   );
 }
