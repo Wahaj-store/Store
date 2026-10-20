@@ -2,7 +2,7 @@ import { unstable_cache } from 'next/cache';
 import { Prisma } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 
-export const SHOP_PAGE_SIZE = 24;
+export const SHOP_PAGE_SIZE = 12;
 export const SHOP_PRODUCTS_CACHE_TAG = 'shop-products';
 export const SHOP_CATEGORIES_CACHE_TAG = 'shop-categories';
 export const SHOP_RESULTS_REVALIDATE_SECONDS = 15;
