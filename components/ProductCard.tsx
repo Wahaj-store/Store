@@ -2,10 +2,11 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { memo, useState } from "react";
 import AddToCart from "./AddToCart";
 import WishlistButton from "./WishlistButton";
 
-export default function ProductCard({
+function ProductCard({
   product,
   compact = false,
   variant = "default",
@@ -16,6 +17,8 @@ export default function ProductCard({
   variant?: "default" | "shop";
   imageSizes?: string;
 }) {
+  const imageUrl = product.images?.[0]?.url || "/placeholder.svg";
+  const [imageSrc, setImageSrc] = useState(imageUrl);
   const price = Number(product.price);
   const compare = product.comparePrice ? Number(product.comparePrice) : 0;
   const discount =
@@ -37,13 +40,14 @@ export default function ProductCard({
             className="block h-full"
           >
               <Image
-                src={product.images?.[0]?.url || "/placeholder.svg"}
+                src={imageSrc}
                 alt={product.images?.[0]?.alt || product.name}
                 fill
                 sizes={imageSizes || "(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"}
                 quality={78}
                 className="wahaj-product-card__image"
                 loading="lazy"
+                onError={() => setImageSrc("/placeholder.svg")}
             />
           </Link>
 
@@ -107,3 +111,5 @@ export default function ProductCard({
     </>
   );
 }
+
+export default memo(ProductCard);
