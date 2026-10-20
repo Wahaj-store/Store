@@ -7,6 +7,7 @@ import {
   Check,
   ChevronLeft,
   CreditCard,
+  ChevronDown,
   PackageCheck,
   RotateCcw,
   ShieldCheck,
@@ -221,6 +222,12 @@ export default async function ProductPage(props: { params: Promise<{ slug: strin
               <ProductPurchase product={{ ...product, price, images: product.images }} />
             </div>
 
+            <div className="wahaj-product-assurances" aria-label="مميزات الطلب">
+              <div><Truck size={17} aria-hidden="true" /><span><b>توصيل آمن</b><small>لكل محافظات مصر</small></span></div>
+              <div><ShieldCheck size={17} aria-hidden="true" /><span><b>اختيار موثوق</b><small>تفاصيل واضحة قبل الطلب</small></span></div>
+              <Link href="/policies/shipping"><RotateCcw size={17} aria-hidden="true" /><span><b>استبدال سهل</b><small>راجعي سياسة الاستبدال</small></span></Link>
+            </div>
+
             {product.stock <= 0 ? <BackInStockForm productId={product.id} /> : null}
 
             <div className="wahaj-product-payments" aria-labelledby="product-payment-title">
@@ -276,26 +283,27 @@ export default async function ProductPage(props: { params: Promise<{ slug: strin
                 <h2>صُنعت لترافقكِ</h2>
               </div>
             </div>
-            {product.description ? (
-              <div className="wahaj-product-specs__description-block">
-                <span className="wahaj-product-specs__label">عن القطعة</span>
-                <p className="wahaj-product-specs__description">{product.description}</p>
-              </div>
-            ) : null}
-            <dl className="wahaj-product-spec-list">
-              <div>
-                <dt>الخامة</dt>
-                <dd>{product.material || 'مختارة بعناية فائقة'}</dd>
-              </div>
-              <div>
-                <dt>العناية</dt>
-                <dd>{product.careInstructions || 'يُحفظ بعيدًا عن الرطوبة والعطور المباشرة.'}</dd>
-              </div>
-              <div>
-                <dt>رمز المنتج</dt>
-                <dd dir="ltr">{product.sku || 'غير متوفر'}</dd>
-              </div>
-            </dl>
+            <div className="wahaj-product-accordions">
+              <details className="wahaj-product-accordion" open>
+                <summary><span>الوصف والتفاصيل</span><ChevronDown size={17} aria-hidden="true" /></summary>
+                <div className="wahaj-product-accordion__content">
+                  <p className="wahaj-product-specs__description">{product.description || `قطعة ${product.name} مختارة بعناية لتضيف لمسة أنيقة إلى إطلالتك.`}</p>
+                  <dl className="wahaj-product-spec-list"><div><dt>الخامة</dt><dd>{product.material || 'مختارة بعناية فائقة'}</dd></div></dl>
+                </div>
+              </details>
+              <details className="wahaj-product-accordion">
+                <summary><span>العناية بالقطعة</span><ChevronDown size={17} aria-hidden="true" /></summary>
+                <div className="wahaj-product-accordion__content"><p>{product.careInstructions || 'يُحفظ بعيدًا عن الرطوبة والعطور المباشرة، ويمسح بقطعة قماش ناعمة بعد الاستخدام.'}</p></div>
+              </details>
+              <details className="wahaj-product-accordion">
+                <summary><span>الشحن والاستبدال</span><ChevronDown size={17} aria-hidden="true" /></summary>
+                <div className="wahaj-product-accordion__content"><p>تعرّفي على تفاصيل التوصيل والاستبدال قبل إتمام طلبك.</p><Link href="/policies/shipping">عرض سياسة الشحن والاستبدال <ArrowLeft size={14} /></Link></div>
+              </details>
+              <details className="wahaj-product-accordion">
+                <summary><span>رمز المنتج</span><ChevronDown size={17} aria-hidden="true" /></summary>
+                <div className="wahaj-product-accordion__content"><p dir="ltr">{product.sku || 'غير متوفر'}</p></div>
+              </details>
+            </div>
             <div className="wahaj-product-specs__note"><Check size={15} /> تفاصيل المنتج ومعلوماته محدثة من متجر وَهَج.</div>
           </article>
 
