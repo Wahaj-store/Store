@@ -1,7 +1,7 @@
 import type { Prisma } from '@prisma/client';
 import { normalizeProductSearchText } from '@/lib/product-search';
 
-export const PUBLIC_PRODUCTS_PAGE_SIZE = 24;
+export const PUBLIC_PRODUCTS_PAGE_SIZE = 12;
 export const PUBLIC_PRODUCTS_MAX_PAGE = 1_000;
 
 export type PublicProductsSort = 'newest' | 'price-asc' | 'price-desc' | 'name-asc';
