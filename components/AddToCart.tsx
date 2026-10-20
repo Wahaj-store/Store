@@ -99,7 +99,9 @@ export default function AddToCart({
       disabled={disabled}
       onClick={add}
       aria-live="polite"
+      data-cart-state={done ? 'done' : disabled ? 'disabled' : 'idle'}
       className={[
+        'wahaj-add-to-cart',
         'group relative w-full overflow-hidden font-bold transition-all duration-300',
         'focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-(--gold) focus-visible:ring-offset-2',
         'disabled:cursor-not-allowed disabled:opacity-55',
