@@ -6117,3 +6117,141 @@ body:has(.wahaj-maintenance) .wahaj-footer { display:none !important; }
   .wahaj-product-hero { gap: 82px; }
   .wahaj-product-gallery__stage { max-height: 680px; }
 }
+
+
+/* Product recommendations and recently viewed — one consistent card language */
+.wahaj-product-related__grid .wahaj-product-card--shop {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  height: 100%;
+  padding: 9px;
+  border-radius: 16px 4px 16px 16px;
+}
+.wahaj-product-related__grid .wahaj-product-card--shop .wahaj-product-card__media {
+  aspect-ratio: 1 / 1;
+  flex: 0 0 auto;
+  border-radius: 11px 3px 11px 11px;
+}
+.wahaj-product-related__grid .wahaj-product-card--shop .wahaj-product-card__body {
+  flex: 1;
+  padding: 13px 4px 3px;
+}
+.wahaj-product-related__grid .wahaj-product-card--shop .wahaj-product-card__title {
+  min-height: 3.2em;
+  font-size: 12px;
+  line-height: 1.65;
+}
+.wahaj-product-related__grid .wahaj-product-card--shop .wahaj-product-card__price {
+  font-size: 14px;
+}
+.wahaj-product-related__grid .wahaj-product-card--shop .wahaj-product-card__availability {
+  margin-top: 7px;
+}
+.wahaj-product-related__grid .wahaj-product-card--shop .wahaj-product-card__cart {
+  margin-top: auto;
+  padding-top: 10px;
+}
+.wahaj-product-related__grid .wahaj-product-card--shop .wahaj-product-card__cart button {
+  min-height: 40px;
+  border-radius: 10px;
+  font-size: 10px;
+}
+.wahaj-recently-viewed {
+  margin-top: clamp(48px, 6vw, 78px);
+  padding-top: clamp(25px, 4vw, 40px);
+  border-top: 1px solid var(--border);
+}
+.wahaj-recently-viewed__heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+.wahaj-recently-viewed__heading span {
+  color: var(--gold-muted);
+  font-size: 10px;
+  font-weight: 800;
+}
+.wahaj-recently-viewed__heading h2 {
+  margin: 5px 0 0;
+  color: var(--foreground);
+  font-size: clamp(20px, 2.4vw, 27px);
+  font-weight: 700;
+}
+.wahaj-recently-viewed__grid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 13px;
+}
+.wahaj-recent-card {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 14px 3px 14px 14px;
+  background: var(--card);
+  box-shadow: 0 7px 22px color-mix(in srgb, var(--foreground) 5%, transparent);
+  transition: transform var(--transition), border-color var(--transition), box-shadow var(--transition);
+}
+.wahaj-recent-card:hover {
+  transform: translateY(-3px);
+  border-color: color-mix(in srgb, var(--gold) 43%, var(--border));
+  box-shadow: 0 13px 30px color-mix(in srgb, var(--foreground) 10%, transparent);
+}
+.wahaj-recent-card__media {
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  background: var(--surface);
+}
+.wahaj-recent-card__image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform .55s cubic-bezier(.2,.7,.2,1);
+}
+.wahaj-recent-card:hover .wahaj-recent-card__image { transform: scale(1.045); }
+.wahaj-recent-card__body {
+  display: flex;
+  min-height: 68px;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 7px;
+  padding: 10px 9px 11px;
+}
+.wahaj-recent-card__name {
+  display: -webkit-box;
+  overflow: hidden;
+  color: var(--foreground-secondary);
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1.6;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+.wahaj-recent-card__body strong {
+  color: var(--gold-muted);
+  font-size: 11px;
+  font-weight: 800;
+}
+@media (max-width: 980px) {
+  .wahaj-recently-viewed__grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (max-width: 800px) {
+  .wahaj-product-related__grid .wahaj-product-card--shop { padding: 7px; border-radius: 14px 3px 14px 14px; }
+  .wahaj-product-related__grid .wahaj-product-card--shop .wahaj-product-card__body { padding: 10px 3px 2px; }
+  .wahaj-product-related__grid .wahaj-product-card--shop .wahaj-product-card__title { min-height: 0; font-size: 11px; }
+  .wahaj-product-related__grid .wahaj-product-card--shop .wahaj-product-card__cart button { min-height: 36px; font-size: 9px; }
+  .wahaj-recently-viewed { margin-top: 42px; padding-top: 25px; }
+  .wahaj-recently-viewed__grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 9px; }
+  .wahaj-recent-card__body { min-height: 59px; padding: 8px 7px 9px; }
+  .wahaj-recent-card__name { font-size: 9px; }
+  .wahaj-recent-card__body strong { font-size: 10px; }
+}
+@media (max-width: 480px) {
+  .wahaj-recently-viewed__heading { margin-bottom: 14px; }
+  .wahaj-recently-viewed__heading h2 { font-size: 19px; }
+  .wahaj-recently-viewed__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+}
