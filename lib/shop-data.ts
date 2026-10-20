@@ -1,6 +1,7 @@
 import { unstable_cache } from 'next/cache';
 import { Prisma } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
+import { PUBLIC_PRODUCT_LIST_SELECT } from '@/lib/public-products-query';
 
 export const SHOP_PAGE_SIZE = 12;
 export const SHOP_PRODUCTS_CACHE_TAG = 'shop-products';
@@ -125,25 +126,7 @@ export function getShopProductCount(filters: ShopFilters) {
 const readShopProducts = unstable_cache(
   async ({ filters, page }: ShopPageQuery): Promise<ShopProduct[]> => {
     const where = productWhere(filters);
-    const select = {
-      id: true,
-      slug: true,
-      name: true,
-      description: true,
-      price: true,
-      comparePrice: true,
-      stock: true,
-      newArrival: true,
-      bestSeller: true,
-      images: {
-        select: { url: true, alt: true },
-        orderBy: { sortOrder: 'asc' as const },
-        take: 1,
-      },
-      category: { select: { name: true } },
-      // Cards need only to know whether variants exist; option data loads on detail.
-      variants: { select: { id: true, stock: true }, orderBy: { stock: 'desc' }, take: 1 },
-    } satisfies Prisma.ProductSelect;
+    const select = PUBLIC_PRODUCT_LIST_SELECT;
     const orderBy = productOrder(filters.sort);
     const skip = (page - 1) * SHOP_PAGE_SIZE;
 
