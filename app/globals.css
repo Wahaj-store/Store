@@ -5989,7 +5989,7 @@ body:has(.wahaj-maintenance) .wahaj-footer { display:none !important; }
 .wahaj-product-card__title { min-height:3.4em; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; }
 .wahaj-product-card__body { display:flex; flex:1; flex-direction:column; }
 .wahaj-product-card__cart { margin-top:auto; }
-.wahaj-product-card__cart .wahaj-add-to-cart[data-cart-state="idle"] { border-color:#241B1A !important; background:#241B1A !important; color:#F7F2EA !important; }
+.wahaj-product-card__cart .wahaj-add-to-cart[data-cart-state="idle"] { border-color:var(--gold) !important; background:var(--gold) !important; color:var(--gold-contrast) !important; }
 .dark .wahaj-product-card__cart .wahaj-add-to-cart[data-cart-state="idle"] { border-color:var(--gold) !important; background:var(--gold) !important; color:var(--gold-contrast) !important; }
 .wahaj-shop-product-grid { grid-template-columns:repeat(4,minmax(0,1fr)); }
 @media (max-width:1024px) { .wahaj-shop-product-grid { grid-template-columns:repeat(3,minmax(0,1fr)); } }
