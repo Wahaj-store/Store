@@ -217,8 +217,6 @@ export default async function ProductPage(props: { params: Promise<{ slug: strin
               <div className="wahaj-product-sku">رمز المنتج <b dir="ltr">{product.sku}</b></div>
             ) : null}
 
-            {product.description ? <p className="wahaj-product-lead">{product.description}</p> : null}
-
             <div className="wahaj-product-purchase-panel">
               <ProductPurchase product={{ ...product, price, images: product.images }} />
             </div>
@@ -278,7 +276,12 @@ export default async function ProductPage(props: { params: Promise<{ slug: strin
                 <h2>صُنعت لترافقكِ</h2>
               </div>
             </div>
-            {product.description ? <p className="wahaj-product-specs__description">{product.description}</p> : null}
+            {product.description ? (
+              <div className="wahaj-product-specs__description-block">
+                <span className="wahaj-product-specs__label">عن القطعة</span>
+                <p className="wahaj-product-specs__description">{product.description}</p>
+              </div>
+            ) : null}
             <dl className="wahaj-product-spec-list">
               <div>
                 <dt>الخامة</dt>
