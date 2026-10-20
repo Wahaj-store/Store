@@ -6009,3 +6009,16 @@ body:has(.wahaj-maintenance) .wahaj-footer { display:none !important; }
 @media (prefers-reduced-motion:reduce) {
   .wahaj-product-card,.wahaj-product-card * { transition-duration:.01ms !important; animation-duration:.01ms !important; }
 }
+
+
+/* Product catalog resilience states — phase 7 */
+.wahaj-shop-empty h1 { margin:8px 0 5px; color:var(--foreground); font-size:20px; font-weight:800; }
+.wahaj-shop-error .wahaj-shop-empty__icon { color:var(--gold); }
+.wahaj-shop-empty__action:is(button) { cursor:pointer; border:0; font-family:inherit; }
+.wahaj-shop-hero--loading { min-height:260px; }
+.wahaj-shop-heading-skeleton--wide { display:block; width:min(520px,78vw); height:28px; margin-top:10px; }
+.wahaj-shop-heading-skeleton--short { display:block; width:min(340px,58vw); height:18px; margin-top:10px; }
+@media (max-width:700px) {
+  .wahaj-shop-empty h1 { font-size:17px; }
+  .wahaj-shop-hero--loading { min-height:220px; }
+}
