@@ -6256,30 +6256,6 @@ body:has(.wahaj-maintenance) .wahaj-footer { display:none !important; }
   .wahaj-recently-viewed__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
 }
 
-/* Product detail accordions use the store's shared theme tokens. */
-.wahaj-product-accordions { display: grid; gap: 0; margin-top: 18px; border-top: 1px solid var(--border); }
-.wahaj-product-accordion { border-bottom: 1px solid var(--border); transition: background-color var(--transition), border-color var(--transition); }
-.wahaj-product-accordion[open] { border-color: color-mix(in srgb, var(--gold) 34%, var(--border)); }
-.wahaj-product-accordion > summary {
-  display: flex; align-items: center; justify-content: space-between; gap: 12px;
-  min-height: 52px; padding-inline: 10px; border-radius: var(--radius-sm);
-  background: transparent; color: var(--foreground);
-  font-family: var(--font-wahaj), 'Tajawal', sans-serif; font-size: inherit; font-weight: 600;
-  cursor: pointer; list-style: none; transition: color var(--transition), background-color var(--transition);
-}
-.wahaj-product-accordion > summary:hover,
-.wahaj-product-accordion[open] > summary { background: color-mix(in srgb, var(--gold-soft) 52%, transparent); }
-.wahaj-product-accordion > summary::-webkit-details-marker { display: none; }
-.wahaj-product-accordion > summary svg { flex: 0 0 auto; color: var(--gold); transition: transform var(--transition); }
-.wahaj-product-accordion[open] > summary svg { transform: rotate(180deg); }
-.wahaj-product-accordion__content { padding: 0 10px 16px; color: var(--muted-foreground); font-family: var(--font-wahaj), 'Tajawal', sans-serif; font-size: inherit; line-height: 1.9; }
-.wahaj-product-accordion__content > :first-child { margin-top: 0; }
-.wahaj-product-accordion__content > :last-child { margin-bottom: 0; }
-.wahaj-product-accordion__content a { display: inline-flex; align-items: center; gap: 7px; color: var(--gold); font-weight: 600; }
-.wahaj-product-accordion__content a:hover { text-decoration: underline; }
-.wahaj-product-accordion:focus-within > summary { outline: 2px solid var(--gold); outline-offset: 3px; }
-@media (max-width: 700px) { .wahaj-product-accordion > summary { min-height: 48px; } }
-
 /* Product identity is grouped at the beginning of the purchase card. */
 .wahaj-product-panel-heading { margin-bottom: 16px; padding-bottom: 15px; border-bottom: 1px solid var(--border); }
 .wahaj-product-panel-heading .wahaj-product-title-row { align-items: flex-start; gap: 12px; }
@@ -6295,54 +6271,18 @@ body:has(.wahaj-maintenance) .wahaj-footer { display:none !important; }
 }
 
 
-/* Product detail accordions mirror the store FAQ cards and motion. */
-.wahaj-product-accordion.wahaj-faq-item { border-bottom: 1px solid var(--border); }
-.wahaj-product-accordion.wahaj-faq-item[open] { border-color: color-mix(in srgb, var(--gold) 43%, var(--border)); }
-.wahaj-product-accordion > .wahaj-faq-question {
-  min-height: 68px;
-  padding: 14px 17px;
-  font-family: inherit;
-  font-size: 12px;
-  font-weight: 800;
-}
-.wahaj-product-accordion > .wahaj-faq-question > span { gap: 11px; }
-.wahaj-product-accordion > .wahaj-faq-question > i { font-style: normal; }
-.wahaj-product-accordion > .wahaj-faq-question > svg { color: var(--gold-muted); }
-.wahaj-product-accordion[open] > .wahaj-faq-question > svg { transform: rotate(180deg); }
-.wahaj-product-accordion > .wahaj-faq-answer {
-  padding: 2px 60px 20px;
-  font-family: inherit;
-  font-size: 11px;
-  line-height: 2;
-}
-.wahaj-product-accordion > .wahaj-faq-answer p { margin: 0; color: inherit; font: inherit; line-height: inherit; white-space: pre-line; }
-.wahaj-product-accordion > .wahaj-faq-answer a { margin-top: 9px; }
-@media (max-width: 600px) {
-  .wahaj-product-accordion > .wahaj-faq-question { min-height: 62px; padding: 12px; font-size: 11px; }
-  .wahaj-product-accordion > .wahaj-faq-answer { padding: 0 55px 17px 14px; font-size: 10px; }
-}
-
-.wahaj-product-accordions { gap: 10px; border-top: 0; }
-
-
-/* Consistent brand typography across every product detail accordion. */
+/* Product detail FAQs reuse the FAQ card behavior and shared brand typography. */
+.wahaj-product-accordions { display: grid; gap: 10px; margin-top: 18px; }
 .wahaj-product-accordions,
-.wahaj-product-accordions * {
-  font-family: var(--font-wahaj), 'Tajawal', sans-serif !important;
-}
-.wahaj-product-accordions .wahaj-faq-question {
-  font-size: 12px !important;
-  line-height: 1.6;
-}
+.wahaj-product-accordions * { font-family: var(--font-wahaj), 'Tajawal', sans-serif !important; }
+.wahaj-product-accordions .wahaj-faq-question { font-size: 12px !important; line-height: 1.6; }
 .wahaj-product-accordions .wahaj-faq-answer,
 .wahaj-product-accordions .wahaj-faq-answer p,
-.wahaj-product-accordions .wahaj-faq-answer a {
-  font-size: 11px !important;
-  line-height: 2;
-}
+.wahaj-product-accordions .wahaj-faq-answer a { font-size: 11px !important; line-height: 2; }
 @media (max-width: 600px) {
   .wahaj-product-accordions .wahaj-faq-question { font-size: 11px !important; }
   .wahaj-product-accordions .wahaj-faq-answer,
   .wahaj-product-accordions .wahaj-faq-answer p,
   .wahaj-product-accordions .wahaj-faq-answer a { font-size: 10px !important; }
 }
+
