@@ -7,10 +7,6 @@ import {
   Check,
   ChevronLeft,
   CreditCard,
-  ChevronDown,
-  Droplets,
-  FileText,
-  Gem,
   PackageCheck,
   RotateCcw,
   ShieldCheck,
@@ -19,6 +15,7 @@ import {
 import { prisma } from '@/lib/prisma';
 import ProductGallery from '@/components/ProductGallery';
 import ProductPurchase from '@/components/ProductPurchase';
+import ProductDetailsAccordion from '@/components/ProductDetailsAccordion';
 import WishlistButton from '@/components/WishlistButton';
 import ClientRecentTracker from '@/components/ClientRecentTracker';
 import FeatureFlagGate from '@/components/FeatureFlagGate';
@@ -268,26 +265,12 @@ export default async function ProductPage(props: { params: Promise<{ slug: strin
                 <h2>صُنعت لترافقكِ</h2>
               </div>
             </div>
-            <div className="wahaj-product-accordions">
-              <details className="wahaj-product-accordion wahaj-faq-item" open>
-                <summary className="wahaj-faq-question"><span><i><FileText size={17} aria-hidden="true" /></i>الوصف والتفاصيل</span><ChevronDown size={18} aria-hidden="true" /></summary>
-                <div className="wahaj-faq-answer wahaj-product-accordion__content">
-                  <p className="wahaj-product-specs__description">{product.description || `قطعة ${product.name} مختارة بعناية لتضيف لمسة أنيقة إلى إطلالتك.`}</p>
-                </div>
-              </details>
-              <details className="wahaj-product-accordion wahaj-faq-item">
-                <summary className="wahaj-faq-question"><span><i><Gem size={17} aria-hidden="true" /></i>الخامة</span><ChevronDown size={18} aria-hidden="true" /></summary>
-                <div className="wahaj-faq-answer wahaj-product-accordion__content"><p>{product.material || 'مختارة بعناية فائقة.'}</p></div>
-              </details>
-              <details className="wahaj-product-accordion wahaj-faq-item">
-                <summary className="wahaj-faq-question"><span><i><Droplets size={17} aria-hidden="true" /></i>العناية بالقطعة</span><ChevronDown size={18} aria-hidden="true" /></summary>
-                <div className="wahaj-faq-answer wahaj-product-accordion__content"><p>{product.careInstructions || 'يُحفظ بعيدًا عن الرطوبة والعطور المباشرة، ويمسح بقطعة قماش ناعمة بعد الاستخدام.'}</p></div>
-              </details>
-              <details className="wahaj-product-accordion wahaj-faq-item">
-                <summary className="wahaj-faq-question"><span><i><Truck size={17} aria-hidden="true" /></i>الشحن والاستبدال</span><ChevronDown size={18} aria-hidden="true" /></summary>
-                <div className="wahaj-faq-answer wahaj-product-accordion__content"><p>تعرّفي على تفاصيل التوصيل والاستبدال قبل إتمام طلبك.</p><Link href="/policies/shipping">عرض سياسة الشحن والاستبدال <ArrowLeft size={14} /></Link></div>
-              </details>
-            </div>
+            <ProductDetailsAccordion
+              productName={product.name}
+              description={product.description}
+              material={product.material}
+              careInstructions={product.careInstructions}
+            />
             <div className="wahaj-product-specs__note"><Check size={15} /> تفاصيل المنتج ومعلوماته محدثة من متجر وَهَج.</div>
           </article>
 
