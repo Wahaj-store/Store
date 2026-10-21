@@ -17,10 +17,11 @@ type SearchProduct = {
 type SearchDrawerProps = {
   open: boolean;
   onClose: () => void;
+  closing?: boolean;
   closeButtonRef?: RefObject<HTMLButtonElement | null>;
 };
 
-export default function SearchDrawer({ open, onClose, closeButtonRef }: SearchDrawerProps) {
+export default function SearchDrawer({ open, onClose, closing = false, closeButtonRef }: SearchDrawerProps) {
   const [query, setQuery] = useState('');
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
   const [products, setProducts] = useState<SearchProduct[]>([]);
@@ -100,10 +101,10 @@ export default function SearchDrawer({ open, onClose, closeButtonRef }: SearchDr
   if (!open) return null;
 
   return (
-    <div className={`wahaj-search-drawer-overlay${open ? ' is-open' : ''}`} role="presentation" onMouseDown={onClose}>
+    <div className={`wahaj-search-drawer-overlay${open ? ' is-open' : ''}${closing ? ' is-closing' : ''}`} role="presentation" onMouseDown={onClose}>
       <aside
         id="wahaj-search-drawer"
-        className={`wahaj-search-drawer${open ? ' is-open' : ''}`}
+        className={`wahaj-search-drawer${open ? ' is-open' : ''}${closing ? ' is-closing' : ''}`}
         role="dialog"
         aria-modal="true"
         aria-labelledby="wahaj-search-drawer-title"
