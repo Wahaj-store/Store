@@ -4784,7 +4784,7 @@ a:focus-visible {
   .wahaj-product-page .wahaj-product-container { width:min(100% - 22px,420px); }
   .wahaj-product-title-row { align-items:flex-start; }
   .wahaj-product-title-row h1 { font-size:26px; line-height:1.35; }
-  .wahaj-product-purchase__price-row { align-items:flex-start; flex-direction:column; gap:10px; }
+  .wahaj-product-purchase__price-row { align-items:center; flex-direction:row; justify-content:space-between; gap:10px; }
   .wahaj-product-purchase__actions { display:grid; grid-template-columns:minmax(0,1fr) auto; }
   .wahaj-product-purchase__add > button { min-height:50px !important; }
   .wahaj-product-quantity { min-width:104px; }
@@ -6293,4 +6293,3 @@ body:has(.wahaj-maintenance) .wahaj-footer { display:none !important; }
   .wahaj-product-panel-heading .wahaj-product-title-row h1 { font-size: 22px; }
   .wahaj-product-panel-heading .wahaj-product-wishlist > button { width: 40px; height: 40px; }
 }
-
