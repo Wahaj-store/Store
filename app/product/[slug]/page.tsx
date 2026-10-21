@@ -11,7 +11,6 @@ import {
   PackageCheck,
   RotateCcw,
   ShieldCheck,
-  Sparkles,
   Truck,
 } from 'lucide-react';
 import { prisma } from '@/lib/prisma';
@@ -190,15 +189,8 @@ export default async function ProductPage(props: { params: Promise<{ slug: strin
           </div>
 
           <div className="wahaj-product-information">
-            <div className="wahaj-product-eyebrow">
-              <span className="wahaj-product-eyebrow__mark"><Sparkles size={14} /></span>
-              <span>{product.category?.name || 'اختيارات وَهَج'}</span>
-              <span className="wahaj-product-eyebrow__line" aria-hidden="true" />
-            </div>
-
             <div className="wahaj-product-title-row">
               <div className="wahaj-product-title-copy">
-                <span className="wahaj-product-title-kicker">تفاصيل صغيرة، أثر يدوم</span>
                 <h1 id="product-title">{product.name}</h1>
               </div>
               <div className="wahaj-product-wishlist" aria-label="حفظ المنتج في المفضلة">
@@ -213,10 +205,6 @@ export default async function ProductPage(props: { params: Promise<{ slug: strin
               <span>{reviews.length ? `${averageRating.toLocaleString('ar-EG', { maximumFractionDigits: 1 })} من 5` : 'لا توجد تقييمات بعد'}</span>
               {reviews.length ? <a href="#product-reviews">({reviews.length.toLocaleString('ar-EG')} تقييمات معتمدة معروضة)</a> : null}
             </div>
-
-            {product.sku ? (
-              <div className="wahaj-product-sku">رمز المنتج <b dir="ltr">{product.sku}</b></div>
-            ) : null}
 
             <div className="wahaj-product-purchase-panel">
               <ProductPurchase product={{ ...product, price, images: product.images }} />
@@ -295,10 +283,6 @@ export default async function ProductPage(props: { params: Promise<{ slug: strin
               <details className="wahaj-product-accordion">
                 <summary><span>الشحن والاستبدال</span><ChevronDown size={17} aria-hidden="true" /></summary>
                 <div className="wahaj-product-accordion__content"><p>تعرّفي على تفاصيل التوصيل والاستبدال قبل إتمام طلبك.</p><Link href="/policies/shipping">عرض سياسة الشحن والاستبدال <ArrowLeft size={14} /></Link></div>
-              </details>
-              <details className="wahaj-product-accordion">
-                <summary><span>رمز المنتج</span><ChevronDown size={17} aria-hidden="true" /></summary>
-                <div className="wahaj-product-accordion__content"><p dir="ltr">{product.sku || 'غير متوفر'}</p></div>
               </details>
             </div>
             <div className="wahaj-product-specs__note"><Check size={15} /> تفاصيل المنتج ومعلوماته محدثة من متجر وَهَج.</div>
