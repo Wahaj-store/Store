@@ -6323,3 +6323,26 @@ body:has(.wahaj-maintenance) .wahaj-footer { display:none !important; }
 }
 
 .wahaj-product-accordions { gap: 10px; border-top: 0; }
+
+
+/* Consistent brand typography across every product detail accordion. */
+.wahaj-product-accordions,
+.wahaj-product-accordions * {
+  font-family: var(--font-wahaj), 'Tajawal', sans-serif !important;
+}
+.wahaj-product-accordions .wahaj-faq-question {
+  font-size: 12px !important;
+  line-height: 1.6;
+}
+.wahaj-product-accordions .wahaj-faq-answer,
+.wahaj-product-accordions .wahaj-faq-answer p,
+.wahaj-product-accordions .wahaj-faq-answer a {
+  font-size: 11px !important;
+  line-height: 2;
+}
+@media (max-width: 600px) {
+  .wahaj-product-accordions .wahaj-faq-question { font-size: 11px !important; }
+  .wahaj-product-accordions .wahaj-faq-answer,
+  .wahaj-product-accordions .wahaj-faq-answer p,
+  .wahaj-product-accordions .wahaj-faq-answer a { font-size: 10px !important; }
+}
