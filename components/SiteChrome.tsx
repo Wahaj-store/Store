@@ -48,7 +48,11 @@ export default function SiteChrome() {
   const [payments, setPayments] = useState<any[]>([]);
   const [themeSettings, setThemeSettings] = useState<any>(null);
   const [cartDrawerOpen, setCartDrawerOpen] = useState(false);
+  const [cartDrawerClosing, setCartDrawerClosing] = useState(false);
+  const cartCloseTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [searchDrawerOpen, setSearchDrawerOpen] = useState(false);
+  const [searchDrawerClosing, setSearchDrawerClosing] = useState(false);
+  const searchCloseTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [cartItems, setCartItems] = useState<any[]>([]);
   const { enabled: featureEnabled } = useFeatureFlags();
   const cartDrawerEnabled = featureEnabled('cart_drawer', false);
@@ -82,8 +86,44 @@ export default function SiteChrome() {
     }, 420);
   };
 
+  const openCartDrawer = () => {
+    if (cartCloseTimerRef.current) clearTimeout(cartCloseTimerRef.current);
+    cartCloseTimerRef.current = null;
+    setCartDrawerClosing(false);
+    setCartDrawerOpen(true);
+  };
+
+  const closeCartDrawer = () => {
+    if (!cartDrawerOpen || cartDrawerClosing) return;
+    setCartDrawerClosing(true);
+    cartCloseTimerRef.current = setTimeout(() => {
+      setCartDrawerOpen(false);
+      setCartDrawerClosing(false);
+      cartCloseTimerRef.current = null;
+    }, 420);
+  };
+
+  const openSearchDrawer = () => {
+    if (searchCloseTimerRef.current) clearTimeout(searchCloseTimerRef.current);
+    searchCloseTimerRef.current = null;
+    setSearchDrawerClosing(false);
+    setSearchDrawerOpen(true);
+  };
+
+  const closeSearchDrawer = () => {
+    if (!searchDrawerOpen || searchDrawerClosing) return;
+    setSearchDrawerClosing(true);
+    searchCloseTimerRef.current = setTimeout(() => {
+      setSearchDrawerOpen(false);
+      setSearchDrawerClosing(false);
+      searchCloseTimerRef.current = null;
+    }, 420);
+  };
+
   useEffect(() => () => {
     if (menuCloseTimerRef.current) clearTimeout(menuCloseTimerRef.current);
+    if (cartCloseTimerRef.current) clearTimeout(cartCloseTimerRef.current);
+    if (searchCloseTimerRef.current) clearTimeout(searchCloseTimerRef.current);
   }, []);
 
   useEffect(() => {
@@ -174,7 +214,7 @@ export default function SiteChrome() {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
         event.preventDefault();
-        setCartDrawerOpen(false);
+        closeCartDrawer();
         return;
       }
 
@@ -209,7 +249,7 @@ export default function SiteChrome() {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
         event.preventDefault();
-        setSearchDrawerOpen(false);
+        closeSearchDrawer();
       }
     };
 
@@ -377,7 +417,7 @@ export default function SiteChrome() {
             <button
               type="button"
               ref={searchButtonRef}
-              onClick={() => setSearchDrawerOpen(true)}
+              onClick={openSearchDrawer}
               className="wahaj-header__action text-foreground/80 hover:text-(--gold) transition-colors p-1"
               aria-label="المتجر والبحث عن المنتجات"
               title="المتجر والبحث عن المنتجات"
@@ -411,7 +451,7 @@ export default function SiteChrome() {
               <button
                 type="button"
                 ref={cartButtonRef}
-                onClick={() => setCartDrawerOpen(true)}
+                onClick={openCartDrawer}
                 className="wahaj-header__action wahaj-header__cart relative text-foreground/80 hover:text-(--gold) transition-colors p-1"
                 aria-label={`فتح السلة الجانبية (${cartCount})`}
                 title="السلة"
@@ -550,10 +590,10 @@ export default function SiteChrome() {
       )}
 
       {cartDrawerOpen && (
-        <div className="wahaj-cart-drawer-overlay" role="presentation" onMouseDown={() => setCartDrawerOpen(false)}>
+        <div className={`wahaj-cart-drawer-overlay${cartDrawerClosing ? ' is-closing' : ''}`} role="presentation" onMouseDown={closeCartDrawer}>
           <aside
             ref={cartPanelRef}
-            className="wahaj-cart-drawer"
+            className={`wahaj-cart-drawer${cartDrawerClosing ? ' is-closing' : ''}`}
             role="dialog"
             aria-modal="true"
             aria-labelledby="wahaj-cart-drawer-title"
@@ -569,7 +609,7 @@ export default function SiteChrome() {
               <button
                 type="button"
                 ref={cartCloseButtonRef}
-                onClick={() => setCartDrawerOpen(false)}
+                onClick={() => closeCartDrawer()}
                 aria-label="إغلاق السلة"
                 className="wahaj-cart-drawer__close"
               ><X size={19} /></button>
@@ -581,7 +621,7 @@ export default function SiteChrome() {
                   <span className="wahaj-cart-drawer__empty-icon"><ShoppingBag size={27} strokeWidth={1.6} /></span>
                   <h3>سلتكِ فارغة حاليًا</h3>
                   <p>ابدئي باكتشاف القطع التي اخترناها لكِ، وستجدينها هنا عند إضافتها.</p>
-                  <SiteLink href="/shop" onClick={() => setCartDrawerOpen(false)} className="wahaj-cart-drawer__shop-link">اكتشفي المتجر <ArrowLeft size={15} /></SiteLink>
+                  <SiteLink href="/shop" onClick={() => closeCartDrawer()} className="wahaj-cart-drawer__shop-link">اكتشفي المتجر <ArrowLeft size={15} /></SiteLink>
                 </div>
               ) : (
                 <>
@@ -627,8 +667,8 @@ export default function SiteChrome() {
               <footer className="wahaj-cart-drawer__footer">
                 <div className="wahaj-cart-drawer__subtotal"><span>الإجمالي المبدئي</span><strong>{drawerMoney(drawerSubtotal)}</strong></div>
                 <p className="wahaj-cart-drawer__note"><ShieldCheck size={14} /> يتم احتساب الشحن والسعر النهائي عند مراجعة الطلب</p>
-                <SiteLink href="/checkout" onClick={() => setCartDrawerOpen(false)} className="wahaj-cart-drawer__checkout">إتمام الطلب <ArrowLeft size={16} /></SiteLink>
-                <SiteLink href="/cart" onClick={() => setCartDrawerOpen(false)} className="wahaj-cart-drawer__review">مراجعة السلة كاملة</SiteLink>
+                <SiteLink href="/checkout" onClick={() => closeCartDrawer()} className="wahaj-cart-drawer__checkout">إتمام الطلب <ArrowLeft size={16} /></SiteLink>
+                <SiteLink href="/cart" onClick={() => closeCartDrawer()} className="wahaj-cart-drawer__review">مراجعة السلة كاملة</SiteLink>
               </footer>
             )}
           </aside>
@@ -669,7 +709,8 @@ export default function SiteChrome() {
       </a>
       <SearchDrawer
         open={searchDrawerOpen}
-        onClose={() => setSearchDrawerOpen(false)}
+        onClose={closeSearchDrawer}
+        closing={searchDrawerClosing}
         closeButtonRef={searchCloseButtonRef}
       />
       {!popupExcluded && <StorePopup enabled={settings.popup_enabled} config={settings.popup_config} visitKey={pathname || '/'} />}
