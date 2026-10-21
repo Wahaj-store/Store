@@ -3588,9 +3588,9 @@ a:focus-visible {
 
 
 /* ===== وَهَج — Mobile sidebar / accessible navigation drawer ===== */
-.wahaj-drawer-overlay { position:fixed; z-index:80; inset:0; overflow:hidden; background:rgba(20,15,13,.56); -webkit-backdrop-filter:blur(5px); backdrop-filter:blur(5px); direction:rtl; animation:wahaj-drawer-backdrop-in .22s ease both; }
+.wahaj-drawer-overlay { position:fixed; z-index:80; inset:0; overflow:hidden; background:rgba(20,15,13,.56); -webkit-backdrop-filter:blur(5px); backdrop-filter:blur(5px); direction:rtl; animation:wahaj-drawer-backdrop-in .32s ease both; transition:background .32s ease,backdrop-filter .32s ease; }
 .dark .wahaj-drawer-overlay { background:rgba(0,0,0,.66); }
-.wahaj-mobile-drawer { position:absolute; inset-block:0; inset-inline-start:0; display:flex; width:min(430px,88vw); max-width:100%; flex-direction:column; overflow:hidden; border-inline-start:1px solid color-mix(in srgb,var(--gold) 34%,var(--border)); background:linear-gradient(180deg,color-mix(in srgb,var(--gold) 8%,var(--background)) 0%,var(--background) 260px); color:var(--foreground); box-shadow:-22px 0 70px rgba(20,14,12,.25); font-family:var(--font-wahaj),'Tajawal',sans-serif; outline:0; animation:wahaj-drawer-panel-in .32s cubic-bezier(.2,.75,.25,1) both; }
+.wahaj-mobile-drawer { position:absolute; inset-block:0; inset-inline-start:0; display:flex; width:min(430px,88vw); max-width:100%; flex-direction:column; overflow:hidden; border-inline-start:1px solid color-mix(in srgb,var(--gold) 34%,var(--border)); background:linear-gradient(180deg,color-mix(in srgb,var(--gold) 8%,var(--background)) 0%,var(--background) 260px); color:var(--foreground); box-shadow:-22px 0 70px rgba(20,14,12,.25); font-family:var(--font-wahaj),'Tajawal',sans-serif; outline:0; transform:translateX(100%); animation:wahaj-drawer-panel-in .42s cubic-bezier(.22,.8,.25,1) both; will-change:transform; }
 .dark .wahaj-mobile-drawer { box-shadow:-22px 0 70px rgba(0,0,0,.45); }
 .wahaj-mobile-drawer__scroll { min-height:0; flex:1; overflow-y:auto; overscroll-behavior:contain; scrollbar-width:thin; scrollbar-color:color-mix(in srgb,var(--gold) 34%,var(--border)) transparent; }
 .wahaj-mobile-drawer__top { display:flex; min-height:83px; align-items:center; justify-content:space-between; gap:12px; margin-inline:21px; border-bottom:1px solid var(--border); }
@@ -3630,7 +3630,11 @@ a:focus-visible {
 .wahaj-mobile-drawer__footer-icon { display:grid; width:26px; height:26px; flex:0 0 26px; place-items:center; border-radius:8px; background:var(--gold-soft); color:var(--gold-muted); }
 .wahaj-mobile-drawer__copyright { margin:11px 0 0; color:var(--muted-foreground); font-size:8px; line-height:1.7; text-align:center; }
 @keyframes wahaj-drawer-backdrop-in { from { opacity:0; } to { opacity:1; } }
-@keyframes wahaj-drawer-panel-in { from { opacity:.85; transform:translateX(16px); } to { opacity:1; transform:translateX(0); } }
+@keyframes wahaj-drawer-panel-in { from { opacity:1; transform:translateX(100%); } to { opacity:1; transform:translateX(0); } }
+.wahaj-drawer-overlay.is-closing { animation:wahaj-drawer-backdrop-out .32s ease both; pointer-events:none; }
+.wahaj-mobile-drawer.is-closing { animation:wahaj-drawer-panel-out .42s cubic-bezier(.22,.8,.25,1) both; pointer-events:none; }
+@keyframes wahaj-drawer-backdrop-out { from { opacity:1; } to { opacity:0; } }
+@keyframes wahaj-drawer-panel-out { from { opacity:1; transform:translateX(0); } to { opacity:1; transform:translateX(100%); } }
 @media (max-width:380px) { .wahaj-mobile-drawer { width:min(390px,91vw); }.wahaj-mobile-drawer__top { min-height:75px; margin-inline:16px; }.wahaj-mobile-drawer__welcome { margin:14px 15px 15px; padding:15px; }.wahaj-mobile-drawer__nav { padding-inline:15px; }.wahaj-mobile-drawer__footer { padding-inline:15px; }.wahaj-mobile-drawer__link { min-height:49px; }.wahaj-mobile-drawer__link-icon { width:34px; height:34px; flex-basis:34px; } }
 @media (min-width:768px) { .wahaj-drawer-overlay { display:none; } }
 @media (prefers-reduced-motion:reduce) { .wahaj-drawer-overlay,.wahaj-mobile-drawer,.wahaj-mobile-drawer * { animation:none !important; transition:none !important; scroll-behavior:auto !important; } }
