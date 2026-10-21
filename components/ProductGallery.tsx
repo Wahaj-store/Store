@@ -64,9 +64,7 @@ export default function ProductGallery({
             </button>
           ))}
         </div>
-      ) : (
-        <p className="wahaj-product-gallery__caption">تفاصيل مختارة بعناية، كما تليق بكِ.</p>
-      )}
+      ) : null}
     </div>
   );
 }
