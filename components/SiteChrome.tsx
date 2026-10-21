@@ -41,6 +41,8 @@ export default function SiteChrome() {
   const { theme, resolvedTheme, setTheme } = useTheme();
 
   const [menu, setMenu] = useState(false);
+  const [menuClosing, setMenuClosing] = useState(false);
+  const menuCloseTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [cartCount, setCartCount] = useState(0);
   const [settings, setSettings] = useState<SettingMap>({});
   const [payments, setPayments] = useState<any[]>([]);
@@ -62,6 +64,27 @@ export default function SiteChrome() {
   const settingsLoadedRef = useRef(false);
   const settingsRequestRef = useRef(false);
   const themeIsDark = (resolvedTheme || theme) === 'dark';
+
+  const openMenu = () => {
+    if (menuCloseTimerRef.current) clearTimeout(menuCloseTimerRef.current);
+    menuCloseTimerRef.current = null;
+    setMenuClosing(false);
+    setMenu(true);
+  };
+
+  const closeMenu = () => {
+    if (!menu || menuClosing) return;
+    setMenuClosing(true);
+    menuCloseTimerRef.current = setTimeout(() => {
+      setMenu(false);
+      setMenuClosing(false);
+      menuCloseTimerRef.current = null;
+    }, 420);
+  };
+
+  useEffect(() => () => {
+    if (menuCloseTimerRef.current) clearTimeout(menuCloseTimerRef.current);
+  }, []);
 
   useEffect(() => {
     if (pathname?.startsWith('/admin')) {
@@ -113,7 +136,7 @@ export default function SiteChrome() {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
         event.preventDefault();
-        setMenu(false);
+        closeMenu();
         return;
       }
 
@@ -312,7 +335,7 @@ export default function SiteChrome() {
               type="button"
               ref={menuButtonRef}
               className="wahaj-header__menu md:hidden text-foreground hover:text-(--gold) transition-colors"
-              onClick={() => setMenu(true)}
+              onClick={openMenu}
               aria-label="فتح القائمة"
               aria-haspopup="dialog"
               aria-expanded={menu}
@@ -408,14 +431,14 @@ export default function SiteChrome() {
       {/* القائمة الجانبية للموبايل */}
       {menu && (
         <div
-          className="wahaj-drawer-overlay"
-          onMouseDown={() => setMenu(false)}
+          className={`wahaj-drawer-overlay${menuClosing ? ' is-closing' : ''}`}
+          onMouseDown={() => closeMenu()}
           role="presentation"
         >
           <aside
             id="wahaj-mobile-drawer"
             ref={menuPanelRef}
-            className="wahaj-mobile-drawer"
+            className={`wahaj-mobile-drawer${menuClosing ? ' is-closing' : ''}`}
             role="dialog"
             aria-modal="true"
             aria-label="قائمة التنقل الرئيسية"
@@ -424,7 +447,7 @@ export default function SiteChrome() {
           >
             <div className="wahaj-mobile-drawer__scroll">
               <div className="wahaj-mobile-drawer__top">
-                <SiteLink href="/" className="wahaj-mobile-drawer__brand" onClick={() => setMenu(false)} aria-label="وَهَج — الصفحة الرئيسية">
+                <SiteLink href="/" className="wahaj-mobile-drawer__brand" onClick={() => closeMenu()} aria-label="وَهَج — الصفحة الرئيسية">
                   <span className="wahaj-mobile-drawer__brand-mark"><ShoppingBag size={21} strokeWidth={1.7} /></span>
                   <span className="wahaj-mobile-drawer__brand-copy">
                     <b>{settings.brand_name || 'وَهَج'}</b>
@@ -434,7 +457,7 @@ export default function SiteChrome() {
                 <button
                   type="button"
                   ref={menuCloseButtonRef}
-                  onClick={() => setMenu(false)}
+                  onClick={() => closeMenu()}
                   aria-label="إغلاق القائمة"
                   className="wahaj-mobile-drawer__close"
                 >
@@ -446,7 +469,7 @@ export default function SiteChrome() {
                 <span className="wahaj-mobile-drawer__eyebrow">اكتشفي وَهَج</span>
                 <h2>كل ما تحبينه، أقرب إليكِ</h2>
                 <p>تصفّحي المتجر وتابعي طلباتك بسهولة.</p>
-                <SiteLink href="/shop" onClick={() => setMenu(false)} className="wahaj-mobile-drawer__shop-link">
+                <SiteLink href="/shop" onClick={() => closeMenu()} className="wahaj-mobile-drawer__shop-link">
                   اكتشفي المتجر <ArrowLeft size={14} />
                 </SiteLink>
               </div>
@@ -460,7 +483,7 @@ export default function SiteChrome() {
                       <SiteLink
                         key={`${item.href}-${item.label}-${index}`}
                         href={item.href}
-                        onClick={() => setMenu(false)}
+                        onClick={() => closeMenu()}
                         aria-current={active ? 'page' : undefined}
                         className={`wahaj-mobile-drawer__link${active ? ' is-active' : ''}`}
                       >
@@ -483,7 +506,7 @@ export default function SiteChrome() {
                           <SiteLink
                             key={item.href}
                             href={item.href}
-                            onClick={() => setMenu(false)}
+                            onClick={() => closeMenu()}
                             aria-current={active ? 'page' : undefined}
                             className={`wahaj-mobile-drawer__link${active ? ' is-active' : ''}`}
                           >
@@ -516,7 +539,7 @@ export default function SiteChrome() {
                   </span>
                   <span>{themeIsDark ? 'الوضع النهاري' : 'الوضع الليلي'}</span>
                 </button>
-                <SiteLink href="/contact" onClick={() => setMenu(false)} className="wahaj-mobile-drawer__support">
+                <SiteLink href="/contact" onClick={() => closeMenu()} className="wahaj-mobile-drawer__support">
                   <MessageCircle size={16} /> المساعدة
                 </SiteLink>
               </div>
