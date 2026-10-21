@@ -23,7 +23,7 @@ export default function ProductGallery({
 
   return (
     <div className="wahaj-product-gallery">
-      <div className="wahaj-product-gallery__stage">
+      <div className="wahaj-product-gallery__stage wahaj-gallery-enter">
         <span className="wahaj-product-gallery__wash" aria-hidden="true" />
         <Image
           key={activeImage.url}
@@ -32,7 +32,7 @@ export default function ProductGallery({
           fill
           priority={activeIndex === 0}
           sizes="(max-width: 800px) calc(100vw - 32px), 52vw"
-          className="wahaj-product-gallery__image"
+          className="wahaj-product-gallery__image wahaj-gallery-image-enter"
         />
         <span className="wahaj-product-gallery__label">اختيار وَهَج</span>
         {items.length > 1 ? (
@@ -51,7 +51,8 @@ export default function ProductGallery({
               role="tab"
               aria-selected={activeIndex === index}
               aria-label={`عرض الصورة ${index + 1} من ${items.length}`}
-              className={`wahaj-product-gallery__thumb ${activeIndex === index ? 'is-active' : ''}`}
+              className={`wahaj-product-gallery__thumb wahaj-gallery-thumb-enter ${activeIndex === index ? 'is-active' : ''}`}
+              style={{ '--wahaj-thumb-index': index } as React.CSSProperties}
               onClick={() => setActiveIndex(index)}
             >
               <Image
