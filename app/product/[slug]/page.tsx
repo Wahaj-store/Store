@@ -189,24 +189,24 @@ export default async function ProductPage(props: { params: Promise<{ slug: strin
           </div>
 
           <div className="wahaj-product-information">
-            <div className="wahaj-product-title-row">
-              <div className="wahaj-product-title-copy">
-                <h1 id="product-title">{product.name}</h1>
-              </div>
-              <div className="wahaj-product-wishlist" aria-label="حفظ المنتج في المفضلة">
-                <WishlistButton productId={product.id} />
-              </div>
-            </div>
-
-            <div className="wahaj-product-rating" aria-label={reviews.length ? `متوسط التقييمات المعروضة ${averageRating.toFixed(1)} من 5` : 'لا توجد تقييمات بعد'}>
-              <span className="wahaj-product-rating__stars" aria-hidden="true">
-                {'★'.repeat(Math.round(averageRating))}{'☆'.repeat(5 - Math.round(averageRating))}
-              </span>
-              <span>{reviews.length ? `${averageRating.toLocaleString('ar-EG', { maximumFractionDigits: 1 })} من 5` : 'لا توجد تقييمات بعد'}</span>
-              {reviews.length ? <a href="#product-reviews">({reviews.length.toLocaleString('ar-EG')} تقييمات معتمدة معروضة)</a> : null}
-            </div>
-
             <div className="wahaj-product-purchase-panel">
+              <div className="wahaj-product-panel-heading">
+                <div className="wahaj-product-title-row">
+                  <div className="wahaj-product-title-copy">
+                    <h1 id="product-title">{product.name}</h1>
+                    <div className="wahaj-product-rating" aria-label={reviews.length ? `متوسط التقييمات المعروضة ${averageRating.toFixed(1)} من 5` : 'لا توجد تقييمات بعد'}>
+                      <span className="wahaj-product-rating__stars" aria-hidden="true">
+                        {'★'.repeat(Math.round(averageRating))}{'☆'.repeat(5 - Math.round(averageRating))}
+                      </span>
+                      <span>{reviews.length ? `${averageRating.toLocaleString('ar-EG', { maximumFractionDigits: 1 })} من 5` : 'لا توجد تقييمات بعد'}</span>
+                      {reviews.length ? <a href="#product-reviews">({reviews.length.toLocaleString('ar-EG')} تقييمات معتمدة معروضة)</a> : null}
+                    </div>
+                  </div>
+                  <div className="wahaj-product-wishlist" aria-label="حفظ المنتج في المفضلة">
+                    <WishlistButton productId={product.id} />
+                  </div>
+                </div>
+              </div>
               <ProductPurchase product={{ ...product, price, images: product.images }} />
             </div>
 
