@@ -222,12 +222,6 @@ export default async function ProductPage(props: { params: Promise<{ slug: strin
               <ProductPurchase product={{ ...product, price, images: product.images }} />
             </div>
 
-            <div className="wahaj-product-assurances" aria-label="مميزات الطلب">
-              <div><Truck size={17} aria-hidden="true" /><span><b>توصيل آمن</b><small>لكل محافظات مصر</small></span></div>
-              <div><ShieldCheck size={17} aria-hidden="true" /><span><b>اختيار موثوق</b><small>تفاصيل واضحة قبل الطلب</small></span></div>
-              <Link href="/policies/shipping"><RotateCcw size={17} aria-hidden="true" /><span><b>استبدال سهل</b><small>راجعي سياسة الاستبدال</small></span></Link>
-            </div>
-
             {product.stock <= 0 ? <BackInStockForm productId={product.id} /> : null}
 
             <div className="wahaj-product-payments" aria-labelledby="product-payment-title">
@@ -288,8 +282,11 @@ export default async function ProductPage(props: { params: Promise<{ slug: strin
                 <summary><span>الوصف والتفاصيل</span><ChevronDown size={17} aria-hidden="true" /></summary>
                 <div className="wahaj-product-accordion__content">
                   <p className="wahaj-product-specs__description">{product.description || `قطعة ${product.name} مختارة بعناية لتضيف لمسة أنيقة إلى إطلالتك.`}</p>
-                  <dl className="wahaj-product-spec-list"><div><dt>الخامة</dt><dd>{product.material || 'مختارة بعناية فائقة'}</dd></div></dl>
                 </div>
+              </details>
+              <details className="wahaj-product-accordion">
+                <summary><span>الخامة</span><ChevronDown size={17} aria-hidden="true" /></summary>
+                <div className="wahaj-product-accordion__content"><p>{product.material || 'مختارة بعناية فائقة.'}</p></div>
               </details>
               <details className="wahaj-product-accordion">
                 <summary><span>العناية بالقطعة</span><ChevronDown size={17} aria-hidden="true" /></summary>
