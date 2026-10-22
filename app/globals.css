@@ -6366,7 +6366,7 @@ body:has(.wahaj-maintenance) .wahaj-footer { display:none !important; }
 /* Full-screen product image viewer, matching the reference recording. */
 .wahaj-gallery-lightbox {
   position: fixed;
-  z-index: 1200;
+  z-index: 2147483647;
   inset: 0;
   display: grid;
   grid-template-rows: 62px minmax(0, 1fr);
