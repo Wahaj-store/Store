@@ -2,6 +2,7 @@
 
 import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { X, ZoomIn, ZoomOut } from 'lucide-react';
 
 type ProductImage = {
@@ -221,7 +222,7 @@ export default function ProductGallery({
         </div>
       ) : null}
 
-      {lightboxOpen ? (
+      {lightboxOpen && typeof document !== 'undefined' ? createPortal((
         <div className="wahaj-gallery-lightbox" role="dialog" aria-modal="true" aria-label={`معرض صور ${productName}`}>
           <header className="wahaj-gallery-lightbox__toolbar" dir="ltr">
             <div className="wahaj-gallery-lightbox__tools">
@@ -275,7 +276,7 @@ export default function ProductGallery({
             />
           </div>
         </div>
-      ) : null}
+      ), document.body) : null}
     </div>
   );
 }
