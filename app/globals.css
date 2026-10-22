@@ -6361,3 +6361,91 @@ body:has(.wahaj-maintenance) .wahaj-footer { display:none !important; }
   .wahaj-product-gallery__image,
   .wahaj-product-gallery__stage.is-zoomed .wahaj-product-gallery__image { transition: none !important; }
 }
+
+
+/* Full-screen product image viewer, matching the reference recording. */
+.wahaj-gallery-lightbox {
+  position: fixed;
+  z-index: 1200;
+  inset: 0;
+  display: grid;
+  grid-template-rows: 62px minmax(0, 1fr);
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+  background: #fff;
+  color: #171513;
+  animation: wahaj-gallery-lightbox-in .22s ease-out both;
+}
+.wahaj-gallery-lightbox__toolbar {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 62px;
+  padding: 0 18px;
+  border-bottom: 1px solid rgba(23, 21, 19, .08);
+  background: #fff;
+}
+.wahaj-gallery-lightbox__tools { display: flex; align-items: center; gap: 9px; }
+.wahaj-gallery-lightbox__tools button {
+  display: grid;
+  width: 42px;
+  height: 42px;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: #171513;
+  cursor: pointer;
+  transition: background-color .18s ease, transform .18s ease;
+}
+.wahaj-gallery-lightbox__tools button:hover { background: rgba(23, 21, 19, .07); transform: scale(1.04); }
+.wahaj-gallery-lightbox__tools button:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+.wahaj-gallery-lightbox__counter {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: rgba(23, 21, 19, .06);
+  color: #171513;
+  font-family: var(--font-wahaj), 'Tajawal', sans-serif;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  direction: ltr;
+  unicode-bidi: isolate;
+}
+.wahaj-gallery-lightbox__viewport {
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  background: #fff;
+  touch-action: none;
+  cursor: zoom-in;
+}
+.wahaj-gallery-lightbox__viewport.is-zoomed { cursor: grab; }
+.wahaj-gallery-lightbox__viewport.is-zoomed:active { cursor: grabbing; }
+.wahaj-gallery-lightbox__image {
+  object-fit: contain;
+  padding: 20px;
+  user-select: none;
+  -webkit-user-drag: none;
+  transition: transform .24s cubic-bezier(.2,.7,.2,1);
+  will-change: transform;
+}
+@keyframes wahaj-gallery-lightbox-in { from { opacity: 0; } to { opacity: 1; } }
+@media (max-width: 600px) {
+  .wahaj-gallery-lightbox { grid-template-rows: 56px minmax(0, 1fr); }
+  .wahaj-gallery-lightbox__toolbar { min-height: 56px; padding-inline: 11px; }
+  .wahaj-gallery-lightbox__tools button { width: 40px; height: 40px; }
+  .wahaj-gallery-lightbox__image { padding: 10px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .wahaj-gallery-lightbox { animation: none; }
+  .wahaj-gallery-lightbox__tools button,
+  .wahaj-gallery-lightbox__image { transition: none; }
+}
