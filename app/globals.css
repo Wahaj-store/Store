@@ -6454,3 +6454,14 @@ body:has(.wahaj-maintenance) .wahaj-footer { display:none !important; }
 /* Subtler corner rounding for gallery images. */
 .wahaj-product-gallery__stage { border-radius: 12px !important; }
 .wahaj-product-gallery__thumb { border-radius: 8px !important; }
+
+
+/* Keep the complete story-card image visible without cropping or hover zoom. */
+.wahaj-storefront .wahaj-story__visual img {
+  object-fit: contain !important;
+  object-position: center;
+  transform: none !important;
+}
+.wahaj-storefront .wahaj-story__card:hover .wahaj-story__visual img {
+  transform: none !important;
+}
