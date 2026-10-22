@@ -6314,3 +6314,50 @@ body:has(.wahaj-maintenance) .wahaj-footer { display:none !important; }
 @media (prefers-reduced-motion:reduce) {
   .wahaj-cart-drawer-overlay.is-closing,.wahaj-cart-drawer.is-closing { animation:none !important; }
 }
+
+
+/* Product gallery: edge-to-edge imagery with pointer-following detail zoom. */
+.wahaj-product-gallery__stage { cursor: zoom-in; }
+.wahaj-product-gallery__image {
+  padding: 0 !important;
+  object-fit: cover !important;
+  transform: scale(1) !important;
+  transform-origin: var(--wahaj-zoom-x, 50%) var(--wahaj-zoom-y, 50%) !important;
+  filter: none !important;
+  transition: transform .18s ease-out, opacity .28s ease !important;
+}
+.wahaj-product-gallery__stage:hover .wahaj-product-gallery__image { transform: scale(1) !important; filter: none !important; }
+@media (hover: hover) and (pointer: fine) {
+  .wahaj-product-gallery__stage.is-zoomed { cursor: zoom-out; }
+  .wahaj-product-gallery__stage.is-zoomed .wahaj-product-gallery__image { transform: scale(2.35) !important; }
+}
+
+
+/* Refined gallery motion: soft image swaps and a quiet staggered thumbnail reveal. */
+.wahaj-product-gallery__image {
+  transition: transform .24s cubic-bezier(.2,.7,.2,1), opacity .28s ease !important;
+}
+.wahaj-product-gallery__stage.is-zoomed .wahaj-product-gallery__image {
+  transition: transform .28s cubic-bezier(.2,.7,.2,1), opacity .28s ease !important;
+}
+.wahaj-gallery-image-enter { animation: wahaj-gallery-image-reveal .3s ease both; }
+.wahaj-gallery-thumb-enter {
+  --wahaj-thumb-rest-opacity: .72;
+  animation: wahaj-gallery-thumb-reveal .38s cubic-bezier(.2,.7,.2,1) both;
+  animation-delay: calc(var(--wahaj-thumb-index, 0) * 65ms);
+}
+.wahaj-product-gallery__thumb.is-active { --wahaj-thumb-rest-opacity: 1; }
+@keyframes wahaj-gallery-image-reveal {
+  from { opacity: .35; }
+  to { opacity: 1; }
+}
+@keyframes wahaj-gallery-thumb-reveal {
+  from { opacity: 0; translate: 0 9px; }
+  to { opacity: var(--wahaj-thumb-rest-opacity, .72); translate: 0 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .wahaj-gallery-image-enter,
+  .wahaj-gallery-thumb-enter { animation: none !important; }
+  .wahaj-product-gallery__image,
+  .wahaj-product-gallery__stage.is-zoomed .wahaj-product-gallery__image { transition: none !important; }
+}
