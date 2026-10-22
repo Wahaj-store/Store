@@ -6449,3 +6449,8 @@ body:has(.wahaj-maintenance) .wahaj-footer { display:none !important; }
   .wahaj-gallery-lightbox__tools button,
   .wahaj-gallery-lightbox__image { transition: none; }
 }
+
+
+/* Subtler corner rounding for gallery images. */
+.wahaj-product-gallery__stage { border-radius: 12px !important; }
+.wahaj-product-gallery__thumb { border-radius: 8px !important; }
