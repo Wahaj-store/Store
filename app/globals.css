@@ -6465,3 +6465,11 @@ body:has(.wahaj-maintenance) .wahaj-footer { display:none !important; }
 .wahaj-storefront .wahaj-story__card:hover .wahaj-story__visual img {
   transform: none !important;
 }
+
+
+/* Match the story image frame to the source image's own aspect ratio. */
+.wahaj-storefront .wahaj-story__visual {
+  aspect-ratio: var(--wahaj-story-image-ratio, 1 / 1) !important;
+  min-height: 0 !important;
+  height: auto;
+}
