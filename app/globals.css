@@ -6488,3 +6488,45 @@ body:has(.wahaj-maintenance) .wahaj-footer { display:none !important; }
 .wahaj-storefront .wahaj-story__content {
   min-width: 0;
 }
+
+
+/* Balanced desktop story card: compact two-column layout, source-ratio image. */
+@media (min-width: 801px) {
+  .wahaj-storefront .wahaj-story__card {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+    align-items: start;
+    max-width: 980px;
+    margin-inline: auto;
+  }
+  .wahaj-storefront .wahaj-story__visual {
+    align-self: start;
+    width: 100%;
+    aspect-ratio: var(--wahaj-story-image-ratio, 1 / 1) !important;
+    min-height: 0 !important;
+    height: auto;
+  }
+  .wahaj-storefront .wahaj-story__content {
+    justify-content: center;
+    gap: 0;
+    padding: clamp(20px, 3vw, 34px);
+  }
+  .wahaj-storefront .wahaj-story__content h2 {
+    margin-block: 10px 11px;
+    font-size: clamp(24px, 2.5vw, 34px);
+    line-height: 1.25;
+  }
+  .wahaj-storefront .wahaj-story__content > p {
+    font-size: 11px;
+    line-height: 1.8;
+  }
+  .wahaj-storefront .wahaj-story__values {
+    gap: 8px 12px;
+    margin-top: 14px;
+    font-size: 9px;
+  }
+  .wahaj-storefront .wahaj-story__link {
+    min-height: 38px;
+    margin-top: 16px;
+    padding: 8px 11px;
+  }
+}
