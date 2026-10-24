@@ -45,7 +45,7 @@ export type ShopProduct = {
   bestSeller: boolean;
   images: { url: string; alt: string | null }[];
   category: { name: string };
-  variants: { id: string; stock: number }[];
+  variants: { id: string; name: string; value: string; stock: number; price: number | null; imageUrl: string | null }[];
 };
 
 function productWhere(filters: ShopWhereFilters): Prisma.ProductWhereInput {
@@ -158,9 +158,13 @@ const readShopProducts = unstable_cache(
       ...product,
       price: Number(product.price),
       comparePrice: product.comparePrice === null ? null : Number(product.comparePrice),
+      variants: product.variants.map((variant) => ({
+        ...variant,
+        price: variant.price === null ? null : Number(variant.price),
+      })),
     }));
   },
-  ['shop-product-page-v2'],
+  ['shop-product-page-v3'],
   { revalidate: SHOP_RESULTS_REVALIDATE_SECONDS, tags: [SHOP_PRODUCTS_CACHE_TAG] },
 );
 
