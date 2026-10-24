@@ -79,7 +79,7 @@ export default function AddToCart({
     window.dispatchEvent(new Event('storage'));
 
     setDone(true);
-    window.setTimeout(() => setDone(false), 1400);
+    window.setTimeout(() => setDone(false), 2000);
     return true;
   }
 
