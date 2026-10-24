@@ -96,7 +96,10 @@ export default async function ProductPage(props: { params: Promise<{ slug: strin
               include: {
                 images: { orderBy: { sortOrder: 'asc' }, take: 1 },
                 category: true,
-                variants: { select: { id: true }, take: 1 },
+                variants: {
+                  select: { id: true, name: true, value: true, stock: true, price: true, imageUrl: true },
+                  orderBy: { stock: 'desc' },
+                },
               },
             },
           },
