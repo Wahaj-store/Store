@@ -6,7 +6,6 @@ type AddToCartButtonContentProps = {
 };
 
 export default function AddToCartButtonContent({
-  done,
   idleLabel,
   iconMode = 'bag',
 }: AddToCartButtonContentProps) {
