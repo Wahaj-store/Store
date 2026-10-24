@@ -6688,3 +6688,213 @@ body:has(.wahaj-maintenance) .wahaj-footer { display:none !important; }
     transition: none !important;
   }
 }
+
+/* وَهَج product-variant picker — responsive, theme-aware selection dialog. */
+.wahaj-variant-picker__backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 20000;
+  display: grid;
+  place-items: center;
+  padding: 18px;
+  background: rgba(18, 14, 12, .62);
+  -webkit-backdrop-filter: blur(5px);
+  backdrop-filter: blur(5px);
+  animation: wahaj-variant-backdrop-in .18s ease both;
+}
+.wahaj-variant-picker {
+  width: min(100%, 520px);
+  max-height: min(88vh, 760px);
+  max-height: min(88dvh, 760px);
+  overflow: auto;
+  padding: clamp(18px, 4vw, 28px);
+  border: 1px solid var(--border-strong);
+  border-radius: 18px 4px 18px 18px;
+  background: var(--card);
+  color: var(--foreground);
+  box-shadow: 0 24px 80px rgba(0, 0, 0, .3);
+  font-family: var(--font-wahaj), 'Tajawal', sans-serif;
+  animation: wahaj-variant-dialog-in .22s cubic-bezier(.2,.7,.2,1) both;
+}
+.wahaj-variant-picker__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid var(--border);
+}
+.wahaj-variant-picker__eyebrow {
+  color: var(--gold-muted);
+  font-size: .75rem;
+  font-weight: 700;
+}
+.wahaj-variant-picker__header h2 {
+  margin: 5px 0 0;
+  color: var(--foreground);
+  font-size: clamp(1.05rem, 4vw, 1.35rem);
+  line-height: 1.45;
+}
+.wahaj-variant-picker__close {
+  display: grid;
+  width: 38px;
+  height: 38px;
+  flex: 0 0 auto;
+  place-items: center;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  background: var(--surface);
+  color: var(--foreground);
+  transition: color .18s ease, border-color .18s ease, background .18s ease;
+}
+.wahaj-variant-picker__close:hover { border-color: var(--gold); color: var(--gold-muted); }
+.wahaj-variant-picker__product {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  margin-block: 16px;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--surface) 62%, var(--card));
+}
+.wahaj-variant-picker__image,
+.wahaj-variant-picker__option-image {
+  position: relative;
+  flex: 0 0 auto;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--background);
+}
+.wahaj-variant-picker__image { width: 58px; height: 58px; }
+.wahaj-variant-picker__image img,
+.wahaj-variant-picker__option-image img { object-fit: cover; }
+.wahaj-variant-picker__product-copy { display: grid; gap: 5px; min-width: 0; }
+.wahaj-variant-picker__product-copy strong {
+  overflow: hidden;
+  color: var(--foreground);
+  font-size: .95rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.wahaj-variant-picker__price { color: var(--gold-muted); font-size: 1rem; font-weight: 800; }
+.wahaj-variant-picker__price small { font-size: .72em; font-weight: 600; }
+.wahaj-variant-picker__fieldset { min-width: 0; margin: 0; padding: 0; border: 0; }
+.wahaj-variant-picker__fieldset legend { margin-bottom: 10px; color: var(--foreground); font-size: .9rem; font-weight: 700; }
+.wahaj-variant-picker__options { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px; }
+.wahaj-variant-picker__option {
+  position: relative;
+  display: flex;
+  min-width: 0;
+  min-height: 68px;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--card);
+  color: var(--foreground);
+  text-align: start;
+  transition: border-color .18s ease, background .18s ease, box-shadow .18s ease, transform .18s ease;
+}
+.wahaj-variant-picker__option:hover:not(:disabled) { border-color: color-mix(in srgb, var(--gold) 65%, var(--border)); transform: translateY(-1px); }
+.wahaj-variant-picker__option.is-selected {
+  border-color: var(--gold);
+  background: color-mix(in srgb, var(--gold) 10%, var(--card));
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--gold) 18%, transparent);
+}
+.wahaj-variant-picker__option:disabled { cursor: not-allowed; opacity: .52; }
+.wahaj-variant-picker__option-image { width: 42px; height: 42px; }
+.wahaj-variant-picker__option-copy { display: grid; min-width: 0; gap: 2px; }
+.wahaj-variant-picker__option-copy small { color: var(--muted-foreground); font-size: .7rem; }
+.wahaj-variant-picker__option-copy strong { overflow-wrap: anywhere; color: var(--foreground); font-size: .88rem; }
+.wahaj-variant-picker__option-state {
+  display: grid;
+  width: 20px;
+  height: 20px;
+  flex: 0 0 auto;
+  place-items: center;
+  margin-inline-start: auto;
+  border: 1px solid var(--border-strong);
+  border-radius: 50%;
+  color: var(--gold-contrast);
+}
+.wahaj-variant-picker__option.is-selected .wahaj-variant-picker__option-state { border-color: var(--gold); background: var(--gold); }
+.wahaj-variant-picker__unavailable { position: absolute; inset-block-start: 5px; inset-inline-end: 7px; color: var(--danger); font-size: .63rem; font-weight: 700; }
+.wahaj-variant-picker__stock,
+.wahaj-variant-picker__hint { margin: 12px 0 0; color: var(--muted-foreground); font-size: .78rem; line-height: 1.6; }
+.wahaj-variant-picker__stock.is-low { color: var(--warning); }
+.wahaj-variant-picker__footer { display: grid; grid-template-columns: 112px minmax(0, 1fr); gap: 10px; margin-top: 17px; }
+.wahaj-variant-picker__quantity {
+  display: flex;
+  min-height: 58px;
+  align-items: center;
+  justify-content: space-around;
+  border: 1px solid var(--border);
+  border-radius: 22px;
+  background: var(--card);
+}
+.wahaj-variant-picker__quantity button {
+  display: grid;
+  width: 34px;
+  height: 38px;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--foreground);
+}
+.wahaj-variant-picker__quantity button:disabled { cursor: not-allowed; color: var(--muted-foreground); opacity: .5; }
+.wahaj-variant-picker__quantity output { min-width: 20px; color: var(--foreground); font-weight: 700; text-align: center; }
+.wahaj-variant-picker__add {
+  display: inline-flex;
+  min-height: 58px;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  padding: 9px 18px;
+  border: 1px solid var(--gold);
+  border-radius: 22px;
+  background: var(--gold);
+  color: var(--gold-contrast);
+  box-shadow: 0 10px 28px color-mix(in srgb, var(--gold) 20%, transparent);
+  font: inherit;
+  font-size: .9rem;
+  font-weight: 700;
+  transition: transform .2s ease, box-shadow .2s ease, opacity .2s ease;
+}
+.wahaj-variant-picker__add:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 14px 34px color-mix(in srgb, var(--gold) 28%, transparent); }
+.wahaj-variant-picker__add:active:not(:disabled) { transform: translateY(0); }
+.wahaj-variant-picker__add:disabled { cursor: not-allowed; opacity: .5; box-shadow: none; }
+.wahaj-variant-picker__add:focus-visible,
+.wahaj-variant-picker__close:focus-visible,
+.wahaj-variant-picker__option:focus-visible,
+.wahaj-variant-picker__quantity button:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+}
+@keyframes wahaj-variant-backdrop-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes wahaj-variant-dialog-in { from { opacity: 0; transform: translateY(12px) scale(.985); } to { opacity: 1; transform: translateY(0) scale(1); } }
+@media (max-width: 520px) {
+  .wahaj-variant-picker__backdrop { align-items: end; padding: 10px; }
+  .wahaj-variant-picker { width: 100%; max-height: min(84vh, 720px); max-height: min(84dvh, 720px); padding: 17px; border-radius: 18px 18px 8px 8px; }
+  .wahaj-variant-picker__options { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px; }
+  .wahaj-variant-picker__option { min-height: 62px; gap: 7px; padding: 8px; }
+  .wahaj-variant-picker__option-state { width: 18px; height: 18px; }
+  .wahaj-variant-picker__footer { grid-template-columns: 96px minmax(0, 1fr); gap: 8px; }
+  .wahaj-variant-picker__quantity,
+  .wahaj-variant-picker__add { min-height: 54px; }
+  .wahaj-variant-picker__add { gap: 6px; padding-inline: 10px; font-size: .82rem; }
+}
+@media (max-width: 360px) {
+  .wahaj-variant-picker__footer { grid-template-columns: 1fr; }
+  .wahaj-variant-picker__quantity { justify-content: center; gap: 14px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .wahaj-variant-picker__backdrop,
+  .wahaj-variant-picker,
+  .wahaj-variant-picker__option,
+  .wahaj-variant-picker__add,
+  .wahaj-variant-picker__close { animation: none !important; transition: none !important; }
+}
