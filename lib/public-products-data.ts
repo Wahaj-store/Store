@@ -30,10 +30,14 @@ const readPublicProductsPage = unstable_cache(
         ...product,
         price: Number(product.price),
         comparePrice: product.comparePrice === null ? null : Number(product.comparePrice),
+        variants: product.variants.map((variant) => ({
+          ...variant,
+          price: variant.price === null ? null : Number(variant.price),
+        })),
       })),
     };
   },
-  ['public-products-api-page-v1'],
+  ['public-products-api-page-v2'],
   { revalidate: SHOP_RESULTS_REVALIDATE_SECONDS, tags: [SHOP_PRODUCTS_CACHE_TAG] },
 );
 
