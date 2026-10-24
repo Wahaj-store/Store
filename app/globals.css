@@ -7011,3 +7011,10 @@ body:has(.wahaj-maintenance) .wahaj-footer { display:none !important; }
     transform: none;
   }
 }
+
+
+/* Reference pill silhouette, using the existing وَهَج button palette and sizing. */
+.wahaj-add-to-cart,
+.wahaj-variant-picker__add {
+  border-radius: 999px !important;
+}
