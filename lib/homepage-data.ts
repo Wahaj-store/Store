@@ -43,7 +43,10 @@ const readHomepageData = unstable_cache(
             take: 1,
           },
           category: { select: { name: true } },
-          variants: { select: { id: true }, take: 1 },
+          variants: {
+            select: { id: true, name: true, value: true, stock: true, price: true, imageUrl: true },
+            orderBy: { stock: 'desc' },
+          },
         },
         orderBy: { createdAt: 'desc' },
         take: 12,
@@ -87,6 +90,10 @@ const readHomepageData = unstable_cache(
         ...product,
         price: Number(product.price),
         comparePrice: product.comparePrice === null ? null : Number(product.comparePrice),
+        variants: product.variants.map((variant) => ({
+          ...variant,
+          price: variant.price === null ? null : Number(variant.price),
+        })),
       })),
       categories,
       settings: toPublicSettings(settings),
@@ -107,7 +114,7 @@ const readHomepageData = unstable_cache(
       })),
     };
   },
-  ['wahaj-homepage-data-v1'],
+  ['wahaj-homepage-data-v2'],
   { revalidate: 15, tags: [HOMEPAGE_DATA_CACHE_TAG] },
 );
 
