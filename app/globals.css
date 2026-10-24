@@ -6530,3 +6530,47 @@ body:has(.wahaj-maintenance) .wahaj-footer { display:none !important; }
     padding: 8px 11px;
   }
 }
+
+/* Compact hero copy and CTA; anchor the mobile copy near the hero's lower edge. */
+.wahaj-editorial-hero__eyebrow {
+  margin-bottom: 12px;
+}
+.wahaj-editorial-hero__content p {
+  margin-top: 12px;
+}
+.wahaj-editorial-hero__cta {
+  min-height: 42px;
+  margin-top: 20px;
+  padding: 9px 22px;
+  font-size: .88rem;
+}
+@media (max-width: 700px) {
+  .wahaj-editorial-hero__content {
+    justify-content: flex-end;
+    padding: 12px 0 14px;
+  }
+  .wahaj-editorial-hero__eyebrow {
+    margin-bottom: 7px;
+    font-size: .7rem;
+  }
+  .wahaj-editorial-hero__content h1 {
+    font-size: clamp(1.2rem, 5.5vw, 1.75rem);
+    line-height: 1.2;
+  }
+  .wahaj-editorial-hero__content p {
+    margin-top: 7px;
+    font-size: .78rem;
+    line-height: 1.55;
+  }
+  .wahaj-editorial-hero__cta {
+    min-height: 34px;
+    margin-top: 9px;
+    padding: 6px 15px;
+    gap: 7px;
+    font-size: .8rem;
+  }
+  .wahaj-editorial-hero__cta svg {
+    width: 15px;
+    height: 15px;
+  }
+}
