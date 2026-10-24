@@ -6574,3 +6574,52 @@ body:has(.wahaj-maintenance) .wahaj-footer { display:none !important; }
     height: 15px;
   }
 }
+
+
+/* Final hero refinement: tighter mobile copy, smaller branded CTA, lower placement. */
+@media (max-width: 700px) {
+  .wahaj-editorial-hero__content {
+    padding: 8px 0 4px;
+  }
+  .wahaj-editorial-hero__eyebrow {
+    margin-bottom: 4px;
+  }
+  .wahaj-editorial-hero__content p {
+    margin-top: 4px;
+    line-height: 1.4;
+  }
+  .wahaj-editorial-hero__cta {
+    min-height: 30px;
+    margin-top: 6px;
+    padding: 4px 12px;
+    gap: 6px;
+    border-radius: 6px;
+    box-shadow: 0 4px 12px rgba(25, 18, 10, .22);
+    transition: transform .2s ease, box-shadow .2s ease, filter .2s ease, background-color .2s ease;
+  }
+  .wahaj-editorial-hero__cta:hover {
+    transform: translateY(-2px);
+    filter: brightness(1.06);
+    box-shadow: 0 7px 18px rgba(25, 18, 10, .3);
+  }
+  .wahaj-editorial-hero__cta:active {
+    transform: translateY(0) scale(.97);
+    filter: brightness(.97);
+  }
+  .wahaj-editorial-hero__cta:focus-visible {
+    outline: 2px solid #fff;
+    outline-offset: 3px;
+  }
+  .wahaj-editorial-hero__cta svg {
+    transition: transform .2s ease;
+  }
+  .wahaj-editorial-hero__cta:hover svg {
+    transform: translateX(-3px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .wahaj-editorial-hero__cta,
+  .wahaj-editorial-hero__cta svg {
+    transition: none !important;
+  }
+}
