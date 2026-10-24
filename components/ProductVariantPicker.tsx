@@ -37,7 +37,7 @@ export default function ProductVariantPicker({ product, onClose, onConfirm }: Pr
     if (!selected || selectedStock < 1 || added) return;
     if (onConfirm(selected.id, quantity)) {
       setAdded(true);
-      closeTimerRef.current = window.setTimeout(onClose, 850);
+      closeTimerRef.current = window.setTimeout(onClose, 1650);
     }
   }
 
