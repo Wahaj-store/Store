@@ -1,8 +1,8 @@
 'use client';
 
-import { useState } from 'react';
-import Link from 'next/link';
-import { Check, ShoppingBag } from 'lucide-react';
+import { useCallback, useRef, useState } from 'react';
+import { Check, ShoppingBag, SlidersHorizontal } from 'lucide-react';
+import ProductVariantPicker from './ProductVariantPicker';
 
 type AddToCartProps = {
   product: any;
@@ -16,36 +16,50 @@ export default function AddToCart({
   variant = 'card',
 }: AddToCartProps) {
   const [done, setDone] = useState(false);
+  const [pickerOpen, setPickerOpen] = useState(false);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const variants = Array.isArray(product?.variants) ? product.variants : [];
+  const hasVariants = variants.length > 0;
+  const pickerUnavailable = hasVariants && !variants.some((item: any) => Number(item.stock) > 0);
 
-  function add() {
-    if (product.variants?.length && !variantId) return;
+  function add(targetVariantId?: string, quantityOverride?: number): boolean {
+    const resolvedVariantId = variantId || targetVariantId;
+    if (hasVariants && !resolvedVariantId) return false;
 
-    const selectedVariant = variantId
-      ? product.variants?.find((x: any) => x.id === variantId)
+    const selectedVariant = resolvedVariantId
+      ? variants.find((item: any) => item.id === resolvedVariantId)
       : null;
-    const available = selectedVariant ? selectedVariant.stock : product.stock;
+    if (resolvedVariantId && !selectedVariant) return false;
 
-    if (!available) return;
+    const available = Math.max(0, Number(selectedVariant ? selectedVariant.stock : product.stock) || 0);
+    if (available <= 0) return false;
 
-    const selectedQty = Number(product.selectedQuantity) || 1;
-    const price =
-      selectedVariant?.price != null
-        ? Number(selectedVariant.price)
-        : Number(product.price);
-    const cart = JSON.parse(localStorage.getItem('wahaj_cart') || '[]');
-    const key = selectedVariant
-      ? `${product.id}:${selectedVariant.id}`
-      : product.id;
+    const requestedQuantity = Number(quantityOverride ?? product.selectedQuantity) || 1;
+    const selectedQty = Math.max(1, Math.floor(requestedQuantity));
+    const price = selectedVariant?.price != null
+      ? Number(selectedVariant.price)
+      : Number(product.price);
 
-    const i = cart.findIndex(
-      (x: any) => `${x.productId}:${x.variantId || ''}` === key,
+    let cart: any[];
+    try {
+      const stored = JSON.parse(localStorage.getItem('wahaj_cart') || '[]');
+      cart = Array.isArray(stored) ? stored : [];
+    } catch {
+      cart = [];
+    }
+
+    const key = `${product.id}:${selectedVariant?.id || ''}`;
+    const index = cart.findIndex(
+      (item: any) => `${item.productId}:${item.variantId || ''}` === key,
     );
 
-    if (i >= 0) {
-      cart[i].quantity = Math.min(
-        cart[i].quantity + selectedQty,
+    if (index >= 0) {
+      cart[index].quantity = Math.min(
+        (Number(cart[index].quantity) || 0) + selectedQty,
         available,
       );
+      cart[index].maxStock = available;
+      cart[index].price = price;
     } else {
       cart.push({
         productId: product.id,
@@ -54,9 +68,8 @@ export default function AddToCart({
         variantValue: selectedVariant?.value,
         name: product.name,
         price,
-        image:
-          selectedVariant?.imageUrl || product.images?.[0]?.url || '',
-        quantity: selectedQty,
+        image: selectedVariant?.imageUrl || product.images?.[0]?.url || '',
+        quantity: Math.min(selectedQty, available),
         maxStock: available,
       });
     }
@@ -66,30 +79,52 @@ export default function AddToCart({
     window.dispatchEvent(new Event('storage'));
 
     setDone(true);
-    setTimeout(() => setDone(false), 1400);
+    window.setTimeout(() => setDone(false), 1400);
+    return true;
   }
 
-  const disabled = product.variants?.length
-    ? !variantId ||
-      !(product.variants?.find((x: any) => x.id === variantId)?.stock)
-    : !product.stock;
-
+  const selectedVariant = variantId
+    ? variants.find((item: any) => item.id === variantId)
+    : null;
+  const disabled = hasVariants
+    ? !variantId || !(selectedVariant?.stock)
+    : !(Number(product.stock) > 0);
   const isDetail = variant === 'detail';
 
-  if (variant === 'card' && product.variants?.length && !variantId) {
+  const closePicker = useCallback(() => {
+    setPickerOpen(false);
+    window.requestAnimationFrame(() => triggerRef.current?.focus());
+  }, []);
+
+  if (variant === 'card' && hasVariants && !variantId) {
     return (
-      <Link
-        href={`/product/${product.slug}`}
-        prefetch={false}
-        aria-label={`اختاري خيارات ${product.name}`}
-        className="group relative flex min-h-[58px] w-full items-center justify-center overflow-hidden rounded-[22px] border border-(--gold) bg-(--gold) px-5 text-sm font-bold text-(--gold-contrast) shadow-[0_10px_28px_color-mix(in_srgb,var(--gold)_20%,transparent)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_14px_34px_color-mix(in_srgb,var(--gold)_28%,transparent)] focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-(--gold) focus-visible:ring-offset-2 md:min-h-[62px] md:text-base"
-      >
-        <span aria-hidden="true" className="absolute inset-0 -translate-x-full bg-white/15 transition-transform duration-700 group-hover:translate-x-full" />
-        <span className="relative z-10 inline-flex items-center justify-center gap-2.5">
-          <ShoppingBag size={20} strokeWidth={2.1} aria-hidden="true" />
-          <span>اختاري الخيار</span>
-        </span>
-      </Link>
+      <>
+        <button
+          ref={triggerRef}
+          type="button"
+          disabled={pickerUnavailable}
+          onClick={() => setPickerOpen(true)}
+          aria-haspopup="dialog"
+          aria-live="polite"
+          aria-label={`اختاري خيارات ${product.name}`}
+          className="group relative flex min-h-[58px] w-full items-center justify-center overflow-hidden rounded-[22px] border border-(--gold) bg-(--gold) px-5 text-sm font-bold text-(--gold-contrast) shadow-[0_10px_28px_color-mix(in_srgb,var(--gold)_20%,transparent)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_14px_34px_color-mix(in_srgb,var(--gold)_28%,transparent)] focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-(--gold) focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-55 md:min-h-[62px] md:text-base"
+        >
+          <span aria-hidden="true" className="absolute inset-0 -translate-x-full bg-white/15 transition-transform duration-700 group-hover:translate-x-full" />
+          <span className="relative z-10 inline-flex items-center justify-center gap-2.5">
+            {done ? <Check size={19} strokeWidth={2.4} aria-hidden="true" /> : <SlidersHorizontal size={19} strokeWidth={2.1} aria-hidden="true" />}
+            <span>{done ? 'تمت الإضافة بنجاح' : pickerUnavailable ? 'نفد الخيار' : 'اختاري الخيارات'}</span>
+          </span>
+        </button>
+        {pickerOpen ? (
+          <ProductVariantPicker
+            product={product}
+            onClose={closePicker}
+            onConfirm={(selectedId, quantity) => {
+              if (add(selectedId, quantity)) closePicker();
+            }}
+          />
+        ) : null}
+      </>
     );
   }
 
@@ -97,7 +132,7 @@ export default function AddToCart({
     <button
       type="button"
       disabled={disabled}
-      onClick={add}
+      onClick={() => add()}
       aria-live="polite"
       data-cart-state={done ? 'done' : disabled ? 'disabled' : 'idle'}
       className={[
@@ -115,12 +150,12 @@ export default function AddToCart({
             : 'border border-(--gold) bg-(--gold) text-(--gold-contrast) shadow-[0_10px_28px_color-mix(in_srgb,var(--gold)_20%,transparent)] hover:-translate-y-0.5 hover:shadow-[0_14px_34px_color-mix(in_srgb,var(--gold)_28%,transparent)] active:translate-y-0',
       ].join(' ')}
     >
-      {!disabled && !done && (
+      {!disabled && !done ? (
         <span
           aria-hidden="true"
           className="absolute inset-0 -translate-x-full bg-white/15 transition-transform duration-700 group-hover:translate-x-full"
         />
-      )}
+      ) : null}
 
       <span className="relative z-10 inline-flex items-center justify-center gap-2.5">
         {done ? (
@@ -128,14 +163,7 @@ export default function AddToCart({
         ) : (
           <ShoppingBag size={20} strokeWidth={2.1} aria-hidden="true" />
         )}
-
-        <span>
-          {done
-            ? 'تمت الإضافة بنجاح'
-            : product.variants?.length && !variantId
-              ? 'اختاري الخيار أولاً'
-              : 'أضيفي إلى السلة'}
-        </span>
+        <span>{done ? 'تمت الإضافة بنجاح' : 'أضيفي إلى السلة'}</span>
       </span>
     </button>
   );
