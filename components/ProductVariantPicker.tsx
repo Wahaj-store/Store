@@ -17,18 +17,28 @@ type ProductVariant = {
 type ProductVariantPickerProps = {
   product: any;
   onClose: () => void;
-  onConfirm: (variantId: string, quantity: number) => void;
+  onConfirm: (variantId: string, quantity: number) => boolean;
 };
 
 export default function ProductVariantPicker({ product, onClose, onConfirm }: ProductVariantPickerProps) {
   const variants: ProductVariant[] = Array.isArray(product?.variants) ? product.variants : [];
   const [selectedId, setSelectedId] = useState('');
   const [quantity, setQuantity] = useState(1);
+  const [added, setAdded] = useState(false);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const closeTimerRef = useRef<number | null>(null);
   const selected = variants.find((item) => item.id === selectedId);
   const selectedStock = Math.max(0, Number(selected?.stock) || 0);
   const selectedPrice = selected?.price != null ? Number(selected.price) : Number(product?.price) || 0;
   const imageUrl = selected?.imageUrl || product?.images?.[0]?.url;
+
+  function confirmSelection() {
+    if (!selected || selectedStock < 1 || added) return;
+    if (onConfirm(selected.id, quantity)) {
+      setAdded(true);
+      closeTimerRef.current = window.setTimeout(onClose, 650);
+    }
+  }
 
   useEffect(() => {
     const previousOverflow = document.body.style.overflow;
@@ -41,6 +51,7 @@ export default function ProductVariantPicker({ product, onClose, onConfirm }: Pr
     return () => {
       document.body.style.overflow = previousOverflow;
       document.removeEventListener('keydown', onKeyDown);
+      if (closeTimerRef.current !== null) window.clearTimeout(closeTimerRef.current);
     };
   }, [onClose]);
 
@@ -161,11 +172,13 @@ export default function ProductVariantPicker({ product, onClose, onConfirm }: Pr
           <button
             type="button"
             className="wahaj-variant-picker__add wahaj-add-to-cart"
-            disabled={!selected || selectedStock < 1}
-            onClick={() => selected && onConfirm(selected.id, quantity)}
+            disabled={!selected || selectedStock < 1 || added}
+            aria-live="polite"
+            data-cart-state={added ? 'done' : !selected || selectedStock < 1 ? 'disabled' : 'idle'}
+            onClick={confirmSelection}
           >
-            <ShoppingBag size={19} aria-hidden="true" />
-            <span>أضيفي إلى السلة</span>
+            {added ? <Check size={19} aria-hidden="true" /> : <ShoppingBag size={19} aria-hidden="true" />}
+            <span>{added ? 'تمت الإضافة بنجاح' : 'أضيفي إلى السلة'}</span>
           </button>
         </div>
       </section>
