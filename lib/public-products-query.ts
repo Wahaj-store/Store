@@ -23,11 +23,10 @@ export const PUBLIC_PRODUCT_LIST_SELECT = {
     take: 1,
   },
   category: { select: { name: true } },
-  // The public list only needs to know if purchasable variants exist.
+  // Variant labels, availability and optional prices power the product-card picker.
   variants: {
-    select: { id: true, stock: true },
+    select: { id: true, name: true, value: true, stock: true, price: true, imageUrl: true },
     orderBy: { stock: 'desc' },
-    take: 1,
   },
 } satisfies Prisma.ProductSelect;
 
