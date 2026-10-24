@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useRef, useState } from 'react';
-import { Check, ShoppingBag, SlidersHorizontal } from 'lucide-react';
+import AddToCartButtonContent from './AddToCartButtonContent';
 import ProductVariantPicker from './ProductVariantPicker';
 
 type AddToCartProps = {
@@ -111,10 +111,7 @@ export default function AddToCart({
           className="wahaj-add-to-cart group relative flex min-h-[58px] w-full items-center justify-center overflow-hidden rounded-[22px] border border-(--gold) bg-(--gold) px-5 text-sm font-bold text-(--gold-contrast) shadow-[0_10px_28px_color-mix(in_srgb,var(--gold)_20%,transparent)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_14px_34px_color-mix(in_srgb,var(--gold)_28%,transparent)] focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-(--gold) focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-55 md:min-h-[62px] md:text-base"
         >
           <span aria-hidden="true" className="absolute inset-0 -translate-x-full bg-white/15 transition-transform duration-700 group-hover:translate-x-full" />
-          <span className="relative z-10 inline-flex items-center justify-center gap-2.5">
-            {done ? <Check size={19} strokeWidth={2.4} aria-hidden="true" /> : <SlidersHorizontal size={19} strokeWidth={2.1} aria-hidden="true" />}
-            <span>{done ? 'تمت الإضافة بنجاح' : pickerUnavailable ? 'نفد الخيار' : 'اختاري الخيارات'}</span>
-          </span>
+          <AddToCartButtonContent idleLabel={pickerUnavailable ? 'نفد الخيار' : 'اختاري الخيارات'} iconMode="options" />
         </button>
         {pickerOpen ? (
           <ProductVariantPicker
@@ -133,6 +130,7 @@ export default function AddToCart({
       disabled={disabled}
       onClick={() => add()}
       aria-live="polite"
+      aria-label={done ? 'تمت الإضافة إلى السلة' : 'أضيفي إلى السلة'}
       data-cart-state={done ? 'done' : disabled ? 'disabled' : 'idle'}
       className={[
         'wahaj-add-to-cart',
@@ -145,7 +143,7 @@ export default function AddToCart({
         disabled
           ? 'border border-border bg-muted/40 text-muted-foreground shadow-none'
           : done
-            ? 'wahaj-add-to-cart--success border border-(--gold) bg-[#29251f] text-white shadow-[0_10px_28px_rgba(35,31,25,0.24)]'
+            ? 'wahaj-add-to-cart--success border border-(--gold) bg-[#f0e5d2] text-[#241b1a] shadow-[0_10px_28px_color-mix(in_srgb,var(--gold)_24%,transparent)]'
             : 'border border-(--gold) bg-(--gold) text-(--gold-contrast) shadow-[0_10px_28px_color-mix(in_srgb,var(--gold)_20%,transparent)] hover:-translate-y-0.5 hover:shadow-[0_14px_34px_color-mix(in_srgb,var(--gold)_28%,transparent)] active:translate-y-0',
       ].join(' ')}
     >
@@ -156,14 +154,7 @@ export default function AddToCart({
         />
       ) : null}
 
-      <span className="relative z-10 inline-flex items-center justify-center gap-2.5">
-        {done ? (
-          <Check size={20} strokeWidth={2.6} aria-hidden="true" />
-        ) : (
-          <ShoppingBag size={20} strokeWidth={2.1} aria-hidden="true" />
-        )}
-        <span>{done ? 'تمت الإضافة بنجاح' : 'أضيفي إلى السلة'}</span>
-      </span>
+      <AddToCartButtonContent idleLabel="أضيفي إلى السلة" />
     </button>
   );
 }
