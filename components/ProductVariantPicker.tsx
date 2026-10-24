@@ -3,7 +3,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import Image from 'next/image';
-import { Check, Minus, Plus, ShoppingBag, X } from 'lucide-react';
+import { Minus, Plus, X } from 'lucide-react';
+import AddToCartButtonContent from './AddToCartButtonContent';
 
 type ProductVariant = {
   id: string;
@@ -36,7 +37,7 @@ export default function ProductVariantPicker({ product, onClose, onConfirm }: Pr
     if (!selected || selectedStock < 1 || added) return;
     if (onConfirm(selected.id, quantity)) {
       setAdded(true);
-      closeTimerRef.current = window.setTimeout(onClose, 650);
+      closeTimerRef.current = window.setTimeout(onClose, 850);
     }
   }
 
@@ -174,11 +175,11 @@ export default function ProductVariantPicker({ product, onClose, onConfirm }: Pr
             className="wahaj-variant-picker__add wahaj-add-to-cart"
             disabled={!selected || selectedStock < 1 || added}
             aria-live="polite"
+            aria-label={added ? 'تمت الإضافة إلى السلة' : 'أضيفي إلى السلة'}
             data-cart-state={added ? 'done' : !selected || selectedStock < 1 ? 'disabled' : 'idle'}
             onClick={confirmSelection}
           >
-            {added ? <Check size={19} aria-hidden="true" /> : <ShoppingBag size={19} aria-hidden="true" />}
-            <span>{added ? 'تمت الإضافة بنجاح' : 'أضيفي إلى السلة'}</span>
+            <AddToCartButtonContent idleLabel="أضيفي إلى السلة" />
           </button>
         </div>
       </section>
