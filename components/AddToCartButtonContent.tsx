@@ -1,15 +1,15 @@
-import { Check, ShoppingBag, ShoppingCart, SlidersHorizontal } from 'lucide-react';
+import { Check, ShoppingCart, SlidersHorizontal } from 'lucide-react';
 
 type AddToCartButtonContentProps = {
   idleLabel: string;
-  iconMode?: 'bag' | 'options';
+  iconMode?: 'cart' | 'options';
 };
 
 export default function AddToCartButtonContent({
   idleLabel,
-  iconMode = 'bag',
+  iconMode = 'cart',
 }: AddToCartButtonContentProps) {
-  const IdleIcon = iconMode === 'options' ? SlidersHorizontal : ShoppingBag;
+  const IdleIcon = iconMode === 'options' ? SlidersHorizontal : ShoppingCart;
 
   return (
     <span className="wahaj-add-to-cart__content relative z-10 inline-flex items-center justify-center gap-2.5" aria-hidden="true">
