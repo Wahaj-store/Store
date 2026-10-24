@@ -70,10 +70,6 @@ function ProductCard({
         </div>
 
         <div className="wahaj-product-card__body">
-          <div className="wahaj-product-card__category">
-            {product.category?.name || "وَهَج"}
-          </div>
-
           <Link href={`/product/${product.slug}`} prefetch={false} className="block">
             <h3 className="wahaj-product-card__title">{product.name}</h3>
           </Link>
