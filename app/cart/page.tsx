@@ -143,19 +143,18 @@ export default function Cart() {
               return (
                 <article className={`wahaj-cart-product ${removingKey === key ? 'is-removing' : ''}`} key={key}>
                   <div className="wahaj-cart-product__image">
-                    <Image src={item.image || '/placeholder.svg'} alt={item.name} width={132} height={156} sizes="(max-width: 700px) 92px, 132px" />
+                    <Image src={item.image || '/placeholder.svg'} alt={item.name} width={132} height={156} sizes="(max-width: 370px) 76px, (max-width: 700px) 88px, 190px" />
                   </div>
                   <div className="wahaj-cart-product__body">
                     <div className="wahaj-cart-product__topline">
-                      <div>
-                        <span className="wahaj-cart-product__eyebrow">قطعة مختارة</span>
+                      <div className="wahaj-cart-product__copy">
                         <h3>{item.name}</h3>
                         {item.variantValue && <p>{item.variantName}: {item.variantValue}</p>}
+                        <span className="wahaj-cart-unit-price">{money(Number(item.price || 0))}</span>
                       </div>
-                      <button type="button" className="wahaj-cart-remove" onClick={() => removeItem(index)} aria-label={`حذف ${item.name}`}><Trash2 size={16} /> حذف</button>
+                      <button type="button" className="wahaj-cart-remove" onClick={() => removeItem(index)} aria-label={`حذف ${item.name}`} title="حذف المنتج"><Trash2 size={18} /></button>
                     </div>
                     <div className="wahaj-cart-product__footer">
-                      <span className="wahaj-price">{money(Number(item.price || 0))}</span>
                       <div className="wahaj-quantity-control" aria-label="تعديل الكمية">
                         <button type="button" onClick={() => updateQuantity(index, -1)} aria-label="تقليل الكمية" disabled={item.quantity <= 1}><Minus size={14} /></button>
                         <span aria-live="polite">{item.quantity}</span>
