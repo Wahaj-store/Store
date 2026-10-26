@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import {
   Heart, Package, UserRound, LogOut, Save, Sparkles, Lock, MapPin, Eye, Clock,
-  CheckCircle2, ChevronLeft, Trash2, XCircle, Truck, PackageCheck, MessageSquareText, RotateCcw
+  CheckCircle2, ChevronLeft, Trash2, XCircle, Truck, PackageCheck, RotateCcw
 } from 'lucide-react';
 
 const orderStatusLabels: Record<string, string> = {
@@ -321,15 +321,6 @@ export default function AccountDashboardView(props: any) {
                         العودة للطلبات
                       </button>
                     </div>
-
-                    {selectedOrder.notes && (
-                      <div className="p-4 rounded-2xl bg-(--gold)/10 border border-(--gold)/30 space-y-1.5 shadow-2xs">
-                        <span className="font-serif font-bold text-xs text-(--gold) flex items-center gap-1.5">
-                          <MessageSquareText size={16} /> ملاحظة من الإدارة على الطلب:
-                        </span>
-                        <p className="text-xs md:text-sm text-foreground/90 leading-relaxed font-light">{selectedOrder.notes}</p>
-                      </div>
-                    )}
 
                     <div className="wahaj-order-tracking p-5 rounded-2xl bg-(--bg) border border-border/60 space-y-4 shadow-2xs">
                       <h3 className="font-serif font-bold text-sm flex items-center gap-2 text-(--gold)">
