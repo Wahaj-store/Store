@@ -25,7 +25,6 @@ const customerSelect: Prisma.CustomerSelect = {
       discount: true,
       shippingProvider: true,
       trackingNumber: true,
-      notes: true,
       createdAt: true,
       updatedAt: true,
       timeline: {
