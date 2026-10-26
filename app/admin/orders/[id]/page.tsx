@@ -4,7 +4,7 @@ import { use, useCallback, useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import {
   ArrowDownLeft, ArrowUpLeft, Banknote, CalendarDays, CheckCircle2, CircleAlert, Eye,
-  Clock3, FileText, MapPin, Package, RefreshCw, ShieldCheck, ShoppingBag,
+  Clock3, FileText, MapPin, MessageSquareText, Package, RefreshCw, ShieldCheck, ShoppingBag,
   Truck, UserRound, Phone, X,
 } from 'lucide-react';
 
@@ -145,6 +145,13 @@ export default function OrderDetail({ params }: { params: Promise<{ id: string }
                   </div>
                 </div>
               </section>
+
+              {!!order.notes?.trim() && (
+                <section className="order-detail-panel">
+                  <div className="order-detail-panel__head"><span className="orders-section-icon"><MessageSquareText size={17} /></span><div><h2 className="font-serif text-base font-bold sm:text-lg">ملاحظة العميل</h2><p className="mt-1 text-[10px] text-muted-foreground">الملاحظة التي أضافها العميل عند إتمام الطلب.</p></div></div>
+                  <div className="px-4 pb-4 sm:px-5 sm:pb-5"><p className="whitespace-pre-wrap break-words rounded-xl border border-(--gold)/20 bg-(--gold)/5 p-4 text-xs leading-6 text-foreground/90 sm:text-sm">{order.notes}</p></div>
+                </section>
+              )}
 
               <section className="order-detail-panel">
                 <div className="order-detail-panel__head"><span className="orders-section-icon"><ShoppingBag size={17} /></span><div><h2 className="font-serif text-base font-bold sm:text-lg">منتجات الطلب</h2><p className="mt-1 text-[10px] text-muted-foreground">تفاصيل الكميات والأسعار كما سُجلت عند إنشاء الطلب.</p></div></div>
