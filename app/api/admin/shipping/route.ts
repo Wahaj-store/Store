@@ -12,30 +12,12 @@ const egyptianGovernorates = [
   "شمال سيناء", "جنوب سيناء"
 ];
 
-// دالة لضمان وجود المحافظات وتنظيف أي تكرارات قديمة في القاعدة
-async function ensureGovernoratesExistAndCleanDuplicates() {
+// Ensure base governorate zones exist without deleting city-specific overrides.
+async function ensureGovernoratesExist() {
   try {
-    // 1. تنظيف التكرارات الموجودة حالياً
-    for (const gov of egyptianGovernorates) {
-      const records = await prisma.shippingZone.findMany({
-        where: { governorate: gov },
-        orderBy: { price: "asc" }
-      });
-      
-      // إذا وُجد أكثر من سجل لنفس المحافظة، نحتفظ بالأول ونحذف الباقي
-      if (records.length > 1) {
-        for (let i = 1; i < records.length; i++) {
-          await prisma.shippingZone.delete({
-            where: { id: records[i].id }
-          });
-        }
-      }
-    }
-
-    // 2. إضافة أي محافظة ناقصة
     for (const gov of egyptianGovernorates) {
       const existing = await prisma.shippingZone.findFirst({
-        where: { governorate: gov },
+        where: { governorate: gov, city: null },
       });
 
       if (!existing) {
@@ -57,8 +39,9 @@ export async function GET() {
   try {
     const auth = await requirePermission("shippingRead");
     if (!auth.user) return NextResponse.json({ error: "غير مصرح" }, { status: auth.status });
-    await ensureGovernoratesExistAndCleanDuplicates();
+    await ensureGovernoratesExist();
     const zones = await prisma.shippingZone.findMany({
+      where: { city: null },
       orderBy: { governorate: "asc" },
     });
     return NextResponse.json(zones);
