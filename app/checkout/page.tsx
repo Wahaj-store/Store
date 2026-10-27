@@ -4,7 +4,7 @@
 import { useEffect, useRef, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { Truck, CreditCard, ShieldCheck, ArrowRight, Upload, CheckCircle2, Sparkles, ShoppingBag } from 'lucide-react';
+import { Truck, CreditCard, ShieldCheck, ArrowRight, Upload, Check, CheckCircle2, Sparkles, ShoppingBag } from 'lucide-react';
 
 interface Address {
   id: string;
