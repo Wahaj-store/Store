@@ -78,6 +78,7 @@ export default function Cart() {
   const quantity = useMemo(() => items.reduce((sum, item) => sum + Number(item.quantity || 0), 0), [items]);
   const progress = freeShipping ? Math.min(100, (subtotal / freeShipping) * 100) : 0;
   const remaining = Math.max(0, freeShipping - subtotal);
+  const hasFreeShipping = freeShipping > 0 && subtotal >= freeShipping;
 
   const updateQuantity = (index: number, delta: number) => {
     saveCart(items.map((item, itemIndex) => {
@@ -195,8 +196,9 @@ export default function Cart() {
               </label>
             )}
             <label className="wahaj-cart-coupon"><span>كود الخصم أو الهدية</span><input value={coupon} onChange={event => setCoupon(event.target.value.toUpperCase())} placeholder="اختياري" dir="ltr" /></label>
-            <div className="wahaj-summary-lines"><div><span>عدد القطع</span><b>{quantity}</b></div><div><span>الإجمالي المبدئي</span><b>{money(subtotal)}</b></div><div><span>الشحن</span><b className="is-muted">يُحسب حسب العنوان</b></div></div>
-            <div className="wahaj-summary-total"><span>الإجمالي الحالي</span><strong>{money(subtotal)}</strong></div>
+            <div className="wahaj-summary-lines"><div><span>عدد القطع</span><b>{quantity}</b></div><div><span>الإجمالي المبدئي</span><b>{money(subtotal)}</b></div><div><span>الشحن</span><b className={hasFreeShipping ? 'is-gold' : 'is-muted'}>{hasFreeShipping ? 'مجانًا' : 'يُحسب حسب العنوان'}</b></div></div>
+            {hasFreeShipping && <p className="wahaj-shipping-free-note"><Check size={14} /> تم استبعاد رسوم الشحن من إجمالي طلبكِ لوصولكِ لحد الشحن المجاني.</p>}
+            <div className="wahaj-summary-total"><span>{hasFreeShipping ? 'الإجمالي بعد الشحن المجاني' : 'الإجمالي الحالي'}</span><strong>{money(subtotal)}</strong></div>
             <Link href={coupon ? `/checkout?coupon=${encodeURIComponent(coupon)}` : '/checkout'} className="wahaj-commerce-primary wahaj-cart-summary__cta">تحديد عنوان الشحن <ArrowLeft size={17} /></Link>
             <p className="wahaj-summary-note"><ShieldCheck size={14} /> سيتم تأكيد السعر النهائي قبل إرسال الطلب</p>
           </aside>
