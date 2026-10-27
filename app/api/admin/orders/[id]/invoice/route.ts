@@ -183,6 +183,7 @@ export async function GET(_: Request, { params }: { params: Promise<{ id: string
   .gift-wrap-admin-note { display: none; align-items: center; gap: 8px; margin: 0 0 14px; padding: 11px 14px; border: 1px dashed #c6a46a; border-radius: 12px; background: #fbf7eb; color: #6f582c; font-size: 11px; font-weight: 700; }
   .gift-wrap-admin-note.is-visible { display: flex; }
   .gift-wrap-admin-note[hidden] { display: none !important; }
+  .total-row[hidden] { display: none !important; }
   .screen-actions button {
     display: inline-flex;
     align-items: center;
@@ -407,9 +408,9 @@ export async function GET(_: Request, { params }: { params: Promise<{ id: string
 </head>
 <body>
   <div class="screen-actions" aria-label="خيارات الفاتورة">
-    <div class="screen-hint"><span class="screen-hint__dot"></span><span>معاينة فاتورة وَهَج · جاهزة للطباعة أو الحفظ PDF</span></div>
+    <div class="screen-hint"><span class="screen-hint__dot"></span><span>معاينة فاتورة وَهَج · إخفاء بند التغليف لا يغيّر إجمالي الطلب</span></div>
     <div class="screen-actions__buttons">
-      <label class="screen-gift-wrap-toggle"><input id="gift-wrap-note-toggle" type="checkbox" ${giftWrap.selected ? 'checked' : ''} /><span>إضافة تنبيه تغليف هدية</span></label>
+      <label class="screen-gift-wrap-toggle"><input id="gift-wrap-note-toggle" type="checkbox" data-customer-paid="${giftWrap.selected}" ${giftWrap.selected ? 'checked' : ''} /><span>${giftWrap.selected ? 'إظهار بند رسوم تغليف الهدايا' : 'إضافة تنبيه تجهيز كهدية'}</span></label>
       <button type="button" onclick="window.print()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg> طباعة / حفظ كـ PDF</button>
       <button type="button" class="secondary" onclick="window.close()">إغلاق</button>
     </div>
@@ -432,7 +433,7 @@ export async function GET(_: Request, { params }: { params: Promise<{ id: string
 
     <div class="invoice__content">
       <section class="status-strip" aria-label="حالة الطلب والدفع"><span class="status-strip__label">ملخص حالة الطلب</span><div class="status-strip__pills"><span class="pill pill--${orderTone(order.status)}">${esc(orderStatus)}</span><span class="pill pill--${paymentTone(order.paymentStatus)}">${esc(paymentStatus)}</span><span class="pill pill--muted">${esc(paymentMethod)}</span></div></section>
-      <aside id="gift-wrap-admin-note" class="gift-wrap-admin-note${giftWrap.selected ? ' is-visible' : ''}" ${giftWrap.selected ? '' : 'hidden'}><strong>تغليف هدية:</strong><span>يرجى تجهيز الطلب كتغليف هدية حسب طلب العميل.</span></aside>
+      <aside id="gift-wrap-admin-note" class="gift-wrap-admin-note" hidden><strong>تغليف هدية:</strong><span>يرجى تجهيز الطلب كتغليف هدية حسب طلب العميل.</span></aside>
 
       <section class="details-grid" aria-label="بيانات الطلب والعميل">
         <article class="detail-card">
@@ -455,7 +456,7 @@ export async function GET(_: Request, { params }: { params: Promise<{ id: string
 
       <section class="summary-grid" aria-label="ملخص مبالغ الفاتورة">
         ${giftWrap.customerNotes ? `<article class="notes-card"><h2 class="notes-card__title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6M8 13h8M8 17h8"/></svg> ملاحظات الطلب</h2><div class="notes-card__text">${esc(giftWrap.customerNotes)}</div></article>` : '<div aria-hidden="true"></div>'}
-        <article class="totals-card"><h2 class="totals-card__title">ملخص الحساب</h2><div class="total-row"><span>إجمالي المنتجات</span><strong>${money(itemsSubtotal)}</strong></div>${discount > 0 ? `<div class="total-row total-row--discount"><span>خصم العروض</span><strong>− ${money(discount)}</strong></div>` : ''}<div class="total-row"><span>الشحن والتوصيل</span><strong>${shipping <= 0 ? 'مجانًا' : money(shipping)}</strong></div>${giftWrap.selected ? `<div class="total-row"><span>تغليف الهدايا</span><strong>${giftWrap.amount <= 0 ? 'مجانًا' : money(giftWrap.amount)}</strong></div>` : ''}${giftCardAmount > 0 ? `<div class="total-row total-row--gift"><span>بطاقة الهدايا</span><strong>− ${money(giftCardAmount)}</strong></div>` : ''}<div class="grand-total"><span>الإجمالي النهائي</span><strong>${money(order.total)}</strong></div></article>
+        <article class="totals-card"><h2 class="totals-card__title">ملخص الحساب</h2><div class="total-row"><span>إجمالي المنتجات</span><strong>${money(itemsSubtotal)}</strong></div>${discount > 0 ? `<div class="total-row total-row--discount"><span>خصم العروض</span><strong>− ${money(discount)}</strong></div>` : ''}<div class="total-row"><span>الشحن والتوصيل</span><strong>${shipping <= 0 ? 'الشحن مجاني' : money(shipping)}</strong></div>${giftWrap.selected ? `<div id="gift-wrap-paid-row" class="total-row"><span>تغليف الهدايا</span><strong>${giftWrap.amount <= 0 ? 'مجانًا' : money(giftWrap.amount)}</strong></div>` : ''}${giftCardAmount > 0 ? `<div class="total-row total-row--gift"><span>بطاقة الهدايا</span><strong>− ${money(giftCardAmount)}</strong></div>` : ''}<div class="grand-total"><span>الإجمالي النهائي</span><strong>${money(order.total)}</strong></div></article>
       </section>
 
       <footer class="invoice__footer"><div class="thank-you">شكرًا لاختيارك وَهَج<span>نتمنى أن تستمتعي بتجربتك معنا.</span></div><div class="footer-mark"><span class="footer-mark__line"></span><span>Wahaj Store · فاتورة إلكترونية</span></div></footer>
@@ -465,10 +466,16 @@ export async function GET(_: Request, { params }: { params: Promise<{ id: string
     (function () {
       var toggle = document.getElementById('gift-wrap-note-toggle');
       var note = document.getElementById('gift-wrap-admin-note');
-      if (!toggle || !note) return;
+      var paidRow = document.getElementById('gift-wrap-paid-row');
+      if (!toggle) return;
       toggle.addEventListener('change', function () {
-        note.hidden = !toggle.checked;
-        note.classList.toggle('is-visible', toggle.checked);
+        var customerPaidForWrap = toggle.dataset.customerPaid === 'true';
+        if (paidRow) paidRow.hidden = !toggle.checked;
+        if (note) {
+          var showAdminNote = toggle.checked && !customerPaidForWrap;
+          note.hidden = !showAdminNote;
+          note.classList.toggle('is-visible', showAdminNote);
+        }
       });
     })();
   </script>
