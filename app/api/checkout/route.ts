@@ -12,7 +12,7 @@ import { recordInventoryEntry } from '@/lib/inventory';
 import { processOrderNotificationOutbox } from '@/lib/notification-outbox';
 import { markLatestCartRecovered } from '@/lib/abandoned-cart';
 import { hashGiftCardCode, normalizeGiftCardCode } from '@/lib/gift-card';
-import { findActiveShippingZone } from '@/lib/shipping';
+import { findActiveShippingZone, resolveShippingFreeAbove } from '@/lib/shipping';
 import { getClientKey, rateLimit } from '@/lib/rate-limit';
 import { revalidateShopProducts } from '@/lib/shop-cache';
 import { getCustomerOrderMetrics } from '@/lib/customer-order-metrics';
@@ -105,6 +105,7 @@ export async function POST(req: Request) {
 
     const zone = await findActiveShippingZone(checkoutGovernorate, checkoutCity);
     if (!zone) return NextResponse.json({ error: 'لا توجد منطقة شحن مفعلة لهذا العنوان' }, { status: 400 });
+    const shippingFreeAbove = await resolveShippingFreeAbove(zone);
 
     const existingCustomer = loggedInCustomer?.id
       ? await prisma.customer.findUnique({ where: { id: loggedInCustomer.id }, select: { id: true } })
@@ -136,7 +137,7 @@ export async function POST(req: Request) {
     const pricing = calculatePricing({
       lines: requested.map(i => ({ quantity: i.quantity, unitPrice: i.price, productId: i.p.id, categoryId: i.p.categoryId })),
       shippingPrice: Number(zone.price),
-      shippingFreeAbove: zone.freeAbove === null ? null : Number(zone.freeAbove),
+      shippingFreeAbove,
       offers: activeOffers.map((o): OfferPricing => ({
         id: o.id,
         name: o.name,
