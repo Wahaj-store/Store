@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getCustomer } from '@/lib/customer-auth';
 import { getCustomerSegmentKey } from '@/lib/customer-segment';
-import { findActiveShippingZone } from '@/lib/shipping';
+import { findActiveShippingZone, resolveShippingFreeAbove } from '@/lib/shipping';
 import { calculatePricing } from '@/lib/pricing';
 import { giftCardIsUsable, hashGiftCardCode, normalizeGiftCardCode } from '@/lib/gift-card';
 import { normalizePhone } from '@/lib/security';
@@ -16,10 +16,6 @@ import {
 } from '@/lib/limited-json-body';
 
 const PREVIEW_MAX_BODY_BYTES = 64 * 1024;
-
-function normalizeNullableNumber(value: unknown) {
-  return value === null || value === undefined ? null : Number(value);
-}
 
 function previewErrorResponse(error: string, status = 400) {
   return NextResponse.json(
@@ -110,7 +106,7 @@ export async function POST(req: Request) {
       const zone = await findActiveShippingZone(governorate, city);
       if (zone) {
         shippingPrice = Number(zone.price);
-        shippingFreeAbove = normalizeNullableNumber(zone.freeAbove);
+        shippingFreeAbove = await resolveShippingFreeAbove(zone);
       }
     }
 
