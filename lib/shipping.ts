@@ -44,7 +44,14 @@ export async function findActiveShippingZone(
   const cityZone = matchingGovernorateZones.find(
     (zone) => zone.city !== null && normalizeShippingLocation(zone.city) === normalizedCity,
   );
-  if (cityZone) return cityZone;
+  const governorateZone = matchingGovernorateZones.find((zone) => zone.city === null) ?? null;
+  if (cityZone) {
+    // City rates override the governorate delivery price, while an unset city
+    // free-shipping threshold inherits the governorate's configured threshold.
+    return cityZone.freeAbove == null && governorateZone?.freeAbove != null
+      ? { ...cityZone, freeAbove: governorateZone.freeAbove }
+      : cityZone;
+  }
 
-  return matchingGovernorateZones.find((zone) => zone.city === null) ?? null;
-                                       }
+  return governorateZone;
+}
