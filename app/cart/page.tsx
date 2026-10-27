@@ -131,7 +131,49 @@ export default function Cart() {
           <div><b>03</b><span>التأكيد</span></div>
         </nav>
 
-        <div className="wahaj-cart-layout wahaj-cart-layout--summary">
+        <div className="wahaj-cart-layout">
+          <section className="wahaj-cart-list" aria-label="منتجات السلة">
+            <div className="wahaj-section-heading">
+              <div><span>اختياراتكِ الحالية</span><h2>تفاصيل السلة</h2></div>
+              <strong>{quantity} {quantity === 1 ? 'قطعة' : 'قطع'}</strong>
+            </div>
+
+            {items.map((item, index) => {
+              const key = `${item.productId}:${item.variantId || index}`;
+              return (
+                <article className={`wahaj-cart-product ${removingKey === key ? 'is-removing' : ''}`} key={key}>
+                  <div className="wahaj-cart-product__image">
+                    <Image src={item.image || '/placeholder.svg'} alt={item.name} width={132} height={156} sizes="(max-width: 700px) 92px, 132px" />
+                  </div>
+                  <div className="wahaj-cart-product__body">
+                    <div className="wahaj-cart-product__topline">
+                      <div>
+                        <span className="wahaj-cart-product__eyebrow">قطعة مختارة</span>
+                        <h3>{item.name}</h3>
+                        {item.variantValue && <p>{item.variantName}: {item.variantValue}</p>}
+                      </div>
+                      <button type="button" className="wahaj-cart-remove" onClick={() => removeItem(index)} aria-label={`حذف ${item.name}`}><Trash2 size={16} /> حذف</button>
+                    </div>
+                    <div className="wahaj-cart-product__footer">
+                      <span className="wahaj-price">{money(Number(item.price || 0))}</span>
+                      <div className="wahaj-quantity-control" aria-label="تعديل الكمية">
+                        <button type="button" onClick={() => updateQuantity(index, -1)} aria-label="تقليل الكمية" disabled={item.quantity <= 1}><Minus size={14} /></button>
+                        <span aria-live="polite">{item.quantity}</span>
+                        <button type="button" onClick={() => updateQuantity(index, 1)} aria-label="زيادة الكمية" disabled={Boolean(item.maxStock && item.quantity >= item.maxStock)}><Plus size={14} /></button>
+                      </div>
+                      <strong className="wahaj-cart-line-total">{money(Number(item.price || 0) * Number(item.quantity || 0))}</strong>
+                    </div>
+                  </div>
+                </article>
+              );
+            })}
+
+            <div className="wahaj-cart-benefits">
+              <div><ShieldCheck size={18} /><span><b>دفع آمن</b><small>حماية لبياناتكِ في كل خطوة</small></span></div>
+              <div><Truck size={18} /><span><b>توصيل موثوق</b><small>نحسب التكلفة بدقة في الخطوة التالية</small></span></div>
+            </div>
+          </section>
+
           <aside className="wahaj-cart-summary" aria-label="ملخص الطلب">
             <div className="wahaj-cart-summary__label">ملخص الطلب</div>
             <h2>جاهزة للخطوة التالية؟</h2>
@@ -139,46 +181,6 @@ export default function Cart() {
               <div className="wahaj-shipping-progress__copy"><span>{remaining ? `تبقى ${money(remaining)} للشحن المجاني` : 'وصلتِ للشحن المجاني'}</span><b>{Math.round(progress)}%</b></div>
               <div className="wahaj-shipping-progress__bar"><span style={{ width: `${progress}%` }} /></div>
             </div>}
-            <section className="wahaj-cart-list" aria-label="منتجات السلة">
-              <div className="wahaj-section-heading">
-                <div><span>اختياراتكِ الحالية</span><h2>تفاصيل السلة</h2></div>
-                <strong>{quantity} {quantity === 1 ? 'قطعة' : 'قطع'}</strong>
-              </div>
-
-              {items.map((item, index) => {
-                const key = `${item.productId}:${item.variantId || index}`;
-                return (
-                  <article className={`wahaj-cart-product ${removingKey === key ? 'is-removing' : ''}`} key={key}>
-                    <div className="wahaj-cart-product__image">
-                      <Image src={item.image || '/placeholder.svg'} alt={item.name} width={132} height={156} sizes="(max-width: 370px) 76px, (max-width: 700px) 88px, 190px" />
-                    </div>
-                    <div className="wahaj-cart-product__body">
-                      <div className="wahaj-cart-product__topline">
-                        <div className="wahaj-cart-product__copy">
-                          <h3>{item.name}</h3>
-                          {item.variantValue && <p>{item.variantName}: {item.variantValue}</p>}
-                          <span className="wahaj-cart-unit-price">{money(Number(item.price || 0))}</span>
-                        </div>
-                        <button type="button" className="wahaj-cart-remove" onClick={() => removeItem(index)} aria-label={`حذف ${item.name}`} title="حذف المنتج"><Trash2 size={18} /></button>
-                      </div>
-                      <div className="wahaj-cart-product__footer">
-                        <div className="wahaj-quantity-control" aria-label="تعديل الكمية">
-                          <button type="button" onClick={() => updateQuantity(index, -1)} aria-label="تقليل الكمية" disabled={item.quantity <= 1}><Minus size={14} /></button>
-                          <span aria-live="polite">{item.quantity}</span>
-                          <button type="button" onClick={() => updateQuantity(index, 1)} aria-label="زيادة الكمية" disabled={Boolean(item.maxStock && item.quantity >= item.maxStock)}><Plus size={14} /></button>
-                        </div>
-                        <strong className="wahaj-cart-line-total">{money(Number(item.price || 0) * Number(item.quantity || 0))}</strong>
-                      </div>
-                    </div>
-                  </article>
-                );
-              })}
-
-              <div className="wahaj-cart-benefits">
-                <div><ShieldCheck size={18} /><span><b>دفع آمن</b><small>حماية لبياناتكِ في كل خطوة</small></span></div>
-                <div><Truck size={18} /><span><b>توصيل موثوق</b><small>نحسب التكلفة بدقة في الخطوة التالية</small></span></div>
-              </div>
-            </section>
             {giftWrapEnabled && (
               <label className="my-4 flex cursor-pointer items-start gap-3 rounded-xl border border-(--gold)/30 p-3 text-sm">
                 <input
