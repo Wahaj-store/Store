@@ -63,6 +63,8 @@ export default function OrderDetail({ params }: { params: Promise<{ id: string }
   const payments = Array.isArray(order?.payments) ? order.payments : [];
   const shipments = Array.isArray(order?.shipments) ? order.shipments : [];
   const returns = Array.isArray(order?.returnRequests) ? order.returnRequests : [];
+  const orderShipping = Number(order?.shipping ?? 0);
+  const orderDiscount = Number(order?.discount ?? 0);
   const paymentProofAvailable = Array.isArray(order?.payments) && order.payments.some(
     (payment: any) => typeof payment?.proofUrl === 'string' && payment.proofUrl.length > 0,
   );
@@ -156,7 +158,11 @@ export default function OrderDetail({ params }: { params: Promise<{ id: string }
               <section className="order-detail-panel">
                 <div className="order-detail-panel__head"><span className="orders-section-icon"><ShoppingBag size={17} /></span><div><h2 className="font-serif text-base font-bold sm:text-lg">منتجات الطلب</h2><p className="mt-1 text-[10px] text-muted-foreground">تفاصيل الكميات والأسعار كما سُجلت عند إنشاء الطلب.</p></div></div>
                 <div className="divide-y divide-border/50 px-4 sm:px-5">{items.map((item: any) => <article key={item.id} className="order-line-item"><div className="min-w-0"><p className="truncate text-sm font-semibold">{item.product?.name || item.name || 'منتج المتجر'}</p>{item.variantName && <p className="mt-1 text-[10px] text-muted-foreground">الخيار: {item.variantName}</p>}<p className="mt-1 text-[10px] text-muted-foreground">الكمية: {Number(item.quantity || 0).toLocaleString('ar-EG')} × {money(item.price)}</p></div><b className="shrink-0 text-sm text-(--gold-muted)">{money(Number(item.price || 0) * Number(item.quantity || 0))}</b></article>)}{!items.length && <div className="py-8 text-center text-xs text-muted-foreground">لا توجد عناصر مسجلة لهذا الطلب.</div>}</div>
-                <div className="mx-4 mb-4 flex items-center justify-between gap-3 rounded-xl border border-(--gold)/20 bg-(--gold)/5 px-4 py-3 sm:mx-5 sm:mb-5"><span className="text-xs font-semibold">الإجمالي النهائي</span><b className="text-lg text-(--gold-muted)">{money(order.total)}</b></div>
+                <div className="mx-4 mb-4 mt-3 space-y-2 rounded-xl border border-border/50 bg-(--surface)/55 px-4 py-3 text-xs sm:mx-5 sm:mb-5">
+                  {orderDiscount > 0 && <div className="flex items-center justify-between gap-3"><span className="text-muted-foreground">خصم العروض</span><b>− {money(orderDiscount)}</b></div>}
+                  <div className="flex items-center justify-between gap-3"><span className="text-muted-foreground">الشحن</span><b className={orderShipping <= 0 ? 'text-(--gold-muted)' : ''}>{orderShipping <= 0 ? 'مجانًا' : money(orderShipping)}</b></div>
+                  <div className="flex items-center justify-between gap-3 border-t border-border/50 pt-2"><span className="font-semibold">الإجمالي النهائي</span><b className="text-lg text-(--gold-muted)">{money(order.total)}</b></div>
+                </div>
               </section>
 
               <section className="order-detail-panel">
