@@ -7199,3 +7199,46 @@ body:has(.wahaj-maintenance) .wahaj-footer { display:none !important; }
     font-size: 12px;
   }
 }
+
+
+/* Keep the cart items inside the order-summary card, directly after the shipping progress. */
+.wahaj-cart-layout--summary {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0;
+}
+.wahaj-cart-layout--summary .wahaj-cart-summary {
+  position: static;
+  width: 100%;
+  max-width: none;
+}
+.wahaj-cart-layout--summary .wahaj-cart-list {
+  margin-top: 10px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+}
+.wahaj-cart-layout--summary .wahaj-section-heading {
+  align-items: center;
+  margin-bottom: 14px;
+}
+.wahaj-cart-layout--summary .wahaj-section-heading h2 {
+  margin: 0;
+  font-size: 17px;
+}
+.wahaj-cart-layout--summary .wahaj-section-heading > strong {
+  flex: 0 0 auto;
+}
+@media (max-width: 600px) {
+  .wahaj-cart-layout--summary .wahaj-cart-summary {
+    padding: 18px;
+  }
+  .wahaj-cart-layout--summary .wahaj-cart-list {
+    margin-top: 8px;
+    padding-top: 12px;
+  }
+  .wahaj-cart-layout--summary .wahaj-section-heading {
+    margin-bottom: 10px;
+  }
+  .wahaj-cart-layout--summary .wahaj-section-heading h2 {
+    font-size: 15px;
+  }
+}
