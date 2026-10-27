@@ -533,6 +533,10 @@ export default function AccountDashboardView(props: any) {
                       </div>
                     )}
 
+                    <div className="mb-3 flex items-center justify-between gap-3 border-t border-border/30 pt-3 text-xs">
+                      <span className="text-muted-foreground">الشحن</span>
+                      <b className={Number(selectedOrder.shipping || 0) <= 0 ? 'text-(--gold)' : 'text-foreground'}>{Number(selectedOrder.shipping || 0) <= 0 ? 'مجانًا' : `${Number(selectedOrder.shipping).toLocaleString('ar-EG')} ج.م`}</b>
+                    </div>
                     <div className="wahaj-order-total flex justify-between items-center border-t border-border/30 pt-4 font-serif font-bold text-base">
                       <span>الإجمالي الكلي</span>
                       <span className="wahaj-order-total__amount text-(--gold) text-lg">{Number(selectedOrder.total).toLocaleString('ar-EG')} ج.م</span>
