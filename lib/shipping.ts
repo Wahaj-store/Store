@@ -55,3 +55,25 @@ export async function findActiveShippingZone(
 
   return governorateZone;
 }
+
+/** Resolve the threshold used by checkout: zone-specific value, then the
+ * store-wide setting used by the storefront, then the legacy seeded key. */
+export async function resolveShippingFreeAbove(zone: ShippingZoneRecord | null): Promise<number | null> {
+  if (zone?.freeAbove != null) return Number(zone.freeAbove);
+
+  const storeSetting = await prisma.siteSetting.findUnique({
+    where: { key: 'free_shipping' },
+    select: { value: true },
+  });
+  if (storeSetting) {
+    const value = Number(storeSetting.value);
+    return Number.isFinite(value) && value > 0 ? value : null;
+  }
+
+  const legacySetting = await prisma.siteSetting.findUnique({
+    where: { key: 'shipping_free_above' },
+    select: { value: true },
+  });
+  const legacyValue = Number(legacySetting?.value);
+  return Number.isFinite(legacyValue) && legacyValue > 0 ? legacyValue : null;
+}
