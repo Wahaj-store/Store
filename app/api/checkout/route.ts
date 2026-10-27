@@ -349,7 +349,7 @@ export async function POST(req: Request) {
       }
     });
 
-    return NextResponse.json({ ok: true, orderNumber: order.number, subtotal, shipping, discount, total });
+    return NextResponse.json({ ok: true, orderNumber: order.number, subtotal, shipping: Number(order.shipping), discount: Number(order.discount), total: Number(order.total) });
   } catch (e: any) {
     if (uploadedProofPath) {
       try {
