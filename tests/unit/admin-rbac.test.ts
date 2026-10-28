@@ -44,3 +44,15 @@ test('role matrix keeps sensitive administration restricted and operational acce
   assert.equal(can('UNKNOWN_ROLE', 'dashboard'), false);
   assert.equal(can(null, 'dashboard'), false);
 });
+
+
+test('payment account settings stay restricted to owner and admin roles', () => {
+  for (const role of ['MANAGER', 'EDITOR', 'ORDER_MANAGER', 'VIEWER']) {
+    assert.equal(can(role, 'settingsRead'), false, `${role} must not read payment account settings`);
+    assert.equal(can(role, 'settingsWrite'), false, `${role} must not change payment account settings`);
+  }
+  assert.equal(can('OWNER', 'settingsRead'), true);
+  assert.equal(can('ADMIN', 'settingsRead'), true);
+  assert.equal(can('OWNER', 'settingsWrite'), true);
+  assert.equal(can('ADMIN', 'settingsWrite'), true);
+});
