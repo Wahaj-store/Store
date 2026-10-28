@@ -89,7 +89,12 @@ export async function proxy(req: NextRequest) {
   if (!secretValue || secretValue.length < 32 || !token) return deny();
 
   try {
-    await jwtVerify(token, new TextEncoder().encode(secretValue), { audience: 'admin' });
+    const { payload } = await jwtVerify(token, new TextEncoder().encode(secretValue), { audience: 'admin' });
+    // Accept only tokens issued by createSession for an identified admin user.
+    // A valid signature/audience alone is not sufficient to establish this session type.
+    if (payload.typ !== 'admin-session' || typeof payload.sub !== 'string' || !payload.sub || typeof payload.iat !== 'number') {
+      return deny();
+    }
     const headers = new Headers(req.headers);
     if (!headers.get('x-request-id')) {
       headers.set('x-request-id', globalThis.crypto.randomUUID());
