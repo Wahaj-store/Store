@@ -188,8 +188,12 @@ export async function GET(_: Request, { params }: { params: Promise<{ id: string
   .screen-hint { display: flex; align-items: center; gap: 9px; color: #716b61; font-size: 11px; }
   .screen-hint__dot { width: 8px; height: 8px; border-radius: 50%; background: var(--gold); box-shadow: 0 0 0 4px rgba(198,164,106,.15); }
   .screen-actions__buttons { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
+  .screen-gift-wrap-setting { display: grid; gap: 3px; min-width: 220px; }
   .screen-gift-wrap-toggle { display: inline-flex; align-items: center; gap: 8px; min-height: 40px; padding: 0 12px; border: 1px solid #e5dcc9; border-radius: 11px; background: #fffdf8; color: #5d513a; font-size: 11px; font-weight: 800; cursor: pointer; }
   .screen-gift-wrap-toggle input { width: 16px; height: 16px; margin: 0; accent-color: var(--gold-dark); }
+  .screen-gift-wrap-toggle:focus-within { outline: 3px solid rgba(198,164,106,.35); outline-offset: 2px; }
+  .screen-gift-wrap-help { margin: 0; padding-inline: 4px; color: #716b61; font-size: 10px; line-height: 1.5; }
+  .screen-reader-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
   .total-row[hidden] { display: none !important; }
   .screen-actions button {
     display: inline-flex;
@@ -321,8 +325,10 @@ export async function GET(_: Request, { params }: { params: Promise<{ id: string
   .empty-row { padding: 22px; color: var(--muted); text-align: center; }
 
   @media (max-width: 680px) {
-    .screen-hint { display: none; }
-    .screen-actions { justify-content: flex-start; }
+    .screen-actions { align-items: stretch; flex-direction: column; justify-content: flex-start; }
+    .screen-hint { display: flex; }
+    .screen-actions__buttons { width: 100%; }
+    .screen-gift-wrap-setting { min-width: 0; flex: 1 1 100%; }
     .invoice { width: calc(100% - 16px); min-height: 0; border-radius: 14px; }
     .invoice__header { grid-template-columns: 1fr; gap: 18px; padding: 22px 19px 18px; }
     .brand__logo-wrap { width: 72px; height: 72px; flex-basis: 72px; padding: 5px; border-radius: 14px; }
@@ -417,7 +423,7 @@ export async function GET(_: Request, { params }: { params: Promise<{ id: string
   <div class="screen-actions" aria-label="خيارات الفاتورة">
     <div class="screen-hint"><span class="screen-hint__dot"></span><span>معاينة فاتورة وَهَج · إخفاء بند التغليف لا يغيّر إجمالي الطلب</span></div>
     <div class="screen-actions__buttons">
-      ${giftWrap.selected ? '<label class="screen-gift-wrap-toggle"><input id="gift-wrap-note-toggle" type="checkbox" /><span>إظهار بند رسوم تغليف الهدايا</span></label>' : ''}
+      ${giftWrap.selected ? '<div class="screen-gift-wrap-setting"><label class="screen-gift-wrap-toggle"><input id="gift-wrap-note-toggle" type="checkbox" aria-controls="gift-wrap-paid-row" aria-describedby="gift-wrap-display-help" /><span>إظهار رسوم التغليف في الفاتورة</span></label><p id="gift-wrap-display-help" class="screen-gift-wrap-help">رسم التغليف داخل الإجمالي النهائي سواء ظهر هذا البند في الفاتورة أم أُخفي.</p><span id="gift-wrap-preview-status" class="screen-reader-only" role="status" aria-live="polite">بند رسوم التغليف مخفي من المعاينة، والرسم داخل الإجمالي النهائي.</span></div>' : ''}
       <button type="button" onclick="window.print()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg> طباعة / حفظ كـ PDF</button>
       <button type="button" class="secondary" onclick="window.close()">إغلاق</button>
     </div>
@@ -472,9 +478,15 @@ export async function GET(_: Request, { params }: { params: Promise<{ id: string
     (function () {
       var toggle = document.getElementById('gift-wrap-note-toggle');
       var paidRow = document.getElementById('gift-wrap-paid-row');
+      var previewStatus = document.getElementById('gift-wrap-preview-status');
       if (!toggle) return;
       toggle.addEventListener('change', function () {
         if (paidRow) paidRow.hidden = !toggle.checked;
+        if (previewStatus) {
+          previewStatus.textContent = toggle.checked
+            ? 'بند رسوم التغليف ظاهر في المعاينة، والرسم داخل الإجمالي النهائي.'
+            : 'بند رسوم التغليف مخفي من المعاينة، والرسم داخل الإجمالي النهائي.';
+        }
       });
     })();
   </script>
