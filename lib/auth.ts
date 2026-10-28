@@ -35,7 +35,7 @@ export async function getUser() {
   if (!token) return null;
   try {
     const { payload } = await jwtVerify(token, getSecret(), { audience: 'admin' });
-    if (!payload.sub || !payload.iat) return null;
+    if (payload.typ !== 'admin-session' || typeof payload.sub !== 'string' || !payload.sub || typeof payload.iat !== 'number') return null;
 
     const user = await prisma.user.findUnique({ where: { id: String(payload.sub) } });
     if (!user?.active) return null;
