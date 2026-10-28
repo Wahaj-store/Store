@@ -45,7 +45,7 @@ test('public product query bounds pagination and sanitizes filters', () => {
   ]);
 });
 
-test('public product list selects card data and bounds related rows', () => {
+test('public product list selects card data, one image, and all stock-ordered picker variants', () => {
   assert.equal('searchText' in PUBLIC_PRODUCT_LIST_SELECT, false);
   assert.deepEqual(PUBLIC_PRODUCT_LIST_SELECT.images, {
     select: { url: true, alt: true },
@@ -54,9 +54,8 @@ test('public product list selects card data and bounds related rows', () => {
   });
   assert.deepEqual(PUBLIC_PRODUCT_LIST_SELECT.category, { select: { name: true } });
   assert.deepEqual(PUBLIC_PRODUCT_LIST_SELECT.variants, {
-    select: { id: true, stock: true },
+    select: { id: true, name: true, value: true, stock: true, price: true, imageUrl: true },
     orderBy: { stock: 'desc' },
-    take: 1,
   });
 });
 
