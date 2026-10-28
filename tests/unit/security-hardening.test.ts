@@ -10,6 +10,23 @@ import {
   readJsonBodyLimited,
 } from '../../lib/limited-json-body';
 import { hashPassword, verifyPassword } from '../../lib/password';
+import { shouldFailClosedRateLimit } from '../../lib/rate-limit';
+
+
+test('distributed rate-limit fail-closed behavior is explicit and production-only', () => {
+  const previous = process.env.RATE_LIMIT_FAIL_CLOSED;
+  try {
+    delete process.env.RATE_LIMIT_FAIL_CLOSED;
+    assert.equal(shouldFailClosedRateLimit('production', false), false);
+    process.env.RATE_LIMIT_FAIL_CLOSED = 'true';
+    assert.equal(shouldFailClosedRateLimit('production', false), true);
+    assert.equal(shouldFailClosedRateLimit('development', false), false);
+    assert.equal(shouldFailClosedRateLimit('production', true), false);
+  } finally {
+    if (previous === undefined) delete process.env.RATE_LIMIT_FAIL_CLOSED;
+    else process.env.RATE_LIMIT_FAIL_CLOSED = previous;
+  }
+});
 
 test('new password hashes use a random salt and verify correctly', async () => {
   const first = await hashPassword('A-strong-password-2026');
