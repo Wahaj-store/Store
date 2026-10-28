@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { requireUser } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { buildInvoiceGiftWrapView, invoiceGiftWrapToggleScript } from '@/lib/invoice-gift-wrap';
 
 const statusLabels: Record<string, string> = {
   NEW: 'جديد',
@@ -39,25 +40,6 @@ function esc(value: unknown) {
 
 function money(value: unknown) {
   return `${Number(value || 0).toLocaleString('ar-EG', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ج.م`;
-}
-
-function extractGiftWrap(notes: string | null | undefined) {
-  const pattern = /(?:^|\r?\n)خدمة تغليف هدايا:\s*([\d٠-٩۰-۹٬,٫.]+)\s*ج\.م(?=\r?\n|$)/;
-  const match = (notes || '').match(pattern);
-  if (!match) return { selected: false, amount: 0, customerNotes: notes || '' };
-
-  const normalizedAmount = match[1]
-    .replace(/[٠-٩]/g, digit => String(digit.charCodeAt(0) - 0x0660))
-    .replace(/[۰-۹]/g, digit => String(digit.charCodeAt(0) - 0x06f0))
-    .replace(/[٬,]/g, '')
-    .replace(/٫/g, '.');
-  const parsedAmount = Number(normalizedAmount);
-  const customerNotes = (notes || '').replace(match[0], '').trim();
-  return {
-    selected: true,
-    amount: Number.isFinite(parsedAmount) && parsedAmount > 0 ? parsedAmount : 0,
-    customerNotes,
-  };
 }
 
 function dateTime(value: Date | string | null | undefined) {
@@ -107,17 +89,7 @@ export async function GET(_: Request, { params }: { params: Promise<{ id: string
     const discount = Number(order.discount || 0);
     const giftCardAmount = Number(order.giftCardAmount || 0);
     const shipping = Number(order.shipping || 0);
-    const legacyGiftWrap = extractGiftWrap(order.notes);
-    const persistedGiftWrapSelected = Boolean(order.giftWrapSelected);
-    const persistedGiftWrapFee = Number(order.giftWrapFee || 0);
-    const hasPersistedGiftWrap = persistedGiftWrapSelected || persistedGiftWrapFee > 0;
-    const giftWrap = hasPersistedGiftWrap
-      ? {
-          selected: persistedGiftWrapSelected,
-          amount: Number.isFinite(persistedGiftWrapFee) ? Math.max(0, persistedGiftWrapFee) : 0,
-          customerNotes: legacyGiftWrap.customerNotes,
-        }
-      : legacyGiftWrap;
+    const giftWrap = buildInvoiceGiftWrapView(order);
     const itemCount = order.items.reduce((sum, item) => sum + item.quantity, 0);
     const orderStatus = statusLabels[order.status] || order.status;
     const paymentStatus = paymentStatusLabels[order.paymentStatus] || order.paymentStatus || '—';
@@ -468,28 +440,13 @@ export async function GET(_: Request, { params }: { params: Promise<{ id: string
 
       <section class="summary-grid" aria-label="ملخص مبالغ الفاتورة">
         ${giftWrap.customerNotes ? `<article class="notes-card"><h2 class="notes-card__title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6M8 13h8M8 17h8"/></svg> ملاحظات الطلب</h2><div class="notes-card__text">${esc(giftWrap.customerNotes)}</div></article>` : '<div aria-hidden="true"></div>'}
-        <article class="totals-card"><h2 class="totals-card__title">ملخص الحساب</h2><div class="total-row"><span>إجمالي المنتجات</span><strong>${money(itemsSubtotal)}</strong></div>${discount > 0 ? `<div class="total-row total-row--discount"><span>خصم العروض</span><strong>− ${money(discount)}</strong></div>` : ''}<div class="total-row"><span>الشحن والتوصيل</span><strong>${shipping <= 0 ? 'الشحن مجاني' : money(shipping)}</strong></div>${giftWrap.selected ? `<div id="gift-wrap-paid-row" class="total-row" hidden><span>تغليف الهدايا</span><strong>${giftWrap.amount <= 0 ? 'مجانًا' : money(giftWrap.amount)}</strong></div>` : ''}${giftCardAmount > 0 ? `<div class="total-row total-row--gift"><span>بطاقة الهدايا</span><strong>− ${money(giftCardAmount)}</strong></div>` : ''}<div class="grand-total"><span>الإجمالي النهائي</span><strong>${money(order.total)}</strong></div></article>
+        <article class="totals-card"><h2 class="totals-card__title">ملخص الحساب</h2><div class="total-row"><span>إجمالي المنتجات</span><strong>${money(itemsSubtotal)}</strong></div>${discount > 0 ? `<div class="total-row total-row--discount"><span>خصم العروض</span><strong>− ${money(discount)}</strong></div>` : ''}<div class="total-row"><span>الشحن والتوصيل</span><strong>${shipping <= 0 ? 'الشحن مجاني' : money(shipping)}</strong></div>${giftWrap.selected ? `<div id="gift-wrap-paid-row" class="total-row"${giftWrap.lineVisible ? '' : ' hidden'}><span>تغليف الهدايا</span><strong>${giftWrap.amount <= 0 ? 'مجانًا' : money(giftWrap.amount)}</strong></div>` : ''}${giftCardAmount > 0 ? `<div class="total-row total-row--gift"><span>بطاقة الهدايا</span><strong>− ${money(giftCardAmount)}</strong></div>` : ''}<div class="grand-total"><span>الإجمالي النهائي</span><strong>${money(giftWrap.grandTotal)}</strong></div></article>
       </section>
 
       <footer class="invoice__footer"><div class="thank-you">شكرًا لاختيارك وَهَج<span>نتمنى أن تستمتعي بتجربتك معنا.</span></div><div class="footer-mark"><span class="footer-mark__line"></span><span>Wahaj Store · فاتورة إلكترونية</span></div></footer>
     </div>
   </main>
-  <script>
-    (function () {
-      var toggle = document.getElementById('gift-wrap-note-toggle');
-      var paidRow = document.getElementById('gift-wrap-paid-row');
-      var previewStatus = document.getElementById('gift-wrap-preview-status');
-      if (!toggle) return;
-      toggle.addEventListener('change', function () {
-        if (paidRow) paidRow.hidden = !toggle.checked;
-        if (previewStatus) {
-          previewStatus.textContent = toggle.checked
-            ? 'بند رسوم التغليف ظاهر في المعاينة، والرسم داخل الإجمالي النهائي.'
-            : 'بند رسوم التغليف مخفي من المعاينة، والرسم داخل الإجمالي النهائي.';
-        }
-      });
-    })();
-  </script>
+  <script>${invoiceGiftWrapToggleScript}</script>
 </body>
 </html>`;
 
