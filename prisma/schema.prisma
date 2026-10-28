@@ -460,6 +460,8 @@ model Order {
   giftCardId            String?
   giftCard              GiftCard?       @relation(fields: [giftCardId], references: [id], onDelete: SetNull)
   giftCardAmount        Decimal         @default(0) @db.Decimal(10, 2)
+  giftWrapSelected      Boolean         @default(false)
+  giftWrapFee           Decimal         @default(0) @db.Decimal(10, 2)
   items                 OrderItem[]
   payments              Payment[]
   timeline              OrderTimeline[]
