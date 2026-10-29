@@ -12,6 +12,7 @@ const MAINTENANCE_EXEMPT_PATHS = [
   '/api/auth',
   '/api/settings',
 ];
+const SAFE_METHODS = new Set(['GET', 'HEAD', 'OPTIONS']);
 
 function isMaintenanceExempt(pathname: string) {
   return MAINTENANCE_EXEMPT_PATHS.some(
@@ -42,12 +43,24 @@ async function isMaintenanceEnabled(req: NextRequest): Promise<boolean> {
 export async function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
-  // Browser-facing API mutations must provide an Origin or Referer and match
-  // the request origin. Scheduled server-to-server cron calls are the only
-  // current API exception because they may legitimately omit browser headers.
-  const isCronApi = pathname === '/api/cron' || pathname.startsWith('/api/cron/');
-  if (pathname.startsWith('/api') && !isSameOriginMutation(req, { allowMissingOrigin: isCronApi })) {
-    return applySecurityHeaders(csrfDeniedResponse());
+  // Browser-facing API mutations must provide Origin or Referer and match the
+  // request origin. Only scheduled server-to-server cron calls may omit both.
+  // Keep this check outside isSameOriginMutation so it remains compatible with
+  // versions of that helper whose signature accepts only the Request argument.
+  if (pathname.startsWith('/api')) {
+    const isCronApi = pathname === '/api/cron' || pathname.startsWith('/api/cron/');
+    const isMutation = !SAFE_METHODS.has(req.method.toUpperCase());
+    const hasOriginOrReferer = Boolean(
+      req.headers.get('origin') || req.headers.get('referer'),
+    );
+
+    if (isMutation && !isCronApi && !hasOriginOrReferer) {
+      return applySecurityHeaders(csrfDeniedResponse());
+    }
+
+    if (!isSameOriginMutation(req)) {
+      return applySecurityHeaders(csrfDeniedResponse());
+    }
   }
 
   const isAdminPage = pathname.startsWith('/admin') && pathname !== '/admin/login';
@@ -55,7 +68,7 @@ export async function proxy(req: NextRequest) {
 
   // Enforce maintenance for storefront pages and public APIs, but never block
   // the admin dashboard, its authentication endpoints, or public settings.
-  if (!isMaintenanceExempt(pathname) && !(pathname.startsWith('/_next/')) && !pathname.startsWith('/api/admin')) {
+  if (!isMaintenanceExempt(pathname) && !pathname.startsWith('/_next/') && !pathname.startsWith('/api/admin')) {
     const maintenanceEnabled = await isMaintenanceEnabled(req);
     if (maintenanceEnabled) {
       if (pathname.startsWith('/api/')) {
