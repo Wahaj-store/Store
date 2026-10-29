@@ -42,7 +42,11 @@ async function isMaintenanceEnabled(req: NextRequest): Promise<boolean> {
 export async function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
-  if (pathname.startsWith('/api') && !isSameOriginMutation(req)) {
+  // Browser-facing API mutations must provide an Origin or Referer and match
+  // the request origin. Scheduled server-to-server cron calls are the only
+  // current API exception because they may legitimately omit browser headers.
+  const isCronApi = pathname === '/api/cron' || pathname.startsWith('/api/cron/');
+  if (pathname.startsWith('/api') && !isSameOriginMutation(req, { allowMissingOrigin: isCronApi })) {
     return applySecurityHeaders(csrfDeniedResponse());
   }
 
