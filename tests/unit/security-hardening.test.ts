@@ -81,7 +81,11 @@ test('CSRF guard compares the complete origin, including scheme', () => {
     assert.equal(isSameOriginMutation(differentScheme), false);
     assert.equal(isSameOriginMutation(differentHost), false);
     assert.equal(isSameOriginMutation(sameOriginReferer), true);
+    // Legacy/default mode remains available to explicitly trusted server-to-server callers.
     assert.equal(isSameOriginMutation(noBrowserOrigin), true);
+    // Browser-facing API mutations can require an Origin/Referer header.
+    assert.equal(isSameOriginMutation(noBrowserOrigin, { allowMissingOrigin: false }), false);
+    assert.equal(isSameOriginMutation(sameOrigin, { allowMissingOrigin: false }), true);
     assert.equal(isSameOriginMutation(crossOriginRead), true);
   } finally {
     if (previousSiteUrl === undefined) delete process.env.NEXT_PUBLIC_SITE_URL;
