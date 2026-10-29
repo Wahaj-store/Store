@@ -7,12 +7,15 @@ const SAFE_METHODS = new Set(['GET', 'HEAD', 'OPTIONS']);
  * Requests without Origin/Referer are allowed for server-to-server clients;
  * browsers send one of them for normal cross-origin form/fetch requests.
  */
-export function isSameOriginMutation(request: Request) {
+export function isSameOriginMutation(
+  request: Request,
+  options: { allowMissingOrigin?: boolean } = {},
+) {
   if (SAFE_METHODS.has(request.method.toUpperCase())) return true;
 
   const origin = request.headers.get('origin');
   const referer = request.headers.get('referer');
-  if (!origin && !referer) return true;
+  if (!origin && !referer) return options.allowMissingOrigin !== false;
 
   const allowedOrigins = new Set<string>();
   try {
