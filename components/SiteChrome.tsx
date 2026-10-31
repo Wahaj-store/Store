@@ -9,6 +9,7 @@ import { ArrowLeft, ChevronLeft, CircleHelp, CreditCard, Menu, X, Search, User, 
 import StorePopup from '@/components/store/StorePopup';
 import SearchDrawer from '@/components/SearchDrawer';
 import { useFeatureFlags } from '@/lib/use-feature-flags';
+import { useDialogFocus } from '@/hooks/use-dialog-focus';
 
 type SettingMap = Record<string, any>;
 
@@ -59,12 +60,9 @@ export default function SiteChrome() {
   const darkModeEnabled = featureEnabled('dark_mode', true);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
   const menuCloseButtonRef = useRef<HTMLButtonElement>(null);
-  const menuPanelRef = useRef<HTMLElement>(null);
   const cartButtonRef = useRef<HTMLButtonElement>(null);
   const cartCloseButtonRef = useRef<HTMLButtonElement>(null);
-  const cartPanelRef = useRef<HTMLElement>(null);
   const searchButtonRef = useRef<HTMLButtonElement>(null);
-  const searchCloseButtonRef = useRef<HTMLButtonElement>(null);
   const settingsLoadedRef = useRef(false);
   const settingsRequestRef = useRef(false);
   const themeIsDark = (resolvedTheme || theme) === 'dark';
@@ -120,6 +118,9 @@ export default function SiteChrome() {
     }, 420);
   };
 
+  const menuDialogRef = useDialogFocus<HTMLElement>({ open: menu, initialFocusRef: menuCloseButtonRef, onEscape: closeMenu });
+  const cartDialogRef = useDialogFocus<HTMLElement>({ open: cartDrawerOpen, initialFocusRef: cartCloseButtonRef, onEscape: closeCartDrawer });
+
   useEffect(() => () => {
     if (menuCloseTimerRef.current) clearTimeout(menuCloseTimerRef.current);
     if (cartCloseTimerRef.current) clearTimeout(cartCloseTimerRef.current);
@@ -169,96 +170,15 @@ export default function SiteChrome() {
 
   useEffect(() => {
     if (!menu) return;
-
     const unlockBodyScroll = lockBodyScroll();
-    menuCloseButtonRef.current?.focus({ preventScroll: true });
-
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        event.preventDefault();
-        closeMenu();
-        return;
-      }
-
-      if (event.key !== 'Tab' || !menuPanelRef.current) return;
-      const focusable = Array.from(menuPanelRef.current.querySelectorAll<HTMLElement>(
-        'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])',
-      ));
-      if (focusable.length === 0) return;
-
-      const first = focusable[0];
-      const last = focusable[focusable.length - 1];
-      if (event.shiftKey && document.activeElement === first) {
-        event.preventDefault();
-        last.focus();
-      } else if (!event.shiftKey && document.activeElement === last) {
-        event.preventDefault();
-        first.focus();
-      }
-    };
-
-    document.addEventListener('keydown', handleKeyDown);
-    return () => {
-      unlockBodyScroll();
-      document.removeEventListener('keydown', handleKeyDown);
-      menuButtonRef.current?.focus({ preventScroll: true });
-    };
+    return unlockBodyScroll;
   }, [menu]);
 
   useEffect(() => {
     if (!cartDrawerOpen) return;
-
     const unlockBodyScroll = lockBodyScroll();
-    cartCloseButtonRef.current?.focus({ preventScroll: true });
-
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        event.preventDefault();
-        closeCartDrawer();
-        return;
-      }
-
-      if (event.key !== 'Tab' || !cartPanelRef.current) return;
-      const focusable = Array.from(cartPanelRef.current.querySelectorAll<HTMLElement>(
-        'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])',
-      ));
-      if (focusable.length === 0) return;
-
-      const first = focusable[0];
-      const last = focusable[focusable.length - 1];
-      if (event.shiftKey && document.activeElement === first) {
-        event.preventDefault();
-        last.focus();
-      } else if (!event.shiftKey && document.activeElement === last) {
-        event.preventDefault();
-        first.focus();
-      }
-    };
-
-    document.addEventListener('keydown', handleKeyDown);
-    return () => {
-      unlockBodyScroll();
-      document.removeEventListener('keydown', handleKeyDown);
-      cartButtonRef.current?.focus({ preventScroll: true });
-    };
+    return unlockBodyScroll;
   }, [cartDrawerOpen]);
-
-  useEffect(() => {
-    if (!searchDrawerOpen) return;
-
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        event.preventDefault();
-        closeSearchDrawer();
-      }
-    };
-
-    document.addEventListener('keydown', handleKeyDown);
-    return () => {
-      document.removeEventListener('keydown', handleKeyDown);
-      searchButtonRef.current?.focus({ preventScroll: true });
-    };
-  }, [searchDrawerOpen]);
 
   const saveDrawerCart = (next: any[]) => {
     setCartItems(next);
@@ -455,6 +375,9 @@ export default function SiteChrome() {
                 className="wahaj-header__action wahaj-header__cart relative text-foreground/80 hover:text-(--gold) transition-colors p-1"
                 aria-label={`فتح السلة الجانبية (${cartCount})`}
                 title="السلة"
+                aria-haspopup="dialog"
+                aria-expanded={cartDrawerOpen}
+                aria-controls="wahaj-cart-drawer"
               >
                 <ShoppingBag size={20} />
                 {cartCount > 0 && <span className="absolute -top-1.5 -inset-e-2 flex h-4 w-4 items-center justify-center rounded-full bg-(--gold) text-[9px] font-bold text-(--gold-contrast) shadow-xs">{cartCount}</span>}
@@ -477,11 +400,12 @@ export default function SiteChrome() {
         >
           <aside
             id="wahaj-mobile-drawer"
-            ref={menuPanelRef}
+            ref={menuDialogRef}
             className={`wahaj-mobile-drawer${menuClosing ? ' is-closing' : ''}`}
             role="dialog"
             aria-modal="true"
             aria-label="قائمة التنقل الرئيسية"
+            tabIndex={-1}
             dir="rtl"
             onMouseDown={event => event.stopPropagation()}
           >
@@ -592,11 +516,13 @@ export default function SiteChrome() {
       {cartDrawerOpen && (
         <div className={`wahaj-cart-drawer-overlay${cartDrawerClosing ? ' is-closing' : ''}`} role="presentation" onMouseDown={closeCartDrawer}>
           <aside
-            ref={cartPanelRef}
+            id="wahaj-cart-drawer"
+            ref={cartDialogRef}
             className={`wahaj-cart-drawer${cartDrawerClosing ? ' is-closing' : ''}`}
             role="dialog"
             aria-modal="true"
             aria-labelledby="wahaj-cart-drawer-title"
+            tabIndex={-1}
             dir="rtl"
             onMouseDown={event => event.stopPropagation()}
           >
@@ -711,7 +637,6 @@ export default function SiteChrome() {
         open={searchDrawerOpen}
         onClose={closeSearchDrawer}
         closing={searchDrawerClosing}
-        closeButtonRef={searchCloseButtonRef}
       />
       {!popupExcluded && <StorePopup enabled={settings.popup_enabled} config={settings.popup_config} visitKey={pathname || '/'} />}
     </>
