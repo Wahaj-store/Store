@@ -1,4 +1,7 @@
 import { prisma } from '@/lib/prisma';
+import type { Prisma } from '@prisma/client';
+
+type MetricsReadClient = Pick<Prisma.TransactionClient, 'order'>;
 
 export type CustomerOrderMetrics = {
   orderCount: number;
@@ -7,8 +10,11 @@ export type CustomerOrderMetrics = {
 };
 
 /** Fetch only the aggregate fields needed for customer segmentation. */
-export async function getCustomerOrderMetrics(customerId: string): Promise<CustomerOrderMetrics> {
-  const result = await prisma.order.aggregate({
+export async function getCustomerOrderMetrics(
+  customerId: string,
+  client: MetricsReadClient = prisma,
+): Promise<CustomerOrderMetrics> {
+  const result = await client.order.aggregate({
     where: { customerId, status: { not: 'CANCELLED' } },
     _count: { _all: true },
     _sum: { total: true },
