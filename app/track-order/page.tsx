@@ -4,7 +4,7 @@ import { FormEvent, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, Check, CheckCircle2, Clock3, Hash, Home, MapPin, PackageCheck, Phone, Search, ShieldCheck, ShoppingBag, Truck } from 'lucide-react';
 
-interface TimelineItem { status: string; note?: string; createdAt: string; }
+interface TimelineItem { status: string; createdAt: string; }
 interface OrderItem { id: string; name?: string; quantity: number; price: number; variantName?: string; }
 interface ShipmentData { provider?: string | null; trackingNumber?: string | null; status?: string; shippedAt?: string | null; deliveredAt?: string | null; estimatedMinDays?: number | null; estimatedMaxDays?: number | null; events?: TimelineItem[]; }
 interface OrderData {
@@ -85,7 +85,7 @@ export default function TrackOrderPage() {
 
           {order.shippingGovernorate && <div className="wahaj-track-address"><MapPin size={17} /><div><span>عنوان التوصيل</span><b>{order.shippingGovernorate}، {order.shippingCity} — {order.shippingAddress}</b></div></div>}
 
-          <div className="wahaj-track-columns"><div className="wahaj-track-panel"><div className="wahaj-track-section-heading"><span>سجل التحديثات</span><Clock3 size={17} /></div><div className="wahaj-track-timeline">{updates.length ? updates.map((item, index) => <div key={`${item.createdAt}-${index}`} className={index === 0 ? 'is-latest' : ''}><i>{index === 0 ? <Check size={11} /> : null}</i><div><b>{statusLabels[item.status] || item.status}</b><small>{item.note || 'تم تحديث حالة الطلب'}</small><time>{formatDate(item.createdAt)}</time></div></div>) : <p className="wahaj-track-empty">لا توجد تحديثات مسجلة بعد.</p>}</div></div><div className="wahaj-track-panel"><div className="wahaj-track-section-heading"><span>محتويات الطلب</span><ShoppingBag size={17} /></div><div className="wahaj-track-items">{order.items?.map(item => <div key={item.id}><div><b>{item.name || 'منتج'}</b>{item.variantName && <small>الخيار: {item.variantName}</small>}<small>الكمية: {item.quantity}</small></div><strong>{Number(item.price).toLocaleString('ar-EG')} ج.م</strong></div>)}</div></div></div>
+          <div className="wahaj-track-columns"><div className="wahaj-track-panel"><div className="wahaj-track-section-heading"><span>سجل التحديثات</span><Clock3 size={17} /></div><div className="wahaj-track-timeline">{updates.length ? updates.map((item, index) => <div key={`${item.createdAt}-${index}`} className={index === 0 ? 'is-latest' : ''}><i>{index === 0 ? <Check size={11} /> : null}</i><div><b>{statusLabels[item.status] || item.status}</b><small>تم تحديث حالة الطلب</small><time>{formatDate(item.createdAt)}</time></div></div>) : <p className="wahaj-track-empty">لا توجد تحديثات مسجلة بعد.</p>}</div></div><div className="wahaj-track-panel"><div className="wahaj-track-section-heading"><span>محتويات الطلب</span><ShoppingBag size={17} /></div><div className="wahaj-track-items">{order.items?.map(item => <div key={item.id}><div><b>{item.name || 'منتج'}</b>{item.variantName && <small>الخيار: {item.variantName}</small>}<small>الكمية: {item.quantity}</small></div><strong>{Number(item.price).toLocaleString('ar-EG')} ج.م</strong></div>)}</div></div></div>
           <div className="wahaj-track-result__footer"><Link href="/shop" className="wahaj-commerce-primary"><ShoppingBag size={17} /> مواصلة التسوق</Link><Link href="/contact" className="wahaj-commerce-ghost">تحتاجين مساعدة؟ <ArrowLeft size={16} /></Link></div>
         </section>}
       </div>
