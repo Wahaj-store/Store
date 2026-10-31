@@ -98,6 +98,12 @@
   --shadow-luxury-value: 0 18px 55px rgba(36, 27, 26, 0.10);
   --container: 1180px;
   --transition: 220ms ease;
+  --wahaj-admin-layer-mobile-header: 30;
+  --wahaj-admin-layer-backdrop: 40;
+  --wahaj-admin-layer-drawer: 50;
+  --wahaj-admin-layer-popover: 70;
+  --wahaj-admin-layer-dialog: 90;
+  --wahaj-admin-layer-command: 100;
 }
 
 .dark {
