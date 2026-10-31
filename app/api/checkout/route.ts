@@ -16,6 +16,8 @@ import { findActiveShippingZone, resolveShippingFreeAbove } from '@/lib/shipping
 import { getClientKey, rateLimit } from '@/lib/rate-limit';
 import { revalidateShopProducts } from '@/lib/shop-cache';
 import { getCustomerOrderMetrics } from '@/lib/customer-order-metrics';
+import { checkoutTotalsMatch } from '@/lib/checkout-preview-client';
+import { InvalidMultipartBodyError, MultipartBodyLimitError, parseBoundedMultipart } from '@/lib/bounded-multipart';
 import {
   createPaymentProofPath,
   deletePaymentProof,
@@ -28,12 +30,28 @@ const S = z.object({
   name: z.string().trim().min(2).max(100), phone: z.string().trim().min(8).max(30),
   governorate: z.string().trim().min(2).max(80), city: z.string().trim().min(2).max(100), address: z.string().trim().min(5).max(500), notes: z.string().trim().max(1000).optional(),
   paymentMethod: z.nativeEnum(PaymentMethod), giftCardCode: z.string().trim().max(40).optional(), giftWrap: z.boolean().optional(),
-  idempotencyKey: z.string().uuid(), addressId: z.string().min(1).optional(), items: z.array(Item).min(1).max(100), paymentReference: z.string().trim().max(100).optional()
+  idempotencyKey: z.string().uuid(), expectedTotal: z.number().finite().nonnegative().optional(), addressId: z.string().min(1).optional(), items: z.array(Item).min(1).max(100), paymentReference: z.string().trim().max(100).optional()
 });
 
 export const maxDuration = 60;
+const CHECKOUT_MAX_REQUEST_BYTES = PAYMENT_PROOF_MAX_BYTES + 256 * 1024;
+
+class CheckoutDomainError extends Error {
+  constructor(message: string, readonly status = 400) {
+    super(message);
+    this.name = 'CheckoutDomainError';
+  }
+}
+
+class CheckoutPriceChangedError extends Error {
+  constructor(readonly actualTotal: number) {
+    super('تغيّر إجمالي الطلب أثناء إتمامه. راجعي الإجمالي المحدث ثم أكّدي الطلب مرة أخرى.');
+    this.name = 'CheckoutPriceChangedError';
+  }
+}
 
 export async function POST(req: Request) {
+  const requestId = crypto.randomUUID();
   let idempotencyKey = '';
   let uploadedProofPath: string | undefined;
   try {
@@ -48,11 +66,28 @@ export async function POST(req: Request) {
     // جلب العميل المسجل حالياً في الجلسة (ان وجد)
     const loggedInCustomer = await getCustomer();
 
-    const formData = await req.formData();
-    const rawData = formData.get('data');
+    const formData = await parseBoundedMultipart(req, CHECKOUT_MAX_REQUEST_BYTES);
+    const formEntries = [...formData.entries()];
+    if (formEntries.some(([key]) => key !== 'data' && key !== 'proof')) {
+      return NextResponse.json({ error: 'يحتوي الطلب على حقول غير مسموح بها' }, { status: 400 });
+    }
+    const dataParts = formData.getAll('data');
+    const proofParts = formData.getAll('proof');
+    if (dataParts.length !== 1 || proofParts.length > 1 || proofParts.some((part) => typeof part === 'string')) {
+      return NextResponse.json({ error: 'بيانات الطلب أو إثبات الدفع غير صالحة' }, { status: 400 });
+    }
+    const rawData = dataParts[0];
     if (typeof rawData !== 'string') return NextResponse.json({ error: 'بيانات الطلب غير صالحة' }, { status: 400 });
-    const b = S.parse(JSON.parse(rawData));
-    const proofFile = formData.get('proof');
+    let b: z.infer<typeof S>;
+    try {
+      b = S.parse(JSON.parse(rawData));
+    } catch (error) {
+      if (error instanceof SyntaxError || error instanceof z.ZodError) {
+        return NextResponse.json({ error: 'بيانات الطلب غير صالحة' }, { status: 400 });
+      }
+      throw error;
+    }
+    const proofFile = proofParts[0];
     const hasProofFile = proofFile instanceof File && proofFile.size > 0;
     idempotencyKey = b.idempotencyKey;
     const existing = await prisma.order.findUnique({ where: { idempotencyKey }, select: { number: true, total: true, shipping: true, discount: true } });
@@ -93,10 +128,10 @@ export async function POST(req: Request) {
     const requested = b.items.map(i => {
       const p = products.find(x => x.id === i.productId)!;
       const v = i.variantId ? p.variants.find(x => x.id === i.variantId) : undefined;
-      if (p.variants.length > 0 && !i.variantId) throw new Error(`اختاري خيارات المنتج ${p.name} أولاً`);
-      if (i.variantId && !v) throw new Error('الخيار المحدد غير متاح');
+      if (p.variants.length > 0 && !i.variantId) throw new CheckoutDomainError(`اختاري خيارات المنتج ${p.name} أولاً`);
+      if (i.variantId && !v) throw new CheckoutDomainError('الخيار المحدد غير متاح');
       const stock = v ? v.stock : p.stock;
-      if (stock < i.quantity) throw new Error(`الكمية المتاحة من ${p.name} غير كافية`);
+      if (stock < i.quantity) throw new CheckoutDomainError(`الكمية المتاحة من ${p.name} غير كافية`, 409);
       const price = v?.price != null ? Number(v.price) : Number(p.price);
       return { p, v, quantity: i.quantity, price, categoryId: p.categoryId };
     });
@@ -186,7 +221,12 @@ export async function POST(req: Request) {
     if (hasProofFile) {
       if (!process.env.BLOB_READ_WRITE_TOKEN) return NextResponse.json({ error: 'خدمة رفع إثبات الدفع غير مفعلة حالياً' }, { status: 503 });
       if (proofFile.size > PAYMENT_PROOF_MAX_BYTES) return NextResponse.json({ error: 'حجم صورة الإيصال كبير جداً' }, { status: 400 });
-      const { extension } = await validatePaymentProof(proofFile);
+      let extension;
+      try {
+        ({ extension } = await validatePaymentProof(proofFile));
+      } catch (error) {
+        throw new CheckoutDomainError(error instanceof Error ? error.message : 'تعذر التحقق من صورة إثبات الدفع', 400);
+      }
       const pathname = createPaymentProofPath(extension);
       const blob = await put(pathname, proofFile, { access: 'private', token: process.env.BLOB_READ_WRITE_TOKEN, contentType: proofFile.type, addRandomSuffix: false });
       uploadedProofPath = blob.pathname;
@@ -198,28 +238,34 @@ export async function POST(req: Request) {
       if (giftCardCode) {
         const card = await tx.giftCard.findFirst({ where: { OR: [{ codeHash: hashGiftCardCode(giftCardCode) }, { code: giftCardCode }] } });
         const valid = card && card.active && Number(card.balance) > 0 && (!card.expiresAt || card.expiresAt > new Date());
-        if (!valid) throw new Error('بطاقة الهدايا غير صالحة أو منتهية أو بدون رصيد');
+        if (!valid) throw new CheckoutDomainError('بطاقة الهدايا غير صالحة أو منتهية أو بدون رصيد');
         giftCardId = card.id;
         giftCardAmount = Math.min(Number(card.balance), Math.max(0, Number(total)));
+        const actualTotal = Math.max(0, total - giftCardAmount);
+        if (b.expectedTotal !== undefined && !checkoutTotalsMatch(b.expectedTotal, actualTotal)) {
+          throw new CheckoutPriceChangedError(actualTotal);
+        }
         if (giftCardAmount > 0) {
           const consumed = await tx.giftCard.updateMany({ where: { id: card.id, active: true, balance: { gte: giftCardAmount } }, data: { balance: { decrement: giftCardAmount } } });
-          if (consumed.count !== 1) throw new Error('رصيد بطاقة الهدايا تغير، أعيدي المحاولة');
+          if (consumed.count !== 1) throw new CheckoutDomainError('رصيد بطاقة الهدايا تغير، أعيدي المحاولة', 409);
         }
+      } else if (b.expectedTotal !== undefined && !checkoutTotalsMatch(b.expectedTotal, total)) {
+        throw new CheckoutPriceChangedError(Math.max(0, total));
       }
       const inventoryEntryIds: string[] = [];
       for (const i of requested) {
         if (i.v) {
           const r = await tx.productVariant.updateMany({ where: { id: i.v.id, stock: { gte: i.quantity } }, data: { stock: { decrement: i.quantity } } });
-          if (r.count !== 1) throw new Error(`المخزون غير كافٍ للمنتج ${i.p.name}`);
+          if (r.count !== 1) throw new CheckoutDomainError(`المخزون غير كافٍ للمنتج ${i.p.name}`, 409);
           const current = await tx.productVariant.findUnique({ where: { id: i.v.id }, select: { id: true, stock: true, name: true, value: true, sku: true } });
-          if (!current) throw new Error('الخيار المحدد غير متاح');
+          if (!current) throw new CheckoutDomainError('الخيار المحدد غير متاح', 409);
           const entry = await recordInventoryEntry(tx, { productId: i.p.id, variantId: current.id, type: 'SALE', quantity: -i.quantity, balanceAfter: current.stock, productNameSnapshot: i.p.name, variantNameSnapshot: current.name, variantValueSnapshot: current.value, skuSnapshot: current.sku || i.p.sku, reason: 'خصم المخزون عند إنشاء الطلب', reference: 'CHECKOUT' });
           inventoryEntryIds.push(entry.id);
         } else {
           const r = await tx.product.updateMany({ where: { id: i.p.id, stock: { gte: i.quantity } }, data: { stock: { decrement: i.quantity } } });
-          if (r.count !== 1) throw new Error(`المخزون غير كافٍ للمنتج ${i.p.name}`);
+          if (r.count !== 1) throw new CheckoutDomainError(`المخزون غير كافٍ للمنتج ${i.p.name}`, 409);
           const current = await tx.product.findUnique({ where: { id: i.p.id }, select: { id: true, stock: true, name: true, sku: true } });
-          if (!current) throw new Error('المنتج غير متاح');
+          if (!current) throw new CheckoutDomainError('المنتج غير متاح', 409);
           const entry = await recordInventoryEntry(tx, { productId: current.id, type: 'SALE', quantity: -i.quantity, balanceAfter: current.stock, productNameSnapshot: current.name, skuSnapshot: current.sku, reason: 'خصم المخزون عند إنشاء الطلب', reference: 'CHECKOUT' });
           inventoryEntryIds.push(entry.id);
         }
@@ -309,7 +355,7 @@ export async function POST(req: Request) {
             where.usedCount = { lt: currentOffer.maxUses };
           }
           const consumedOffer = await tx.offer.updateMany({ where, data: { usedCount: { increment: 1 } } });
-          if (consumedOffer.count !== 1) throw new Error('أحد العروض لم يعد متاحاً');
+          if (consumedOffer.count !== 1) throw new CheckoutDomainError('أحد العروض لم يعد متاحاً', 409);
         }
       }
       return o;
@@ -363,7 +409,33 @@ export async function POST(req: Request) {
       const replay = await prisma.order.findUnique({ where: { idempotencyKey }, select: { number: true, total: true, shipping: true, discount: true } });
       if (replay) return NextResponse.json({ ok: true, orderNumber: replay.number, total: Number(replay.total), shipping: Number(replay.shipping), discount: Number(replay.discount), replay: true });
     }
-    const status = e?.code === 'P2034' ? 409 : 400;
-    return NextResponse.json({ error: e?.issues?.[0]?.message || e?.message || 'تعذر إنشاء الطلب' }, { status });
+    if (e instanceof MultipartBodyLimitError) {
+      return NextResponse.json({ error: 'حجم طلب الدفع يتجاوز الحد المسموح' }, { status: 413 });
+    }
+    if (e instanceof InvalidMultipartBodyError) {
+      return NextResponse.json({ error: 'صيغة بيانات طلب الدفع غير صالحة' }, { status: 400 });
+    }
+    if (e instanceof CheckoutPriceChangedError) {
+      return NextResponse.json({ error: e.message, actualTotal: e.actualTotal }, { status: 409, headers: { 'Cache-Control': 'no-store' } });
+    }
+    if (e instanceof CheckoutDomainError) {
+      return NextResponse.json({ error: e.message }, { status: e.status, headers: { 'Cache-Control': 'no-store' } });
+    }
+    if (e instanceof z.ZodError) {
+      return NextResponse.json({ error: e.issues[0]?.message || 'بيانات الطلب غير صالحة' }, { status: 400, headers: { 'Cache-Control': 'no-store' } });
+    }
+    if (e instanceof SyntaxError) {
+      return NextResponse.json({ error: 'بيانات الطلب غير صالحة' }, { status: 400, headers: { 'Cache-Control': 'no-store' } });
+    }
+    if (e?.code === 'P2034') {
+      return NextResponse.json({ error: 'حدث تعارض أثناء تحديث الطلب. راجعي ملخص الطلب ثم حاولي مجددًا.' }, { status: 409, headers: { 'Cache-Control': 'no-store' } });
+    }
+    console.error('CHECKOUT_UNEXPECTED_ERROR:', {
+      requestId,
+      name: e instanceof Error ? e.name : 'unknown',
+      code: typeof e?.code === 'string' ? e.code : undefined,
+      message: e instanceof Error ? e.message : 'unknown',
+    });
+    return NextResponse.json({ error: 'تعذر إنشاء الطلب حاليًا. يرجى المحاولة لاحقًا.', requestId }, { status: 500, headers: { 'Cache-Control': 'no-store' } });
   }
 }
