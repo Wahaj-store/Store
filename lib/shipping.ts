@@ -1,4 +1,7 @@
 import { prisma } from '@/lib/prisma';
+import type { Prisma } from '@prisma/client';
+
+type ShippingReadClient = Pick<Prisma.TransactionClient, 'shippingZone' | 'siteSetting'>;
 
 export function normalizeShippingLocation(value: string | null | undefined): string {
   return String(value ?? '')
@@ -27,12 +30,13 @@ type ShippingZoneRecord = Awaited<ReturnType<typeof prisma.shippingZone.findMany
 export async function findActiveShippingZone(
   governorate: string,
   city: string,
+  client: ShippingReadClient = prisma,
 ): Promise<ShippingZoneRecord | null> {
   const normalizedGovernorate = normalizeShippingLocation(governorate);
   const normalizedCity = normalizeShippingLocation(city);
   if (!normalizedGovernorate || !normalizedCity) return null;
 
-  const zones = await prisma.shippingZone.findMany({
+  const zones = await client.shippingZone.findMany({
     where: { active: true },
     orderBy: { city: 'desc' },
   });
@@ -58,10 +62,13 @@ export async function findActiveShippingZone(
 
 /** Resolve the threshold used by checkout: zone-specific value, then the
  * store-wide setting used by the storefront, then the legacy seeded key. */
-export async function resolveShippingFreeAbove(zone: ShippingZoneRecord | null): Promise<number | null> {
+export async function resolveShippingFreeAbove(
+  zone: ShippingZoneRecord | null,
+  client: ShippingReadClient = prisma,
+): Promise<number | null> {
   if (zone?.freeAbove != null) return Number(zone.freeAbove);
 
-  const storeSetting = await prisma.siteSetting.findUnique({
+  const storeSetting = await client.siteSetting.findUnique({
     where: { key: 'free_shipping' },
     select: { value: true },
   });
@@ -70,7 +77,7 @@ export async function resolveShippingFreeAbove(zone: ShippingZoneRecord | null):
     return Number.isFinite(value) && value > 0 ? value : null;
   }
 
-  const legacySetting = await prisma.siteSetting.findUnique({
+  const legacySetting = await client.siteSetting.findUnique({
     where: { key: 'shipping_free_above' },
     select: { value: true },
   });
