@@ -1,7 +1,7 @@
 // مسار الملف: components/AdminManager.tsx
 
 'use client';
-import { useEffect, useState, ComponentType, ReactNode } from 'react';
+import { useEffect, useState, useRef, ComponentType, ReactNode } from 'react';
 import Link from 'next/link';
 import { 
   GripVertical, Trash2, Upload, Plus, Save, Pencil, Image as ImageIcon, Search, ChevronLeft,
@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import MediaPicker from './MediaPicker';
 import PopupSettingsEditor from './admin/PopupSettingsEditor';
+import AdminTableScroll from './admin/AdminTableScroll';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 
@@ -125,7 +126,12 @@ async function api(url: string, method = 'GET', body?: any) {
 export default function AdminManager({ sidebarOpen, setSidebarOpen, topContent, overviewContent, userRole, initialTab = 'analytics', hideSidebar = false }: { sidebarOpen: boolean, setSidebarOpen: (open: boolean) => void, topContent?: ReactNode, overviewContent?: ReactNode, userRole?: string, initialTab?: string, hideSidebar?: boolean }) {
   const router = useRouter();
   const [tab, setTab] = useState(initialTab);
+  const activeTabRef = useRef(initialTab);
+  const requestSequenceRef = useRef(0);
+  const lookupRequestRef = useRef(0);
   const [data, setData] = useState<any[]>([]);
+  const [loadedTab, setLoadedTab] = useState<string | null>(null);
+  const [loadError, setLoadError] = useState<{ tab: string; message: string } | null>(null);
   const [cats, setCats] = useState<any[]>([]);
   const [products, setProducts] = useState<any[]>([]);
   const [editing, setEditing] = useState<any>(null);
@@ -135,6 +141,21 @@ export default function AdminManager({ sidebarOpen, setSidebarOpen, topContent, 
   const [commandOpen, setCommandOpen] = useState(false);
   const [commandQuery, setCommandQuery] = useState('');
   const [notificationsOpen, setNotificationsOpen] = useState(false);
+
+  function switchTab(nextTab: string) {
+    if (activeTabRef.current !== nextTab) {
+      activeTabRef.current = nextTab;
+      requestSequenceRef.current += 1;
+      lookupRequestRef.current += 1;
+      setData([]);
+      setLoadedTab(null);
+      setLoadError(null);
+      setLoading(false);
+      setEditing(null);
+      setMsg('');
+    }
+    setTab(nextTab);
+  }
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
@@ -146,22 +167,20 @@ export default function AdminManager({ sidebarOpen, setSidebarOpen, topContent, 
   }, []);
 
   useEffect(() => {
-    setTab(initialTab);
+    switchTab(initialTab);
   }, [initialTab]);
 
   useEffect(() => {
     const handleTabChange = (event: Event) => {
       const nextTab = (event as CustomEvent<string>).detail;
       if (typeof nextTab === 'string') {
-        setTab(nextTab);
-        setEditing(null);
-        setMsg('');
+        switchTab(nextTab);
       }
     };
     const handlePopState = () => {
       if (window.location.pathname !== '/admin') return;
       const nextTab = new URLSearchParams(window.location.search).get('tab') || 'analytics';
-      setTab(nextTab);
+      switchTab(nextTab);
     };
     window.addEventListener('wahaj-admin-tab-change', handleTabChange);
     window.addEventListener('popstate', handlePopState);
@@ -172,7 +191,7 @@ export default function AdminManager({ sidebarOpen, setSidebarOpen, topContent, 
   }, []);
 
   function setTabAndSync(nextTab: string) {
-    setTab(nextTab);
+    switchTab(nextTab);
     window.dispatchEvent(new CustomEvent('wahaj-admin-tab-change', { detail: nextTab }));
   }
 
@@ -199,7 +218,11 @@ export default function AdminManager({ sidebarOpen, setSidebarOpen, topContent, 
   };
 
   async function load() {
+    const requestTab = tab;
+    const requestId = ++requestSequenceRef.current;
+    const isCurrentRequest = () => requestId === requestSequenceRef.current && requestTab === activeTabRef.current;
     setLoading(true);
+    setLoadError(null);
     setMsg('');
     try {
       const map: Record<string, string> = {
@@ -227,38 +250,52 @@ export default function AdminManager({ sidebarOpen, setSidebarOpen, topContent, 
         settings: '/api/admin/config'
       };
 
-      const targetUrl = map[tab];
+      const targetUrl = map[requestTab];
       if (!targetUrl) {
-        setData([]);
+        if (isCurrentRequest()) {
+          setData([]);
+          setLoadedTab(requestTab);
+        }
         return;
       }
 
       const x = await api(targetUrl);
-      if (tab === 'offers') {
+      if (!isCurrentRequest()) return;
+      if (requestTab === 'offers') {
         const audience = await api('/api/admin/offers/audience').catch(() => ({ targets: {} }));
+        if (!isCurrentRequest()) return;
         const targets = audience?.targets || {};
         setData((Array.isArray(x) ? x : [x]).map((offer: any) => ({
           ...offer,
           segmentKeys: Array.isArray(targets[offer.id]) ? targets[offer.id] : [],
         })));
-      } else if (tab === 'settings') {
+      } else if (requestTab === 'settings') {
         const settings = x?.storedSettings || x?.settings || {};
         setData(Object.entries(settings).map(([key, value]) => ({ id: `setting:${key}`, key, value })));
       } else {
         setData(Array.isArray(x) ? x : [x]);
       }
+      setLoadedTab(requestTab);
     } catch (e: any) {
-      setMsg(e.message || 'حدث خطأ أثناء جلب البيانات');
-      setData([]);
+      if (isCurrentRequest()) {
+        setLoadError({ tab: requestTab, message: e?.message || 'تعذر تحميل بيانات هذا القسم.' });
+      }
     } finally {
-      setLoading(false);
+      if (isCurrentRequest()) setLoading(false);
     }
   }
 
   useEffect(() => {
-    load();
-    api('/api/admin/categories').then(setCats).catch(() => {});
-    api('/api/admin/products').then((items) => setProducts(Array.isArray(items) ? items : [])).catch(() => {});
+    const requestTab = tab;
+    const lookupRequestId = ++lookupRequestRef.current;
+    void load();
+    if (!['products', 'offers', 'relations'].includes(requestTab)) return;
+    api('/api/admin/categories').then((items) => {
+      if (lookupRequestId === lookupRequestRef.current && activeTabRef.current === requestTab) setCats(Array.isArray(items) ? items : []);
+    }).catch(() => {});
+    api('/api/admin/products').then((items) => {
+      if (lookupRequestId === lookupRequestRef.current && activeTabRef.current === requestTab) setProducts(Array.isArray(items) ? items : []);
+    }).catch(() => {});
   }, [tab]);
 
   async function save(v: any) {
@@ -396,6 +433,9 @@ export default function AdminManager({ sidebarOpen, setSidebarOpen, topContent, 
   const CurrentTabIcon = getCurrentTabIcon();
   const currentTabLabel = getCurrentTabLabel();
   const canCreate = ['products', 'categories', 'offers', 'shipping', 'homepage', 'gift-cards', 'relations', 'faq', 'redirects', 'settings'].includes(tab);
+  const hasLoadedCurrentTab = loadedTab === tab;
+  const currentLoadError = loadError?.tab === tab ? loadError.message : '';
+  const isMessageError = /خطأ|تعذر|فشل|غير مصرح|انتهت جلسة|غير صالح/.test(msg);
 
   return (
     <div className="wahaj-admin min-h-[calc(100vh-1rem)] bg-(--bg)" dir="rtl">
@@ -614,7 +654,7 @@ export default function AdminManager({ sidebarOpen, setSidebarOpen, topContent, 
                 </div>
                 <div className="flex items-center gap-2">
                   {loading && (
-                    <div className="inline-flex items-center gap-2 rounded-full border border-border/40 bg-muted/10 px-3 py-2 text-[10px] text-muted-foreground">
+                    <div role="status" aria-live="polite" className="inline-flex items-center gap-2 rounded-full border border-border/40 bg-muted/10 px-3 py-2 text-[10px] text-muted-foreground">
                       <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-(--gold)" />
                       جارٍ التحديث…
                     </div>
@@ -635,13 +675,13 @@ export default function AdminManager({ sidebarOpen, setSidebarOpen, topContent, 
           </section>
 
           {msg && (
-            <div className={`flex items-start gap-3 rounded-2xl border px-4 py-3 text-xs font-medium shadow-xs ${msg.includes('خطأ') || msg.includes('تعذر') ? 'border-red-500/20 bg-red-500/5 text-red-600' : 'border-green-500/20 bg-green-500/5 text-green-600'}`}>
-              {msg.includes('خطأ') || msg.includes('تعذر') ? <AlertCircle size={15} className="mt-0.5 shrink-0" /> : <CheckCircle2 size={15} className="mt-0.5 shrink-0" />}<span>{msg}</span>
+            <div role={isMessageError ? 'alert' : 'status'} aria-live={isMessageError ? 'assertive' : 'polite'} className={`flex items-start gap-3 rounded-2xl border px-4 py-3 text-xs font-medium shadow-xs ${isMessageError ? 'border-red-500/20 bg-red-500/5 text-red-600' : 'border-green-500/20 bg-green-500/5 text-green-600'}`}>
+              {isMessageError ? <AlertCircle size={15} className="mt-0.5 shrink-0" /> : <CheckCircle2 size={15} className="mt-0.5 shrink-0" />}<span>{msg}</span>
             </div>
           )}
 
           {/* Content workspace */}
-          <section className="wahaj-admin__workspace overflow-hidden rounded-[30px] border border-border/50 bg-(--bg) shadow-xs">
+          <section className="wahaj-admin__workspace min-w-0 overflow-hidden rounded-[30px] border border-border/50 bg-(--bg) shadow-xs">
             <div className="flex items-center justify-between gap-3 border-b border-border/35 px-5 py-4 sm:px-6">
               <div className="text-right">
                 <p className="text-xs font-bold text-foreground">مساحة العمل</p>
@@ -652,20 +692,27 @@ export default function AdminManager({ sidebarOpen, setSidebarOpen, topContent, 
               </div>
             </div>
 
-            <div className="p-2 sm:p-3 lg:p-4">
-              {loading && tab !== 'newsletter' ? (
-                <div className="rounded-[26px] border border-border/40 bg-muted/5 p-16 text-center text-sm text-muted-foreground">
+            <div className="min-w-0 p-2 sm:p-3 lg:p-4">
+              {currentLoadError && (
+                <div role="alert" aria-live="assertive" className="mb-3 flex flex-col gap-3 rounded-2xl border border-red-500/25 bg-red-500/5 p-4 text-xs text-red-600 sm:flex-row sm:items-center sm:justify-between">
+                  <span className="flex min-w-0 items-start gap-2"><AlertCircle size={15} className="mt-0.5 shrink-0" />{currentLoadError}</span>
+                  <button type="button" onClick={() => void load()} className="min-h-10 shrink-0 rounded-xl border border-red-500/25 px-4 font-semibold transition hover:bg-red-500/10">إعادة المحاولة</button>
+                </div>
+              )}
+              {!hasLoadedCurrentTab && !currentLoadError ? (
+                <div role="status" aria-live="polite" className="rounded-[26px] border border-border/40 bg-muted/5 p-16 text-center text-sm text-muted-foreground">
                   <div className="mx-auto mb-3 h-7 w-7 animate-spin rounded-full border-2 border-border/50 border-t-(--gold)" />
                   جارٍ تحميل بيانات القسم…
                 </div>
-              ) : editing ? (
-                <div className="rounded-[26px] border border-border/40 bg-(--bg) p-1 shadow-xs md:p-2">
+              ) : !hasLoadedCurrentTab ? null : editing ? (
+                <div className="min-w-0 rounded-[26px] border border-border/40 bg-(--bg) p-1 shadow-xs md:p-2">
                   {tab === 'settings' && editing.key === '__popup_editor__' ? <div className="space-y-4 p-2 sm:p-3" dir="rtl"><PopupSettingsEditor enabledValue={data.find((item: any) => item.key === 'popup_enabled')?.value ?? 'false'} configValue={data.find((item: any) => item.key === 'popup_config')?.value ?? ''} onSave={savePopupSettings} showActivationToggle={false} /><div className="flex justify-end"><button type="button" onClick={() => setEditing(null)} className="rounded-xl border border-border/50 bg-muted/10 px-4 py-2.5 text-xs font-semibold text-muted-foreground transition hover:border-(--gold)/40 hover:text-foreground">إلغاء والعودة للإعدادات</button></div></div>
                     : tab === 'settings' && editing.key === '__gift_wrap_editor__' ? <GiftWrapFeeEditor value={String(data.find((item: any) => item.key === 'gift_wrap_fee')?.value ?? '0')} onCancel={() => setEditing(null)} onSaved={() => { setEditing(null); void load().then(() => setMsg('تم حفظ رسوم تغليف الهدايا.')); }} />
                     : <Editor tab={tab} value={editing} cats={cats} products={products} onCancel={() => setEditing(null)} onSave={save} upload={upload} />}
                 </div>
               ) : (
-                <div className="rounded-[26px] border border-border/40 bg-(--bg) p-1 shadow-xs md:p-2">
+                <div className="min-w-0 rounded-[26px] border border-border/40 bg-(--bg) p-1 shadow-xs md:p-2">
+                  {loading && <p role="status" aria-live="polite" className="mb-3 rounded-xl border border-border/30 bg-muted/5 px-3 py-2 text-[10px] text-muted-foreground">جارٍ تحديث البيانات؛ المحتوى الحالي ما زال متاحًا.</p>}
                   <Content tab={tab} data={data} onEdit={setEditing} onDelete={del} onRefresh={load} onReorder={reorder} onSavePopup={savePopupSettings} onToggleMaintenance={toggleMaintenance} onTogglePopup={togglePopup} canManageSettings={['OWNER', 'ADMIN'].includes(userRole || '')} canManageNewsletter={['OWNER', 'ADMIN', 'MANAGER', 'EDITOR'].includes(userRole || '')} />
                 </div>
               )}
@@ -1160,10 +1207,10 @@ function NewsletterSubscribers({ data, onRefresh, canManage }: { data: any[]; on
             </div>
           </div>
           {notice && <p role="status" className="rounded-xl border border-(--gold)/20 bg-(--gold)/5 px-3 py-2 text-[10px] text-(--gold)">{notice}</p>}
-          <div className="overflow-x-auto rounded-2xl border border-border/30"><table className="w-full min-w-[720px] text-right text-xs"><thead><tr className="border-b border-border/30 bg-muted/10 text-muted-foreground"><th className="p-3 font-medium">البريد الإلكتروني</th><th className="p-3 font-medium">مصدر التسجيل</th><th className="p-3 font-medium">تاريخ الاشتراك</th><th className="p-3 font-medium">الحالة</th><th className="p-3 font-medium">الإجراء</th></tr></thead><tbody>
+          <AdminTableScroll label="جدول المشتركين" className="rounded-2xl border border-border/30"><table className="w-full min-w-[720px] text-right text-xs"><thead><tr className="border-b border-border/30 bg-muted/10 text-muted-foreground"><th className="p-3 font-medium">البريد الإلكتروني</th><th className="p-3 font-medium">مصدر التسجيل</th><th className="p-3 font-medium">تاريخ الاشتراك</th><th className="p-3 font-medium">الحالة</th><th className="p-3 font-medium">الإجراء</th></tr></thead><tbody>
             {filtered.map(subscriber => <tr key={subscriber.id} className="border-b border-border/20 last:border-0 hover:bg-muted/5"><td className="p-3 font-medium" dir="ltr">{subscriber.email}</td><td className="p-3 text-muted-foreground">{subscriber.source === 'homepage' ? 'الصفحة الرئيسية' : subscriber.source || '—'}</td><td className="p-3 text-muted-foreground">{subscriber.createdAt ? new Date(subscriber.createdAt).toLocaleDateString('ar-EG') : '—'}</td><td className="p-3"><span className={`inline-flex rounded-full border px-2.5 py-1 text-[9px] font-bold ${subscriber.active ? 'border-green-500/20 bg-green-500/10 text-green-600' : 'border-border/40 bg-muted/15 text-muted-foreground'}`}>{subscriber.active ? 'نشط' : 'موقوف'}</span></td><td className="p-3">{canManage ? <button type="button" disabled={busyId === subscriber.id} onClick={() => void toggleStatus(subscriber)} className={`rounded-lg border px-2.5 py-1.5 text-[9px] font-bold transition disabled:opacity-50 ${subscriber.active ? 'border-border/40 bg-muted/10 text-muted-foreground hover:border-red-500/30 hover:text-red-500' : 'border-green-500/20 bg-green-500/10 text-green-600 hover:bg-green-500/15'}`}>{busyId === subscriber.id ? 'جارٍ الحفظ…' : subscriber.active ? 'إيقاف الاشتراك' : 'إعادة التفعيل'}</button> : <span className="text-[9px] text-muted-foreground">عرض فقط</span>}</td></tr>)}
             {!filtered.length && <tr><td colSpan={5} className="p-10 text-center text-xs text-muted-foreground">{rows.length ? 'لا توجد نتائج تطابق البحث أو التصفية.' : 'لا يوجد مشتركون مسجلون حتى الآن.'}</td></tr>}
-          </tbody></table></div>
+          </tbody></table></AdminTableScroll>
           {!!filtered.length && <p className="text-[9px] text-muted-foreground">يعرض الجدول {filtered.length.toLocaleString('ar-EG')} من أصل {rows.length.toLocaleString('ar-EG')} مشترك. ملف CSV يطابق البحث والتصفية الحالية.</p>}
         </div>
       </section>
@@ -1540,21 +1587,26 @@ function Analytics({ data: initialData }: any) {
   const [days, setDays] = useState(30);
   const [data, setData] = useState<any>(initialData || {});
   const [loading, setLoading] = useState(false);
+  const [loadError, setLoadError] = useState('');
+  const rangeRequestRef = useRef(0);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [commandOpen, setCommandOpen] = useState(false);
   const [commandQuery, setCommandQuery] = useState('');
   const [notificationsOpen, setNotificationsOpen] = useState(false);
 
   async function loadRange(nextDays: number) {
+    const requestId = ++rangeRequestRef.current;
     setDays(nextDays);
     setLoading(true);
+    setLoadError('');
     try {
       const x = await api(`/api/admin/analytics?days=${nextDays}`);
+      if (requestId !== rangeRequestRef.current) return;
       setData(x || {});
     } catch (e: any) {
-      if (typeof window !== 'undefined') window.alert(e?.message || 'تعذر تحميل التحليلات.');
+      if (requestId === rangeRequestRef.current) setLoadError(e?.message || 'تعذر تحميل التحليلات.');
     } finally {
-      setLoading(false);
+      if (requestId === rangeRequestRef.current) setLoading(false);
     }
   }
 
@@ -1581,7 +1633,8 @@ function Analytics({ data: initialData }: any) {
         </div>
       </div>
 
-      {loading && <div className="text-xs text-muted-foreground">جارٍ تحديث البيانات…</div>}
+      {loading && <div role="status" aria-live="polite" className="text-xs text-muted-foreground">جارٍ تحديث البيانات…</div>}
+      {loadError && <div role="alert" aria-live="assertive" className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-red-500/25 bg-red-500/5 p-4 text-xs text-red-600"><span>{loadError}</span><button type="button" onClick={() => void loadRange(days)} className="min-h-9 rounded-xl border border-red-500/25 px-3 font-semibold transition hover:bg-red-500/10">إعادة المحاولة</button></div>}
 
       <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
         {[
@@ -1660,6 +1713,8 @@ function CustomerSegments({ data, onRefresh }: any) {
   const [audience, setAudience] = useState<any[]>([]);
   const [audienceLoading, setAudienceLoading] = useState(false);
   const [audienceMsg, setAudienceMsg] = useState('');
+  const [audienceError, setAudienceError] = useState('');
+  const audienceRequestRef = useRef(0);
   const toneClass: Record<string, string> = {
     gold: 'text-(--gold) bg-(--gold)/10 border-(--gold)/20',
     green: 'text-green-600 bg-green-500/10 border-green-500/20',
@@ -1673,10 +1728,13 @@ function CustomerSegments({ data, onRefresh }: any) {
   const selectedSegmentData = (data.segments || []).find((x: any) => x.key === selectedSegment);
 
   async function loadAudience(key = selectedSegment) {
+    const requestId = ++audienceRequestRef.current;
     setAudienceLoading(true);
     setAudienceMsg('');
+    setAudienceError('');
     try {
       const result = await api(`/api/admin/customer-segments?segment=${encodeURIComponent(key)}`);
+      if (requestId !== audienceRequestRef.current) return;
       const nextAudience = Array.isArray(result?.audience) ? result.audience : [];
 
       // Keep the table useful immediately from the segment payload as a fallback.
@@ -1691,15 +1749,16 @@ function CustomerSegments({ data, onRefresh }: any) {
         })) : []);
       }
     } catch (e: any) {
+      if (requestId !== audienceRequestRef.current) return;
       const fallback = key === 'all'
         ? []
         : Array.isArray(selectedSegmentData?.members)
           ? selectedSegmentData.members.map((m: any) => ({ ...m, segment: key }))
           : [];
       setAudience(fallback);
-      setAudienceMsg(e?.message || 'تعذر تحميل الجمهور المستهدف');
+      setAudienceError(e?.message || 'تعذر تحميل الجمهور المستهدف.');
     } finally {
-      setAudienceLoading(false);
+      if (requestId === audienceRequestRef.current) setAudienceLoading(false);
     }
   }
 
@@ -1707,8 +1766,10 @@ function CustomerSegments({ data, onRefresh }: any) {
 
   function selectSegment(key: string) {
     setSelectedSegment(key);
+    setAudience([]);
     setAudienceMsg('');
-    loadAudience(key);
+    setAudienceError('');
+    void loadAudience(key);
   }
 
   async function copyPhones() {
@@ -1750,16 +1811,17 @@ function CustomerSegments({ data, onRefresh }: any) {
           <button type="button" onClick={copyPhones} className="px-3 py-2 rounded-xl border border-border/40 text-xs inline-flex items-center gap-2 cursor-pointer"><Share2 size={14} />نسخ أرقام الهاتف</button>
           <button type="button" onClick={exportAudience} className="px-3 py-2 rounded-xl border border-border/40 text-xs inline-flex items-center gap-2 cursor-pointer"><FileText size={14} />تصدير CSV</button>
         </div>
-        {audienceMsg && <p className="text-[11px] text-(--gold) mb-3">{audienceMsg}</p>}
-        <div className="overflow-x-auto rounded-2xl border border-border/30">
-          <table className="w-full text-right text-xs">
+        {audienceError && <div role="alert" aria-live="assertive" className="mb-3 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-red-500/20 bg-red-500/5 px-3 py-2 text-[11px] text-red-600"><span>{audienceError}</span><button type="button" onClick={() => void loadAudience()} className="min-h-9 rounded-lg border border-red-500/25 px-3 font-semibold">إعادة المحاولة</button></div>}
+        {audienceMsg && <p role="status" aria-live="polite" className="text-[11px] text-(--gold) mb-3">{audienceMsg}</p>}
+        <AdminTableScroll label="جدول جمهور العملاء" className="rounded-2xl border border-border/30">
+          <table className="w-full min-w-[640px] text-right text-xs">
             <thead><tr className="border-b border-border/30 text-muted-foreground"><th className="p-3">العميل</th><th className="p-3">الهاتف</th><th className="p-3">الطلبات</th><th className="p-3">الإنفاق</th><th className="p-3">آخر طلب</th></tr></thead>
             <tbody>
               {(audience.length ? audience : (selectedSegment !== 'all' && Array.isArray(selectedSegmentData?.members) ? selectedSegmentData.members : [])).slice(0, 50).map((m: any) => <tr key={m.id} className="border-b border-border/20 last:border-0"><td className="p-3 font-medium">{m.name}</td><td className="p-3" dir="ltr">{m.phone || '—'}</td><td className="p-3">{m.orderCount}</td><td className="p-3">{formatMoney(m.spend)}</td><td className="p-3 text-muted-foreground">{m.lastOrder ? new Date(m.lastOrder).toLocaleDateString('ar-EG') : '—'}</td></tr>)}
-              {!audience.length && !audienceLoading && selectedSegment === 'all' && <tr><td colSpan={5} className="p-8 text-center text-muted-foreground">اختر شريحة لعرض جمهورها.</td></tr>}
+              {!audience.length && !audienceLoading && !audienceError && selectedSegment === 'all' && <tr><td colSpan={5} className="p-8 text-center text-muted-foreground">اختر شريحة لعرض جمهورها.</td></tr>}
             </tbody>
           </table>
-        </div>
+        </AdminTableScroll>
         {audience.length > 50 && <p className="text-[10px] text-muted-foreground mt-2">يتم عرض أول 50 عميلًا فقط في اللوحة. التصدير CSV يحتوي على الجمهور كاملًا.</p>}
       </div>
       <p className="text-[11px] text-muted-foreground">{data.note || ''}</p>
