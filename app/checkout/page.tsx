@@ -5,6 +5,7 @@ import { useEffect, useRef, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Truck, CreditCard, ShieldCheck, ArrowRight, Upload, Check, CheckCircle2, Sparkles, ShoppingBag } from 'lucide-react';
+import { buildCheckoutPreviewPayload, checkoutTotalsMatch } from '@/lib/checkout-preview-client';
 
 interface Address {
   id: string;
@@ -106,6 +107,9 @@ function CheckoutContent() {
   const [pricing, setPricing] = useState<any>({ subtotal: 0, discount: 0, shipping: 0, total: 0, freeShipping: false, appliedOffers: [] });
   const [pricingLoading, setPricingLoading] = useState(false);
   const [pricingMessage, setPricingMessage] = useState('');
+  const [pricingKey, setPricingKey] = useState('');
+  const [pricingRefreshToken, setPricingRefreshToken] = useState(0);
+  const [priceConfirmationRequired, setPriceConfirmationRequired] = useState(false);
   const [giftWrapAvailable, setGiftWrapAvailable] = useState(false);
   const [giftWrapFee, setGiftWrapFee] = useState(0);
   const [giftWrapSelected, setGiftWrapSelected] = useState(false);
@@ -228,15 +232,27 @@ function CheckoutContent() {
   const shippingCost = currentZone ? Number(currentZone.price) : 0;
   const subtotal = Number(pricing.subtotal || 0);
   const offerDiscount = Number(pricing.discount || 0);
+  const giftCardAmount = Number(pricing.giftCardAmount || 0);
   const finalShipping = Number(pricing.shipping ?? shippingCost);
   const finalTotal = Number(pricing.total || 0);
   const appliedGiftWrapFee = giftWrapAvailable && giftWrapSelected ? giftWrapFee : 0;
+  const previewPayload = buildCheckoutPreviewPayload({
+    items: c.map((item: any) => ({ productId: item.productId, variantId: item.variantId, quantity: item.quantity })),
+    giftCardCode: coupon,
+    governorate: selectedGovernorate,
+    city: formData.city,
+    phone: formData.phone,
+    giftWrap: giftWrapAvailable && giftWrapSelected,
+  });
+  const previewKey = JSON.stringify(previewPayload);
+  const hasCartItems = c.length > 0;
 
   useEffect(() => {
     let cancelled = false;
     const timer = window.setTimeout(async () => {
-      if (!c.length) {
+      if (!hasCartItems) {
         setPricing({ subtotal: 0, discount: 0, shipping: 0, total: 0, freeShipping: false, appliedOffers: [] });
+        setPricingKey(previewKey);
         setPricingLoading(false);
         setPricingMessage('');
         return;
@@ -246,30 +262,29 @@ function CheckoutContent() {
         const res = await fetch('/api/checkout/preview', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            items: c.map((x: any) => ({ productId: x.productId, variantId: x.variantId, quantity: x.quantity })),
-            couponCode: coupon || undefined,
-            governorate: selectedGovernorate || undefined,
-            city: formData.city || undefined,
-            phone: formData.phone || undefined,
-            giftWrap: giftWrapAvailable && giftWrapSelected,
-          }),
+          body: previewKey,
         });
         const data = await res.json();
         if (!cancelled && res.ok) {
           setPricing(data);
-          setPricingMessage(data.couponError || '');
+          setPricingKey(previewKey);
+          setPricingMessage(data.giftCardError || data.couponError || '');
+          setMsg('');
         } else if (!cancelled) {
+          setPricingKey('');
           setPricingMessage(data.error || 'تعذر تحديث الأسعار');
         }
       } catch {
-        if (!cancelled) setPricingMessage('تعذر تحديث الأسعار حاليًا');
+        if (!cancelled) {
+          setPricingKey('');
+          setPricingMessage('تعذر تحديث الأسعار حاليًا');
+        }
       } finally {
         if (!cancelled) setPricingLoading(false);
       }
     }, 250);
     return () => { cancelled = true; window.clearTimeout(timer); };
-  }, [c, coupon, selectedGovernorate, formData.city, formData.phone, giftWrapAvailable, giftWrapSelected]);
+  }, [hasCartItems, previewKey, pricingRefreshToken]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -323,7 +338,18 @@ function CheckoutContent() {
 
   async function submit(e: any) {
     e.preventDefault();
+    const formElement = e.currentTarget as HTMLFormElement;
+    const paymentReference = (formElement.elements.namedItem('paymentReference') as HTMLInputElement | null)?.value || undefined;
     if (!c.length || !methods.length) return;
+
+    if (pricingLoading || pricingKey !== previewKey) {
+      setMsg('جارٍ تحديث ملخص الطلب. انتظري حتى تظهر الأسعار المحدثة قبل التأكيد.');
+      return;
+    }
+    if (pricing.giftCardError) {
+      setMsg(pricing.giftCardError);
+      return;
+    }
     
     if (selected?.proofRequired && !proofPreview) {
       setMsg('يرجى رفع صورة إيصال التحويل لإتمام الطلب');
@@ -337,6 +363,48 @@ function CheckoutContent() {
       setBusy(false);
       return;
     }
+
+    let verifiedPricing: any;
+    try {
+      const previewResponse = await fetch('/api/checkout/preview', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: previewKey,
+        cache: 'no-store',
+      });
+      const previewData = await previewResponse.json();
+      if (!previewResponse.ok) throw new Error(previewData?.error || 'تعذر التحقق من الأسعار الحالية. حاولي مرة أخرى.');
+      if (previewData?.giftCardError) {
+        setPricing(previewData);
+        setPricingKey(previewKey);
+        setPricingMessage(previewData.giftCardError);
+        setMsg(previewData.giftCardError);
+        setBusy(false);
+        return;
+      }
+      const verifiedTotal = Number(previewData?.total);
+      if (!Number.isFinite(verifiedTotal)) throw new Error('تعذر التحقق من الإجمالي الحالي. حاولي مرة أخرى.');
+
+      setPricing(previewData);
+      setPricingKey(previewKey);
+      setPricingMessage('');
+      if (!checkoutTotalsMatch(finalTotal, verifiedTotal)) {
+        setPriceConfirmationRequired(true);
+        setMsg('تغيّر إجمالي الطلب بعد تحديث الأسعار. راجعي الإجمالي الجديد ثم اضغطي تأكيد مرة أخرى.');
+        setBusy(false);
+        return;
+      }
+      setPriceConfirmationRequired(false);
+      verifiedPricing = previewData;
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'تعذر التحقق من الأسعار الحالية. حاولي مرة أخرى.';
+      setPricingKey('');
+      setPricingMessage(message);
+      setMsg(message);
+      setBusy(false);
+      return;
+    }
+
     const checkoutIntent = {
       name: formData.name,
       phone: formData.phone,
@@ -347,8 +415,8 @@ function CheckoutContent() {
       giftWrap: giftWrapAvailable && giftWrapSelected,
       addressId: selectedAddressId || undefined,
       paymentMethod: pay,
-      giftCardCode: coupon || undefined,
-      paymentReference: e.currentTarget.paymentReference?.value || undefined,
+      giftCardCode: coupon.trim() || undefined,
+      paymentReference,
       items: c.map(x => ({ productId: x.productId, variantId: x.variantId, quantity: x.quantity }))
     };
     const intentFingerprint = JSON.stringify(checkoutIntent);
@@ -370,7 +438,7 @@ function CheckoutContent() {
 
     const stableIdempotencyKey = idempotencyKey || crypto.randomUUID();
     idempotencyKeyRef.current = stableIdempotencyKey;
-    const body = { ...checkoutIntent, idempotencyKey: stableIdempotencyKey };
+    const body = { ...checkoutIntent, idempotencyKey: stableIdempotencyKey, expectedTotal: Number(verifiedPricing.total) };
 
     try {
       const uploadData = new FormData();
@@ -393,6 +461,12 @@ function CheckoutContent() {
         window.dispatchEvent(new Event('wahaj-cart-change'));
         r.push(`/checkout/success?order=${j.orderNumber}`);
       } else {
+        if (x.status === 409 && Number.isFinite(Number(j?.actualTotal))) {
+          setPriceConfirmationRequired(true);
+          setPricing((current: any) => ({ ...current, total: Number(j.actualTotal) }));
+          setPricingMessage(j.error || 'تغيّر إجمالي الطلب؛ راجعي السعر المحدث قبل التأكيد.');
+          setPricingRefreshToken(value => value + 1);
+        }
         setMsg(j.error || 'تعذر إنشاء الطلب');
       }
     } catch {
@@ -461,7 +535,7 @@ function CheckoutContent() {
               </div>
               <label className="wahaj-form-field">العنوان بالتفصيل<textarea name="address" required readOnly={Boolean(selectedAddressId)} rows={3} value={formData.address} onChange={handleInputChange} placeholder="اسم الشارع، رقم العمارة، رقم الشقة..." /></label>
               {giftWrapAvailable && <label className="mt-4 flex cursor-pointer items-start gap-3 rounded-2xl border border-(--gold)/30 bg-(--gold)/5 p-4"><input type="checkbox" checked={giftWrapSelected} onChange={event => { const enabled = event.target.checked; setGiftWrapSelected(enabled); try { localStorage.setItem('wahaj_gift_wrap', enabled ? 'true' : 'false'); } catch {} }} className="mt-1 accent-(--gold)" /><span className="grid gap-1"><b className="text-sm text-foreground">خدمة تغليف هدايا</b><small className="text-xs leading-5 text-muted-foreground">{giftWrapFee > 0 ? `رسوم الخدمة: ${giftWrapFee.toLocaleString('ar-EG')} ج.م` : 'خدمة تغليف هدايا مجانية'}. يمكنكِ اختيارها قبل تأكيد الطلب.</small></span></label>}
-              <div className="wahaj-form-grid wahaj-form-grid--secondary"><label>ملاحظات التوصيل <span>اختياري</span><input name="notes" value={formData.notes} onChange={handleInputChange} placeholder="أي ملاحظات خاصة بالتوصيل..." /></label><label>بطاقة هدية / كود خصم <span>اختياري</span><input value={coupon} onChange={event => setCoupon(event.target.value.toUpperCase())} placeholder="أدخلي الكود" dir="ltr" /></label></div>
+              <div className="wahaj-form-grid wahaj-form-grid--secondary"><label>ملاحظات التوصيل <span>اختياري</span><input name="notes" value={formData.notes} onChange={handleInputChange} placeholder="أي ملاحظات خاصة بالتوصيل..." /></label><label>بطاقة هدية <span>اختياري</span><input value={coupon} onChange={event => setCoupon(event.target.value.toUpperCase())} placeholder="أدخلي رمز البطاقة" dir="ltr" /></label></div>
             </div>
 
             <div className="wahaj-checkout-card">
@@ -475,11 +549,13 @@ function CheckoutContent() {
           <aside className="wahaj-checkout-summary">
             <div className="wahaj-cart-summary__label">مراجعة نهائية</div><h2>ملخص طلبكِ</h2>
             <div className="wahaj-checkout-items">{c.map((item: any, index: number) => <div key={`${item.productId}:${item.variantId || index}`}><span><b>{item.quantity}×</b> {item.name}</span><strong>{(Number(item.price) * Number(item.quantity)).toLocaleString('ar-EG')} ج.م</strong></div>)}</div>
-            <div className="wahaj-summary-lines"><div><span>الإجمالي المبدئي</span><b>{subtotal.toLocaleString('ar-EG')} ج.م</b></div>{offerDiscount > 0 && <div className="is-discount"><span>الخصم</span><b>−{offerDiscount.toLocaleString('ar-EG')} ج.م</b></div>}<div><span>الشحن</span><b>{pricing.freeShipping ? <span className="is-gold">مجانًا</span> : `${finalShipping.toLocaleString('ar-EG')} ج.م`}</b></div>{giftWrapAvailable && giftWrapSelected && <div><span>خدمة تغليف هدايا</span><b>{appliedGiftWrapFee.toLocaleString('ar-EG')} ج.م</b></div>}</div>
+            <div className="wahaj-summary-lines"><div><span>الإجمالي المبدئي</span><b>{subtotal.toLocaleString('ar-EG')} ج.م</b></div>{offerDiscount > 0 && <div className="is-discount"><span>خصم العروض</span><b>−{offerDiscount.toLocaleString('ar-EG')} ج.م</b></div>}{giftCardAmount > 0 && <div className="is-discount"><span>خصم بطاقة الهدية</span><b>−{giftCardAmount.toLocaleString('ar-EG')} ج.م</b></div>}<div><span>الشحن</span><b>{pricing.freeShipping ? <span className="is-gold">مجانًا</span> : `${finalShipping.toLocaleString('ar-EG')} ج.م`}</b></div>{giftWrapAvailable && giftWrapSelected && <div><span>خدمة تغليف هدايا</span><b>{appliedGiftWrapFee.toLocaleString('ar-EG')} ج.م</b></div>}</div>
             {pricing.freeShipping && <p className="wahaj-shipping-free-note"><Check size={14} /> تم خصم رسوم الشحن من إجمالي طلبكِ؛ الشحن مجاني.</p>}
-            {pricingMessage && <div className="wahaj-pricing-note">{pricingMessage}</div>}
+            {priceConfirmationRequired && <div className="wahaj-pricing-note" role="alert">تحدّث إجمالي الطلب. راجعي المبلغ المعروض ثم اضغطي «تأكيد وإتمام الطلب» مرة أخرى للموافقة عليه.</div>}
+            {pricingKey !== previewKey && <div className="wahaj-pricing-note" role="status" aria-live="polite">{pricingLoading ? 'جارٍ تحديث إجمالي الطلب…' : 'ملخص الأسعار يحتاج إلى تحديث قبل التأكيد.'}</div>}
+            {pricingMessage && <div className="wahaj-pricing-note" role={pricingKey ? 'status' : 'alert'}>{pricingMessage}{!pricingKey && <button type="button" className="ms-2 underline underline-offset-2" onClick={() => setPricingRefreshToken(value => value + 1)}>إعادة المحاولة</button>}</div>}
             <div className="wahaj-summary-total"><span>الإجمالي النهائي {pricingLoading ? '…' : ''}</span><strong>{finalTotal.toLocaleString('ar-EG')} ج.م</strong></div>
-            <button disabled={busy || !c.length || !methods.length} className="wahaj-commerce-primary wahaj-checkout-submit">{busy ? 'جارٍ إرسال الطلب...' : 'تأكيد وإتمام الطلب'}<CheckCircle2 size={18} /></button>
+            <button disabled={busy || !c.length || !methods.length || pricingLoading || pricingKey !== previewKey || Boolean(pricing.giftCardError)} className="wahaj-commerce-primary wahaj-checkout-submit">{busy ? 'جارٍ إرسال الطلب...' : 'تأكيد وإتمام الطلب'}<CheckCircle2 size={18} /></button>
             <p className="wahaj-summary-note"><ShieldCheck size={14} /> بياناتكِ وطلبكِ محميان بعناية</p>
           </aside>
         </form>}
