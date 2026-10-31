@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { randomUUID } from 'node:crypto';
 import { prisma } from '@/lib/prisma';
 import { getCustomer } from '@/lib/customer-auth';
 import { getCustomerSegmentKey } from '@/lib/customer-segment';
@@ -17,6 +18,13 @@ import {
 
 const PREVIEW_MAX_BODY_BYTES = 64 * 1024;
 
+class CheckoutPreviewDomainError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'CheckoutPreviewDomainError';
+  }
+}
+
 function previewErrorResponse(error: string, status = 400) {
   return NextResponse.json(
     { error, subtotal: 0, discount: 0, shipping: 0, total: 0, freeShipping: false, appliedOffers: [] },
@@ -25,6 +33,7 @@ function previewErrorResponse(error: string, status = 400) {
 }
 
 export async function POST(req: Request) {
+  const requestId = randomUUID();
   try {
     const limit = await rateLimit(`checkout-preview:${getClientKey(req)}`, 30, 10 * 60 * 1000);
     if (!limit.ok) {
@@ -66,10 +75,10 @@ export async function POST(req: Request) {
 
     const lines = items.map((item) => {
       const product = productsById.get(item.productId);
-      if (!product) throw new Error('أحد المنتجات لم يعد متاحًا');
+      if (!product) throw new CheckoutPreviewDomainError('أحد المنتجات لم يعد متاحًا');
 
       const variant = item.variantId ? product.variants.find(v => v.id === item.variantId) : undefined;
-      if (product.variants.length > 0 && !variant) throw new Error(`اختاري خيارات المنتج ${product.name} أولاً`);
+      if (product.variants.length > 0 && !variant) throw new CheckoutPreviewDomainError(`اختاري خيارات المنتج ${product.name} أولاً`);
 
       const quantity = item.quantity;
       const unitPrice = variant?.price != null ? Number(variant.price) : Number(product.price);
@@ -184,8 +193,12 @@ export async function POST(req: Request) {
     if (error instanceof InvalidJsonBodyError) {
       return previewErrorResponse('تعذر قراءة بيانات السلة.');
     }
-    return previewErrorResponse(
-      error instanceof Error ? error.message : 'تعذر تحديث ملخص الطلب',
-    );
+    if (error instanceof CheckoutPreviewDomainError) return previewErrorResponse(error.message);
+    console.error('CHECKOUT_PREVIEW_UNEXPECTED_ERROR:', {
+      requestId,
+      name: error instanceof Error ? error.name : 'unknown',
+      message: error instanceof Error ? error.message : 'unknown',
+    });
+    return previewErrorResponse('تعذر تحديث ملخص الطلب حاليًا. يرجى المحاولة لاحقًا.', 500);
   }
 }
