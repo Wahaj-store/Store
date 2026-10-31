@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { parseShopSearchParams, shopHref } from '../../lib/shop-query';
+import { parseShopSearchParams, shopHref, SHOP_MAX_PAGE } from '../../lib/shop-query';
 
 test('parses and normalizes valid search and filter parameters', () => {
   const state = parseShopSearchParams({
@@ -46,7 +46,8 @@ test('sanitizes invalid values and bounds pagination', () => {
   assert.equal(state.minPrice, null);
   assert.equal(state.maxPrice, null);
   assert.equal(state.sort, 'newest');
-  assert.equal(state.page, 100_000);
+  assert.equal(state.page, SHOP_MAX_PAGE);
+  assert.equal(parseShopSearchParams({ page: String(SHOP_MAX_PAGE + 1) }).page, SHOP_MAX_PAGE);
   assert.equal(state.q.length, 120);
 });
 
