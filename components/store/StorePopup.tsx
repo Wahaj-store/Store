@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Image from "next/image";
 import { ArrowLeft, Sparkles, X } from "lucide-react";
+import { useDialogFocus } from "@/hooks/use-dialog-focus";
 import { isPopupEnabled, parsePopupConfig, safePopupHref, safePopupImageUrl } from "@/lib/popup-config";
 
 const storageKey = "wahaj-store-popup-seen-v1";
@@ -16,6 +17,8 @@ export default function StorePopup({ enabled, config: rawConfig, visitKey }: { e
   const active = isPopupEnabled(enabled);
   const config = parsePopupConfig(rawConfig);
   const [open, setOpen] = useState(false);
+  const close = useCallback(() => setOpen(false), []);
+  const dialogRef = useDialogFocus<HTMLElement>({ open, onEscape: close });
 
   useEffect(() => {
     setOpen(false);
@@ -46,13 +49,8 @@ export default function StorePopup({ enabled, config: rawConfig, visitKey }: { e
     if (!open) return;
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setOpen(false);
-    };
-    document.addEventListener("keydown", onKeyDown);
     return () => {
       document.body.style.overflow = previousOverflow;
-      document.removeEventListener("keydown", onKeyDown);
     };
   }, [open]);
 
@@ -68,16 +66,18 @@ export default function StorePopup({ enabled, config: rawConfig, visitKey }: { e
       onMouseDown={event => { if (event.target === event.currentTarget) setOpen(false); }}
     >
       <section
+        ref={dialogRef}
         role="dialog"
         aria-modal="true"
         aria-labelledby="wahaj-store-popup-title"
         aria-describedby={config.message ? "wahaj-store-popup-message" : undefined}
+        tabIndex={-1}
         className="relative w-full max-w-lg overflow-hidden rounded-[26px] border border-(--border) bg-(--card) text-(--foreground) shadow-2xl"
         dir="rtl"
       >
         <button
           type="button"
-          onClick={() => setOpen(false)}
+          onClick={close}
           aria-label="إغلاق النافذة المنبثقة"
           className="absolute left-3 top-3 z-10 grid h-10 w-10 place-items-center rounded-full border border-white/50 bg-white/90 text-stone-800 shadow-xs transition hover:bg-white"
         >
@@ -108,7 +108,7 @@ export default function StorePopup({ enabled, config: rawConfig, visitKey }: { e
               {config.ctaText}<ArrowLeft size={16} />
             </a>
           ) : null}
-          <div><button type="button" onClick={() => setOpen(false)} className="text-xs text-(--muted-foreground) underline underline-offset-4">ليس الآن</button></div>
+          <div><button type="button" onClick={close} className="text-xs text-(--muted-foreground) underline underline-offset-4">ليس الآن</button></div>
         </div>
       </section>
     </div>
