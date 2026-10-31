@@ -2,7 +2,8 @@
 
 import Link from 'next/link';
 import { Clock3, ArrowLeft, LoaderCircle, Search, X } from 'lucide-react';
-import { useEffect, useRef, useState, type RefObject } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { useDialogFocus } from '@/hooks/use-dialog-focus';
 
 type SearchProduct = {
   id: string;
@@ -18,16 +19,16 @@ type SearchDrawerProps = {
   open: boolean;
   onClose: () => void;
   closing?: boolean;
-  closeButtonRef?: RefObject<HTMLButtonElement | null>;
 };
 
-export default function SearchDrawer({ open, onClose, closing = false, closeButtonRef }: SearchDrawerProps) {
+export default function SearchDrawer({ open, onClose, closing = false }: SearchDrawerProps) {
   const [query, setQuery] = useState('');
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
   const [products, setProducts] = useState<SearchProduct[]>([]);
   const [loading, setLoading] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const requestId = useRef(0);
+  const dialogRef = useDialogFocus<HTMLElement>({ open, initialFocusRef: inputRef, onEscape: onClose });
 
   useEffect(() => {
     if (!open) return;
@@ -104,10 +105,12 @@ export default function SearchDrawer({ open, onClose, closing = false, closeButt
     <div className={`wahaj-search-drawer-overlay${open ? ' is-open' : ''}${closing ? ' is-closing' : ''}`} role="presentation" onMouseDown={onClose}>
       <aside
         id="wahaj-search-drawer"
+        ref={dialogRef}
         className={`wahaj-search-drawer${open ? ' is-open' : ''}${closing ? ' is-closing' : ''}`}
         role="dialog"
         aria-modal="true"
         aria-labelledby="wahaj-search-drawer-title"
+        tabIndex={-1}
         dir="rtl"
         onMouseDown={(event) => event.stopPropagation()}
       >
@@ -117,7 +120,7 @@ export default function SearchDrawer({ open, onClose, closing = false, closeButt
             <h2 id="wahaj-search-drawer-title">ابحثي عن قطعتكِ</h2>
             <p>اكتبي ما يخطر ببالكِ، وسنقترح الأقرب لذوقكِ فورًا.</p>
           </div>
-          <button ref={closeButtonRef} type="button" onClick={onClose} className="wahaj-search-drawer__close" aria-label="إغلاق البحث">
+          <button type="button" onClick={onClose} className="wahaj-search-drawer__close" aria-label="إغلاق البحث">
             <X size={19} />
           </button>
         </header>
