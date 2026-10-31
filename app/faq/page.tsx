@@ -1,12 +1,127 @@
 'use client';
+
 import { useEffect, useMemo, useState } from 'react';
 import { ChevronDown, HelpCircle, Search, Sparkles } from 'lucide-react';
+
 type FAQ = { id?: string; question: string; answer: string; category?: string };
-const categoryLabels: Record<string, string> = { all: 'كل الأسئلة', shipping: 'الشحن والتوصيل', payment: 'الدفع', returns: 'الاستبدال والاسترجاع', products: 'المنتجات', general: 'أسئلة عامة' };
+
+const categoryLabels: Record<string, string> = {
+  all: 'كل الأسئلة',
+  shipping: 'الشحن والتوصيل',
+  payment: 'الدفع',
+  returns: 'الاستبدال والاسترجاع',
+  products: 'المنتجات',
+  general: 'أسئلة عامة',
+};
+
 export default function FAQPage() {
-  const [faqs, setFaqs] = useState<FAQ[]>([]); const [activeCategory, setActiveCategory] = useState('all'); const [openId, setOpenId] = useState<string | null>(null); const [query, setQuery] = useState(''); const [loading, setLoading] = useState(true);
-  useEffect(() => { let mounted = true; fetch('/api/faq').then(res => res.ok ? res.json() : []).then(data => { if (!mounted) return; const items = Array.isArray(data) ? data : []; setFaqs(items); if (items[0]) setOpenId(items[0].id || '0'); }).catch(() => mounted && setFaqs([])).finally(() => mounted && setLoading(false)); return () => { mounted = false; }; }, []);
-  const categories = useMemo(() => ['all', ...Array.from(new Set(faqs.map(item => item.category || 'general')))], [faqs]);
-  const filteredFaqs = useMemo(() => { const normalized = query.trim().toLowerCase(); return faqs.filter(item => { const categoryMatch = activeCategory === 'all' || (item.category || 'general') === activeCategory; const searchMatch = !normalized || `${item.question} ${item.answer}`.toLowerCase().includes(normalized); return categoryMatch && searchMatch; }); }, [activeCategory, faqs, query]);
-  return <main className="wahaj-help-page" dir="rtl"><div className="wahaj-help-shell"><header className="wahaj-help-hero"><div><span className="wahaj-help-kicker"><Sparkles size={15} /> مركز المساعدة</span><h1>إجابات واضحة لأسئلتك</h1><p>تعرفي على تفاصيل الطلب والشحن والدفع والاستبدال من خلال الأسئلة الأكثر شيوعًا.</p></div><span className="wahaj-help-hero__icon" aria-hidden="true"><HelpCircle size={46} strokeWidth={1.25} /></span></header><section className="wahaj-help-toolbar" aria-label="البحث والتصنيف"><label className="wahaj-help-search"><Search size={17} aria-hidden="true" /><input value={query} onChange={event => setQuery(event.target.value)} placeholder="ابحثي في الأسئلة..." aria-label="البحث في الأسئلة" /></label><div className="wahaj-help-tabs" role="tablist" aria-label="تصنيفات الأسئلة">{categories.map(category => <button key={category} type="button" role="tab" aria-selected={activeCategory === category} onClick={() => setActiveCategory(category)} className={activeCategory === category ? 'is-active' : ''}>{categoryLabels[category] || category}</button>)}</div></section><section className="wahaj-help-list" aria-live="polite">{loading ? <div className="wahaj-help-empty"><span className="wahaj-help-spinner" /> جارٍ تحميل الأسئلة...</div> : filteredFaqs.length === 0 ? <div className="wahaj-help-empty"><HelpCircle size={28} /><b>لا توجد أسئلة مطابقة</b><p>جرّبي كلمة بحث أخرى أو اختاري تصنيفًا مختلفًا.</p></div> : filteredFaqs.map((faq, index) => { const id = faq.id || String(index); const isOpen = openId === id; return <article key={id} className={`wahaj-faq-item ${isOpen ? 'is-open' : ''}`}><button type="button" onClick={() => setOpenId(isOpen ? null : id)} aria-expanded={isOpen} className="wahaj-faq-question"><span><i><HelpCircle size={17} /></i>{faq.question}</span><ChevronDown size={18} aria-hidden="true" /></button>{isOpen && <div className="wahaj-faq-answer">{faq.answer}</div>}</article>; })}</section></div></main>;
+  const [faqs, setFaqs] = useState<FAQ[]>([]);
+  const [activeCategory, setActiveCategory] = useState('all');
+  const [openId, setOpenId] = useState<string | null>(null);
+  const [query, setQuery] = useState('');
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let mounted = true;
+    fetch('/api/faq')
+      .then((response) => response.ok ? response.json() : [])
+      .then((data) => {
+        if (!mounted) return;
+        const items = Array.isArray(data) ? data : [];
+        setFaqs(items);
+        if (items[0]) setOpenId(items[0].id || '0');
+      })
+      .catch(() => mounted && setFaqs([]))
+      .finally(() => mounted && setLoading(false));
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  const categories = useMemo(
+    () => ['all', ...Array.from(new Set(faqs.map((item) => item.category || 'general')))],
+    [faqs],
+  );
+  const filteredFaqs = useMemo(() => {
+    const normalized = query.trim().toLowerCase();
+    return faqs.filter((item) => {
+      const categoryMatch = activeCategory === 'all' || (item.category || 'general') === activeCategory;
+      const searchMatch = !normalized || `${item.question} ${item.answer}`.toLowerCase().includes(normalized);
+      return categoryMatch && searchMatch;
+    });
+  }, [activeCategory, faqs, query]);
+
+  return (
+    <main className="wahaj-help-page" dir="rtl">
+      <div className="wahaj-help-shell">
+        <header className="wahaj-help-hero">
+          <div>
+            <span className="wahaj-help-kicker"><Sparkles size={15} aria-hidden="true" /> مركز المساعدة</span>
+            <h1>إجابات واضحة لأسئلتك</h1>
+            <p>تعرفي على تفاصيل الطلب والشحن والدفع والاستبدال من خلال الأسئلة الأكثر شيوعًا.</p>
+          </div>
+          <span className="wahaj-help-hero__icon" aria-hidden="true"><HelpCircle size={46} strokeWidth={1.25} /></span>
+        </header>
+
+        <section className="wahaj-help-toolbar" aria-label="البحث والتصنيف">
+          <label className="wahaj-help-search">
+            <Search size={17} aria-hidden="true" />
+            <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="ابحثي في الأسئلة..." aria-label="البحث في الأسئلة" />
+          </label>
+          <div className="wahaj-help-tabs" role="group" aria-label="تصنيفات الأسئلة">
+            {categories.map((category) => (
+              <button
+                key={category}
+                type="button"
+                aria-pressed={activeCategory === category}
+                onClick={() => setActiveCategory(category)}
+                className={activeCategory === category ? 'is-active' : ''}
+              >
+                {categoryLabels[category] || category}
+              </button>
+            ))}
+          </div>
+        </section>
+
+        <section className="wahaj-help-list" aria-label="الأسئلة الشائعة" aria-live="polite">
+          {loading ? (
+            <div className="wahaj-help-empty" role="status" aria-live="polite"><span className="wahaj-help-spinner" aria-hidden="true" /> جارٍ تحميل الأسئلة...</div>
+          ) : filteredFaqs.length === 0 ? (
+            <div className="wahaj-help-empty" role="status">
+              <HelpCircle size={28} aria-hidden="true" />
+              <b>لا توجد أسئلة مطابقة</b>
+              <p>جرّبي كلمة بحث أخرى أو اختاري تصنيفًا مختلفًا.</p>
+            </div>
+          ) : (
+            filteredFaqs.map((faq, index) => {
+              const id = faq.id || String(index);
+              const questionId = `wahaj-faq-question-${index}`;
+              const answerId = `wahaj-faq-answer-${index}`;
+              const isOpen = openId === id;
+
+              return (
+                <article key={id} className={`wahaj-faq-item ${isOpen ? 'is-open' : ''}`}>
+                  <button
+                    id={questionId}
+                    type="button"
+                    onClick={() => setOpenId(isOpen ? null : id)}
+                    aria-expanded={isOpen}
+                    aria-controls={answerId}
+                    className="wahaj-faq-question"
+                  >
+                    <span><i aria-hidden="true"><HelpCircle size={17} /></i>{faq.question}</span>
+                    <ChevronDown size={18} aria-hidden="true" />
+                  </button>
+                  <div id={answerId} className="wahaj-faq-answer" role="region" aria-labelledby={questionId} hidden={!isOpen}>
+                    {faq.answer}
+                  </div>
+                </article>
+              );
+            })
+          )}
+        </section>
+      </div>
+    </main>
+  );
 }
