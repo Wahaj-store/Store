@@ -3,8 +3,15 @@ import { del, put } from '@vercel/blob';
 import crypto from 'crypto';
 import { requireUser } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import {
+  InvalidMultipartBodyError,
+  MultipartBodyLimitError,
+  parseBoundedMultipart,
+  requireSingleMultipartFile,
+} from '@/lib/bounded-multipart';
 
 const MAX_FILE_SIZE = 8 * 1024 * 1024;
+const MAX_REQUEST_SIZE = MAX_FILE_SIZE + 256 * 1024;
 const ALLOWED_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp']);
 
 type ImageKind = 'jpg' | 'png' | 'webp';
@@ -26,9 +33,19 @@ export async function POST(req: Request) {
   const user = await requireUser(['OWNER', 'ADMIN', 'MANAGER', 'EDITOR']);
   if (!user) return NextResponse.json({ error: 'غير مصرح' }, { status: 403 });
 
-  const formData = await req.formData();
-  const file = formData.get('file');
-  if (!(file instanceof File)) return NextResponse.json({ error: 'لم يتم اختيار ملف' }, { status: 400 });
+  let file: File;
+  try {
+    const formData = await parseBoundedMultipart(req, MAX_REQUEST_SIZE);
+    file = requireSingleMultipartFile(formData, 'file');
+  } catch (error) {
+    if (error instanceof MultipartBodyLimitError) {
+      return NextResponse.json({ error: 'حجم طلب رفع الوسائط يتجاوز الحد المسموح.' }, { status: 413 });
+    }
+    if (error instanceof InvalidMultipartBodyError) {
+      return NextResponse.json({ error: 'يجب إرسال ملف واحد فقط دون حقول إضافية.' }, { status: 400 });
+    }
+    throw error;
+  }
   if (!ALLOWED_TYPES.has(file.type)) return NextResponse.json({ error: 'يسمح بصور JPG أو PNG أو WebP فقط' }, { status: 400 });
   if (file.size <= 0 || file.size > MAX_FILE_SIZE) return NextResponse.json({ error: 'حجم الصورة يجب أن يكون بين 1 بايت و8MB' }, { status: 400 });
   const publicBlobToken = process.env.BLOB_PUBLIC_READ_WRITE_TOKEN;
