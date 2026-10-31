@@ -4,7 +4,7 @@ import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
 import { normalizePhone } from '@/lib/security';
 import { getCustomer } from '@/lib/customer-auth';
-import { Prisma, PaymentMethod } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 import { put } from '@vercel/blob';
 import { getCustomerSegmentKey } from '@/lib/customer-segment';
 import { calculatePricing, type OfferPricing } from '@/lib/pricing';
@@ -17,6 +17,7 @@ import { getClientKey, rateLimit } from '@/lib/rate-limit';
 import { revalidateShopProducts } from '@/lib/shop-cache';
 import { getCustomerOrderMetrics } from '@/lib/customer-order-metrics';
 import { checkoutTotalsMatch } from '@/lib/checkout-preview-client';
+import { CheckoutRequestSchema, type CheckoutRequest } from '@/lib/checkout-request-schema';
 import { InvalidMultipartBodyError, MultipartBodyLimitError, parseBoundedMultipart } from '@/lib/bounded-multipart';
 import {
   createPaymentProofPath,
@@ -24,14 +25,6 @@ import {
   PAYMENT_PROOF_MAX_BYTES,
   validatePaymentProof,
 } from '@/lib/payment-proof';
-
-const Item = z.object({ productId: z.string().min(1), variantId: z.string().optional(), quantity: z.number().int().positive().max(50) });
-const S = z.object({
-  name: z.string().trim().min(2).max(100), phone: z.string().trim().min(8).max(30),
-  governorate: z.string().trim().min(2).max(80), city: z.string().trim().min(2).max(100), address: z.string().trim().min(5).max(500), notes: z.string().trim().max(1000).optional(),
-  paymentMethod: z.nativeEnum(PaymentMethod), giftCardCode: z.string().trim().max(40).optional(), giftWrap: z.boolean().optional(),
-  idempotencyKey: z.string().uuid(), expectedTotal: z.number().finite().nonnegative().optional(), addressId: z.string().min(1).optional(), items: z.array(Item).min(1).max(100), paymentReference: z.string().trim().max(100).optional()
-});
 
 export const maxDuration = 60;
 const CHECKOUT_MAX_REQUEST_BYTES = PAYMENT_PROOF_MAX_BYTES + 256 * 1024;
@@ -78,9 +71,9 @@ export async function POST(req: Request) {
     }
     const rawData = dataParts[0];
     if (typeof rawData !== 'string') return NextResponse.json({ error: 'بيانات الطلب غير صالحة' }, { status: 400 });
-    let b: z.infer<typeof S>;
+    let b: CheckoutRequest;
     try {
-      b = S.parse(JSON.parse(rawData));
+      b = CheckoutRequestSchema.parse(JSON.parse(rawData));
     } catch (error) {
       if (error instanceof SyntaxError || error instanceof z.ZodError) {
         return NextResponse.json({ error: 'بيانات الطلب غير صالحة' }, { status: 400 });
@@ -125,96 +118,18 @@ export async function POST(req: Request) {
     if (!pay?.enabled) return NextResponse.json({ error: 'طريقة الدفع غير متاحة حالياً' }, { status: 400 });
     if (pay.proofRequired && !hasProofFile) return NextResponse.json({ error: 'إثبات الدفع مطلوب لهذه الطريقة' }, { status: 400 });
 
-    const requested = b.items.map(i => {
-      const p = products.find(x => x.id === i.productId)!;
-      const v = i.variantId ? p.variants.find(x => x.id === i.variantId) : undefined;
-      if (p.variants.length > 0 && !i.variantId) throw new CheckoutDomainError(`اختاري خيارات المنتج ${p.name} أولاً`);
-      if (i.variantId && !v) throw new CheckoutDomainError('الخيار المحدد غير متاح');
-      const stock = v ? v.stock : p.stock;
-      if (stock < i.quantity) throw new CheckoutDomainError(`الكمية المتاحة من ${p.name} غير كافية`, 409);
-      const price = v?.price != null ? Number(v.price) : Number(p.price);
-      return { p, v, quantity: i.quantity, price, categoryId: p.categoryId };
-    });
+    for (const item of b.items) {
+      const product = products.find((candidate) => candidate.id === item.productId)!;
+      const variant = item.variantId ? product.variants.find((candidate) => candidate.id === item.variantId) : undefined;
+      if (product.variants.length > 0 && !item.variantId) throw new CheckoutDomainError(`اختاري خيارات المنتج ${product.name} أولاً`);
+      if (item.variantId && !variant) throw new CheckoutDomainError('الخيار المحدد غير متاح');
+      const availableStock = variant ? variant.stock : product.stock;
+      if (availableStock < item.quantity) throw new CheckoutDomainError(`الكمية المتاحة من ${product.name} غير كافية`, 409);
+    }
 
-    const now = new Date();
-
-    const zone = await findActiveShippingZone(checkoutGovernorate, checkoutCity);
-    if (!zone) return NextResponse.json({ error: 'لا توجد منطقة شحن مفعلة لهذا العنوان' }, { status: 400 });
-    const shippingFreeAbove = await resolveShippingFreeAbove(zone);
-
-    const existingCustomer = loggedInCustomer?.id
-      ? await prisma.customer.findUnique({ where: { id: loggedInCustomer.id }, select: { id: true } })
-      : await prisma.customer.findUnique({ where: { phone: normalizedPhone }, select: { id: true } });
-    const customerMetrics = existingCustomer
-      ? await getCustomerOrderMetrics(existingCustomer.id)
-      : { orderCount: 0, spend: 0, lastOrder: null };
-    const isFirstOrder = customerMetrics.orderCount === 0;
-    const customerSegmentKey = existingCustomer
-      ? getCustomerSegmentKey({ ...customerMetrics, now })
-      : null;
-
-    const activeOffers = await prisma.offer.findMany({
-      where: {
-        active: true,
-        OR: [{ startsAt: null }, { startsAt: { lte: now } }],
-        AND: [{ OR: [{ endsAt: null }, { endsAt: { gte: now } }] }],
-      },
-      select: {
-        id: true, name: true, type: true, discountType: true, discountValue: true,
-        minOrder: true, maxDiscount: true, priority: true, stackable: true,
-        maxUses: true, usedCount: true, productId: true, categoryId: true,
-        buyQuantity: true, getQuantity: true, getDiscountPercent: true,
-        startsAt: true, endsAt: true, active: true,
-        segmentTargets: { select: { segmentKey: true } },
-      },
-    });
-
-    const pricing = calculatePricing({
-      lines: requested.map(i => ({ quantity: i.quantity, unitPrice: i.price, productId: i.p.id, categoryId: i.p.categoryId })),
-      shippingPrice: Number(zone.price),
-      shippingFreeAbove,
-      offers: activeOffers.map((o): OfferPricing => ({
-        id: o.id,
-        name: o.name,
-        type: o.type,
-        discountType: o.discountType,
-        discountValue: o.discountValue === null ? null : Number(o.discountValue),
-        minOrder: o.minOrder === null ? null : Number(o.minOrder),
-        maxDiscount: o.maxDiscount === null ? null : Number(o.maxDiscount),
-        priority: o.priority,
-        stackable: o.stackable,
-        maxUses: o.maxUses,
-        usedCount: o.usedCount,
-        productId: o.productId,
-        categoryId: o.categoryId,
-        buyQuantity: o.buyQuantity === null ? null : Number(o.buyQuantity),
-        getQuantity: o.getQuantity === null ? null : Number(o.getQuantity),
-        getDiscountPercent: o.getDiscountPercent === null ? null : Number(o.getDiscountPercent),
-        startsAt: o.startsAt,
-        endsAt: o.endsAt,
-        active: o.active,
-        segmentKeys: o.segmentTargets.map((target: { segmentKey: string }) => target.segmentKey),
-      })),
-      isFirstOrder,
-      customerSegmentKey,
-      now,
-    });
-    const { subtotal, shipping, discount } = pricing;
-    // رسوم خدمة تغليف هدايا تُقرأ من قاعدة البيانات وتُعاد حسابها على الخادم.
-    const giftWrapFlag = await prisma.featureFlag.findUnique({ where: { key: 'gift_wrap' }, select: { enabled: true } });
-    const giftWrapSelected = b.giftWrap === true && giftWrapFlag?.enabled === true;
-    const giftWrapSetting = giftWrapSelected ? await prisma.siteSetting.findUnique({ where: { key: 'gift_wrap_fee' }, select: { value: true } }) : null;
-    const parsedGiftWrapFee = Number(giftWrapSetting?.value || 0);
-    const giftWrapFee = giftWrapSelected && Number.isFinite(parsedGiftWrapFee) ? Math.max(0, Math.min(100000, parsedGiftWrapFee)) : 0;
-    const total = pricing.total + giftWrapFee;
-    const giftWrapNote = giftWrapSelected ? `خدمة تغليف هدايا: ${giftWrapFee.toLocaleString('ar-EG')} ج.م` : '';
-    const customerNotes = (checkoutNotes || '').trim().slice(0, Math.max(0, 999 - giftWrapNote.length));
-    const orderNotes = [customerNotes, giftWrapNote].filter(Boolean).join('\n') || undefined;
+    const preflightZone = await findActiveShippingZone(checkoutGovernorate, checkoutCity);
+    if (!preflightZone) return NextResponse.json({ error: 'لا توجد منطقة شحن مفعلة لهذا العنوان' }, { status: 400 });
     const giftCardCode = b.giftCardCode ? normalizeGiftCardCode(b.giftCardCode) : undefined;
-
-    const siteMin = await prisma.siteSetting.findUnique({ where: { key: 'minimum_order' } });
-    const minimumOrder = Number(siteMin?.value || 0);
-    if (minimumOrder > 0 && subtotal - discount < minimumOrder) return NextResponse.json({ error: `الحد الأدنى للطلب هو ${minimumOrder.toLocaleString('ar-EG')} ج.م` }, { status: 400 });
 
     // لا نرفع الملف إلا بعد اجتياز عمليات التحقق التي قد تنهي الطلب مبكرًا.
     // وإذا فشلت المعاملة بعد الرفع، يتولى catch حذف الملف الخاص.
@@ -232,7 +147,112 @@ export async function POST(req: Request) {
       uploadedProofPath = blob.pathname;
     }
 
-    const order = await prisma.$transaction(async tx => {
+    const { order, settledSubtotal } = await prisma.$transaction(async tx => {
+      const transactionNow = new Date();
+      const transactionPayment = await tx.paymentSetting.findUnique({
+        where: { method: b.paymentMethod },
+        select: { enabled: true, proofRequired: true },
+      });
+      if (!transactionPayment?.enabled) throw new CheckoutDomainError('طريقة الدفع غير متاحة حالياً');
+      if (transactionPayment.proofRequired && !hasProofFile) throw new CheckoutDomainError('إثبات الدفع مطلوب لهذه الطريقة');
+
+      const transactionProducts = await tx.product.findMany({
+        where: { id: { in: ids }, status: 'PUBLISHED' },
+        include: { variants: true },
+      });
+      if (transactionProducts.length !== ids.length) throw new CheckoutDomainError('أحد المنتجات لم يعد متاحًا حالياً', 409);
+      const transactionRequested = b.items.map((item) => {
+        const product = transactionProducts.find((candidate) => candidate.id === item.productId);
+        if (!product) throw new CheckoutDomainError('أحد المنتجات لم يعد متاحًا حالياً', 409);
+        const variant = item.variantId ? product.variants.find((candidate) => candidate.id === item.variantId) : undefined;
+        if (product.variants.length > 0 && !item.variantId) throw new CheckoutDomainError(`اختاري خيارات المنتج ${product.name} أولاً`);
+        if (item.variantId && !variant) throw new CheckoutDomainError('الخيار المحدد لم يعد متاحًا', 409);
+        const price = variant?.price != null ? Number(variant.price) : Number(product.price);
+        return { p: product, v: variant, quantity: item.quantity, price, categoryId: product.categoryId };
+      });
+
+      const transactionZone = await findActiveShippingZone(checkoutGovernorate, checkoutCity, tx);
+      if (!transactionZone) throw new CheckoutDomainError('لا توجد منطقة شحن مفعلة لهذا العنوان');
+      const transactionShippingFreeAbove = await resolveShippingFreeAbove(transactionZone, tx);
+      const transactionCustomer = loggedInCustomer?.id
+        ? await tx.customer.findUnique({ where: { id: loggedInCustomer.id }, select: { id: true } })
+        : await tx.customer.findUnique({ where: { phone: normalizedPhone }, select: { id: true } });
+      const transactionCustomerMetrics = transactionCustomer
+        ? await getCustomerOrderMetrics(transactionCustomer.id, tx)
+        : { orderCount: 0, spend: 0, lastOrder: null };
+      const transactionOffers = await tx.offer.findMany({
+        where: {
+          active: true,
+          OR: [{ startsAt: null }, { startsAt: { lte: transactionNow } }],
+          AND: [{ OR: [{ endsAt: null }, { endsAt: { gte: transactionNow } }] }],
+        },
+        select: {
+          id: true, name: true, type: true, discountType: true, discountValue: true,
+          minOrder: true, maxDiscount: true, priority: true, stackable: true,
+          maxUses: true, usedCount: true, productId: true, categoryId: true,
+          buyQuantity: true, getQuantity: true, getDiscountPercent: true,
+          startsAt: true, endsAt: true, active: true,
+          segmentTargets: { select: { segmentKey: true } },
+        },
+      });
+      const transactionPricing = calculatePricing({
+        lines: transactionRequested.map((item) => ({
+          quantity: item.quantity,
+          unitPrice: item.price,
+          productId: item.p.id,
+          categoryId: item.p.categoryId,
+        })),
+        shippingPrice: Number(transactionZone.price),
+        shippingFreeAbove: transactionShippingFreeAbove,
+        offers: transactionOffers.map((offer): OfferPricing => ({
+          id: offer.id,
+          name: offer.name,
+          type: offer.type,
+          discountType: offer.discountType,
+          discountValue: offer.discountValue === null ? null : Number(offer.discountValue),
+          minOrder: offer.minOrder === null ? null : Number(offer.minOrder),
+          maxDiscount: offer.maxDiscount === null ? null : Number(offer.maxDiscount),
+          priority: offer.priority,
+          stackable: offer.stackable,
+          maxUses: offer.maxUses,
+          usedCount: offer.usedCount,
+          productId: offer.productId,
+          categoryId: offer.categoryId,
+          buyQuantity: offer.buyQuantity,
+          getQuantity: offer.getQuantity,
+          getDiscountPercent: offer.getDiscountPercent === null ? null : Number(offer.getDiscountPercent),
+          startsAt: offer.startsAt,
+          endsAt: offer.endsAt,
+          active: offer.active,
+          segmentKeys: offer.segmentTargets.map((target) => target.segmentKey),
+        })),
+        isFirstOrder: transactionCustomerMetrics.orderCount === 0,
+        customerSegmentKey: transactionCustomer
+          ? getCustomerSegmentKey({ ...transactionCustomerMetrics, now: transactionNow })
+          : null,
+        now: transactionNow,
+      });
+      const transactionGiftWrapFlag = await tx.featureFlag.findUnique({ where: { key: 'gift_wrap' }, select: { enabled: true } });
+      const transactionGiftWrapSelected = b.giftWrap === true && transactionGiftWrapFlag?.enabled === true;
+      const transactionGiftWrapSetting = transactionGiftWrapSelected
+        ? await tx.siteSetting.findUnique({ where: { key: 'gift_wrap_fee' }, select: { value: true } })
+        : null;
+      const transactionGiftWrapFeeValue = Number(transactionGiftWrapSetting?.value || 0);
+      const transactionGiftWrapFee = transactionGiftWrapSelected && Number.isFinite(transactionGiftWrapFeeValue)
+        ? Math.max(0, Math.min(100000, transactionGiftWrapFeeValue))
+        : 0;
+      const transactionTotal = transactionPricing.total + transactionGiftWrapFee;
+      const transactionMinimumSetting = await tx.siteSetting.findUnique({ where: { key: 'minimum_order' }, select: { value: true } });
+      const transactionMinimumOrder = Number(transactionMinimumSetting?.value || 0);
+      if (transactionMinimumOrder > 0 && transactionPricing.subtotal - transactionPricing.discount < transactionMinimumOrder) {
+        throw new CheckoutDomainError(`الحد الأدنى للطلب هو ${transactionMinimumOrder.toLocaleString('ar-EG')} ج.م`);
+      }
+      const transactionGiftWrapNote = transactionGiftWrapSelected
+        ? `خدمة تغليف هدايا: ${transactionGiftWrapFee.toLocaleString('ar-EG')} ج.م`
+        : '';
+      const transactionCustomerNotes = (checkoutNotes || '').trim().slice(0, Math.max(0, 999 - transactionGiftWrapNote.length));
+      const transactionOrderNotes = [transactionCustomerNotes, transactionGiftWrapNote].filter(Boolean).join('\n') || undefined;
+
       let giftCardId: string | null = null;
       let giftCardAmount = 0;
       if (giftCardCode) {
@@ -240,20 +260,20 @@ export async function POST(req: Request) {
         const valid = card && card.active && Number(card.balance) > 0 && (!card.expiresAt || card.expiresAt > new Date());
         if (!valid) throw new CheckoutDomainError('بطاقة الهدايا غير صالحة أو منتهية أو بدون رصيد');
         giftCardId = card.id;
-        giftCardAmount = Math.min(Number(card.balance), Math.max(0, Number(total)));
-        const actualTotal = Math.max(0, total - giftCardAmount);
-        if (b.expectedTotal !== undefined && !checkoutTotalsMatch(b.expectedTotal, actualTotal)) {
+        giftCardAmount = Math.min(Number(card.balance), Math.max(0, transactionTotal));
+        const actualTotal = Math.max(0, transactionTotal - giftCardAmount);
+        if (!checkoutTotalsMatch(b.expectedTotal, actualTotal)) {
           throw new CheckoutPriceChangedError(actualTotal);
         }
         if (giftCardAmount > 0) {
           const consumed = await tx.giftCard.updateMany({ where: { id: card.id, active: true, balance: { gte: giftCardAmount } }, data: { balance: { decrement: giftCardAmount } } });
           if (consumed.count !== 1) throw new CheckoutDomainError('رصيد بطاقة الهدايا تغير، أعيدي المحاولة', 409);
         }
-      } else if (b.expectedTotal !== undefined && !checkoutTotalsMatch(b.expectedTotal, total)) {
-        throw new CheckoutPriceChangedError(Math.max(0, total));
+      } else if (!checkoutTotalsMatch(b.expectedTotal, transactionTotal)) {
+        throw new CheckoutPriceChangedError(Math.max(0, transactionTotal));
       }
       const inventoryEntryIds: string[] = [];
-      for (const i of requested) {
+      for (const i of transactionRequested) {
         if (i.v) {
           const r = await tx.productVariant.updateMany({ where: { id: i.v.id, stock: { gte: i.quantity } }, data: { stock: { decrement: i.quantity } } });
           if (r.count !== 1) throw new CheckoutDomainError(`المخزون غير كافٍ للمنتج ${i.p.name}`, 409);
@@ -299,9 +319,9 @@ export async function POST(req: Request) {
       const number = `WAH-${crypto.randomUUID().slice(0, 8).toUpperCase()}`;
       const o = await tx.order.create({ data: {
         number, idempotencyKey, customerId: c.id, customerNameSnapshot: checkoutName, customerPhoneSnapshot: checkoutPhone,
-        paymentMethod: b.paymentMethod, total: Math.max(0, total - giftCardAmount), shipping, discount, giftCardId, giftCardAmount, notes: orderNotes || checkoutNotes, shippingGovernorate: checkoutGovernorate, shippingCity: checkoutCity, shippingAddress: checkoutAddress,
-        items: { create: requested.map(i => ({ productId: i.p.id, variantId: i.v?.id, variantName: i.v?.name, variantValue: i.v?.value, skuSnapshot: i.v?.sku || i.p.sku, name: i.p.name, quantity: i.quantity, price: new Prisma.Decimal(i.price) })) },
-        payments: { create: { method: b.paymentMethod, amount: Math.max(0, total - giftCardAmount), reference: b.paymentReference, proofUrl: uploadedProofPath } },
+        paymentMethod: b.paymentMethod, total: Math.max(0, transactionTotal - giftCardAmount), shipping: transactionPricing.shipping, discount: transactionPricing.discount, giftCardId, giftCardAmount, notes: transactionOrderNotes || checkoutNotes, shippingGovernorate: checkoutGovernorate, shippingCity: checkoutCity, shippingAddress: checkoutAddress,
+        items: { create: transactionRequested.map(i => ({ productId: i.p.id, variantId: i.v?.id, variantName: i.v?.name, variantValue: i.v?.value, skuSnapshot: i.v?.sku || i.p.sku, name: i.p.name, quantity: i.quantity, price: new Prisma.Decimal(i.price) })) },
+        payments: { create: { method: b.paymentMethod, amount: Math.max(0, transactionTotal - giftCardAmount), reference: b.paymentReference, proofUrl: uploadedProofPath } },
         timeline: { create: { status: 'NEW', note: 'تم إنشاء الطلب' } }
       } });
 
@@ -347,8 +367,8 @@ export async function POST(req: Request) {
         await tx.giftCardLedger.create({ data: { giftCardId, type: 'REDEEM', amount: giftCardAmount, balanceAfter: cardAfter?.balance ?? 0, orderId: o.id, reference: o.number, customerId: o.customerId, note: 'استخدام بطاقة هدايا عند الدفع' } });
       }
 
-      if (pricing.appliedOffers.length) {
-        for (const applied of pricing.appliedOffers) {
+      if (transactionPricing.appliedOffers.length) {
+        for (const applied of transactionPricing.appliedOffers) {
           const currentOffer = await tx.offer.findUnique({ where: { id: applied.id }, select: { maxUses: true } });
           const where: Prisma.OfferWhereInput = { id: applied.id, active: true };
           if (currentOffer?.maxUses !== null && currentOffer?.maxUses !== undefined) {
@@ -358,7 +378,7 @@ export async function POST(req: Request) {
           if (consumedOffer.count !== 1) throw new CheckoutDomainError('أحد العروض لم يعد متاحاً', 409);
         }
       }
-      return o;
+      return { order: o, settledSubtotal: transactionPricing.subtotal };
     }, { isolationLevel: Prisma.TransactionIsolationLevel.Serializable, maxWait: 5000, timeout: 15000 });
 
     // تم حفظ إثبات الدفع مع الطلب؛ لا نحذفه في حال تعثرت معالجة جانبية بعد نجاح المعاملة.
@@ -396,7 +416,7 @@ export async function POST(req: Request) {
       }
     });
 
-    return NextResponse.json({ ok: true, orderNumber: order.number, subtotal, shipping: Number(order.shipping), discount: Number(order.discount), total: Number(order.total) });
+    return NextResponse.json({ ok: true, orderNumber: order.number, subtotal: settledSubtotal, shipping: Number(order.shipping), discount: Number(order.discount), total: Number(order.total) });
   } catch (e: any) {
     if (uploadedProofPath) {
       try {
@@ -422,7 +442,11 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: e.message }, { status: e.status, headers: { 'Cache-Control': 'no-store' } });
     }
     if (e instanceof z.ZodError) {
-      return NextResponse.json({ error: e.issues[0]?.message || 'بيانات الطلب غير صالحة' }, { status: 400, headers: { 'Cache-Control': 'no-store' } });
+      const expectedTotalMissing = e.issues.some((issue) => issue.path[0] === 'expectedTotal');
+      const message = expectedTotalMissing
+        ? 'تعذر التحقق من إجمالي الطلب. حدّثي الأسعار ثم أكّدي الطلب مرة أخرى.'
+        : e.issues[0]?.message || 'بيانات الطلب غير صالحة';
+      return NextResponse.json({ error: message }, { status: 400, headers: { 'Cache-Control': 'no-store' } });
     }
     if (e instanceof SyntaxError) {
       return NextResponse.json({ error: 'بيانات الطلب غير صالحة' }, { status: 400, headers: { 'Cache-Control': 'no-store' } });
