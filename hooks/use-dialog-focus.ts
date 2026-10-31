@@ -41,11 +41,22 @@ export function useDialogFocus<T extends HTMLElement>({
     const dialog = dialogRef.current;
     if (!dialog) return;
 
-    const getFocusable = () => Array.from(dialog.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR))
-      .filter((element) => !element.hasAttribute('hidden') && element.getAttribute('aria-hidden') !== 'true' && element.getClientRects().length > 0);
+    const isFocusable = (element: HTMLElement | null): element is HTMLElement => Boolean(
+      element
+      && dialog.contains(element)
+      && element.tabIndex >= 0
+      && !element.matches(':disabled')
+      && !element.closest('[hidden], [inert], [aria-hidden="true"]')
+      && window.getComputedStyle(element).visibility !== 'hidden'
+      && element.getClientRects().length > 0,
+    );
 
-    const initialTarget = initialTargetRef.current?.current;
-    (initialTarget && !initialTarget.hasAttribute('disabled') ? initialTarget : getFocusable()[0])?.focus({ preventScroll: true });
+    const getFocusable = () => Array.from(dialog.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR))
+      .filter((element) => isFocusable(element));
+
+    const requestedTarget = initialTargetRef.current?.current || null;
+    const firstTarget = isFocusable(requestedTarget) ? requestedTarget : getFocusable()[0];
+    (firstTarget || dialog).focus({ preventScroll: true });
 
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
