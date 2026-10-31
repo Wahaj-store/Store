@@ -1,27 +1,19 @@
-import { PaymentMethod } from '@prisma/client';
 import { z } from 'zod';
 
-const CheckoutItemSchema = z.object({
-  productId: z.string().min(1),
-  variantId: z.string().optional(),
-  quantity: z.number().int().positive().max(50),
+const CheckoutPreviewItemSchema = z.object({
+  productId: z.string().trim().min(1).max(64),
+  variantId: z.string().trim().max(64).nullable().optional(),
+  quantity: z.number().int().min(1).max(50),
 });
 
-export const CheckoutRequestSchema = z.object({
-  name: z.string().trim().min(2).max(100),
-  phone: z.string().trim().min(8).max(30),
-  governorate: z.string().trim().min(2).max(80),
-  city: z.string().trim().min(2).max(100),
-  address: z.string().trim().min(5).max(500),
-  notes: z.string().trim().max(1000).optional(),
-  paymentMethod: z.nativeEnum(PaymentMethod),
-  giftCardCode: z.string().trim().max(40).optional(),
-  giftWrap: z.boolean().optional(),
-  idempotencyKey: z.string().uuid(),
-  expectedTotal: z.number().finite().nonnegative(),
-  addressId: z.string().min(1).optional(),
-  items: z.array(CheckoutItemSchema).min(1).max(100),
-  paymentReference: z.string().trim().max(100).optional(),
-});
+export const CheckoutPreviewSchema = z.object({
+  items: z.array(CheckoutPreviewItemSchema).max(100).default([]),
+  phone: z.string().trim().max(30).optional().default(''),
+  governorate: z.string().trim().max(80).optional().default(''),
+  city: z.string().trim().max(100).optional().default(''),
+  giftWrap: z.boolean().optional().default(false),
+  giftCardCode: z.string().trim().max(40).optional().default(''),
+  couponCode: z.string().trim().max(100).optional(),
+}).strip();
 
-export type CheckoutRequest = z.infer<typeof CheckoutRequestSchema>;
+export type CheckoutPreviewInput = z.infer<typeof CheckoutPreviewSchema>;
