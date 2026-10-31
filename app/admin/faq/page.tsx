@@ -1,6 +1,7 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Plus, Edit, Trash2, CheckCircle, XCircle, HelpCircle } from 'lucide-react';
+import AdminTableScroll from '@/components/admin/AdminTableScroll';
 
 export default function AdminFaqPage() {
   const [faqs, setFaqs] = useState<any[]>([]);
@@ -15,16 +16,23 @@ export default function AdminFaqPage() {
   });
   const [isEditing, setIsEditing] = useState(false);
   const [error, setError] = useState('');
+  const [loadError, setLoadError] = useState('');
+  const fetchRequestRef = useRef(0);
 
   const fetchFaqs = async () => {
+    const requestId = ++fetchRequestRef.current;
+    setLoading(true);
+    setLoadError('');
     try {
-      const res = await fetch('/api/admin/faq');
-      const data = await res.json();
-      if (Array.isArray(data)) setFaqs(data);
-    } catch {
-      setError('تعذر جلب الأسئلة');
+      const res = await fetch('/api/admin/faq', { cache: 'no-store' });
+      const data = await res.json().catch(() => null);
+      if (!res.ok) throw new Error(data?.error || 'تعذر جلب الأسئلة.');
+      if (!Array.isArray(data)) throw new Error('استجابة الأسئلة غير صالحة.');
+      if (requestId === fetchRequestRef.current) setFaqs(data);
+    } catch (e: any) {
+      if (requestId === fetchRequestRef.current) setLoadError(e?.message || 'تعذر جلب الأسئلة.');
     } finally {
-      setLoading(false);
+      if (requestId === fetchRequestRef.current) setLoading(false);
     }
   };
 
@@ -49,7 +57,7 @@ export default function AdminFaqPage() {
       if (res.ok) {
         setFormData({ id: '', question: '', answer: '', category: 'general', displayOrder: 0, published: true });
         setIsEditing(false);
-        fetchFaqs();
+        await fetchFaqs();
       } else {
         const j = await res.json();
         setError(j.error || 'حدث خطأ أثناء الحفظ');
@@ -94,7 +102,7 @@ export default function AdminFaqPage() {
       <form onSubmit={handleSubmit} className="bg-white p-6 rounded-2xl border shadow-xs space-y-4">
         <h2 className="font-semibold text-lg">{isEditing ? 'تعديل السؤال' : 'إضافة سؤال جديد'}</h2>
         
-        {error && <p className="text-xs text-red-600 font-medium">{error}</p>}
+        {error && <p role="alert" className="text-xs text-red-600 font-medium">{error}</p>}
 
         <div className="grid gap-4 md:grid-cols-2">
           <label className="block text-xs font-medium">السؤال
@@ -173,8 +181,11 @@ export default function AdminFaqPage() {
       </form>
 
       {/* جدول عرض الأسئلة */}
-      <div className="bg-white rounded-2xl border shadow-xs overflow-hidden">
-        <table className="w-full text-start border-collapse">
+      {loading && faqs.length > 0 && <p role="status" aria-live="polite" className="text-xs text-muted-foreground">جارٍ تحديث الأسئلة…</p>}
+      {loadError && <div role="alert" aria-live="assertive" className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-red-500/20 bg-red-500/5 p-3 text-xs text-red-600"><span>{loadError}</span><button type="button" onClick={() => void fetchFaqs()} className="min-h-9 rounded-lg border border-red-500/25 px-3 font-semibold">إعادة المحاولة</button></div>}
+      <div className="min-w-0 rounded-2xl border bg-white shadow-xs">
+        <AdminTableScroll label="جدول الأسئلة الشائعة" className="rounded-2xl">
+        <table className="w-full min-w-[640px] border-collapse text-start">
           <thead>
             <tr className="border-b bg-gray-50 text-xs text-gray-500 text-start">
               <th className="p-4">السؤال وال قسم</th>
@@ -184,8 +195,10 @@ export default function AdminFaqPage() {
             </tr>
           </thead>
           <tbody className="divide-y text-sm">
-            {loading ? (
-              <tr><td colSpan={4} className="p-8 text-center text-gray-400">جارٍ التحميل...</td></tr>
+            {loading && faqs.length === 0 ? (
+              <tr><td colSpan={4} role="status" aria-live="polite" className="p-8 text-center text-gray-400">جارٍ التحميل...</td></tr>
+            ) : loadError && faqs.length === 0 ? (
+              <tr><td colSpan={4} className="p-8 text-center text-red-600">تعذر تحميل القائمة؛ استخدم زر إعادة المحاولة أعلاه.</td></tr>
             ) : faqs.length === 0 ? (
               <tr><td colSpan={4} className="p-8 text-center text-gray-400">لا توجد أي أسئلة مضافة حتى الآن.</td></tr>
             ) : (
@@ -218,6 +231,7 @@ export default function AdminFaqPage() {
             )}
           </tbody>
         </table>
+        </AdminTableScroll>
       </div>
     </div>
   );
