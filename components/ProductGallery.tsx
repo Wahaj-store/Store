@@ -4,6 +4,7 @@ import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { X, ZoomIn, ZoomOut } from 'lucide-react';
+import { useDialogFocus } from '../hooks/use-dialog-focus';
 
 type ProductImage = {
   id?: string;
@@ -38,6 +39,9 @@ export default function ProductGallery({
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxZoom, setLightboxZoom] = useState(1);
   const [lightboxPosition, setLightboxPosition] = useState<Position>({ x: 0, y: 0 });
+  const stageRef = useRef<HTMLDivElement>(null);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const lightboxRef = useDialogFocus<HTMLDivElement>({ open: lightboxOpen, initialFocusRef: closeButtonRef, onEscape: closeLightbox });
   const touchGesture = useRef<TouchGesture | null>(null);
   const mouseDrag = useRef<{ x: number; y: number; position: Position } | null>(null);
   const lastTap = useRef<{ time: number; x: number; y: number } | null>(null);
@@ -80,7 +84,6 @@ export default function ProductGallery({
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') closeLightbox();
       if (event.key === 'ArrowLeft' && items.length > 1) changeImage(1);
       if (event.key === 'ArrowRight' && items.length > 1) changeImage(-1);
     };
@@ -162,6 +165,7 @@ export default function ProductGallery({
   return (
     <div className="wahaj-product-gallery">
       <div
+        ref={stageRef}
         className={`wahaj-product-gallery__stage wahaj-gallery-enter ${isZoomed ? 'is-zoomed' : ''}`}
         role="button"
         tabIndex={0}
@@ -223,10 +227,10 @@ export default function ProductGallery({
       ) : null}
 
       {lightboxOpen && typeof document !== 'undefined' ? createPortal((
-        <div className="wahaj-gallery-lightbox" role="dialog" aria-modal="true" aria-label={`معرض صور ${productName}`}>
+        <div ref={lightboxRef} className="wahaj-gallery-lightbox" role="dialog" aria-modal="true" aria-label={`معرض صور ${productName}`} tabIndex={-1}>
           <header className="wahaj-gallery-lightbox__toolbar" dir="ltr">
             <div className="wahaj-gallery-lightbox__tools">
-              <button type="button" onClick={closeLightbox} aria-label="إغلاق التكبير"><X size={24} /></button>
+              <button ref={closeButtonRef} type="button" onClick={closeLightbox} aria-label="إغلاق التكبير"><X size={24} /></button>
               <button type="button" onClick={toggleLightboxZoom} aria-label={lightboxZoom > 1 ? 'تصغير الصورة' : 'تكبير الصورة'}>
                 {lightboxZoom > 1 ? <ZoomOut size={21} /> : <ZoomIn size={21} />}
               </button>
