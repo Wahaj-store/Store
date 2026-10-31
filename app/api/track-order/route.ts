@@ -77,7 +77,6 @@ export async function POST(req: Request) {
           orderBy: { createdAt: 'desc' },
           select: {
             status: true,
-            note: true,
             createdAt: true,
           },
         },
@@ -97,7 +96,6 @@ export async function POST(req: Request) {
               take: 10,
               select: {
                 status: true,
-                note: true,
                 createdAt: true,
               },
             },
