@@ -26,7 +26,7 @@ const DEFAULTS: Record<string, string> = {
 
 const HERO_SETTINGS_CONFIG_KEY = 'wahajOfferMarquee';
 const HERO_SETTING_KEYS = ['hero_marquee_speed', 'hero_marquee_items', 'hero_marquee_bg', 'hero_marquee_color', 'hero_marquee_accent', 'hero_height_desktop', 'hero_height_mobile'];
-const settingSchema = z.record(z.string().max(20000));
+const settingSchema = z.record(z.string(), z.string().max(20000));
 const popupConfigSchema = z.object({
   title: z.string().trim().min(1).max(120),
   message: z.string().max(700),
