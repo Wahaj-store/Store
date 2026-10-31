@@ -77,3 +77,17 @@ export async function parseBoundedMultipart(request: Request, maxBytes: number):
     throw new InvalidMultipartBodyError();
   }
 }
+
+/** Validate endpoints that accept one upload and no additional form fields. */
+export function requireSingleMultipartFile(formData: FormData, fieldName: string): File {
+  const entries = [...formData.entries()];
+  if (
+    entries.length !== 1 ||
+    entries[0][0] !== fieldName ||
+    typeof entries[0][1] === 'string' ||
+    !(entries[0][1] instanceof File)
+  ) {
+    throw new InvalidMultipartBodyError();
+  }
+  return entries[0][1];
+}
