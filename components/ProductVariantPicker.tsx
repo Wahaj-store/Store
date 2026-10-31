@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import Image from 'next/image';
 import { Check, Minus, Plus, X } from 'lucide-react';
+import { useDialogFocus } from '@/hooks/use-dialog-focus';
 import AddToCartButtonContent from './AddToCartButtonContent';
 
 type ProductVariant = {
@@ -28,6 +29,7 @@ export default function ProductVariantPicker({ product, onClose, onConfirm }: Pr
   const [added, setAdded] = useState(false);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const closeTimerRef = useRef<number | null>(null);
+  const dialogRef = useDialogFocus<HTMLElement>({ open: true, initialFocusRef: closeButtonRef, onEscape: onClose });
   const selected = variants.find((item) => item.id === selectedId);
   const selectedStock = Math.max(0, Number(selected?.stock) || 0);
   const selectedPrice = selected?.price != null ? Number(selected.price) : Number(product?.price) || 0;
@@ -44,17 +46,11 @@ export default function ProductVariantPicker({ product, onClose, onConfirm }: Pr
   useEffect(() => {
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') onClose();
-    };
-    document.addEventListener('keydown', onKeyDown);
-    closeButtonRef.current?.focus();
     return () => {
       document.body.style.overflow = previousOverflow;
-      document.removeEventListener('keydown', onKeyDown);
       if (closeTimerRef.current !== null) window.clearTimeout(closeTimerRef.current);
     };
-  }, [onClose]);
+  }, []);
 
   if (typeof document === 'undefined') return null;
 
@@ -66,10 +62,12 @@ export default function ProductVariantPicker({ product, onClose, onConfirm }: Pr
       }}
     >
       <section
+        ref={dialogRef}
         className="wahaj-variant-picker"
         role="dialog"
         aria-modal="true"
         aria-labelledby="wahaj-variant-picker-title"
+        tabIndex={-1}
         dir="rtl"
       >
         <header className="wahaj-variant-picker__header">
