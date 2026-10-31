@@ -18,6 +18,8 @@ export type ShopSearchState = {
 
 export type RawShopSearchParams = Record<string, string | string[] | undefined>;
 
+export const SHOP_MAX_PAGE = 100;
+
 function first(value: string | string[] | undefined): string | undefined {
   return Array.isArray(value) ? value[0] : value;
 }
@@ -38,7 +40,7 @@ export function parseShopSearchParams(params: RawShopSearchParams): ShopSearchSt
   const parsedMaxPrice = getNonNegativeNumber(rawMaxPrice);
   const invalidPriceRange = parsedMinPrice !== null && parsedMaxPrice !== null && parsedMinPrice > parsedMaxPrice;
   const pageValue = Number(first(params.page));
-  const page = Number.isInteger(pageValue) && pageValue > 0 ? Math.min(pageValue, 100_000) : 1;
+  const page = Number.isInteger(pageValue) && pageValue > 0 ? Math.min(pageValue, SHOP_MAX_PAGE) : 1;
   const sortValue = first(params.sort);
   const sort: ShopSort = ['newest', 'price-asc', 'price-desc', 'name-asc'].includes(sortValue || '')
     ? (sortValue as ShopSort)
