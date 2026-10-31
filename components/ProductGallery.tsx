@@ -39,9 +39,7 @@ export default function ProductGallery({
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxZoom, setLightboxZoom] = useState(1);
   const [lightboxPosition, setLightboxPosition] = useState<Position>({ x: 0, y: 0 });
-  const stageRef = useRef<HTMLDivElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
-  const lightboxRef = useDialogFocus<HTMLDivElement>({ open: lightboxOpen, initialFocusRef: closeButtonRef, onEscape: closeLightbox });
   const touchGesture = useRef<TouchGesture | null>(null);
   const mouseDrag = useRef<{ x: number; y: number; position: Position } | null>(null);
   const lastTap = useRef<{ time: number; x: number; y: number } | null>(null);
@@ -67,11 +65,13 @@ export default function ProductGallery({
     setLightboxPosition({ x: 0, y: 0 });
   };
 
-  const closeLightbox = () => {
+  function closeLightbox() {
     setLightboxOpen(false);
     setLightboxZoom(1);
     setLightboxPosition({ x: 0, y: 0 });
-  };
+  }
+
+  const lightboxRef = useDialogFocus<HTMLDivElement>({ open: lightboxOpen, initialFocusRef: closeButtonRef, onEscape: closeLightbox });
 
   const toggleLightboxZoom = () => {
     const next = lightboxZoom > 1 ? 1 : 2.4;
@@ -165,7 +165,6 @@ export default function ProductGallery({
   return (
     <div className="wahaj-product-gallery">
       <div
-        ref={stageRef}
         className={`wahaj-product-gallery__stage wahaj-gallery-enter ${isZoomed ? 'is-zoomed' : ''}`}
         role="button"
         tabIndex={0}
