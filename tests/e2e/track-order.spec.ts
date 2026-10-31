@@ -42,7 +42,13 @@ test.describe('Track order', () => {
           shippingGovernorate: 'الشرقية',
           shippingCity: 'الزقازيق',
           shippingAddress: 'عنوان الاختبار',
-          timeline: [],
+          timeline: [
+            {
+              status: 'SHIPPED',
+              note: 'ملاحظة تشغيلية داخلية لا يجب عرضها',
+              createdAt: '2026-10-01T09:00:00.000Z',
+            },
+          ],
           items: [],
           shipments: [
             {
@@ -71,5 +77,6 @@ test.describe('Track order', () => {
 
     await expect(page.getByText('WX-123456')).toBeVisible();
     await expect(page.getByText('Wahaj Express')).toBeVisible();
+    await expect(page.getByText('ملاحظة تشغيلية داخلية لا يجب عرضها')).toHaveCount(0);
   });
 });
