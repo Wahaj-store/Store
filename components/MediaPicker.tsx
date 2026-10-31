@@ -20,9 +20,9 @@ export default function MediaPicker({ value, onChange, multiple = false }: Media
   const [selected, setSelected] = useState<string[]>(() => selectedValues(value));
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const openerRef = useRef<HTMLButtonElement>(null);
+  const close = useCallback(() => setOpen(false), []);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
-  const dialogRef = useDialogFocus<HTMLDivElement>({ open, initialFocusRef: closeButtonRef });
+  const dialogRef = useDialogFocus<HTMLDivElement>({ open, initialFocusRef: closeButtonRef, onEscape: close });
   const visibleValues = selectedValues(value);
 
   useEffect(() => {
@@ -57,7 +57,6 @@ export default function MediaPicker({ value, onChange, multiple = false }: Media
     return () => controller.abort();
   }, [open, loadItems]);
 
-  const close = () => setOpen(false);
   const choose = (url: string) => {
     if (multiple) {
       const next = selected.includes(url) ? selected.filter((item) => item !== url) : [...selected, url];
@@ -72,7 +71,7 @@ export default function MediaPicker({ value, onChange, multiple = false }: Media
 
   return (
     <>
-      <button ref={openerRef} type="button" className="btn" onClick={() => setOpen(true)}>
+      <button type="button" className="btn" onClick={() => setOpen(true)} aria-haspopup="dialog" aria-expanded={open} aria-controls="wahaj-media-picker-dialog">
         <ImageIcon size={16} aria-hidden="true" /> اختيار من مكتبة الوسائط
       </button>
       {visibleValues.length > 0 && (
@@ -87,6 +86,7 @@ export default function MediaPicker({ value, onChange, multiple = false }: Media
         >
           <div
             ref={dialogRef}
+            id="wahaj-media-picker-dialog"
             className="lux-card max-h-[85vh] w-full max-w-4xl overflow-auto p-5"
             role="dialog"
             aria-modal="true"
