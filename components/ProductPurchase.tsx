@@ -4,24 +4,46 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { CheckCircle2, Minus, Plus, Zap } from 'lucide-react';
 import AddToCart from './AddToCart';
+import { mergeProductIntoCart } from '@/lib/cart-storage';
 
 export default function ProductPurchase({ product }: { product: any }) {
   const router = useRouter();
   const [id, setId] = useState<string | undefined>(product.variants?.[0]?.id);
   const [quantity, setQuantity] = useState(1);
   const [isBuyingNow, setIsBuyingNow] = useState(false);
+  const [purchaseError, setPurchaseError] = useState<string | null>(null);
 
   const selectedVariant = product.variants?.find((variant: any) => variant.id === id);
   const price = selectedVariant?.price != null ? Number(selectedVariant.price) : Number(product.price);
   const stock = selectedVariant ? selectedVariant.stock : product.stock;
 
   const handleBuyNow = () => {
+    if (isBuyingNow) return;
+    setPurchaseError(null);
+
+    let currentCart: unknown = [];
     try {
+      const stored = localStorage.getItem('wahaj_cart');
+      currentCart = stored ? JSON.parse(stored) : [];
+    } catch {
+      currentCart = [];
+    }
+
+    const nextCart = mergeProductIntoCart(currentCart, product, id, quantity);
+    if (!nextCart) {
+      setPurchaseError('تعذّر إضافة هذا الخيار إلى السلة. تحققي من الخيار والمخزون ثم أعيدي المحاولة.');
+      return;
+    }
+
+    try {
+      localStorage.setItem('wahaj_cart', JSON.stringify(nextCart));
+      window.dispatchEvent(new Event('wahaj-cart-change'));
+      window.dispatchEvent(new Event('storage'));
       setIsBuyingNow(true);
-      router.push(`/cart?productId=${product.id}&variantId=${id || ''}&quantity=${quantity}`);
-    } catch (error) {
-      console.error(error);
+      router.push('/cart');
+    } catch {
       setIsBuyingNow(false);
+      setPurchaseError('تعذّر حفظ السلة على هذا الجهاز. أعيدي المحاولة أو أضيفي المنتج إلى السلة.');
     }
   };
 
@@ -54,7 +76,10 @@ export default function ProductPurchase({ product }: { product: any }) {
                 key={variant.id}
                 disabled={!variant.stock}
                 aria-pressed={id === variant.id}
-                onClick={() => setId(variant.id)}
+                onClick={() => {
+                  setId(variant.id);
+                  setPurchaseError(null);
+                }}
                 className={`wahaj-product-variant ${id === variant.id ? 'is-selected' : ''}`}
               >
                 <span>{variant.name}: {variant.value}</span>
@@ -105,6 +130,7 @@ export default function ProductPurchase({ product }: { product: any }) {
         <Zap size={17} aria-hidden="true" />
         <span>{isBuyingNow ? 'جارٍ التحويل…' : 'اشتري الآن'}</span>
       </button>
+      {purchaseError ? <p className="wahaj-product-buy-now__feedback" role="alert">{purchaseError}</p> : null}
     </div>
   );
 }
