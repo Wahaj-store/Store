@@ -3,6 +3,7 @@
 import { useCallback, useRef, useState } from 'react';
 import AddToCartButtonContent from './AddToCartButtonContent';
 import ProductVariantPicker from './ProductVariantPicker';
+import { mergeProductIntoCart } from '@/lib/cart-storage';
 
 type AddToCartProps = {
   product: any;
@@ -24,57 +25,22 @@ export default function AddToCart({
 
   function add(targetVariantId?: string, quantityOverride?: number): boolean {
     const resolvedVariantId = variantId || targetVariantId;
-    if (hasVariants && !resolvedVariantId) return false;
-
-    const selectedVariant = resolvedVariantId
-      ? variants.find((item: any) => item.id === resolvedVariantId)
-      : null;
-    if (resolvedVariantId && !selectedVariant) return false;
-
-    const available = Math.max(0, Number(selectedVariant ? selectedVariant.stock : product.stock) || 0);
-    if (available <= 0) return false;
-
     const requestedQuantity = Number(quantityOverride ?? product.selectedQuantity) || 1;
-    const selectedQty = Math.max(1, Math.floor(requestedQuantity));
-    const price = selectedVariant?.price != null
-      ? Number(selectedVariant.price)
-      : Number(product.price);
-
-    let cart: any[];
+    let currentCart: unknown = [];
     try {
       const stored = JSON.parse(localStorage.getItem('wahaj_cart') || '[]');
-      cart = Array.isArray(stored) ? stored : [];
+      currentCart = Array.isArray(stored) ? stored : [];
     } catch {
-      cart = [];
+      currentCart = [];
     }
 
-    const key = `${product.id}:${selectedVariant?.id || ''}`;
-    const index = cart.findIndex(
-      (item: any) => `${item.productId}:${item.variantId || ''}` === key,
-    );
-
-    if (index >= 0) {
-      cart[index].quantity = Math.min(
-        (Number(cart[index].quantity) || 0) + selectedQty,
-        available,
-      );
-      cart[index].maxStock = available;
-      cart[index].price = price;
-    } else {
-      cart.push({
-        productId: product.id,
-        variantId: selectedVariant?.id || undefined,
-        variantName: selectedVariant?.name,
-        variantValue: selectedVariant?.value,
-        name: product.name,
-        price,
-        image: selectedVariant?.imageUrl || product.images?.[0]?.url || '',
-        quantity: Math.min(selectedQty, available),
-        maxStock: available,
-      });
+    const cart = mergeProductIntoCart(currentCart, product, resolvedVariantId, requestedQuantity);
+    if (!cart) return false;
+    try {
+      localStorage.setItem('wahaj_cart', JSON.stringify(cart));
+    } catch {
+      return false;
     }
-
-    localStorage.setItem('wahaj_cart', JSON.stringify(cart));
     window.dispatchEvent(new Event('wahaj-cart-change'));
     window.dispatchEvent(new Event('storage'));
 
@@ -143,7 +109,7 @@ export default function AddToCart({
         disabled
           ? 'border border-border bg-muted/40 text-muted-foreground shadow-none'
           : done
-            ? 'wahaj-add-to-cart--success border border-(--gold) bg-[#f0e5d2] text-[#241b1a] shadow-[0_10px_28px_color-mix(in_srgb,var(--gold)_24%,transparent)]'
+            ? 'wahaj-add-to-cart--success border border-(--gold) bg-(--gold-soft) text-(--foreground) shadow-[0_10px_28px_color-mix(in_srgb,var(--gold)_24%,transparent)]'
             : 'border border-(--gold) bg-(--gold) text-(--gold-contrast) shadow-[0_10px_28px_color-mix(in_srgb,var(--gold)_20%,transparent)] hover:-translate-y-0.5 hover:shadow-[0_14px_34px_color-mix(in_srgb,var(--gold)_28%,transparent)] active:translate-y-0',
       ].join(' ')}
     >
