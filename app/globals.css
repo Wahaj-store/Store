@@ -82,9 +82,10 @@
   --card-hover: #FFFFFF;
   --surface: var(--background-secondary);
   --gold: #C6A46A;
-  --gold-muted: #A98752;
+  --gold-muted: #86643B;
   --gold-soft: #F0E5D2;
   --gold-contrast: #241B1A;
+  --font-size-secondary: 12px;
   --rose: #B88D87;
   --rose-muted: #986F69;
   --success: #6D8068;
@@ -7275,3 +7276,141 @@ body:has(.wahaj-maintenance) .wahaj-footer { display:none !important; }
     font-size: 10px;
   }
 }
+
+/* Phase 5 visual QA: readable secondary type and consistent brand focus. */
+.wahaj-header__nav,
+.wahaj-header__nav a { font-size: 14px; }
+.wahaj-mobile-bottom-nav a,
+.wahaj-mobile-bottom-nav a span { font-size: var(--font-size-secondary); }
+.wahaj-mobile-bottom-nav a b { font-size: 10px; }
+.wahaj-home-trust-strip__item b,
+.wahaj-home-trust-strip__item small { font-size: var(--font-size-secondary); }
+
+.wahaj-storefront .wahaj-section-heading__eyebrow,
+.wahaj-storefront .wahaj-section-heading__subtitle,
+.wahaj-storefront .wahaj-trust__title,
+.wahaj-storefront .wahaj-trust__text,
+.wahaj-storefront .wahaj-products-section__count,
+.wahaj-storefront .wahaj-products-section__link,
+.wahaj-storefront .wahaj-story__visual-caption,
+.wahaj-storefront .wahaj-story__eyebrow,
+.wahaj-storefront .wahaj-story__values,
+.wahaj-storefront .wahaj-story__link { font-size: var(--font-size-secondary); }
+
+.wahaj-product-card--shop .wahaj-product-card__discount,
+.wahaj-product-card--shop .wahaj-product-card__shop-tag,
+.wahaj-product-card--shop .wahaj-product-card__action,
+.wahaj-product-card--shop .wahaj-product-card__category,
+.wahaj-product-card--shop .wahaj-product-card__old-price,
+.wahaj-product-card--shop .wahaj-product-card__availability,
+.wahaj-product-card--shop .wahaj-product-card__cart button,
+.wahaj-product-card--shop .wahaj-product-card__soldout { font-size: var(--font-size-secondary); }
+
+.wahaj-product-breadcrumb,
+.wahaj-product-gallery__label,
+.wahaj-product-gallery__count,
+.wahaj-product-title-kicker,
+.wahaj-product-rating,
+.wahaj-product-sku,
+.wahaj-product-purchase__price-label,
+.wahaj-product-purchase__saving,
+.wahaj-product-variant,
+.wahaj-product-variant small,
+.wahaj-product-variant__soldout,
+.wahaj-product-availability,
+.wahaj-product-payments__heading b,
+.wahaj-product-payments__heading small,
+.wahaj-product-payment,
+.wahaj-product-section-heading > div > span,
+.wahaj-product-section-heading__eyebrow,
+.wahaj-product-spec-list dt,
+.wahaj-product-spec-list dd,
+.wahaj-product-specs__note,
+.wahaj-product-reviews__count,
+.wahaj-product-review__customer b,
+.wahaj-product-review__customer small,
+.wahaj-product-review > p,
+.wahaj-product-review-empty,
+.wahaj-review-form__heading small,
+.wahaj-review-form__rating span,
+.wahaj-review-form__label,
+.wahaj-review-form textarea,
+.wahaj-review-form__footer > small,
+.wahaj-review-form__footer > button,
+.wahaj-review-form__message,
+.wahaj-product-related__heading > a,
+.wahaj-product-accordions .wahaj-faq-question,
+.wahaj-product-accordions .wahaj-faq-answer,
+.wahaj-product-accordions .wahaj-faq-answer p,
+.wahaj-product-accordions .wahaj-faq-answer a { font-size: var(--font-size-secondary); }
+
+.wahaj-admin .inventory-table th,
+.wahaj-admin .shipping-table th,
+.wahaj-admin .orders-table th,
+.wahaj-admin .customer-directory-table th,
+.wahaj-admin .inventory-table td,
+.wahaj-admin .shipping-table td,
+.wahaj-admin .orders-table td,
+.wahaj-admin .customer-directory-table td { font-size: var(--font-size-secondary); }
+.wahaj-admin .admin-action,
+.wahaj-admin .logistics-tab,
+.wahaj-admin .logistics-alert,
+.wahaj-admin .inventory-alert,
+.wahaj-admin .shipping-alert,
+.wahaj-admin .logistics-search input,
+.wahaj-admin .inventory-search input,
+.wahaj-admin .shipping-search input { font-size: var(--font-size-secondary); }
+
+.wahaj-product-buy-now__feedback { margin: 0; color: var(--danger); font-size: var(--font-size-secondary); line-height: 1.7; }
+
+:is(.wahaj-storefront, .wahaj-product-page, .wahaj-admin) :is(a, button, input, select, textarea, [tabindex]):focus-visible {
+  outline: 3px solid var(--gold-muted) !important;
+  outline-offset: 3px;
+  box-shadow: 0 0 0 2px var(--background) !important;
+}
+.dark :is(.wahaj-storefront, .wahaj-product-page, .wahaj-admin) :is(a, button, input, select, textarea, [tabindex]):focus-visible {
+  outline-color: var(--gold) !important;
+}
+
+/* Readability floor for the real secondary-copy selectors found in visual QA. */
+.wahaj-storefront .wahaj-home-kicker,
+.wahaj-storefront .wahaj-section-heading__eyebrow,
+.wahaj-storefront .wahaj-section-heading__subtitle,
+.wahaj-storefront .wahaj-story__visual-caption,
+.wahaj-storefront .wahaj-story__eyebrow,
+.wahaj-storefront .wahaj-story__values span,
+.wahaj-storefront .wahaj-story__content > p,
+.wahaj-storefront .wahaj-story__link,
+.wahaj-footer__bio,
+.wahaj-footer__tagline,
+.wahaj-footer__payment-text,
+.wahaj-footer__bottom,
+.wahaj-footer__links a,
+.wahaj-mobile-whatsapp__copy b,
+.wahaj-mobile-whatsapp__copy small { font-size: var(--font-size-secondary) !important; }
+
+.wahaj-product-page .wahaj-product-policy__copy b,
+.wahaj-product-page .wahaj-product-policy__copy small,
+.wahaj-product-page .wahaj-product-payments__empty,
+.wahaj-product-page .wahaj-product-accordions .wahaj-faq-question,
+.wahaj-product-page .wahaj-product-accordions .wahaj-faq-question > span,
+.wahaj-product-page .wahaj-product-accordions .wahaj-faq-answer,
+.wahaj-product-page .wahaj-product-accordions .wahaj-faq-answer p,
+.wahaj-product-page .wahaj-product-accordions .wahaj-faq-answer a { font-size: var(--font-size-secondary) !important; }
+.wahaj-product-page .wahaj-product-purchase__add > button.wahaj-add-to-cart { font-size: 14px !important; }
+.wahaj-product-page .wahaj-product-related .wahaj-add-to-cart,
+.wahaj-product-page .wahaj-product-purchase__add .wahaj-add-to-cart__label { font-size: var(--font-size-secondary) !important; }
+.wahaj-product-page .wahaj-product-purchase__price-line del { font-size: var(--font-size-secondary) !important; }
+
+.wahaj-login__field label,
+.wahaj-login__input-wrap input,
+.wahaj-login__remember,
+.wahaj-login__privacy,
+.wahaj-login__error,
+.wahaj-login__back,
+.wahaj-login__kicker,
+.wahaj-login__brand-copy p,
+.wahaj-login__benefits small,
+.wahaj-login__brand-bottom small,
+.wahaj-login__form-meta span,
+.wahaj-login__footer { font-size: var(--font-size-secondary) !important; }
