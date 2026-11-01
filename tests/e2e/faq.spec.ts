@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './fixtures';
 
 test('FAQ page loads and opens an answer', async ({ page }) => {
   await page.route('**/api/faq', async (route) => {
@@ -20,8 +20,17 @@ test('FAQ page loads and opens an answer', async ({ page }) => {
   await expect(page.getByRole('heading', { name: 'إجابات واضحة لأسئلتك' })).toBeVisible();
   await expect(page.getByText('كيف يمكنني تتبع طلبي؟')).toBeVisible();
 
+  const categoryGroup = page.getByRole('group', { name: 'تصنيفات الأسئلة' });
+  const allCategory = categoryGroup.getByRole('button', { name: 'كل الأسئلة' });
+  const shippingCategory = categoryGroup.getByRole('button', { name: 'الشحن والتوصيل' });
+  await expect(allCategory).toHaveAttribute('aria-pressed', 'true');
+  await shippingCategory.click();
+  await expect(shippingCategory).toHaveAttribute('aria-pressed', 'true');
+  await expect(allCategory).toHaveAttribute('aria-pressed', 'false');
+
   const answer = page.getByText('استخدم صفحة تتبع الطلب وأدخل رقم الطلب ورقم الهاتف المسجل.');
   const question = page.getByRole('button', { name: /كيف يمكنني تتبع طلبي؟/ });
+  await expect(question).toHaveAttribute('aria-controls', /^wahaj-faq-answer-/);
   await expect(answer).toBeVisible();
   await question.click();
   await expect(answer).toBeHidden();
