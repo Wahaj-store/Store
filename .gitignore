@@ -16,6 +16,8 @@ node_modules
 *~
 *.tsbuildinfo
 *.log
+.migration-repair-backup.*/
+.migration-repair-tmp.*/
 .vercel
 .turbo
 coverage/
