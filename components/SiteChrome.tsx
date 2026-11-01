@@ -40,6 +40,7 @@ function lockBodyScroll() {
 export default function SiteChrome() {
   const pathname = usePathname();
   const { theme, resolvedTheme, setTheme } = useTheme();
+  const [themeReady, setThemeReady] = useState(false);
 
   const [menu, setMenu] = useState(false);
   const [menuClosing, setMenuClosing] = useState(false);
@@ -65,7 +66,7 @@ export default function SiteChrome() {
   const searchButtonRef = useRef<HTMLButtonElement>(null);
   const settingsLoadedRef = useRef(false);
   const settingsRequestRef = useRef(false);
-  const themeIsDark = (resolvedTheme || theme) === 'dark';
+  const themeIsDark = themeReady && (resolvedTheme || theme) === 'dark';
 
   const openMenu = () => {
     if (menuCloseTimerRef.current) clearTimeout(menuCloseTimerRef.current);
@@ -121,10 +122,13 @@ export default function SiteChrome() {
   const menuDialogRef = useDialogFocus<HTMLElement>({ open: menu, initialFocusRef: menuCloseButtonRef, onEscape: closeMenu });
   const cartDialogRef = useDialogFocus<HTMLElement>({ open: cartDrawerOpen, initialFocusRef: cartCloseButtonRef, onEscape: closeCartDrawer });
 
-  useEffect(() => () => {
-    if (menuCloseTimerRef.current) clearTimeout(menuCloseTimerRef.current);
-    if (cartCloseTimerRef.current) clearTimeout(cartCloseTimerRef.current);
-    if (searchCloseTimerRef.current) clearTimeout(searchCloseTimerRef.current);
+  useEffect(() => {
+    setThemeReady(true);
+    return () => {
+      if (menuCloseTimerRef.current) clearTimeout(menuCloseTimerRef.current);
+      if (cartCloseTimerRef.current) clearTimeout(cartCloseTimerRef.current);
+      if (searchCloseTimerRef.current) clearTimeout(searchCloseTimerRef.current);
+    };
   }, []);
 
   useEffect(() => {
