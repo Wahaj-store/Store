@@ -1,14 +1,6 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './fixtures';
 
 test('contact form submits successfully', async ({ page }) => {
-  await page.route('**/api/settings', async (route) => {
-    await route.fulfill({
-      status: 200,
-      contentType: 'application/json',
-      body: JSON.stringify({ settings: {} }),
-    });
-  });
-
   await page.route('**/api/contact', async (route) => {
     expect(route.request().method()).toBe('POST');
     const body = route.request().postDataJSON();
