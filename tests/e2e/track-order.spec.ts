@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './fixtures';
 
 test.describe('Track order', () => {
   test('shows the protected tracking form and handles a not-found response', async ({ page }) => {
