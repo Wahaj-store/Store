@@ -21,6 +21,9 @@ export default defineConfig({
   ],
   webServer: {
     command: 'npm run dev -- --hostname 127.0.0.1 --port 3000',
+    env: {
+      AUTH_SECRET: process.env.AUTH_SECRET || 'ci-only-auth-secret-do-not-use-outside-tests',
+    },
     // The home page queries PostgreSQL; keep the readiness probe independent of the test DB.
     url: 'http://127.0.0.1:3000/about',
     reuseExistingServer: !process.env.CI,
