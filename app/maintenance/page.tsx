@@ -1,5 +1,6 @@
 import Link from 'next/link';
-import { ArrowUpLeft, Check, Clock3, Instagram, ShieldCheck, Sparkles, Wrench } from 'lucide-react';
+import { ArrowUpLeft, Check, Clock3, ShieldCheck, Sparkles, Wrench } from 'lucide-react';
+import { InstagramBrandIcon } from '@/components/SocialBrandIcons';
 
 export const metadata = {
   title: 'نعود قريبًا | وَهَج',
@@ -49,7 +50,7 @@ export default function MaintenancePage() {
 
             <div className="wahaj-maintenance__actions">
               <Link href="https://www.instagram.com/" target="_blank" rel="noopener noreferrer" className="wahaj-maintenance__primary">
-                <Instagram size={17} /> تابعي أخبارنا <ArrowUpLeft size={16} />
+                <InstagramBrandIcon size={17} /> تابعي أخبارنا <ArrowUpLeft size={16} />
               </Link>
               <span className="wahaj-maintenance__return-note"><Clock3 size={14} /> نعود إليكِ قريبًا</span>
             </div>

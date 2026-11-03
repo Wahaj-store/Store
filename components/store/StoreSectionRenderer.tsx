@@ -1,13 +1,14 @@
 "use client";
 
 import {
-  ArrowLeft, ArrowUpLeft, ChevronLeft, Check, CheckCircle2, Facebook, Heart, Instagram, Mail, MessageCircle, Music2, Quote, RotateCcw, Send, ShieldCheck, Sparkles, Star, Truck,
+  ArrowLeft, ArrowUpLeft, ChevronLeft, Check, CheckCircle2, Heart, Mail, MessageCircle, Music2, Quote, RotateCcw, Send, ShieldCheck, Sparkles, Star, Truck,
 } from "lucide-react";
-import { Fragment, useState, useEffect, type FormEvent } from "react";
+import { Fragment, useState, useEffect, type ComponentType, type FormEvent } from "react";
 import { useFeatureFlags } from "@/lib/use-feature-flags";
 import dynamic from "next/dynamic";
 import Image from "next/image";
 import Link from "next/link";
+import { FacebookBrandIcon, InstagramBrandIcon } from "../SocialBrandIcons";
 import CategoryCarousel from "./CategoryCarousel";
 const ProductCard = dynamic(() => import("../ProductCard"), {
   ssr: true,
@@ -141,9 +142,9 @@ function SocialWorldSection({ section, data }: { section: any; data: any }) {
   }
 
   const settings = data?.settings || {};
-  const socialNetworks: { key: SocialNetwork; name: string; value: unknown; icon: typeof Instagram }[] = [
-    { key: "instagram", name: "إنستجرام", value: settings.social_instagram, icon: Instagram },
-    { key: "facebook", name: "فيسبوك", value: settings.social_facebook, icon: Facebook },
+  const socialNetworks: { key: SocialNetwork; name: string; value: unknown; icon: ComponentType<{ size?: number; strokeWidth?: number }> }[] = [
+    { key: "instagram", name: "إنستجرام", value: settings.social_instagram, icon: InstagramBrandIcon },
+    { key: "facebook", name: "فيسبوك", value: settings.social_facebook, icon: FacebookBrandIcon },
     { key: "tiktok", name: "تيك توك", value: settings.social_tiktok, icon: Music2 },
   ];
   const socialLinks = socialNetworks.map(network => ({ ...network, value: socialProfileUrl(network.value, network.key) }));
