@@ -41,6 +41,11 @@
     "tsx": "^4.23.15",
     "typescript": "^5.7.2"
   },
+  "overrides": {
+    "@vercel/oidc": {
+      "@vercel/cli-config": "0.3.6"
+    }
+  },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
   }
