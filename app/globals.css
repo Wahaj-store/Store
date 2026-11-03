@@ -5901,8 +5901,21 @@ body:has(.wahaj-maintenance) .wahaj-footer { display:none !important; }
 @media (max-width: 480px) {
   .wahaj-header--luxury .wahaj-header__inner { min-height: 52px; padding-block: 3px; }
   .wahaj-header--luxury .wahaj-header__logo span { font-size: 19px; }
+  .wahaj-header--luxury .wahaj-header__inner { width: calc(100% - 16px); gap: 4px; }
+  .wahaj-header--luxury .wahaj-header__inner > div:first-child { gap: 6px; }
+  .wahaj-header--luxury .wahaj-header__actions { gap: 0; }
   .wahaj-header--luxury .wahaj-header__menu,
-  .wahaj-header--luxury .wahaj-header__action { width: 34px; height: 34px; }
+  .wahaj-header--luxury .wahaj-header__action { width: 44px; height: 44px; flex-basis: 44px; }
+}
+
+@media (max-width: 380px) {
+  .wahaj-header--luxury .wahaj-header__logo { max-width: 24vw; }
+  .wahaj-header--luxury .wahaj-header__action[aria-label="تبديل الوضع"] { display: none; }
+}
+
+@media (max-width: 767px) {
+  .wahaj-cart-drawer__quantity { height: 46px; }
+  .wahaj-cart-drawer__quantity button { width: 44px; height: 44px; flex: 0 0 44px; }
 }
 
 /* The header hamburger is also available on wide layouts; keep its drawer visible there. */
