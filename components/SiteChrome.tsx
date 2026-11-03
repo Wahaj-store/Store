@@ -8,6 +8,7 @@ import { useTheme } from 'next-themes';
 import { ArrowLeft, ChevronLeft, CircleHelp, CreditCard, Menu, X, Search, User, Moon, Sun, ShoppingBag, MessageCircle, Home, Store, Truck, Info, Minus, Plus, ShieldCheck, Trash2 } from 'lucide-react';
 import StorePopup from '@/components/store/StorePopup';
 import SearchDrawer from '@/components/SearchDrawer';
+import { getPublicSettings } from '@/lib/public-settings-client';
 import { useFeatureFlags } from '@/lib/use-feature-flags';
 import { useDialogFocus } from '@/hooks/use-dialog-focus';
 
@@ -139,8 +140,7 @@ export default function SiteChrome() {
 
     if (!settingsLoadedRef.current && !settingsRequestRef.current) {
       settingsRequestRef.current = true;
-      fetch('/api/settings', { cache: 'no-store' })
-        .then(r => r.ok ? r.json() : null)
+      getPublicSettings()
         .then(data => {
           if (!data) return;
           setSettings(data.settings || {});

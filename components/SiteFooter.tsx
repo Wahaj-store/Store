@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { getPublicSettings } from '@/lib/public-settings-client';
 
 type SettingMap = Record<string, unknown>;
 type FooterLink = { label: string; href: string; active?: boolean };
@@ -61,18 +62,15 @@ export default function SiteFooter() {
   const [settings, setSettings] = useState<SettingMap>({});
 
   useEffect(() => {
-    const controller = new AbortController();
-
-    fetch('/api/settings', { signal: controller.signal, cache: 'no-store' })
-      .then(response => response.ok ? response.json() : null)
-      .then(data => {
+    let disposed = false;
+    getPublicSettings().then(data => {
+        if (disposed) return;
         if (data?.settings && typeof data.settings === 'object') {
           setSettings(data.settings as SettingMap);
         }
-      })
-      .catch(() => {});
+      });
 
-    return () => controller.abort();
+    return () => { disposed = true; };
   }, []);
 
   const footerLinks = parseJson<FooterLink[]>(settings.footer_links, [

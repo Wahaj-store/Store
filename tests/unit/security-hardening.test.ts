@@ -11,6 +11,8 @@ import {
 } from '../../lib/limited-json-body';
 import { hashPassword, verifyPassword } from '../../lib/password';
 import { shouldFailClosedRateLimit } from '../../lib/rate-limit';
+import { normalizeLoginIdentifier } from '../../lib/security';
+import { sessionVersionMatches } from '../../lib/session-version';
 
 
 test('distributed rate-limit fail-closed behavior is explicit and production-only', () => {
@@ -26,6 +28,22 @@ test('distributed rate-limit fail-closed behavior is explicit and production-onl
     if (previous === undefined) delete process.env.RATE_LIMIT_FAIL_CLOSED;
     else process.env.RATE_LIMIT_FAIL_CLOSED = previous;
   }
+});
+
+test('login identifiers normalize phone formats and email case for rate limiting', () => {
+  assert.equal(normalizeLoginIdentifier('01012345678'), 'phone:+201012345678');
+  assert.equal(normalizeLoginIdentifier('010-1234-5678'), 'phone:+201012345678');
+  assert.equal(normalizeLoginIdentifier('00201012345678'), 'phone:+201012345678');
+  assert.equal(normalizeLoginIdentifier('  Customer@Example.COM '), 'email:customer@example.com');
+});
+
+test('session version checks accept current and legacy-zero tokens but reject revoked or malformed versions', () => {
+  assert.equal(sessionVersionMatches(undefined, 0), true);
+  assert.equal(sessionVersionMatches(0, 0), true);
+  assert.equal(sessionVersionMatches(2, 2), true);
+  assert.equal(sessionVersionMatches(0, 1), false);
+  assert.equal(sessionVersionMatches(-1, 0), false);
+  assert.equal(sessionVersionMatches('0', 0), false);
 });
 
 test('new password hashes use a random salt and verify correctly', async () => {

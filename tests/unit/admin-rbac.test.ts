@@ -56,3 +56,15 @@ test('payment account settings stay restricted to owner and admin roles', () => 
   assert.equal(can('OWNER', 'settingsWrite'), true);
   assert.equal(can('ADMIN', 'settingsWrite'), true);
 });
+
+test('redirects and feature flags use the distinct settings read and write permissions', () => {
+  for (const role of ['MANAGER', 'EDITOR', 'ORDER_MANAGER', 'VIEWER']) {
+    assert.equal(can(role, 'settingsRead'), false, `${role} must not read redirects or feature flags`);
+    assert.equal(can(role, 'settingsWrite'), false, `${role} must not change redirects or feature flags`);
+  }
+
+  assert.equal(can('OWNER', 'settingsRead'), true);
+  assert.equal(can('ADMIN', 'settingsRead'), true);
+  assert.equal(can('OWNER', 'settingsWrite'), true);
+  assert.equal(can('ADMIN', 'settingsWrite'), true);
+});

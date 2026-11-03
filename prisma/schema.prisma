@@ -127,6 +127,7 @@ model User {
   active            Boolean             @default(true)
   lastLoginAt       DateTime?
   passwordChangedAt DateTime?
+  sessionVersion    Int                 @default(0)
   createdAt         DateTime            @default(now())
   updatedAt         DateTime            @updatedAt
   logs              ActivityLog[]

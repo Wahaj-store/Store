@@ -2,14 +2,13 @@
 
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { requireUser } from '@/lib/auth';
-import { can } from '@/lib/rbac';
+import { requirePermission as requireApiPermission } from '@/lib/auth';
 
 export async function GET() {
   try {
-    const u = await requireUser();
-    if (!u || (u.role !== 'OWNER' && u.role !== 'ADMIN' && !can(u.role, 'settingsWrite'))) {
-      return NextResponse.json({ error: 'غير مصرح' }, { status: 403 });
+    const authorization = await requireApiPermission('settingsRead');
+    if (!authorization.user) {
+      return NextResponse.json({ error: 'غير مصرح' }, { status: authorization.status });
     }
     const features = await prisma.featureFlag.findMany({ orderBy: { key: 'asc' } });
     return NextResponse.json(features);
@@ -20,9 +19,9 @@ export async function GET() {
 
 export async function PUT(req: Request) {
   try {
-    const u = await requireUser();
-    if (!u || (u.role !== 'OWNER' && u.role !== 'ADMIN' && !can(u.role, 'settingsWrite'))) {
-      return NextResponse.json({ error: 'غير مصرح' }, { status: 403 });
+    const authorization = await requireApiPermission('settingsWrite');
+    if (!authorization.user) {
+      return NextResponse.json({ error: 'غير مصرح' }, { status: authorization.status });
     }
     
     const b = await req.json();
@@ -33,7 +32,7 @@ export async function PUT(req: Request) {
     
     await prisma.activityLog.create({
       data: { 
-        userId: u.id, 
+        userId: authorization.user.id,
         action: 'UPDATE_FEATURE', 
         entity: 'FeatureFlag', 
         entityId: x.id 

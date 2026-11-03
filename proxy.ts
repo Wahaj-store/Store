@@ -13,6 +13,14 @@ const MAINTENANCE_EXEMPT_PATHS = [
   '/api/settings',
 ];
 const SAFE_METHODS = new Set(['GET', 'HEAD', 'OPTIONS']);
+const PRIVATE_API_PREFIXES = ['/api/admin', '/api/customer', '/api/auth'];
+const PRIVATE_API_PATHS = new Set(['/api/returns']);
+
+function isPrivateApiPath(pathname: string) {
+  return PRIVATE_API_PATHS.has(pathname) || PRIVATE_API_PREFIXES.some(
+    (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`),
+  );
+}
 
 function isMaintenanceExempt(pathname: string) {
   return MAINTENANCE_EXEMPT_PATHS.some(
@@ -55,11 +63,11 @@ export async function proxy(req: NextRequest) {
     );
 
     if (isMutation && !isCronApi && !hasOriginOrReferer) {
-      return applySecurityHeaders(csrfDeniedResponse());
+      return applySecurityHeaders(csrfDeniedResponse(), pathname);
     }
 
     if (!isSameOriginMutation(req)) {
-      return applySecurityHeaders(csrfDeniedResponse());
+      return applySecurityHeaders(csrfDeniedResponse(), pathname);
     }
   }
 
@@ -75,21 +83,21 @@ export async function proxy(req: NextRequest) {
         return applySecurityHeaders(NextResponse.json(
           { error: 'المتجر في وضع الصيانة حاليًا. يرجى المحاولة لاحقًا.' },
           { status: 503, headers: { 'Retry-After': '300', 'Cache-Control': 'no-store' } },
-        ));
+        ), pathname);
       }
       const maintenanceUrl = req.nextUrl.clone();
       maintenanceUrl.pathname = '/maintenance';
       maintenanceUrl.search = '';
       const response = NextResponse.rewrite(maintenanceUrl);
       response.headers.set('Cache-Control', 'no-store, max-age=0');
-      applySecurityHeaders(response);
+      applySecurityHeaders(response, pathname);
       return response;
     }
   }
 
   if (!isAdminPage && !isAdminApi) {
     const response = NextResponse.next();
-    applySecurityHeaders(response);
+    applySecurityHeaders(response, pathname);
     return response;
   }
 
@@ -98,18 +106,28 @@ export async function proxy(req: NextRequest) {
 
   const deny = () => {
     if (isAdminApi) {
-      return applySecurityHeaders(NextResponse.json({ error: 'Unauthorized' }, { status: 401 }));
+      return applySecurityHeaders(NextResponse.json({ error: 'Unauthorized' }, { status: 401 }), pathname);
     }
-    return applySecurityHeaders(NextResponse.redirect(new URL('/admin/login', req.url)));
+    return applySecurityHeaders(NextResponse.redirect(new URL('/admin/login', req.url)), pathname);
   };
 
   if (!secretValue || secretValue.length < 32 || !token) return deny();
 
   try {
-    const { payload } = await jwtVerify(token, new TextEncoder().encode(secretValue), { audience: 'admin' });
+    const { payload } = await jwtVerify(token, new TextEncoder().encode(secretValue), {
+      audience: 'admin',
+      algorithms: ['HS256'],
+    });
     // Accept only tokens issued by createSession for an identified admin user.
     // A valid signature/audience alone is not sufficient to establish this session type.
-    if (payload.typ !== 'admin-session' || typeof payload.sub !== 'string' || !payload.sub || typeof payload.iat !== 'number') {
+    if (
+      payload.typ !== 'admin-session' ||
+      typeof payload.sub !== 'string' ||
+      !payload.sub ||
+      typeof payload.iat !== 'number' ||
+      typeof payload.exp !== 'number' ||
+      payload.exp <= payload.iat
+    ) {
       return deny();
     }
     const headers = new Headers(req.headers);
@@ -117,18 +135,21 @@ export async function proxy(req: NextRequest) {
       headers.set('x-request-id', globalThis.crypto.randomUUID());
     }
     const response = NextResponse.next({ request: { headers } });
-    applySecurityHeaders(response);
+    applySecurityHeaders(response, pathname);
     return response;
   } catch {
     return deny();
   }
 }
 
-function applySecurityHeaders(response: NextResponse) {
+function applySecurityHeaders(response: NextResponse, pathname?: string) {
   response.headers.set('X-Content-Type-Options', 'nosniff');
   response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
   response.headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
   response.headers.set('X-Frame-Options', 'SAMEORIGIN');
+  if (pathname && isPrivateApiPath(pathname)) {
+    response.headers.set('Cache-Control', 'private, no-store, max-age=0');
+  }
   // Start in report-only mode so legitimate Next.js and store assets are not blocked.
   response.headers.set(
     'Content-Security-Policy-Report-Only',

@@ -1,11 +1,13 @@
 import { revalidateTag, unstable_cache } from 'next/cache';
 import { prisma } from '@/lib/prisma';
 import { PUBLIC_SETTING_KEYS, toPublicSettings } from '@/lib/public-settings';
+import { isOfferAvailableForDisplay } from '@/lib/offer-availability';
 
 export const HOMEPAGE_DATA_CACHE_TAG = 'homepage-data';
 
 const readHomepageData = unstable_cache(
   async () => {
+    const now = new Date();
     const [sections, products, categories, settings, offers, reviews] = await Promise.all([
       prisma.homepageSection.findMany({
         where: { visible: true },
@@ -62,7 +64,19 @@ const readHomepageData = unstable_cache(
       }),
       prisma.offer.findMany({
         where: { active: true },
-        select: { id: true, name: true, type: true, discountType: true, discountValue: true, endsAt: true, createdAt: true },
+        select: {
+          id: true,
+          name: true,
+          type: true,
+          active: true,
+          discountType: true,
+          discountValue: true,
+          startsAt: true,
+          endsAt: true,
+          maxUses: true,
+          usedCount: true,
+          createdAt: true,
+        },
         orderBy: { createdAt: 'desc' },
       }),
       prisma.review.findMany({
@@ -97,8 +111,11 @@ const readHomepageData = unstable_cache(
       })),
       categories,
       settings: toPublicSettings(settings),
-      offers: offers.map((offer) => ({
-        ...offer,
+      offers: offers.filter((offer) => isOfferAvailableForDisplay(offer, now)).map((offer) => ({
+        id: offer.id,
+        name: offer.name,
+        type: offer.type,
+        discountType: offer.discountType,
         discountValue: offer.discountValue === null ? null : Number(offer.discountValue),
         endsAt: offer.endsAt?.toISOString() ?? null,
         createdAt: offer.createdAt.toISOString(),
@@ -114,7 +131,7 @@ const readHomepageData = unstable_cache(
       })),
     };
   },
-  ['wahaj-homepage-data-v2'],
+  ['wahaj-homepage-data-v3'],
   { revalidate: 15, tags: [HOMEPAGE_DATA_CACHE_TAG] },
 );
 

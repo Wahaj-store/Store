@@ -5,6 +5,7 @@ import { SignJWT, jwtVerify } from 'jose';
 import { prisma } from './prisma';
 import { hashPassword, verifyPassword } from './auth';
 import { normalizePhone } from './security';
+import { sessionVersionMatches } from './session-version';
 
 function secret() {
   const s = process.env.AUTH_SECRET;
@@ -41,12 +42,20 @@ export async function getCustomer() {
   const token = (await cookies()).get('wahaj_customer')?.value;
   if (!token) return null;
   try {
-    const { payload } = await jwtVerify(token, secret(), { audience: 'customer' });
-    if (!payload.sub) return null;
-    const tokenVersion = payload.sv === undefined ? 0 : payload.sv;
-    if (typeof tokenVersion !== 'number' || !Number.isInteger(tokenVersion)) return null;
+    const { payload } = await jwtVerify(token, secret(), {
+      audience: 'customer',
+      algorithms: ['HS256'],
+    });
+    if (
+      payload.typ !== 'customer-session' ||
+      typeof payload.sub !== 'string' ||
+      !payload.sub ||
+      typeof payload.iat !== 'number' ||
+      typeof payload.exp !== 'number' ||
+      payload.exp <= payload.iat
+    ) return null;
     const customer = await prisma.customer.findUnique({ where: { id: String(payload.sub) } });
-    if (!customer || customer.sessionVersion !== tokenVersion) return null;
+    if (!customer || !sessionVersionMatches(payload.sv, customer.sessionVersion)) return null;
     return customer;
   } catch {
     return null;

@@ -3,8 +3,10 @@
 import { checkRateLimit, rateLimit, getClientKey, resetRateLimit } from '@/lib/rate-limit';
 import { NextResponse } from 'next/server';
 import { customerLogin, customerRegister, getCustomer } from '@/lib/customer-auth';
+import { prisma } from '@/lib/prisma';
 import { cookies } from 'next/headers';
 import { z } from 'zod';
+import { normalizeLoginIdentifier } from '@/lib/security';
 
 const AuthSchema = z.object({
   action: z.enum(['login', 'register', 'logout']).default('login'),
@@ -22,7 +24,7 @@ const LOGIN_RATE_KEY_VERSION = 'v2';
 function loginRateKey(req: Request, identifier: string) {
   // يضمن عزل عدادات النسخة القديمة، ويمنع أن يؤثر عميل على حساب عميل آخر
   // عندما تكون الاستضافة خلف عنوان بروكسي مشترك أو لا ترسل عنوان IP واضحًا.
-  const normalizedIdentifier = identifier.trim().toLowerCase().slice(0, 254);
+  const normalizedIdentifier = normalizeLoginIdentifier(identifier);
   return `customer-auth:login:${LOGIN_RATE_KEY_VERSION}:${getClientKey(req)}:${normalizedIdentifier}`;
 }
 
@@ -42,7 +44,17 @@ export async function POST(req: Request) {
     const body = AuthSchema.parse(await req.json().catch(() => null));
 
     if (body.action === 'logout') {
-      (await cookies()).delete('wahaj_customer');
+      const customer = await getCustomer();
+      try {
+        if (customer) {
+          await prisma.customer.updateMany({
+            where: { id: customer.id, sessionVersion: customer.sessionVersion },
+            data: { sessionVersion: { increment: 1 } },
+          });
+        }
+      } finally {
+        (await cookies()).delete('wahaj_customer');
+      }
       return NextResponse.json({ ok: true });
     }
 

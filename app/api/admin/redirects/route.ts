@@ -1,5 +1,62 @@
-import {NextResponse} from 'next/server';import {prisma} from '@/lib/prisma';import {requireUser} from '@/lib/auth';import {can} from '@/lib/rbac';
-export async function GET(){const u=await requireUser(['OWNER','ADMIN','MANAGER','EDITOR','VIEWER']);if(!u)return NextResponse.json({error:'غير مصرح'},{status:401});return NextResponse.json(await prisma.redirect.findMany({orderBy:{fromPath:'asc'}}));}
-export async function POST(req:Request){const u=await requireUser(['OWNER','ADMIN','MANAGER','EDITOR','VIEWER']);if(!u||!can(u.role,'settingsWrite'))return NextResponse.json({error:'غير مصرح'},{status:403});const b=await req.json();if(!b.fromPath||!b.toPath)return NextResponse.json({error:'المسار مطلوب'},{status:400});const x=await prisma.redirect.create({data:{fromPath:b.fromPath,toPath:b.toPath,statusCode:Number(b.statusCode)||301,active:b.active!==false}});return NextResponse.json(x);}
-export async function PUT(req:Request){const u=await requireUser(['OWNER','ADMIN','MANAGER','EDITOR','VIEWER']);if(!u||!can(u.role,'settingsWrite'))return NextResponse.json({error:'غير مصرح'},{status:403});const b=await req.json();const x=await prisma.redirect.update({where:{id:b.id},data:{fromPath:b.fromPath,toPath:b.toPath,statusCode:Number(b.statusCode)||301,active:Boolean(b.active)}});return NextResponse.json(x);}
-export async function DELETE(req:Request){const u=await requireUser(['OWNER','ADMIN','MANAGER','EDITOR','VIEWER']);if(!u||!can(u.role,'settingsWrite'))return NextResponse.json({error:'غير مصرح'},{status:403});const b=await req.json();await prisma.redirect.delete({where:{id:b.id}});return NextResponse.json({ok:true});}
+import { NextResponse } from 'next/server';
+
+import { requirePermission as requireApiPermission } from '@/lib/auth';
+import { prisma } from '@/lib/prisma';
+
+function deniedResponse(status: 401 | 403) {
+  return NextResponse.json({ error: 'غير مصرح' }, { status });
+}
+
+export async function GET() {
+  const authorization = await requireApiPermission('settingsRead');
+  if (!authorization.user) return deniedResponse(authorization.status);
+
+  const redirects = await prisma.redirect.findMany({ orderBy: { fromPath: 'asc' } });
+  return NextResponse.json(redirects);
+}
+
+export async function POST(req: Request) {
+  const authorization = await requireApiPermission('settingsWrite');
+  if (!authorization.user) return deniedResponse(authorization.status);
+
+  const body = await req.json();
+  if (!body.fromPath || !body.toPath) {
+    return NextResponse.json({ error: 'المسار مطلوب' }, { status: 400 });
+  }
+
+  const redirect = await prisma.redirect.create({
+    data: {
+      fromPath: body.fromPath,
+      toPath: body.toPath,
+      statusCode: Number(body.statusCode) || 301,
+      active: body.active !== false,
+    },
+  });
+  return NextResponse.json(redirect);
+}
+
+export async function PUT(req: Request) {
+  const authorization = await requireApiPermission('settingsWrite');
+  if (!authorization.user) return deniedResponse(authorization.status);
+
+  const body = await req.json();
+  const redirect = await prisma.redirect.update({
+    where: { id: body.id },
+    data: {
+      fromPath: body.fromPath,
+      toPath: body.toPath,
+      statusCode: Number(body.statusCode) || 301,
+      active: Boolean(body.active),
+    },
+  });
+  return NextResponse.json(redirect);
+}
+
+export async function DELETE(req: Request) {
+  const authorization = await requireApiPermission('settingsWrite');
+  if (!authorization.user) return deniedResponse(authorization.status);
+
+  const body = await req.json();
+  await prisma.redirect.delete({ where: { id: body.id } });
+  return NextResponse.json({ ok: true });
+}

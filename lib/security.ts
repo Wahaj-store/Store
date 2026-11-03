@@ -8,6 +8,12 @@ export function normalizePhone(phone: string) {
   return `+${digits}`;
 }
 
+export function normalizeLoginIdentifier(identifier: string) {
+  const value = String(identifier || '').trim();
+  if (value.includes('@')) return `email:${value.toLowerCase().slice(0, 254)}`;
+  return `phone:${normalizePhone(value).slice(0, 32)}`;
+}
+
 export function normalizeArabic(value: string) {
   return String(value || '').trim().toLowerCase()
     .replace(/[إأآٱ]/g, 'ا').replace(/ى/g, 'ي').replace(/ؤ/g, 'و').replace(/ئ/g, 'ي')

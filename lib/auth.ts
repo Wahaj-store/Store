@@ -1,7 +1,8 @@
 import { cookies } from 'next/headers';
-import { SignJWT, jwtVerify } from 'jose';
+import { SignJWT, jwtVerify, type JWTPayload } from 'jose';
 import { prisma } from './prisma';
 import { can, type Permission } from './rbac';
+import { sessionVersionMatches } from './session-version';
 export { hashPassword, verifyPassword } from './password';
 let cachedSecret: Uint8Array | null = null;
 
@@ -16,7 +17,18 @@ function getSecret() {
 }
 
 export async function createSession(userId: string) {
-  const token = await new SignJWT({ sub: userId, aud: 'admin', typ: 'admin-session' })
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { active: true, sessionVersion: true },
+  });
+  if (!user?.active) throw new Error('Cannot create a session for an inactive admin user');
+
+  const token = await new SignJWT({
+    sub: userId,
+    aud: 'admin',
+    typ: 'admin-session',
+    sv: user.sessionVersion,
+  })
     .setProtectedHeader({ alg: 'HS256' })
     .setIssuedAt()
     .setExpirationTime('7d')
@@ -34,11 +46,22 @@ export async function getUser() {
   const token = (await cookies()).get('wahaj_session')?.value;
   if (!token) return null;
   try {
-    const { payload } = await jwtVerify(token, getSecret(), { audience: 'admin' });
-    if (payload.typ !== 'admin-session' || typeof payload.sub !== 'string' || !payload.sub || typeof payload.iat !== 'number') return null;
+    const { payload } = await jwtVerify(token, getSecret(), {
+      audience: 'admin',
+      algorithms: ['HS256'],
+    });
+    if (
+      payload.typ !== 'admin-session' ||
+      typeof payload.sub !== 'string' ||
+      !payload.sub ||
+      typeof payload.iat !== 'number' ||
+      typeof payload.exp !== 'number' ||
+      payload.exp <= payload.iat
+    ) return null;
 
     const user = await prisma.user.findUnique({ where: { id: String(payload.sub) } });
     if (!user?.active) return null;
+    if (!sessionVersionMatches(payload.sv, user.sessionVersion)) return null;
 
     // إذا تم تغيير كلمة المرور بعد إصدار التوكن → ارفض الجلسة
     if (user.passwordChangedAt) {
@@ -72,5 +95,37 @@ export async function requirePermission(permission: Permission) {
 }
 
 export async function clearSession() {
-  (await cookies()).delete('wahaj_session');
+  const cookieStore = await cookies();
+  const token = cookieStore.get('wahaj_session')?.value;
+
+  try {
+    if (token) {
+      let payload: JWTPayload | null = null;
+      try {
+        const verified = await jwtVerify(token, getSecret(), {
+          audience: 'admin',
+          algorithms: ['HS256'],
+        });
+        payload = verified.payload;
+      } catch {
+        // Invalid or expired cookies still need to be cleared.
+      }
+
+      const tokenVersion = payload?.sv === undefined ? 0 : payload.sv;
+      if (
+        payload?.typ === 'admin-session' &&
+        typeof payload.sub === 'string' &&
+        payload.sub.length > 0 &&
+        typeof tokenVersion === 'number' &&
+        Number.isInteger(tokenVersion)
+      ) {
+        await prisma.user.updateMany({
+          where: { id: payload.sub, sessionVersion: tokenVersion },
+          data: { sessionVersion: { increment: 1 } },
+        });
+      }
+    }
+  } finally {
+    cookieStore.delete('wahaj_session');
+  }
 }
