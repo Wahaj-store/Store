@@ -97,3 +97,26 @@ test('admin presents a genuine empty FAQ collection as empty only after a succes
   await expect(page.getByText('لا توجد أسئلة شائعة مضافة حتى الآن.')).toBeVisible();
   await expect(page.getByRole('alert').filter({ hasText: /تعذر|فشل|خطأ/ })).toHaveCount(0);
 });
+
+
+test('admin quick search traps focus, closes on Escape, and restores its trigger', async ({ page }) => {
+  await installAdminMocks(page, operationalReply);
+  await page.goto('/admin?tab=analytics');
+
+  const trigger = page.getByRole('button', { name: 'فتح البحث السريع' });
+  await trigger.click();
+
+  const dialog = page.getByRole('dialog', { name: 'البحث السريع في لوحة الإدارة' });
+  const input = dialog.getByRole('textbox', { name: 'ابحث عن قسم أو أداة' });
+  await expect(dialog).toBeVisible();
+  await expect(input).toBeFocused();
+
+  await page.keyboard.press('Tab');
+  await expect(dialog.getByRole('button').first()).toBeFocused();
+  await page.keyboard.press('Shift+Tab');
+  await expect(input).toBeFocused();
+
+  await page.keyboard.press('Escape');
+  await expect(dialog).toHaveCount(0);
+  await expect(trigger).toBeFocused();
+});

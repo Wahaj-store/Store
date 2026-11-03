@@ -12,6 +12,7 @@ import {
 import MediaPicker from './MediaPicker';
 import PopupSettingsEditor from './admin/PopupSettingsEditor';
 import AdminTableScroll from './admin/AdminTableScroll';
+import { useDialogFocus } from '../hooks/use-dialog-focus';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 
@@ -141,6 +142,15 @@ export default function AdminManager({ sidebarOpen, setSidebarOpen, topContent, 
   const [commandOpen, setCommandOpen] = useState(false);
   const [commandQuery, setCommandQuery] = useState('');
   const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const commandInputRef = useRef<HTMLInputElement>(null);
+  const commandDialogRef = useDialogFocus<HTMLDivElement>({
+    open: commandOpen,
+    initialFocusRef: commandInputRef,
+    onEscape: () => {
+      setCommandOpen(false);
+      setCommandQuery('');
+    },
+  });
 
   function switchTab(nextTab: string) {
     if (activeTabRef.current !== nextTab) {
@@ -722,8 +732,8 @@ export default function AdminManager({ sidebarOpen, setSidebarOpen, topContent, 
       </div>
       {commandOpen && (
         <div className="fixed inset-0 z-100 flex items-start justify-center bg-black/55 px-3 pt-[12vh] backdrop-blur-xs" onMouseDown={() => setCommandOpen(false)}>
-          <div className="w-full max-w-xl overflow-hidden rounded-[28px] border border-border/50 bg-(--bg) shadow-2xl" dir="rtl" onMouseDown={e => e.stopPropagation()}>
-            <div className="flex items-center gap-3 border-b border-border/40 px-4 py-3.5"><Command size={18} className="text-(--gold)" /><input autoFocus value={commandQuery} onChange={e => setCommandQuery(e.target.value)} placeholder="ابحث عن قسم أو أداة..." className="min-w-0 flex-1 bg-transparent text-sm text-foreground outline-hidden placeholder:text-muted-foreground" /><kbd className="rounded-lg border border-border/50 px-2 py-1 text-[9px] text-muted-foreground">ESC</kbd></div>
+          <div ref={commandDialogRef} role="dialog" aria-modal="true" aria-label="البحث السريع في لوحة الإدارة" tabIndex={-1} className="w-full max-w-xl overflow-hidden rounded-[28px] border border-border/50 bg-(--bg) shadow-2xl" dir="rtl" onMouseDown={e => e.stopPropagation()}>
+            <div className="flex items-center gap-3 border-b border-border/40 px-4 py-3.5"><Command size={18} className="text-(--gold)" /><input ref={commandInputRef} value={commandQuery} onChange={e => setCommandQuery(e.target.value)} aria-label="ابحث عن قسم أو أداة" placeholder="ابحث عن قسم أو أداة..." className="min-w-0 flex-1 bg-transparent text-sm text-foreground outline-hidden placeholder:text-muted-foreground" /><kbd className="rounded-lg border border-border/50 px-2 py-1 text-[9px] text-muted-foreground">ESC</kbd></div>
             <div className="max-h-[55vh] overflow-y-auto p-2">
               {filteredCommandItems.map(item => { const Icon = item.Icon; return <button key={item.key} type="button" onClick={() => { setTabAndSync(item.key); setEditing(null); setCommandOpen(false); setCommandQuery(''); setSidebarOpen(false); }} className={`flex w-full items-center gap-3 rounded-xl px-3 py-3 text-right transition ${tab === item.key ? 'bg-(--gold)/10 text-(--gold)' : 'text-foreground hover:bg-muted/10'}`}><span className="flex h-8 w-8 items-center justify-center rounded-lg bg-muted/10"><Icon size={15} /></span><span className="min-w-0 flex-1"><span className="block text-xs font-medium">{item.label}</span><span className="mt-0.5 block text-[9px] text-muted-foreground">{item.group}</span></span><ChevronLeft size={14} className="text-muted-foreground" /></button>; })}
               {!filteredCommandItems.length && <div className="p-10 text-center text-xs text-muted-foreground">لا توجد نتائج مطابقة.</div>}
@@ -1793,7 +1803,7 @@ function CustomerSegments({ data, onRefresh }: any) {
       <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
         {(data.segments || []).map((segment: any) => <div key={segment.key} className="bg-muted/10 border border-border/40 rounded-3xl p-5 shadow-2xs"><div className="flex items-start justify-between gap-2"><div><h3 className="font-serif font-bold text-sm">{segment.name}</h3><p className="text-[10px] text-muted-foreground mt-1 leading-relaxed">{segment.rule}</p></div><span className={`px-2 py-1 rounded-full border text-[10px] ${toneClass[segment.tone] || toneClass.muted}`}>{segment.count}</span></div><div className="mt-4 flex justify-between text-[11px] text-muted-foreground"><span>إجمالي الإنفاق</span><b className="text-foreground">{formatMoney(segment.totalSpend)}</b></div><div className="mt-1 flex justify-between text-[11px] text-muted-foreground"><span>متوسط العميل</span><b className="text-foreground">{formatMoney(segment.avgSpend)}</b></div></div>)}
       </div>
-      <div className="bg-muted/10 border border-border/40 rounded-3xl p-5 shadow-2xs"><h3 className="font-serif font-bold mb-4">أهم العملاء داخل الشرائح</h3><div className="overflow-x-auto"><table className="w-full text-right text-xs"><thead><tr className="border-b border-border/30 text-muted-foreground"><th className="p-3">العميل</th><th className="p-3">الشريحة</th><th className="p-3">الطلبات</th><th className="p-3">الإنفاق</th><th className="p-3">آخر طلب</th></tr></thead><tbody>{(data.segments || []).flatMap((s: any) => (s.members || []).slice(0, 5).map((m: any) => ({ ...m, segment: s.name, id: `${s.key}-${m.id}` }))).map((m: any) => <tr key={m.id} className="border-b border-border/20 last:border-0"><td className="p-3 font-medium">{m.name}</td><td className="p-3 text-muted-foreground">{m.segment}</td><td className="p-3">{m.orderCount}</td><td className="p-3">{formatMoney(m.spend)}</td><td className="p-3 text-muted-foreground">{m.lastOrder ? new Date(m.lastOrder).toLocaleDateString('ar-EG') : '—'}</td></tr>)}</tbody></table></div></div>
+      <div className="bg-muted/10 border border-border/40 rounded-3xl p-5 shadow-2xs"><h3 className="font-serif font-bold mb-4">أهم العملاء داخل الشرائح</h3><AdminTableScroll label="جدول أهم العملاء داخل الشرائح" className="rounded-2xl"><table className="w-full min-w-[640px] text-right text-xs"><thead><tr className="border-b border-border/30 text-muted-foreground"><th className="p-3">العميل</th><th className="p-3">الشريحة</th><th className="p-3">الطلبات</th><th className="p-3">الإنفاق</th><th className="p-3">آخر طلب</th></tr></thead><tbody>{(data.segments || []).flatMap((s: any) => (s.members || []).slice(0, 5).map((m: any) => ({ ...m, segment: s.name, id: `${s.key}-${m.id}` }))).map((m: any) => <tr key={m.id} className="border-b border-border/20 last:border-0"><td className="p-3 font-medium">{m.name}</td><td className="p-3 text-muted-foreground">{m.segment}</td><td className="p-3">{m.orderCount}</td><td className="p-3">{formatMoney(m.spend)}</td><td className="p-3 text-muted-foreground">{m.lastOrder ? new Date(m.lastOrder).toLocaleDateString('ar-EG') : '—'}</td></tr>)}</tbody></table></AdminTableScroll></div>
       <div className="bg-muted/10 border border-border/40 rounded-3xl p-5 shadow-2xs">
         <div className="flex flex-wrap items-start justify-between gap-3 mb-4">
           <div>

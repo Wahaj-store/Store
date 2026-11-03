@@ -1,11 +1,14 @@
 import type { Metadata } from 'next';
 import { Suspense } from 'react';
+import Link from 'next/link';
 import {
   ArrowLeft,
   Check,
   ChevronDown,
+  Search,
   SlidersHorizontal,
   Sparkles,
+  X,
 } from 'lucide-react';
 import {
   ShopActiveFilters,
@@ -19,7 +22,7 @@ import {
   ShopProductResults,
   ShopTotalCount,
 } from './ShopAsync';
-import { parseShopSearchParams, type RawShopSearchParams } from '@/lib/shop-query';
+import { parseShopSearchParams, shopHref, type RawShopSearchParams } from '@/lib/shop-query';
 
 // The HTML shell is request-specific; only the public catalog data is cached below.
 export const dynamic = 'force-dynamic';
@@ -56,6 +59,20 @@ export default async function Shop(props: { searchParams: Promise<RawShopSearchP
               <span className="wahaj-shop-hero__proof-mark"><Check size={13} /></span>
               <span>اختيارات وَهَج في مكان واحد</span>
             </div>
+            <form className="wahaj-shop-search" action="/shop" method="get" role="search" aria-label="البحث في منتجات وَهَج">
+              {state.category ? <input type="hidden" name="category" value={state.category} /> : null}
+              {!state.invalidPriceRange && state.minPrice !== null ? <input type="hidden" name="minPrice" value={state.minPrice} /> : null}
+              {!state.invalidPriceRange && state.maxPrice !== null ? <input type="hidden" name="maxPrice" value={state.maxPrice} /> : null}
+              {state.inStock ? <input type="hidden" name="stock" value="in-stock" /> : null}
+              {state.sort !== 'newest' ? <input type="hidden" name="sort" value={state.sort} /> : null}
+              <label className="wahaj-shop-search__field">
+                <Search size={18} aria-hidden="true" />
+                <span className="sr-only">ابحثي عن قطعة أو اسم منتج</span>
+                <input type="search" name="q" maxLength={120} defaultValue={state.q} placeholder="ابحثي عن قطعة تشبهكِ..." aria-label="ابحثي عن قطعة أو اسم منتج" />
+              </label>
+              {state.q ? <Link href={shopHref(state, { q: null })} className="wahaj-shop-search__clear" aria-label="مسح البحث"><X size={15} /></Link> : null}
+              <button type="submit" className="wahaj-shop-search__submit"><Search size={15} aria-hidden="true" /><span>ابحثي</span></button>
+            </form>
           </div>
           <aside className="wahaj-shop-hero__aside" aria-label="عدد المنتجات المطابقة">
             <span className="wahaj-shop-hero__aside-kicker">WAHAJ COLLECTION</span>

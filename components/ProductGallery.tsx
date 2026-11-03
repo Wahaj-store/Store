@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { X, ZoomIn, ZoomOut } from 'lucide-react';
 import { useDialogFocus } from '../hooks/use-dialog-focus';
+import { getGalleryKeyboardTarget } from '../lib/gallery-navigation';
 
 type ProductImage = {
   id?: string;
@@ -40,6 +41,7 @@ export default function ProductGallery({
   const [lightboxZoom, setLightboxZoom] = useState(1);
   const [lightboxPosition, setLightboxPosition] = useState<Position>({ x: 0, y: 0 });
   const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const thumbnailRefs = useRef<Array<HTMLButtonElement | null>>([]);
   const touchGesture = useRef<TouchGesture | null>(null);
   const mouseDrag = useRef<{ x: number; y: number; position: Position } | null>(null);
   const lastTap = useRef<{ time: number; x: number; y: number } | null>(null);
@@ -70,6 +72,15 @@ export default function ProductGallery({
     setLightboxZoom(1);
     setLightboxPosition({ x: 0, y: 0 });
   }
+
+  const handleThumbnailKeyDown = (index: number, event: React.KeyboardEvent<HTMLButtonElement>) => {
+    const dir = event.currentTarget.closest<HTMLElement>('[dir]')?.getAttribute('dir') === 'ltr' ? 'ltr' : 'rtl';
+    const nextIndex = getGalleryKeyboardTarget(index, event.key, items.length, dir);
+    if (nextIndex === null) return;
+    event.preventDefault();
+    setActiveIndex(nextIndex);
+    thumbnailRefs.current[nextIndex]?.focus();
+  };
 
   const lightboxRef = useDialogFocus<HTMLDivElement>({ open: lightboxOpen, initialFocusRef: closeButtonRef, onEscape: closeLightbox });
 
@@ -205,13 +216,16 @@ export default function ProductGallery({
           {items.map((image, index) => (
             <button
               key={image.id || `${image.url}-${index}`}
+              ref={(element) => { thumbnailRefs.current[index] = element; }}
               type="button"
               role="tab"
               aria-selected={activeIndex === index}
+              tabIndex={activeIndex === index ? 0 : -1}
               aria-label={`عرض الصورة ${index + 1} من ${items.length}`}
               className={`wahaj-product-gallery__thumb wahaj-gallery-thumb-enter ${activeIndex === index ? 'is-active' : ''}`}
               style={{ '--wahaj-thumb-index': index } as React.CSSProperties}
               onClick={() => setActiveIndex(index)}
+              onKeyDown={(event) => handleThumbnailKeyDown(index, event)}
             >
               <Image
                 src={image.url}
