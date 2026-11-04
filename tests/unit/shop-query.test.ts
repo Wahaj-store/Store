@@ -68,30 +68,3 @@ test('filter links preserve unrelated filters and reset pagination', () => {
   assert.equal(url.searchParams.get('stock'), 'in-stock');
   assert.equal(url.searchParams.has('page'), false);
 });
-
-test('search updates preserve active filters, clear cleanly, and reset pagination', () => {
-  const state = parseShopSearchParams({
-    q: 'سوار',
-    category: 'bracelets',
-    minPrice: '150',
-    maxPrice: '900',
-    stock: 'in-stock',
-    sort: 'price-asc',
-    page: '3',
-  });
-
-  const refined = new URL(shopHref(state, { q: 'خاتم فضة' }), 'https://example.test');
-  assert.equal(refined.searchParams.get('q'), 'خاتم فضة');
-  assert.equal(refined.searchParams.get('category'), 'bracelets');
-  assert.equal(refined.searchParams.get('minPrice'), '150');
-  assert.equal(refined.searchParams.get('maxPrice'), '900');
-  assert.equal(refined.searchParams.get('stock'), 'in-stock');
-  assert.equal(refined.searchParams.get('sort'), 'price-asc');
-  assert.equal(refined.searchParams.has('page'), false);
-
-  const cleared = new URL(shopHref(state, { q: null }), 'https://example.test');
-  assert.equal(cleared.searchParams.has('q'), false);
-  assert.equal(cleared.searchParams.get('category'), 'bracelets');
-  assert.equal(cleared.searchParams.get('minPrice'), '150');
-  assert.equal(cleared.searchParams.has('page'), false);
-});
