@@ -296,7 +296,7 @@ export default function SiteChrome() {
       {/* الهيدر العلوي الاحترافي */}
       <header className="wahaj-header wahaj-header--luxury sticky top-0 z-40 border-b border-(--gold)/20 bg-(--bg)/95 backdrop-blur-md">
         <div className="container wahaj-header__inner flex items-center justify-between py-3.5 px-4">
-          <div className="flex items-center gap-3">
+          <div className="wahaj-header__brand flex items-center gap-3">
             <button
               type="button"
               ref={menuButtonRef}
