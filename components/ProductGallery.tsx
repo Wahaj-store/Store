@@ -200,6 +200,7 @@ export default function ProductGallery({
           alt={activeImage.alt || productName}
           fill
           priority={activeIndex === 0}
+          fetchPriority={activeIndex === 0 ? "high" : "auto"}
           sizes="(max-width: 800px) calc(100vw - 32px), 52vw"
           className="wahaj-product-gallery__image wahaj-gallery-image-enter"
           style={{ '--wahaj-zoom-x': `${zoomOrigin.x}%`, '--wahaj-zoom-y': `${zoomOrigin.y}%` } as React.CSSProperties}

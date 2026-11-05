@@ -1,15 +1,13 @@
-"use client";
-
 import {
-  ArrowLeft, ArrowUpLeft, ChevronLeft, Check, CheckCircle2, Heart, Mail, MessageCircle, Music2, Quote, RotateCcw, Send, ShieldCheck, Sparkles, Star, Truck,
+  ArrowLeft, ArrowUpLeft, ChevronLeft, Check, CheckCircle2, Heart, MessageCircle, Music2, Quote, RotateCcw, ShieldCheck, Sparkles, Star, Truck,
 } from "lucide-react";
-import { Fragment, useState, useEffect, type ComponentType, type FormEvent } from "react";
-import { useFeatureFlags } from "@/lib/use-feature-flags";
+import { Fragment, type ComponentType } from "react";
 import dynamic from "next/dynamic";
 import Image from "next/image";
 import Link from "next/link";
 import { FacebookBrandIcon, InstagramBrandIcon } from "../SocialBrandIcons";
 import CategoryCarousel from "./CategoryCarousel";
+import NewsletterSection from "./NewsletterSection";
 const ProductCard = dynamic(() => import("../ProductCard"), {
   ssr: true,
   loading: () => <div className="wahaj-product-card wahaj-product-card--loading" aria-hidden="true" />,
@@ -192,84 +190,6 @@ function SocialWorldSection({ section, data }: { section: any; data: any }) {
   );
 }
 
-function NewsletterSection({ section }: { section: any }) {
-  const [email, setEmail] = useState("");
-  const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
-  const [message, setMessage] = useState("");
-  const messageId = `wahaj-newsletter-message-${section.id || "homepage"}`;
-
-  async function subscribe(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    if (status === "loading") return;
-    setStatus("loading");
-    setMessage("");
-    try {
-      const response = await fetch("/api/newsletter", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, source: "homepage" }),
-      });
-      const result = await response.json().catch(() => ({}));
-      if (!response.ok) throw new Error(result.error || "تعذّر إتمام الاشتراك الآن.");
-      setStatus("success");
-      setMessage("تم تسجيل بريدك الإلكتروني في قائمة وَهَج.");
-      setEmail("");
-    } catch (error: any) {
-      setStatus("error");
-      setMessage(error?.message || "حدث خطأ أثناء الاشتراك. حاولي مرة أخرى.");
-    }
-  }
-
-  const configuredSubtitle = String(section.subtitle || "").trim();
-  const subtitle = /آخر العروض والمجموعات الجديدة/.test(configuredSubtitle)
-    ? "سجّلي بريدك الإلكتروني للانضمام إلى قائمة وَهَج."
-    : configuredSubtitle || "انضمي إلى قائمة وَهَج البريدية وسجّلي بريدك لمتابعة جديد المتجر.";
-
-  return (
-    <section className="wahaj-newsletter">
-      <div className="container">
-        <div className="wahaj-newsletter__card">
-          <div className="wahaj-newsletter__intro">
-            <div className="wahaj-newsletter__copy">
-              <span className="wahaj-newsletter__eyebrow"><Sparkles size={13} /> وَهَج · القائمة البريدية</span>
-              <h2>{section.title || "انضمي إلى عالم وَهَج"}</h2>
-              <p>{subtitle}</p>
-            </div>
-            <span className="wahaj-newsletter__icon" aria-hidden="true"><Mail size={39} strokeWidth={1.25} /></span>
-          </div>
-          <div className="wahaj-newsletter__subscribe">
-            <form className="wahaj-newsletter__form" onSubmit={subscribe}>
-              <label className="wahaj-newsletter__email">
-                <Mail size={17} aria-hidden="true" />
-                <span className="sr-only">البريد الإلكتروني</span>
-                <input
-                  type="email"
-                  name="email"
-                  autoComplete="email"
-                  maxLength={254}
-                  required
-                  value={email}
-                  onChange={event => setEmail(event.target.value)}
-                  placeholder="بريدك الإلكتروني"
-                  aria-describedby={messageId}
-                  disabled={status === "loading"}
-                />
-              </label>
-              <button type="submit" disabled={status === "loading"}>
-                {status === "loading" ? "جارٍ التسجيل…" : section.ctaText || "انضمي إلينا"}
-                {status === "loading" ? <span className="wahaj-newsletter__spinner" aria-hidden="true" /> : <Send size={15} />}
-              </button>
-            </form>
-            <p id={messageId} className={`wahaj-newsletter__message is-${status}`} role={status === "error" ? "alert" : "status"} aria-live="polite">
-              {message || "عند الاشتراك، يُسجّل بريدك ضمن قائمة وَهَج في قاعدة بيانات المتجر."}
-            </p>
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
-
 function ProductsSection({
   data,
   title = "الأكثر تألقًا",
@@ -421,7 +341,6 @@ export default function StoreSectionRenderer({
   settings: any;
 }) {
   const s = settings || {};
-  const { flags } = useFeatureFlags();
   return (
     <div className="wahaj-storefront" dir="rtl">
       <main>
@@ -463,6 +382,7 @@ export default function StoreSectionRenderer({
                       alt=""
                       fill
                       priority
+                      fetchPriority="high"
                       sizes="100vw"
                       className="wahaj-editorial-hero__image"
                     />
@@ -641,7 +561,7 @@ export default function StoreSectionRenderer({
           }
 
           if (sec.type === "newsletter" || sec.type === "subscribe") {
-            return flags.newsletter ? <NewsletterSection key={sec.id} section={sec} /> : null;
+            return <NewsletterSection key={sec.id} section={sec} />;
           }
 
           return (

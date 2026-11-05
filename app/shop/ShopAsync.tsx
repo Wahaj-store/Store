@@ -111,7 +111,7 @@ export async function ShopProductResults({ state }: { state: ShopSearchState }) 
     );
   }
 
-  return <div className="wahaj-shop-product-grid">{products.map((product) => <ShopProductCard key={product.id} product={product} />)}</div>;
+  return <div className="wahaj-shop-product-grid">{products.map((product, index) => <ShopProductCard key={product.id} product={product} priorityImage={index === 0} />)}</div>;
 }
 
 export function ShopPaginationFallback() {

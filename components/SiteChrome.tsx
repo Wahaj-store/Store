@@ -2,15 +2,19 @@
 
 import { useEffect, useRef, useState } from 'react';
 import type { AnchorHTMLAttributes } from 'react';
+import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useTheme } from 'next-themes';
-import { ArrowLeft, ChevronLeft, CircleHelp, CreditCard, Menu, X, Search, User, Moon, Sun, ShoppingBag, MessageCircle, Home, Store, Truck, Info, Minus, Plus, ShieldCheck, Trash2 } from 'lucide-react';
-import StorePopup from '@/components/store/StorePopup';
-import SearchDrawer from '@/components/SearchDrawer';
+import { ArrowLeft, ChevronLeft, CircleHelp, CreditCard, Menu, X, Search, User, Moon, Sun, ShoppingBag, MessageCircle, Home, Store, Truck, Info } from 'lucide-react';
+import { isPopupEnabled } from '@/lib/popup-config';
 import { getPublicSettings } from '@/lib/public-settings-client';
 import { useFeatureFlags } from '@/lib/use-feature-flags';
 import { useDialogFocus } from '@/hooks/use-dialog-focus';
+
+const CartDrawer = dynamic(() => import('@/components/CartDrawer'), { ssr: false });
+const SearchDrawer = dynamic(() => import('@/components/SearchDrawer'), { ssr: false });
+const StorePopup = dynamic(() => import('@/components/store/StorePopup'), { ssr: false });
 
 type SettingMap = Record<string, any>;
 
@@ -63,7 +67,6 @@ export default function SiteChrome() {
   const menuButtonRef = useRef<HTMLButtonElement>(null);
   const menuCloseButtonRef = useRef<HTMLButtonElement>(null);
   const cartButtonRef = useRef<HTMLButtonElement>(null);
-  const cartCloseButtonRef = useRef<HTMLButtonElement>(null);
   const searchButtonRef = useRef<HTMLButtonElement>(null);
   const settingsLoadedRef = useRef(false);
   const settingsRequestRef = useRef(false);
@@ -121,7 +124,6 @@ export default function SiteChrome() {
   };
 
   const menuDialogRef = useDialogFocus<HTMLElement>({ open: menu, initialFocusRef: menuCloseButtonRef, onEscape: closeMenu });
-  const cartDialogRef = useDialogFocus<HTMLElement>({ open: cartDrawerOpen, initialFocusRef: cartCloseButtonRef, onEscape: closeCartDrawer });
 
   useEffect(() => {
     setThemeReady(true);
@@ -202,8 +204,8 @@ export default function SiteChrome() {
       return { ...item, quantity: Math.max(1, Math.min(maximum, Number(item.quantity || 1) + delta)) };
     }));
   };
-  const drawerSubtotal = cartItems.reduce((sum, item) => sum + Number(item.price || 0) * Number(item.quantity || 0), 0);
   const drawerQuantity = cartItems.reduce((sum, item) => sum + Number(item.quantity || 0), 0);
+  const drawerSubtotal = cartItems.reduce((sum, item) => sum + Number(item.price || 0) * Number(item.quantity || 0), 0);
   const drawerFreeShipping = Number(settings.free_shipping || 0);
   const drawerShippingProgress = drawerFreeShipping > 0 ? Math.min(100, drawerSubtotal / drawerFreeShipping * 100) : 0;
   const drawerRemaining = Math.max(0, drawerFreeShipping - drawerSubtotal);
@@ -518,91 +520,18 @@ export default function SiteChrome() {
       )}
 
       {cartDrawerOpen && (
-        <div className={`wahaj-cart-drawer-overlay${cartDrawerClosing ? ' is-closing' : ''}`} role="presentation" onMouseDown={closeCartDrawer}>
-          <aside
-            id="wahaj-cart-drawer"
-            ref={cartDialogRef}
-            className={`wahaj-cart-drawer${cartDrawerClosing ? ' is-closing' : ''}`}
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="wahaj-cart-drawer-title"
-            tabIndex={-1}
-            dir="rtl"
-            onMouseDown={event => event.stopPropagation()}
-          >
-            <header className="wahaj-cart-drawer__header">
-              <div className="wahaj-cart-drawer__heading">
-                <span className="wahaj-cart-drawer__brand"><ShoppingBag size={16} /> وَهَج</span>
-                <h2 id="wahaj-cart-drawer-title">سلة مشترياتكِ</h2>
-                <p>{drawerQuantity ? `${drawerQuantity} ${drawerQuantity === 1 ? 'قطعة مختارة' : 'قطع مختارة'}` : 'اختياراتكِ المفضّلة في مكان واحد'}</p>
-              </div>
-              <button
-                type="button"
-                ref={cartCloseButtonRef}
-                onClick={() => closeCartDrawer()}
-                aria-label="إغلاق السلة"
-                className="wahaj-cart-drawer__close"
-              ><X size={19} /></button>
-            </header>
-
-            <div className="wahaj-cart-drawer__body">
-              {cartItems.length === 0 ? (
-                <div className="wahaj-cart-drawer__empty">
-                  <span className="wahaj-cart-drawer__empty-icon"><ShoppingBag size={27} strokeWidth={1.6} /></span>
-                  <h3>سلتكِ فارغة حاليًا</h3>
-                  <p>ابدئي باكتشاف القطع التي اخترناها لكِ، وستجدينها هنا عند إضافتها.</p>
-                  <SiteLink href="/shop" onClick={() => closeCartDrawer()} className="wahaj-cart-drawer__shop-link">اكتشفي المتجر <ArrowLeft size={15} /></SiteLink>
-                </div>
-              ) : (
-                <>
-                  {drawerFreeShipping > 0 && (
-                    <section className="wahaj-cart-drawer__shipping" aria-label="تقدم الشحن المجاني">
-                      <div><Truck size={16} /><span>{drawerRemaining ? `أضيفي منتجات بقيمة ${drawerMoney(drawerRemaining)} للشحن المجاني` : 'رائع! أصبح شحن طلبكِ مجانيًا'}</span></div>
-                      <div className="wahaj-cart-drawer__progress" role="progressbar" aria-valuenow={Math.round(drawerShippingProgress)} aria-valuemin={0} aria-valuemax={100}><span style={{ width: `${drawerShippingProgress}%` }} /></div>
-                    </section>
-                  )}
-                  <div className="wahaj-cart-drawer__items-label"><span>اختياراتكِ</span><b>{drawerQuantity} {drawerQuantity === 1 ? 'قطعة' : 'قطع'}</b></div>
-                  <ul className="wahaj-cart-drawer__items">
-                    {cartItems.map((item: any, index: number) => (
-                      <li key={`${item.productId}:${item.variantId || index}`} className="wahaj-cart-drawer__item">
-                        <div className="wahaj-cart-drawer__image">
-                          <img src={item.image || '/placeholder.svg'} alt={item.name || 'منتج من متجر وَهَج'} />
-                        </div>
-                        <div className="wahaj-cart-drawer__item-body">
-                          <div className="wahaj-cart-drawer__item-top">
-                            <div className="wahaj-cart-drawer__item-copy">
-                              <h3>{item.name}</h3>
-                              {item.variantValue && <p>{item.variantName || 'الخيار'}: {item.variantValue}</p>}
-                              <span>{drawerMoney(Number(item.price || 0))}</span>
-                            </div>
-                            <button type="button" className="wahaj-cart-drawer__remove" onClick={() => saveDrawerCart(cartItems.filter((_, itemIndex) => itemIndex !== index))} aria-label={`حذف ${item.name} من السلة`} title="حذف المنتج"><Trash2 size={16} /></button>
-                          </div>
-                          <div className="wahaj-cart-drawer__item-bottom">
-                            <div className="wahaj-cart-drawer__quantity" aria-label={`كمية ${item.name}`}>
-                              <button type="button" onClick={() => updateDrawerQuantity(index, -1)} aria-label={`تقليل كمية ${item.name}`} disabled={Number(item.quantity || 1) <= 1}><Minus size={13} /></button>
-                              <span aria-live="polite">{item.quantity || 1}</span>
-                              <button type="button" onClick={() => updateDrawerQuantity(index, 1)} aria-label={`زيادة كمية ${item.name}`} disabled={Boolean(item.maxStock && item.quantity >= item.maxStock)}><Plus size={13} /></button>
-                            </div>
-                            <strong>{drawerMoney(Number(item.price || 0) * Number(item.quantity || 0))}</strong>
-                          </div>
-                        </div>
-                      </li>
-                    ))}
-                  </ul>
-                </>
-              )}
-            </div>
-
-            {cartItems.length > 0 && (
-              <footer className="wahaj-cart-drawer__footer">
-                <div className="wahaj-cart-drawer__subtotal"><span>الإجمالي المبدئي</span><strong>{drawerMoney(drawerSubtotal)}</strong></div>
-                <p className="wahaj-cart-drawer__note"><ShieldCheck size={14} /> يتم احتساب الشحن والسعر النهائي عند مراجعة الطلب</p>
-                <SiteLink href="/checkout" onClick={() => closeCartDrawer()} className="wahaj-cart-drawer__checkout">إتمام الطلب <ArrowLeft size={16} /></SiteLink>
-                <SiteLink href="/cart" onClick={() => closeCartDrawer()} className="wahaj-cart-drawer__review">مراجعة السلة كاملة</SiteLink>
-              </footer>
-            )}
-          </aside>
-        </div>
+        <CartDrawer
+          closing={cartDrawerClosing}
+          cartItems={cartItems}
+          drawerQuantity={drawerQuantity}
+          drawerFreeShipping={drawerFreeShipping}
+          drawerRemaining={drawerRemaining}
+          drawerShippingProgress={drawerShippingProgress}
+          drawerMoney={drawerMoney}
+          close={closeCartDrawer}
+          saveCart={saveDrawerCart}
+          updateQuantity={updateDrawerQuantity}
+        />
       )}
 
       <nav className="wahaj-mobile-bottom-nav" aria-label="التنقل السريع">
@@ -637,12 +566,12 @@ export default function SiteChrome() {
         </span>
         <span className="wahaj-mobile-whatsapp__online" aria-hidden="true" />
       </a>
-      <SearchDrawer
-        open={searchDrawerOpen}
-        onClose={closeSearchDrawer}
-        closing={searchDrawerClosing}
-      />
-      {!popupExcluded && <StorePopup enabled={settings.popup_enabled} config={settings.popup_config} visitKey={pathname || '/'} />}
+      {(searchDrawerOpen || searchDrawerClosing) && (
+        <SearchDrawer open={searchDrawerOpen} onClose={closeSearchDrawer} closing={searchDrawerClosing} />
+      )}
+      {!popupExcluded && isPopupEnabled(settings.popup_enabled) && (
+        <StorePopup enabled={settings.popup_enabled} config={settings.popup_config} visitKey={pathname || '/'} />
+      )}
     </>
   );
 }

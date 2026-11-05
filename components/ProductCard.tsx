@@ -11,11 +11,13 @@ function ProductCard({
   compact = false,
   variant = "default",
   imageSizes,
+  priorityImage = false,
 }: {
   product: any;
   compact?: boolean;
   variant?: "default" | "shop";
   imageSizes?: string;
+  priorityImage?: boolean;
 }) {
   const imageUrl = product.images?.[0]?.url || "/placeholder.svg";
   const [imageSrc, setImageSrc] = useState(imageUrl);
@@ -46,7 +48,9 @@ function ProductCard({
                 sizes={imageSizes || "(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"}
                 quality={78}
                 className="wahaj-product-card__image"
-                loading="lazy"
+                priority={priorityImage}
+                fetchPriority={priorityImage ? "high" : "auto"}
+                loading={priorityImage ? "eager" : "lazy"}
                 onError={() => setImageSrc("/placeholder.svg")}
             />
           </Link>

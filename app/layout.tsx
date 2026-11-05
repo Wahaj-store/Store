@@ -20,7 +20,7 @@ export const metadata = {
   title: { default: 'وَهَج | تفاصيل صغيرة تصنع وهجًا كبيرًا', template: '%s | وَهَج' },
   description: 'وَهَج — إكسسوارات عصرية بلمسة عربية راقية.',
   applicationName: 'وَهَج',
-  icons: { icon: '/icon.svg' },
+  icons: { icon: '/wahaj-favicon-v2.ico', shortcut: '/wahaj-favicon-v2.ico' },
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {

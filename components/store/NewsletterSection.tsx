@@ -2,12 +2,14 @@
 
 import { useState, type FormEvent } from "react";
 import { Mail, Send, Sparkles } from "lucide-react";
+import { useFeatureFlags } from "@/lib/use-feature-flags";
 
 export default function NewsletterSection({ section }: { section: any }) {
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [message, setMessage] = useState("");
   const messageId = `wahaj-newsletter-message-${section.id || "homepage"}`;
+  const { flags } = useFeatureFlags();
 
   async function subscribe(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -37,6 +39,8 @@ export default function NewsletterSection({ section }: { section: any }) {
   const subtitle = /آخر العروض والمجموعات الجديدة/.test(configuredSubtitle)
     ? "سجّلي بريدك الإلكتروني للانضمام إلى قائمة وَهَج."
     : configuredSubtitle || "انضمي إلى قائمة وَهَج البريدية وسجّلي بريدك لمتابعة جديد المتجر.";
+
+  if (!flags.newsletter) return null;
 
   return (
     <section className="wahaj-newsletter" aria-labelledby={`wahaj-newsletter-title-${section.id || "homepage"}`}>
