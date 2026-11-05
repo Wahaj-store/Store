@@ -8,6 +8,7 @@ import Link from "next/link";
 import { FacebookBrandIcon, InstagramBrandIcon } from "../SocialBrandIcons";
 import CategoryCarousel from "./CategoryCarousel";
 import NewsletterSection from "./NewsletterSection";
+import StoryImage from "./StoryImage";
 const ProductCard = dynamic(() => import("../ProductCard"), {
   ssr: true,
   loading: () => <div className="wahaj-product-card wahaj-product-card--loading" aria-hidden="true" />,
@@ -419,12 +420,7 @@ export default function StoreSectionRenderer({
                 <div className="container">
                   <div className="wahaj-story__card">
                     <div className={`wahaj-story__visual${storyImage ? " has-image" : ""}`}>
-                      {storyImage ? <Image src={storyImage} alt="تفاصيل من عالم وَهَج" fill sizes="(max-width:800px) 100vw, 44vw" loading="lazy" onLoad={(event) => {
-                        const { naturalWidth, naturalHeight } = event.currentTarget;
-                        if (naturalWidth > 0 && naturalHeight > 0) {
-                          event.currentTarget.parentElement?.style.setProperty("--wahaj-story-image-ratio", `${naturalWidth} / ${naturalHeight}`);
-                        }
-                      }} /> : <span className="wahaj-story__monogram" aria-hidden="true">و</span>}
+                      {storyImage ? <StoryImage src={storyImage} /> : <span className="wahaj-story__monogram" aria-hidden="true">و</span>}
                       <span className="wahaj-story__visual-shade" aria-hidden="true" />
                       <span className="wahaj-story__visual-caption"><Sparkles size={14} /> وَهَج — تفاصيل تصنع الفرق</span>
                     </div>
