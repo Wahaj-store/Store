@@ -1,6 +1,3 @@
-'use client';
-
-import { useState } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, ChevronDown, Droplets, FileText, Gem, Truck } from 'lucide-react';
 
@@ -17,8 +14,6 @@ export default function ProductDetailsAccordion({
   material,
   careInstructions,
 }: Props) {
-  const [openId, setOpenId] = useState<string | null>('description');
-
   const items = [
     {
       id: 'description',
@@ -53,23 +48,15 @@ export default function ProductDetailsAccordion({
 
   return (
     <div className="wahaj-product-accordions wahaj-help-list" aria-label="تفاصيل المنتج">
-      {items.map(({ id, title, Icon, content }) => {
-        const isOpen = openId === id;
-        return (
-          <article className={`wahaj-faq-item ${isOpen ? 'is-open' : ''}`} key={id}>
-            <button
-              type="button"
-              onClick={() => setOpenId(isOpen ? null : id)}
-              aria-expanded={isOpen}
-              className="wahaj-faq-question"
-            >
-              <span><i><Icon size={17} aria-hidden="true" /></i>{title}</span>
-              <ChevronDown size={18} aria-hidden="true" />
-            </button>
-            {isOpen ? <div className="wahaj-faq-answer">{content}</div> : null}
-          </article>
-        );
-      })}
+      {items.map(({ id, title, Icon, content }) => (
+        <details className="wahaj-faq-item" key={id} name="product-details" open={id === 'description'}>
+          <summary className="wahaj-faq-question">
+            <span><i><Icon size={17} aria-hidden="true" /></i>{title}</span>
+            <ChevronDown size={18} aria-hidden="true" />
+          </summary>
+          <div className="wahaj-faq-answer">{content}</div>
+        </details>
+      ))}
     </div>
   );
 }

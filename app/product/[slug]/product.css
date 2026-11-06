@@ -634,6 +634,10 @@
 .wahaj-product-accordions .wahaj-faq-answer,
 .wahaj-product-accordions .wahaj-faq-answer p,
 .wahaj-product-accordions .wahaj-faq-answer a { font-size: 11px !important; line-height: 2; }
+.wahaj-product-accordions .wahaj-faq-question { cursor: pointer; list-style: none; }
+.wahaj-product-accordions .wahaj-faq-question::-webkit-details-marker { display: none; }
+.wahaj-product-accordions .wahaj-faq-item[open] { border-color: color-mix(in srgb,var(--gold) 43%,var(--border)); }
+.wahaj-product-accordions .wahaj-faq-item[open] .wahaj-faq-question > svg { transform: rotate(180deg); }
 @media (max-width: 600px) {
   .wahaj-product-accordions .wahaj-faq-question { font-size: 11px !important; }
   .wahaj-product-accordions .wahaj-faq-answer,
