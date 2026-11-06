@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Store from '@/components/Store';
 import { getHomepageData } from '@/lib/homepage-data';
+import './home.css';
 
 const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || 'https://wahaj-store.vercel.app').replace(/\/+$/, '');
 const SITE_NAME = 'وَهَج';

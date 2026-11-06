@@ -1,0 +1,910 @@
+.wahaj-storefront {
+  background: var(--background);
+  color: var(--foreground);
+  overflow: clip;
+}
+
+.wahaj-storefront .wahaj-section-heading {
+  position: relative;
+  max-width: 760px;
+  margin: 0 auto;
+}
+.wahaj-storefront .wahaj-hero {
+  min-height: min(780px, 88vh);
+  border-bottom: 1px solid var(--line);
+  background:
+    radial-gradient(circle at 78% 20%, color-mix(in srgb, var(--gold) 10%, transparent), transparent 30%),
+    var(--bg);
+}
+
+.wahaj-storefront .wahaj-hero__inner {
+  grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr);
+  min-height: min(780px, 88vh);
+  gap: clamp(30px, 5vw, 74px);
+  padding-block: clamp(38px, 6vw, 74px);
+}
+
+.wahaj-storefront .wahaj-hero__content {
+  position: relative;
+  z-index: 3;
+}
+
+.wahaj-storefront .wahaj-hero__eyebrow {
+  margin-bottom: 18px;
+  color: var(--gold);
+  font-size: 11px;
+  letter-spacing: .14em;
+}
+
+.wahaj-storefront .wahaj-hero__title {
+  font-size: clamp(2.7rem, 5vw, 5.35rem);
+  font-weight: 600;
+  line-height: 1.13;
+  letter-spacing: -.045em;
+}
+
+.wahaj-storefront .wahaj-hero__description {
+  max-width: 510px;
+  margin-top: 22px;
+  font-size: clamp(15px, 1.35vw, 18px);
+  line-height: 2.05;
+}
+
+.wahaj-storefront .wahaj-hero__actions { margin-top: 30px; gap: 9px; }
+
+.wahaj-storefront .wahaj-hero__meta {
+  gap: 16px;
+  margin-top: 34px;
+  padding-top: 18px;
+  font-size: 11px;
+}
+
+.wahaj-storefront .wahaj-hero__visual {
+  border-radius: 2px 70px 2px 2px;
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow-luxury);
+}
+
+.wahaj-storefront .wahaj-hero__visual::after {
+  background: linear-gradient(180deg, transparent 45%, rgba(20,16,14,.34) 100%);
+}
+
+.wahaj-storefront .wahaj-hero__frame { inset: 15px; border-color: rgba(248,245,239,.34); }
+.wahaj-storefront .wahaj-collections { padding: clamp(72px, 9vw, 116px) 0; }
+.wahaj-storefront .wahaj-collections__head { display: none; }
+.wahaj-storefront .wahaj-collections .wahaj-section-heading { margin-bottom: 42px; }
+.wahaj-storefront .wahaj-collections__grid { gap: 14px; }
+
+.wahaj-storefront .wahaj-collection {
+  min-height: 390px;
+  border: 1px solid var(--line);
+  border-radius: 2px 32px 2px 32px;
+  box-shadow: var(--shadow-soft);
+  transition: transform .4s cubic-bezier(.2,.65,.2,1), box-shadow .4s ease, border-color .4s ease;
+}
+
+.wahaj-storefront .wahaj-collection:hover {
+  transform: translateY(-5px);
+  border-color: color-mix(in srgb, var(--gold) 58%, var(--line));
+  box-shadow: var(--shadow-luxury);
+}
+
+.wahaj-storefront .wahaj-collection__content { right: 22px; left: 22px; bottom: 21px; }
+.wahaj-storefront .wahaj-collection__name { font-size: 20px; font-weight: 600; }
+.wahaj-storefront .wahaj-collection__link { margin-top: 8px; font-size: 11px; }
+.wahaj-storefront .wahaj-trust { padding: 30px 0; background: var(--bg); }
+.wahaj-storefront .wahaj-trust__grid { grid-template-columns: repeat(4, minmax(0,1fr)); }
+.wahaj-storefront .wahaj-trust__item { justify-content: flex-start; min-height: 70px; padding: 10px 18px; }
+.wahaj-storefront .wahaj-trust__icon { border-radius: 12px; }
+.wahaj-storefront .wahaj-trust__title { font-size: 12px; }
+.wahaj-storefront .wahaj-trust__text { font-size: 10px; }
+
+@media (max-width: 900px) {
+  .wahaj-storefront .wahaj-hero__inner { grid-template-columns: 1fr; min-height: auto; }
+  .wahaj-storefront .wahaj-hero__content { order: 1; }
+  .wahaj-storefront .wahaj-hero__visual { order: 2; min-height: 480px; }
+  .wahaj-storefront .wahaj-hero__image { min-height: 480px; }
+  .wahaj-storefront .wahaj-trust__grid { grid-template-columns: repeat(2, minmax(0,1fr)); }
+}
+
+@media (max-width: 700px) {
+  .wahaj-storefront .wahaj-hero__inner { width: calc(100% - 24px); padding-block: 28px 38px; }
+  .wahaj-storefront .wahaj-hero__title { font-size: clamp(2.35rem, 12vw, 3.5rem); }
+  .wahaj-storefront .wahaj-hero__description { font-size: 14px; }
+  .wahaj-storefront .wahaj-hero__visual { min-height: 400px; border-radius: 2px 34px 2px 34px; }
+  .wahaj-storefront .wahaj-hero__image { min-height: 400px; }
+  .wahaj-storefront .wahaj-hero__frame { inset: 11px; }
+  .wahaj-storefront .wahaj-hero__meta { gap: 9px 14px; margin-top: 25px; font-size: 9px; }
+  .wahaj-storefront .wahaj-collections { padding: 62px 0; }
+  .wahaj-storefront .wahaj-collections__grid { gap: 9px; }
+  .wahaj-storefront .wahaj-collection { min-height: 250px; border-radius: 2px 20px 2px 20px; }
+  .wahaj-storefront .wahaj-collection__content { right: 13px; left: 13px; bottom: 13px; }
+  .wahaj-storefront .wahaj-collection__name { font-size: 15px; }
+  .wahaj-storefront .wahaj-collection__link { font-size: 9px; }
+  .wahaj-storefront .wahaj-trust { padding: 22px 0; }
+  .wahaj-storefront .wahaj-trust__item { min-height: 78px; padding: 10px 7px; }
+  .wahaj-storefront .wahaj-trust__item:nth-child(2)::after { display: none; }
+}
+.wahaj-storefront .wahaj-collection__content {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-end;
+  gap: 0;
+  right: 14px;
+  left: 14px;
+  bottom: 14px;
+  z-index: 3;
+}
+
+.wahaj-storefront .wahaj-collection__name {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+  overflow-wrap: anywhere;
+  font-size: 16px;
+  line-height: 1.35;
+  white-space: normal;
+}
+
+.wahaj-storefront .wahaj-collection__link {
+  display: inline-flex;
+  width: auto;
+  max-width: 100%;
+  align-items: center;
+  gap: 5px;
+  margin-top: 7px;
+  padding-top: 5px;
+  border-top: 1px solid rgba(255,255,255,.28);
+  color: rgba(255,255,255,.88);
+  font-size: 9px;
+  line-height: 1.5;
+  white-space: nowrap;
+}
+.wahaj-storefront .wahaj-collection__shade {
+  background: linear-gradient(
+    180deg,
+    rgba(20,16,14,.02) 20%,
+    rgba(20,16,14,.12) 43%,
+    rgba(20,16,14,.94) 100%
+  );
+}
+.wahaj-storefront .wahaj-trust__item {
+  min-width: 0;
+  align-items: center;
+}
+
+.wahaj-storefront .wahaj-trust__copy {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.wahaj-storefront .wahaj-trust__title, .wahaj-storefront .wahaj-trust__text {
+  display: block;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.wahaj-storefront .wahaj-story__mark {
+  font-size: 0;
+}
+
+.wahaj-storefront .wahaj-story__mark::before {
+  content: '✦';
+  display: block;
+  color: var(--gold);
+  font-size: 18px;
+  line-height: 1;
+}
+
+@media (max-width: 700px) {
+  .wahaj-storefront .wahaj-collections {
+    padding: 56px 0 62px;
+  }
+
+  .wahaj-storefront .wahaj-collections .wahaj-section-heading {
+    margin-bottom: 30px;
+    padding-inline: 10px;
+  }
+
+  .wahaj-storefront .wahaj-collections__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 9px;
+  }
+
+  .wahaj-storefront .wahaj-collection {
+    min-height: 252px;
+    border-radius: 2px 18px 2px 18px;
+  }
+
+  .wahaj-storefront .wahaj-collection__content {
+    right: 11px;
+    left: 11px;
+    bottom: 11px;
+  }
+
+  .wahaj-storefront .wahaj-collection__name {
+    font-size: 14px;
+    line-height: 1.4;
+  }
+
+  .wahaj-storefront .wahaj-collection__link {
+    margin-top: 6px;
+    padding-top: 4px;
+    font-size: 8px;
+  }
+
+  .wahaj-storefront .wahaj-collection__number {
+    top: 10px;
+    inset-inline-end: 10px;
+    font-size: 8px;
+  }
+
+  .wahaj-storefront .wahaj-trust {
+    padding: 24px 0 28px;
+  }
+
+  .wahaj-storefront .wahaj-trust__intro {
+    margin-bottom: 12px;
+    padding-bottom: 12px;
+  }
+
+  .wahaj-storefront .wahaj-trust__intro span {
+    font-size: 10px;
+  }
+
+  .wahaj-storefront .wahaj-trust__intro p {
+    max-width: 270px;
+    font-size: 10px;
+    line-height: 1.8;
+  }
+
+  .wahaj-storefront .wahaj-trust__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0;
+  }
+
+  .wahaj-storefront .wahaj-trust__item {
+    min-height: 82px;
+    padding: 11px 8px;
+    gap: 8px;
+  }
+
+  .wahaj-storefront .wahaj-trust__icon {
+    width: 34px;
+    height: 34px;
+    flex: 0 0 34px;
+  }
+
+  .wahaj-storefront .wahaj-trust__title {
+    font-size: 11px;
+    line-height: 1.45;
+  }
+
+  .wahaj-storefront .wahaj-trust__text {
+    font-size: 9px;
+    line-height: 1.55;
+  }
+
+  .wahaj-storefront .wahaj-story {
+    padding: 64px 0 72px;
+  }
+
+  .wahaj-storefront .wahaj-story__mark {
+    width: 46px;
+    height: 46px;
+    margin-bottom: 18px;
+  }
+
+  .wahaj-storefront .wahaj-story__mark::before {
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 380px) {
+  .wahaj-storefront .wahaj-collection {
+    min-height: 238px;
+  }
+
+  .wahaj-storefront .wahaj-collection__name {
+    font-size: 13px;
+  }
+
+  .wahaj-storefront .wahaj-collection__link {
+    font-size: 7.5px;
+  }
+
+  .wahaj-storefront .wahaj-trust__item {
+    padding-inline: 6px;
+    gap: 6px;
+  }
+
+  .wahaj-storefront .wahaj-trust__icon {
+    width: 32px;
+    height: 32px;
+    flex-basis: 32px;
+  }
+
+  .wahaj-storefront .wahaj-trust__title {
+    font-size: 10.5px;
+  }
+
+  .wahaj-storefront .wahaj-trust__text {
+    font-size: 8.5px;
+  }
+}
+.wahaj-storefront .wahaj-story { position:relative; isolation:isolate; padding:clamp(48px,7vw,88px) 0; overflow:hidden; border:0; background:radial-gradient(ellipse at 6% 50%,color-mix(in srgb,var(--gold) 9%,transparent),transparent 36%),var(--background); }
+@media (max-width:700px) { .wahaj-storefront .wahaj-story { padding:48px 0; } }
+.wahaj-storefront {
+  --home-space: clamp(72px, 9vw, 132px);
+  --atelier-ink: var(--foreground);
+  --atelier-muted: var(--muted-foreground);
+  position: relative;
+  overflow: clip;
+  background: var(--background);
+  color: var(--atelier-ink);
+}
+.wahaj-storefront::before { position:absolute; inset:0; z-index:0; pointer-events:none; background: radial-gradient(circle at 92% 2%, color-mix(in srgb,var(--gold) 8%,transparent),transparent 22%), radial-gradient(circle at 7% 55%, color-mix(in srgb,var(--gold) 5%,transparent),transparent 20%); content:""; }
+.wahaj-storefront main { position:relative; z-index:1; display:block; }
+.wahaj-storefront .container { width:min(var(--container),calc(100% - 56px)); min-width:0; }
+.wahaj-storefront .wahaj-section-heading { max-width:680px; margin-bottom:32px; }
+.wahaj-storefront .wahaj-section-heading--right { margin-inline:0 auto; }
+.wahaj-storefront .wahaj-section-heading__eyebrow { display:inline-flex; align-items:center; gap:8px; color:var(--gold-muted); font-size:10px; font-weight:800; letter-spacing:.12em; text-transform:uppercase; }
+.wahaj-storefront .wahaj-section-heading__eyebrow svg { width:12px; }
+.wahaj-storefront .wahaj-section-heading__title { margin-top:10px; color:var(--foreground); font-size:clamp(30px,4vw,54px); font-weight:600; letter-spacing:-.055em; line-height:1.2; text-wrap:balance; }
+.wahaj-storefront .wahaj-section-heading__subtitle { max-width:570px; margin-top:12px; color:var(--muted-foreground); font-size:13px; line-height:2; }
+.wahaj-storefront .wahaj-hero { position:relative; overflow:hidden; border-bottom:1px solid var(--border); background:linear-gradient(115deg,var(--background-secondary),var(--background)); }
+.wahaj-storefront .wahaj-hero__inner { display:grid; grid-template-columns:minmax(0,.82fr) minmax(0,1.18fr); align-items:center; gap:clamp(30px,6vw,92px); width:min(var(--container),calc(100% - 72px)); min-height:min(790px,calc(100svh - 82px)); padding-block:clamp(54px,8vw,106px); }
+.wahaj-storefront .wahaj-hero__content { position:relative; z-index:2; max-width:570px; }
+.wahaj-storefront .wahaj-hero__eyebrow { display:inline-flex; align-items:center; gap:9px; margin-bottom:20px; color:var(--gold-muted); font-size:10px; font-weight:800; letter-spacing:.13em; }
+.wahaj-storefront .wahaj-hero__eyebrow::before { width:34px; height:1px; background:currentColor; content:""; }
+.wahaj-storefront .wahaj-hero__title { max-width:650px; margin:0; color:var(--foreground); font-size:clamp(47px,6.4vw,88px); font-weight:600; letter-spacing:-.07em; line-height:1.08; text-wrap:balance; }
+.wahaj-storefront .wahaj-hero__title::after { display:block; width:82px; height:3px; margin-top:27px; border-radius:99px; background:linear-gradient(90deg,var(--gold),transparent); content:""; }
+.wahaj-storefront .wahaj-hero__description { max-width:470px; margin-top:25px; color:var(--muted-foreground); font-size:15px; line-height:2.1; }
+.wahaj-storefront .wahaj-hero__actions { display:flex; flex-wrap:wrap; gap:9px; margin-top:30px; }
+.wahaj-storefront .wahaj-hero__primary, .wahaj-storefront .wahaj-hero__secondary { display:inline-flex; min-height:50px; align-items:center; justify-content:center; gap:10px; padding:12px 20px; border-radius:6px; font-size:12px; font-weight:800; transition:transform .25s ease,background .25s ease,border-color .25s ease; }
+.wahaj-storefront .wahaj-hero__primary { background:var(--gold); color:var(--gold-contrast); box-shadow:0 13px 30px color-mix(in srgb,var(--gold) 22%,transparent); }
+.wahaj-storefront .wahaj-hero__secondary { border:1px solid var(--border-strong); background:transparent; color:var(--foreground); }
+.wahaj-storefront .wahaj-hero__primary:hover, .wahaj-storefront .wahaj-hero__secondary:hover { transform:translateY(-2px); }
+.wahaj-storefront .wahaj-hero__meta { display:flex; flex-wrap:wrap; gap:10px 18px; margin-top:29px; padding-top:17px; border-top:1px solid var(--border); color:var(--muted-foreground); font-size:10px; }
+.wahaj-storefront .wahaj-hero__meta span { display:inline-flex; align-items:center; gap:6px; }
+.wahaj-storefront .wahaj-hero__meta svg { color:var(--gold-muted); }
+.wahaj-storefront .wahaj-hero__visual { position:relative; min-height:clamp(430px,52vw,650px); overflow:hidden; border:1px solid color-mix(in srgb,var(--gold) 30%,var(--border)); border-radius:5px 138px 5px 5px; background:var(--surface); box-shadow:0 25px 80px color-mix(in srgb,var(--foreground) 12%,transparent); isolation:isolate; }
+.wahaj-storefront .wahaj-hero__visual::before { position:absolute; inset:16px; z-index:1; border:1px solid rgba(255,255,255,.46); border-radius:3px 112px 3px 3px; pointer-events:none; content:""; }
+.wahaj-storefront .wahaj-hero__image { object-fit:cover; object-position:center; transition:transform 1.2s cubic-bezier(.2,.65,.2,1); }
+.wahaj-storefront .wahaj-hero__visual:hover .wahaj-hero__image { transform:scale(1.035); }
+.wahaj-storefront .wahaj-hero__frame, .wahaj-storefront .wahaj-hero__ornament { display:none; }
+.wahaj-storefront .wahaj-hero__badge { position:absolute; inset-inline-start:29px; bottom:29px; z-index:2; display:inline-flex; max-width:calc(100% - 58px); align-items:center; gap:8px; min-height:40px; padding:9px 13px; overflow:hidden; border:1px solid color-mix(in srgb,var(--gold) 35%,transparent); border-radius:3px; background:color-mix(in srgb,var(--card) 88%,transparent); color:var(--foreground); font-size:10px; box-shadow:0 10px 25px rgba(0,0,0,.14); backdrop-filter:blur(12px); }
+.wahaj-storefront .wahaj-hero__badge span { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.wahaj-storefront .wahaj-hero__badge svg { flex:0 0 auto; color:var(--gold-muted); }
+.wahaj-storefront .wahaj-collections { padding-block:var(--home-space); border-bottom:1px solid var(--border); background:var(--surface); }
+.wahaj-storefront .wahaj-collections__head { display:flex; align-items:end; justify-content:space-between; gap:20px; }
+.wahaj-storefront .wahaj-collections__grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px; }
+.wahaj-storefront .wahaj-collection { position:relative; min-width:0; aspect-ratio:.78/1; overflow:hidden; border:1px solid color-mix(in srgb,var(--gold) 22%,var(--border)); border-radius:4px 76px 4px 4px; background:var(--card); box-shadow:var(--shadow-soft); transition:transform .35s ease,border-color .35s ease,box-shadow .35s ease; }
+.wahaj-storefront .wahaj-collection:nth-child(even) { margin-top:28px; border-radius:76px 4px 4px 4px; }
+.wahaj-storefront .wahaj-collection:hover { transform:translateY(-6px); border-color:var(--gold); box-shadow:var(--shadow-luxury); }
+.wahaj-storefront .wahaj-collection__image { object-fit:cover; transition:transform .75s ease; }
+.wahaj-storefront .wahaj-collection:hover .wahaj-collection__image { transform:scale(1.06); }
+.wahaj-storefront .wahaj-collection__shade { background:linear-gradient(180deg,transparent 27%,rgba(18,13,12,.82) 100%); }
+.wahaj-storefront .wahaj-collection__number { position:absolute; inset-inline-start:15px; top:15px; z-index:1; color:rgba(255,255,255,.78); font-size:10px; letter-spacing:.12em; }
+.wahaj-storefront .wahaj-collection__content { right:17px; left:17px; bottom:17px; z-index:1; }
+.wahaj-storefront .wahaj-collection__name { font-size:clamp(14px,1.4vw,20px); line-height:1.4; }
+.wahaj-storefront .wahaj-collection__link { display:inline-flex; align-items:center; gap:5px; margin-top:8px; padding-top:8px; border-top:1px solid rgba(255,255,255,.32); font-size:9px; }
+.wahaj-storefront .wahaj-products-section { padding-block:var(--home-space); background:var(--background); }
+.wahaj-storefront .wahaj-products-section .wahaj-section-heading { margin-inline:0 auto; }
+.wahaj-storefront .wahaj-products-section__toolbar { display:flex; align-items:center; justify-content:space-between; gap:15px; margin:18px 0 22px; padding-bottom:14px; border-bottom:1px solid var(--border); }
+.wahaj-storefront .wahaj-products-section__count { color:var(--muted-foreground); font-size:10px; }
+.wahaj-storefront .wahaj-products-section__link { display:inline-flex; min-height:38px; align-items:center; gap:8px; padding-inline:13px; border:1px solid var(--border); border-radius:5px; color:var(--foreground); font-size:10px; font-weight:800; transition:border-color .2s ease,color .2s ease; }
+.wahaj-storefront .wahaj-products-section__link:hover { border-color:var(--gold); color:var(--gold-muted); }
+.wahaj-storefront .wahaj-product-card--shop { border-color:var(--border); border-radius:4px 20px 4px 4px; background:var(--card); box-shadow:var(--shadow-soft); }
+.wahaj-storefront .wahaj-empty-state { border:1px dashed var(--border-strong); border-radius:12px; background:var(--card); }
+.wahaj-storefront .wahaj-story { padding-block:var(--home-space); background:var(--background-secondary); }
+.wahaj-storefront .wahaj-story__card { display:grid; grid-template-columns:minmax(0,1.04fr) minmax(0,.96fr); overflow:hidden; border:1px solid var(--border); border-radius:5px 48px 5px 5px; background:var(--card); box-shadow:var(--shadow-soft); }
+.wahaj-storefront .wahaj-story__visual { position:relative; min-height:430px; overflow:hidden; background:var(--surface); }
+.wahaj-storefront .wahaj-story__visual img { object-fit:cover; transition:transform .8s ease; }
+.wahaj-storefront .wahaj-story__card:hover .wahaj-story__visual img { transform:scale(1.035); }
+.wahaj-storefront .wahaj-story__visual-shade { background:linear-gradient(180deg,transparent 44%,rgba(18,13,12,.72)); }
+.wahaj-storefront .wahaj-story__visual-caption { inset-inline-start:22px; bottom:21px; color:#fff; font-size:10px; }
+.wahaj-storefront .wahaj-story__content { justify-content:center; padding:clamp(32px,6vw,76px); }
+.wahaj-storefront .wahaj-story__eyebrow { color:var(--gold-muted); font-size:10px; font-weight:800; letter-spacing:.12em; }
+.wahaj-storefront .wahaj-story__content h2 { margin:13px 0 14px; color:var(--foreground); font-size:clamp(29px,4vw,49px); font-weight:600; letter-spacing:-.05em; line-height:1.25; }
+.wahaj-storefront .wahaj-story__content > p { color:var(--muted-foreground); font-size:13px; line-height:2.05; }
+.wahaj-storefront .wahaj-story__values { gap:10px 19px; margin-top:22px; color:var(--muted-foreground); font-size:10px; }
+.wahaj-storefront .wahaj-story__values svg { color:var(--gold-muted); }
+.wahaj-storefront .wahaj-story__link { min-height:42px; margin-top:25px; padding:10px 14px; border:1px solid var(--border); border-radius:5px; font-size:10px; }
+.wahaj-storefront .wahaj-offers { padding-block:var(--home-space); background:var(--background); }
+.wahaj-storefront .wahaj-offers__shell { padding:clamp(25px,4.5vw,55px); border:1px solid color-mix(in srgb,var(--gold) 36%,var(--border)); border-radius:5px 42px 5px 5px; background:radial-gradient(ellipse at 100% 0,color-mix(in srgb,var(--gold) 10%,transparent),transparent 43%),var(--card); box-shadow:var(--shadow-soft); }
+.wahaj-storefront .wahaj-offers__head { align-items:end; }
+.wahaj-storefront .wahaj-offers__all { display:inline-flex; min-height:39px; align-items:center; gap:7px; padding-inline:12px; border:1px solid var(--border); border-radius:5px; white-space:nowrap; font-size:10px; }
+.wahaj-storefront .wahaj-offers__grid { gap:12px; margin-top:28px; }
+.wahaj-storefront .wahaj-offer-card { min-height:195px; padding:20px; border:1px solid var(--border); border-radius:4px 22px 4px 4px; background:color-mix(in srgb,var(--surface) 55%,var(--card)); }
+.wahaj-storefront .wahaj-offer-card h3 { margin-top:8px; color:var(--foreground); white-space:normal; }
+.wahaj-storefront .wahaj-offer-card__bottom { gap:8px; padding-top:13px; }
+.wahaj-storefront .wahaj-trust { padding-block:32px; border-block:1px solid var(--border); background:var(--surface); }
+.wahaj-storefront .wahaj-trust__intro { margin-bottom:13px; }
+.wahaj-storefront .wahaj-trust__grid { grid-template-columns:repeat(4,minmax(0,1fr)); gap:9px; }
+.wahaj-storefront .wahaj-trust__item { min-width:0; min-height:80px; gap:11px; padding:12px; border:1px solid var(--border); border-radius:8px; background:var(--card); }
+.wahaj-storefront .wahaj-trust__icon { width:39px; height:39px; flex:0 0 39px; border-radius:10px; background:var(--gold-soft); color:var(--gold-muted); }
+.wahaj-storefront .wahaj-trust__copy { min-width:0; }
+.wahaj-storefront .wahaj-trust__title { color:var(--foreground); font-size:11px; }
+.wahaj-storefront .wahaj-trust__text { color:var(--muted-foreground); font-size:9px; line-height:1.65; }
+.wahaj-storefront .wahaj-testimonials, .wahaj-storefront .wahaj-social-world { padding-block:var(--home-space); background:var(--surface); }
+.wahaj-storefront .wahaj-testimonials__heading, .wahaj-storefront .wahaj-social-world__head { align-items:end; }
+.wahaj-storefront .wahaj-testimonials__grid { grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; }
+.wahaj-storefront .wahaj-testimonial-card { min-width:0; padding:22px; border:1px solid var(--border); border-radius:4px 24px 4px 4px; background:var(--card); box-shadow:var(--shadow-soft); }
+.wahaj-storefront .wahaj-testimonial-card__text { color:var(--foreground-secondary); line-height:1.95; overflow-wrap:anywhere; }
+.wahaj-storefront .wahaj-social-world { background:var(--background); }
+.wahaj-storefront .wahaj-social-world__grid { gap:10px; }
+.wahaj-storefront .wahaj-social-tile { min-height:220px; border:1px solid var(--border); border-radius:4px 38px 4px 4px; }
+.wahaj-storefront .wahaj-social-world__bottom { display:flex; align-items:center; justify-content:space-between; gap:18px; margin-top:22px; padding-top:17px; border-top:1px solid var(--border); }
+.wahaj-storefront .wahaj-social-world__links { display:flex; flex-wrap:wrap; gap:7px; }
+.wahaj-storefront .wahaj-social-world__links a { min-height:37px; border:1px solid var(--border); border-radius:999px; background:var(--card); }
+.wahaj-storefront .wahaj-newsletter { padding-block:var(--home-space); background:var(--background-secondary); }
+.wahaj-storefront .wahaj-newsletter__card { display:grid; grid-template-columns:minmax(0,1.08fr) minmax(280px,.92fr); align-items:center; gap:clamp(25px,5vw,62px); padding:clamp(28px,5vw,58px); border:1px solid color-mix(in srgb,var(--gold) 35%,var(--border)); border-radius:5px 42px 5px 5px; background:radial-gradient(ellipse at 0 100%,color-mix(in srgb,var(--gold) 11%,transparent),transparent 44%),var(--card); box-shadow:var(--shadow-soft); }
+.wahaj-storefront .wahaj-newsletter__card h2 { color:var(--foreground); font-size:clamp(28px,3.6vw,45px); letter-spacing:-.05em; line-height:1.3; }
+.wahaj-storefront .wahaj-newsletter__copy > p { color:var(--muted-foreground); font-size:12px; line-height:1.9; }
+.wahaj-storefront .wahaj-newsletter__form { border-radius:8px; }
+.wahaj-storefront .wahaj-newsletter__form button { border-radius:5px; }
+.wahaj-storefront a:focus-visible, .wahaj-storefront button:focus-visible, .wahaj-storefront input:focus-visible { outline:2px solid var(--gold-muted); outline-offset:3px; }
+
+@media (max-width:980px) {
+  .wahaj-storefront .wahaj-hero__inner { grid-template-columns:minmax(0,.92fr) minmax(0,1.08fr); gap:28px; min-height:650px; }
+  .wahaj-storefront .wahaj-hero__title { font-size:clamp(42px,6vw,68px); }
+  .wahaj-storefront .wahaj-hero__visual { min-height:470px; border-top-right-radius:100px; }
+  .wahaj-storefront .wahaj-collections__grid { grid-template-columns:repeat(3,minmax(0,1fr)); }
+  .wahaj-storefront .wahaj-trust__grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+}
+@media (max-width:760px) {
+  .wahaj-storefront { --home-space:58px; }
+  .wahaj-storefront .container, .wahaj-storefront .wahaj-hero__inner { width:calc(100% - 30px); }
+  .wahaj-storefront .wahaj-section-heading { margin-bottom:24px; }
+  .wahaj-storefront .wahaj-section-heading__title { font-size:clamp(27px,7vw,36px); }
+  .wahaj-storefront .wahaj-section-heading__subtitle { font-size:12px; }
+  .wahaj-storefront .wahaj-hero__inner { grid-template-columns:1fr; gap:27px; min-height:0; padding-block:39px 32px; }
+  .wahaj-storefront .wahaj-hero__content { order:1; max-width:none; }
+  .wahaj-storefront .wahaj-hero__visual { order:2; min-height:0; aspect-ratio:1/1.04; border-radius:4px 78px 4px 4px; }
+  .wahaj-storefront .wahaj-hero__visual::before { inset:10px; border-top-right-radius:62px; }
+  .wahaj-storefront .wahaj-hero__title { font-size:clamp(39px,10vw,60px); }
+  .wahaj-storefront .wahaj-hero__description { margin-top:17px; font-size:13px; }
+  .wahaj-storefront .wahaj-hero__actions { margin-top:21px; }
+  .wahaj-storefront .wahaj-hero__primary, .wahaj-storefront .wahaj-hero__secondary { min-height:45px; padding:10px 15px; }
+  .wahaj-storefront .wahaj-hero__meta { gap:8px 12px; margin-top:20px; padding-top:14px; font-size:9px; }
+  .wahaj-storefront .wahaj-hero__badge { inset-inline-start:17px; bottom:17px; max-width:calc(100% - 34px); }
+  .wahaj-storefront .wahaj-collections__grid { grid-template-columns:repeat(2,minmax(0,1fr)); gap:9px; }
+  .wahaj-storefront .wahaj-collection:nth-child(even) { margin-top:18px; }
+  .wahaj-storefront .wahaj-collection { border-top-right-radius:42px; }
+  .wahaj-storefront .wahaj-collection:nth-child(even) { border-top-right-radius:42px; }
+  .wahaj-storefront .wahaj-collection__content { right:12px; left:12px; bottom:12px; }
+  .wahaj-storefront .wahaj-collection__name { font-size:13px; }
+  .wahaj-storefront .wahaj-products-section__toolbar { align-items:flex-start; flex-direction:column; gap:10px; margin-top:12px; }
+  .wahaj-storefront .wahaj-products-section__link { width:100%; justify-content:center; }
+  .wahaj-storefront .wahaj-story__card { grid-template-columns:1fr; border-top-right-radius:30px; }
+  .wahaj-storefront .wahaj-story__visual { min-height:0; aspect-ratio:1.12/1; }
+  .wahaj-storefront .wahaj-story__content { padding:26px 21px 30px; }
+  .wahaj-storefront .wahaj-story__content h2 { font-size:clamp(27px,7vw,36px); }
+  .wahaj-storefront .wahaj-story__content > p { font-size:12px; }
+  .wahaj-storefront .wahaj-offers__shell { padding:22px 16px; border-top-right-radius:30px; }
+  .wahaj-storefront .wahaj-offers__head { display:block; }
+  .wahaj-storefront .wahaj-offers__all { margin-top:14px; }
+  .wahaj-storefront .wahaj-offers__grid { grid-template-columns:1fr; gap:9px; margin-top:19px; }
+  .wahaj-storefront .wahaj-offer-card { min-height:165px; padding:16px; }
+  .wahaj-storefront .wahaj-trust__grid { grid-template-columns:1fr 1fr; gap:7px; }
+  .wahaj-storefront .wahaj-trust__item { align-items:flex-start; min-height:78px; gap:8px; padding:9px; }
+  .wahaj-storefront .wahaj-trust__icon { width:33px; height:33px; flex-basis:33px; }
+  .wahaj-storefront .wahaj-trust__title { font-size:10px; }
+  .wahaj-storefront .wahaj-trust__text { font-size:8px; }
+  .wahaj-storefront .wahaj-testimonials__grid { grid-template-columns:1fr; gap:9px; }
+  .wahaj-storefront .wahaj-testimonial-card { padding:17px; }
+  .wahaj-storefront .wahaj-social-world__head, .wahaj-storefront .wahaj-testimonials__heading { align-items:flex-start; flex-direction:column; gap:10px; }
+  .wahaj-storefront .wahaj-social-world__bottom { align-items:flex-start; flex-direction:column; gap:12px; }
+  .wahaj-storefront .wahaj-social-world__links { max-width:100%; overflow-x:auto; flex-wrap:nowrap; padding-bottom:3px; scrollbar-width:none; }
+  .wahaj-storefront .wahaj-social-world__links::-webkit-scrollbar { display:none; }
+  .wahaj-storefront .wahaj-social-world__links a { flex:0 0 auto; white-space:nowrap; }
+  .wahaj-storefront .wahaj-social-world__grid { grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
+  .wahaj-storefront .wahaj-social-tile { min-height:170px; border-top-right-radius:27px; }
+  .wahaj-storefront .wahaj-newsletter__card { grid-template-columns:1fr; gap:18px; padding:24px 18px; border-top-right-radius:30px; }
+  .wahaj-storefront .wahaj-newsletter__intro { grid-template-columns:minmax(0,1fr) 58px; gap:12px; }
+  .wahaj-storefront .wahaj-newsletter__icon { width:58px; height:58px; flex-basis:58px; }
+  .wahaj-storefront .wahaj-newsletter__form { grid-template-columns:1fr; }
+  .wahaj-storefront .wahaj-newsletter__form button { min-height:44px; width:100%; }
+}
+@media (max-width:390px) {
+  .wahaj-storefront .container, .wahaj-storefront .wahaj-hero__inner { width:calc(100% - 22px); }
+  .wahaj-storefront .wahaj-hero__title { font-size:36px; }
+  .wahaj-storefront .wahaj-hero__actions { display:grid; grid-template-columns:1fr; }
+  .wahaj-storefront .wahaj-hero__primary, .wahaj-storefront .wahaj-hero__secondary { width:100%; }
+  .wahaj-storefront .wahaj-hero__meta { display:grid; grid-template-columns:1fr; }
+  .wahaj-storefront .wahaj-trust__grid { grid-template-columns:1fr; }
+  .wahaj-storefront .wahaj-collection__name { font-size:12px; }
+}
+@media (prefers-reduced-motion:reduce) {
+  .wahaj-storefront *, .wahaj-storefront *::before, .wahaj-storefront *::after { scroll-behavior:auto!important; animation-duration:.01ms!important; transition-duration:.01ms!important; }
+}
+.wahaj-storefront .wahaj-testimonials__heading--center {
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  margin-inline: auto;
+  margin-bottom: 29px;
+  text-align: center;
+}
+.wahaj-storefront .wahaj-testimonials__heading--center .wahaj-testimonials__title {
+  margin: 0;
+  color: var(--foreground);
+  text-align: center;
+}
+@media (max-width: 700px) {
+  .wahaj-storefront .wahaj-testimonials__heading--center { align-items: center; }
+}
+.wahaj-storefront {
+  --home-ink: var(--foreground);
+  --home-muted: var(--muted-foreground);
+  --home-line: color-mix(in srgb, var(--gold) 18%, var(--border));
+  --home-panel: color-mix(in srgb, var(--card) 96%, var(--gold-soft));
+  background: var(--background);
+  color: var(--home-ink);
+}
+.wahaj-storefront::before { opacity:.48; background:radial-gradient(circle at 88% 1%,color-mix(in srgb,var(--gold) 5%,transparent),transparent 18%),radial-gradient(circle at 7% 48%,color-mix(in srgb,var(--gold) 3%,transparent),transparent 18%); }
+.wahaj-storefront main { min-width:0; }
+.wahaj-storefront .container { width:min(var(--container),calc(100% - 64px)); }
+.wahaj-storefront main > section:not(.wahaj-hero) { content-visibility:auto; contain-intrinsic-size:520px; }
+.wahaj-storefront .wahaj-section-heading { margin-bottom:24px; }
+.wahaj-storefront .wahaj-section-heading__eyebrow { color:var(--gold-muted); font-size:9px; letter-spacing:.16em; }
+.wahaj-storefront .wahaj-section-heading__title { margin-top:8px; font-size:clamp(25px,3.25vw,43px); font-weight:700; letter-spacing:-.055em; }
+.wahaj-storefront .wahaj-section-heading__subtitle { max-width:500px; margin-top:9px; font-size:11px; line-height:1.9; }
+.wahaj-storefront .wahaj-hero { min-height:0; border-bottom:1px solid var(--home-line); background:var(--background); }
+.wahaj-storefront .wahaj-hero__inner { grid-template-columns:minmax(0,.93fr) minmax(0,1.07fr); gap:clamp(28px,5vw,72px); width:min(var(--container),calc(100% - 64px)); min-height:min(720px,calc(100svh - 72px)); padding-block:clamp(42px,6.5vw,82px); }
+.wahaj-storefront .wahaj-hero__content { max-width:530px; }
+.wahaj-storefront .wahaj-hero__eyebrow { margin-bottom:16px; font-size:9px; letter-spacing:.17em; }
+.wahaj-storefront .wahaj-hero__eyebrow::before { width:25px; }
+.wahaj-storefront .wahaj-hero__title { max-width:610px; font-size:clamp(42px,5.5vw,74px); font-weight:700; letter-spacing:-.075em; line-height:1.13; }
+.wahaj-storefront .wahaj-hero__title::after { width:54px; height:2px; margin-top:22px; }
+.wahaj-storefront .wahaj-hero__description { max-width:410px; margin-top:19px; font-size:12px; line-height:2; }
+.wahaj-storefront .wahaj-hero__actions { gap:8px; margin-top:24px; }
+.wahaj-storefront .wahaj-hero__primary, .wahaj-storefront .wahaj-hero__secondary { min-height:45px; padding:10px 16px; border-radius:4px; font-size:10px; }
+.wahaj-storefront .wahaj-hero__primary { box-shadow:0 8px 18px color-mix(in srgb,var(--gold) 16%,transparent); }
+.wahaj-storefront .wahaj-hero__meta { gap:8px 14px; margin-top:23px; padding-top:13px; font-size:9px; }
+.wahaj-storefront .wahaj-hero__visual { min-height:clamp(360px,48vw,575px); border-radius:4px 96px 4px 4px; box-shadow:0 16px 42px color-mix(in srgb,var(--foreground) 8%,transparent); }
+.wahaj-storefront .wahaj-hero__visual::before { inset:12px; border-radius:3px 74px 3px 3px; }
+.wahaj-storefront .wahaj-hero__image { object-position:center; }
+.wahaj-storefront .wahaj-hero__badge { inset-inline-start:20px; bottom:20px; min-height:35px; padding:7px 10px; border-radius:3px; font-size:9px; box-shadow:0 7px 18px rgba(0,0,0,.1); backdrop-filter:none; }
+.wahaj-storefront .wahaj-collections { padding-block:clamp(48px,6vw,78px); background:var(--surface); }
+.wahaj-storefront .wahaj-collections__grid { grid-template-columns:repeat(4,minmax(0,1fr)); gap:10px; }
+.wahaj-storefront .wahaj-collection { aspect-ratio:.82/1; border-color:var(--home-line); border-radius:3px 48px 3px 3px; box-shadow:0 7px 20px color-mix(in srgb,var(--foreground) 5%,transparent); transition:transform .24s ease,border-color .24s ease; }
+.wahaj-storefront .wahaj-collection:nth-child(even) { margin-top:22px; border-radius:48px 3px 3px 3px; }
+.wahaj-storefront .wahaj-collection:hover { transform:translateY(-4px); border-color:var(--gold); box-shadow:0 12px 25px color-mix(in srgb,var(--foreground) 9%,transparent); }
+.wahaj-storefront .wahaj-collection__image { transition:transform .5s cubic-bezier(.2,.7,.2,1); }
+.wahaj-storefront .wahaj-collection:hover .wahaj-collection__image { transform:scale(1.045); }
+.wahaj-storefront .wahaj-collection__shade { background:linear-gradient(180deg,transparent 34%,rgba(12,9,8,.78)); }
+.wahaj-storefront .wahaj-collection__number { inset-inline-start:12px; top:12px; font-size:9px; }
+.wahaj-storefront .wahaj-collection__content { right:13px; left:13px; bottom:13px; }
+.wahaj-storefront .wahaj-collection__name { font-size:clamp(12px,1.25vw,17px); }
+.wahaj-storefront .wahaj-collection__link { gap:4px; margin-top:6px; padding-top:6px; font-size:8px; }
+.wahaj-storefront .wahaj-products-section { padding-block:clamp(56px,7vw,96px); }
+.wahaj-storefront .wahaj-products-section__toolbar { margin:14px 0 18px; padding-bottom:11px; }
+.wahaj-storefront .wahaj-products-section__count { font-size:9px; }
+.wahaj-storefront .wahaj-products-section__link { min-height:34px; padding-inline:11px; border-radius:4px; font-size:9px; }
+.wahaj-storefront .wahaj-product-card--shop { border-radius:3px 16px 3px 3px; box-shadow:0 7px 20px color-mix(in srgb,var(--foreground) 5%,transparent); }
+.wahaj-storefront .wahaj-product-card--shop:hover { box-shadow:0 13px 28px color-mix(in srgb,var(--foreground) 10%,transparent); }
+.wahaj-storefront .wahaj-story { padding-block:clamp(54px,7vw,100px); background:var(--background-secondary); }
+.wahaj-storefront .wahaj-story__card { grid-template-columns:minmax(0,1.02fr) minmax(0,.98fr); border-radius:3px 36px 3px 3px; box-shadow:0 10px 28px color-mix(in srgb,var(--foreground) 6%,transparent); }
+.wahaj-storefront .wahaj-story__visual { min-height:390px; }
+.wahaj-storefront .wahaj-story__visual img { transition:transform .6s cubic-bezier(.2,.7,.2,1); }
+.wahaj-storefront .wahaj-story__content { padding:clamp(27px,5vw,64px); }
+.wahaj-storefront .wahaj-story__content h2 { margin:10px 0 12px; font-size:clamp(25px,3.3vw,42px); }
+.wahaj-storefront .wahaj-story__content > p { max-width:430px; font-size:11px; line-height:2; }
+.wahaj-storefront .wahaj-story__values { gap:8px 15px; margin-top:18px; font-size:9px; }
+.wahaj-storefront .wahaj-story__link { min-height:39px; margin-top:20px; padding:8px 12px; border-radius:4px; font-size:9px; }
+.wahaj-storefront .wahaj-offers { padding-block:clamp(54px,7vw,96px); }
+.wahaj-storefront .wahaj-offers__shell { padding:clamp(22px,4vw,45px); border-radius:3px 32px 3px 3px; box-shadow:0 10px 28px color-mix(in srgb,var(--foreground) 5%,transparent); }
+.wahaj-storefront .wahaj-offers__grid { gap:9px; margin-top:22px; }
+.wahaj-storefront .wahaj-offer-card { min-height:178px; padding:16px; border-radius:3px 17px 3px 3px; }
+.wahaj-storefront .wahaj-offer-card h3 { font-size:14px; }
+.wahaj-storefront .wahaj-offer-card__value { font-size:11px; }
+.wahaj-storefront .wahaj-trust { padding-block:25px; }
+.wahaj-storefront .wahaj-trust__grid { gap:7px; }
+.wahaj-storefront .wahaj-trust__item { min-height:72px; padding:10px; border-radius:6px; }
+.wahaj-storefront .wahaj-trust__icon { width:34px; height:34px; flex-basis:34px; border-radius:9px; }
+.wahaj-storefront .wahaj-trust__title { font-size:10px; }
+.wahaj-storefront .wahaj-trust__text { font-size:8px; }
+.wahaj-storefront .wahaj-testimonials { padding-block:clamp(54px,7vw,96px); }
+.wahaj-storefront .wahaj-testimonials__heading--center { margin-bottom:24px; }
+.wahaj-storefront .wahaj-testimonials__title { font-size:clamp(24px,3.2vw,40px); }
+.wahaj-storefront .wahaj-testimonials__grid { gap:10px; }
+.wahaj-storefront .wahaj-testimonial-card { min-height:218px; padding:18px; border-radius:3px 20px 3px 3px; box-shadow:0 7px 20px color-mix(in srgb,var(--foreground) 5%,transparent); }
+.wahaj-storefront .wahaj-testimonial-card:hover { transform:translateY(-3px); }
+.wahaj-storefront .wahaj-testimonial-card__text { margin:14px 0 16px; font-size:11px; }
+.wahaj-storefront .wahaj-social-world { padding-block:clamp(54px,7vw,96px); }
+.wahaj-storefront .wahaj-social-tile { min-height:205px; border-radius:3px 30px 3px 3px; }
+.wahaj-storefront .wahaj-newsletter { padding-block:clamp(54px,7vw,96px); }
+.wahaj-storefront .wahaj-newsletter__card { gap:clamp(20px,4vw,45px); padding:clamp(24px,4vw,48px); border-radius:3px 34px 3px 3px; box-shadow:0 10px 28px color-mix(in srgb,var(--foreground) 5%,transparent); }
+.wahaj-storefront .wahaj-newsletter__card h2 { font-size:clamp(25px,3.2vw,40px); }
+.wahaj-storefront .wahaj-newsletter__copy > p { font-size:10px; }
+@media (max-width: 900px) {
+  .wahaj-storefront .container, .wahaj-storefront .wahaj-hero__inner { width:min(var(--container),calc(100% - 36px)); }
+  .wahaj-storefront .wahaj-hero__inner { grid-template-columns:minmax(0,1fr) minmax(0,.95fr); gap:25px; min-height:620px; }
+  .wahaj-storefront .wahaj-hero__title { font-size:clamp(38px,6vw,60px); }
+  .wahaj-storefront .wahaj-hero__visual { min-height:430px; border-radius:3px 62px 3px 3px; }
+  .wahaj-storefront .wahaj-collections__grid, .wahaj-storefront .wahaj-product-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .wahaj-storefront .wahaj-collection:nth-child(even) { margin-top:16px; }
+  .wahaj-storefront .wahaj-story__card { grid-template-columns:minmax(0,1fr) minmax(0,1fr); }
+  .wahaj-storefront .wahaj-trust__grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+}
+@media (max-width: 620px) {
+  .wahaj-storefront .container, .wahaj-storefront .wahaj-hero__inner { width:calc(100% - 24px); }
+  .wahaj-storefront main > section:not(.wahaj-hero) { contain-intrinsic-size:430px; }
+  .wahaj-storefront .wahaj-hero__inner { display:flex; min-height:0; flex-direction:column; gap:22px; padding-block:31px 43px; }
+  .wahaj-storefront .wahaj-hero__content { width:100%; max-width:none; order:1; }
+  .wahaj-storefront .wahaj-hero__visual { width:100%; min-height:clamp(330px,82vw,450px); order:0; border-radius:3px 56px 3px 3px; }
+  .wahaj-storefront .wahaj-hero__visual::before { inset:9px; border-radius:3px 43px 3px 3px; }
+  .wahaj-storefront .wahaj-hero__badge { inset-inline-start:14px; bottom:14px; max-width:calc(100% - 28px); min-height:31px; padding:6px 8px; font-size:8px; }
+  .wahaj-storefront .wahaj-hero__eyebrow { margin-bottom:12px; font-size:8px; }
+  .wahaj-storefront .wahaj-hero__title { max-width:360px; font-size:clamp(34px,11vw,48px); line-height:1.16; }
+  .wahaj-storefront .wahaj-hero__title::after { margin-top:16px; }
+  .wahaj-storefront .wahaj-hero__description { margin-top:15px; font-size:11px; }
+  .wahaj-storefront .wahaj-hero__actions { margin-top:18px; }
+  .wahaj-storefront .wahaj-hero__primary, .wahaj-storefront .wahaj-hero__secondary { min-height:42px; padding-inline:13px; font-size:9px; }
+  .wahaj-storefront .wahaj-hero__meta { gap:7px 10px; margin-top:18px; padding-top:11px; font-size:8px; }
+  .wahaj-storefront .wahaj-collections { padding-block:42px; }
+  .wahaj-storefront .wahaj-collections__grid { gap:8px; }
+  .wahaj-storefront .wahaj-collection { border-radius:3px 32px 3px 3px; }
+  .wahaj-storefront .wahaj-collection:nth-child(even) { margin-top:12px; border-radius:32px 3px 3px 3px; }
+  .wahaj-storefront .wahaj-collection__content { right:10px; left:10px; bottom:10px; }
+  .wahaj-storefront .wahaj-collection__name { font-size:12px; }
+  .wahaj-storefront .wahaj-collection__link { font-size:7px; }
+  .wahaj-storefront .wahaj-products-section, .wahaj-storefront .wahaj-story, .wahaj-storefront .wahaj-offers, .wahaj-storefront .wahaj-testimonials, .wahaj-storefront .wahaj-social-world, .wahaj-storefront .wahaj-newsletter { padding-block:48px; }
+  .wahaj-storefront .wahaj-products-section .wahaj-section-heading { margin-bottom:18px; }
+  .wahaj-storefront .wahaj-section-heading__title { font-size:25px; }
+  .wahaj-storefront .wahaj-section-heading__subtitle { font-size:10px; }
+  .wahaj-storefront .wahaj-products-section__toolbar { margin-top:9px; }
+  .wahaj-storefront .wahaj-product-card--shop { border-radius:3px 13px 3px 3px; }
+  .wahaj-storefront .wahaj-story__card { grid-template-columns:1fr; border-radius:3px 27px 3px 3px; }
+  .wahaj-storefront .wahaj-story__visual { min-height:270px; }
+  .wahaj-storefront .wahaj-story__content { padding:24px 18px 27px; }
+  .wahaj-storefront .wahaj-story__content h2 { font-size:25px; }
+  .wahaj-storefront .wahaj-offers__shell { padding:18px 13px; border-radius:3px 25px 3px 3px; }
+  .wahaj-storefront .wahaj-offers__head { gap:8px; }
+  .wahaj-storefront .wahaj-offers__grid { grid-template-columns:1fr; margin-top:17px; }
+  .wahaj-storefront .wahaj-trust__grid { gap:6px; }
+  .wahaj-storefront .wahaj-trust__item { align-items:flex-start; }
+  .wahaj-storefront .wahaj-testimonials__title { font-size:25px; }
+  .wahaj-storefront .wahaj-testimonial-card { min-height:190px; padding:15px; }
+  .wahaj-storefront .wahaj-social-tile { min-height:175px; border-radius:3px 24px 3px 3px; }
+  .wahaj-storefront .wahaj-newsletter__card { display:flex; flex-direction:column; align-items:stretch; padding:24px 17px; border-radius:3px 27px 3px 3px; }
+}
+@media (max-width:380px) {
+  .wahaj-storefront .wahaj-hero__inner { width:calc(100% - 18px); }
+  .wahaj-storefront .container { width:calc(100% - 18px); }
+  .wahaj-storefront .wahaj-hero__visual { min-height:300px; }
+  .wahaj-storefront .wahaj-hero__title { font-size:33px; }
+  .wahaj-storefront .wahaj-collection__name { font-size:11px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .wahaj-storefront *, .wahaj-storefront *::before, .wahaj-storefront *::after { animation:none !important; transition-duration:.01ms !important; scroll-behavior:auto !important; }
+}
+.wahaj-storefront .wahaj-collections__grid { grid-auto-flow:dense; }
+.wahaj-storefront .wahaj-collection:first-child { grid-column:span 2; aspect-ratio:1.48/1; border-radius:3px 66px 3px 3px; }
+.wahaj-storefront .wahaj-collection:first-child .wahaj-collection__name { font-size:clamp(17px,2vw,27px); }
+@media (max-width:900px) {
+  .wahaj-storefront .wahaj-collection:first-child { aspect-ratio:1.36/1; }
+}
+@media (max-width:620px) {
+  .wahaj-storefront .wahaj-collection:first-child { grid-column:span 2; aspect-ratio:1.32/1; border-radius:3px 38px 3px 3px; }
+  .wahaj-storefront .wahaj-collection:first-child .wahaj-collection__name { font-size:16px; }
+  .wahaj-storefront { padding-bottom:72px; }
+}
+.wahaj-storefront .wahaj-social-world__grid { grid-auto-flow:dense; }
+.wahaj-storefront .wahaj-social-tile--1 { grid-column:span 2; grid-row:span 2; min-height:310px; }
+.wahaj-storefront .wahaj-social-tile--1 .wahaj-social-tile__label b { font-size:12px; }
+@media (max-width:620px) {
+  .wahaj-storefront .wahaj-social-tile--1 { grid-column:span 2; grid-row:span 1; min-height:205px; }
+  .wahaj-storefront .wahaj-social-tile--1 .wahaj-social-tile__label b { font-size:9px; }
+}
+.wahaj-storefront .wahaj-collections .wahaj-section-heading {
+  max-width:620px;
+  margin:0 0 28px;
+  padding-inline-start:clamp(4px,2vw,24px);
+}
+.wahaj-storefront .wahaj-collections .wahaj-section-heading__title { font-size:clamp(27px,3.4vw,45px); }
+.wahaj-storefront .wahaj-collections .wahaj-section-heading__subtitle { max-width:500px; }
+@media (max-width:620px) {
+  .wahaj-storefront .wahaj-collections .wahaj-section-heading { margin-bottom:20px; padding-inline:0; }
+  .wahaj-storefront .wahaj-collections .wahaj-section-heading__title { font-size:26px; }
+}
+.wahaj-storefront .wahaj-collections__grid {
+  display:grid;
+  grid-template-columns:repeat(12,minmax(0,1fr));
+  grid-auto-rows:minmax(220px,auto);
+  gap:16px;
+  align-items:stretch;
+}
+.wahaj-storefront .wahaj-collection, .wahaj-storefront .wahaj-collection:nth-child(even), .wahaj-storefront .wahaj-collection:first-child {
+  grid-column:span 3;
+  grid-row:span 1;
+  width:100%;
+  min-width:0;
+  min-height:360px;
+  height:100%;
+  aspect-ratio:auto;
+  margin-top:0;
+  border-radius:4px 44px 4px 4px;
+}
+.wahaj-storefront .wahaj-collection:first-child {
+  grid-column:span 6;
+  min-height:420px;
+  border-radius:4px 72px 4px 4px;
+}
+.wahaj-storefront .wahaj-collection:nth-child(3n+2) { border-radius:44px 4px 4px 4px; }
+.wahaj-storefront .wahaj-collection:nth-child(4n+3) { border-radius:4px 4px 4px 44px; }
+.wahaj-storefront .wahaj-collection__image, .wahaj-storefront .wahaj-collection__shade { position:absolute; inset:0; width:100%; height:100%; }
+.wahaj-storefront .wahaj-collection__content { max-width:calc(100% - 34px); }
+
+.wahaj-storefront .wahaj-social-world__grid {
+  display:grid;
+  grid-template-columns:repeat(12,minmax(0,1fr));
+  grid-auto-rows:minmax(178px,auto);
+  gap:14px;
+  align-items:stretch;
+}
+.wahaj-storefront .wahaj-social-tile, .wahaj-storefront .wahaj-social-tile:nth-child(even), .wahaj-storefront .wahaj-social-tile:nth-child(3n+2), .wahaj-storefront .wahaj-social-tile--1 {
+  grid-column:span 3;
+  grid-row:span 1;
+  width:100%;
+  min-width:0;
+  min-height:0;
+  height:100%;
+  aspect-ratio:auto;
+  margin-top:0;
+}
+.wahaj-storefront .wahaj-social-tile--1 {
+  grid-column:span 6;
+  grid-row:span 2;
+  min-height:0;
+}
+.wahaj-storefront .wahaj-social-tile img, .wahaj-storefront .wahaj-social-tile__shade { position:absolute; inset:0; width:100%; height:100%; }
+.wahaj-storefront .wahaj-social-tile__label { max-width:calc(100% - 24px); }
+
+@media (max-width:900px) {
+  .wahaj-storefront .wahaj-collections__grid, .wahaj-storefront .wahaj-social-world__grid { grid-template-columns:repeat(6,minmax(0,1fr)); gap:12px; }
+  .wahaj-storefront .wahaj-collections__grid { grid-auto-rows:minmax(190px,auto); }
+  .wahaj-storefront .wahaj-collection, .wahaj-storefront .wahaj-collection:nth-child(even), .wahaj-storefront .wahaj-collection:first-child { grid-column:span 3; min-height:300px; margin-top:0; }
+  .wahaj-storefront .wahaj-collection:first-child { grid-column:span 6; min-height:350px; }
+  .wahaj-storefront .wahaj-social-world__grid { grid-auto-rows:minmax(155px,auto); }
+  .wahaj-storefront .wahaj-social-tile, .wahaj-storefront .wahaj-social-tile:nth-child(even), .wahaj-storefront .wahaj-social-tile:nth-child(3n+2) { grid-column:span 3; margin-top:0; }
+  .wahaj-storefront .wahaj-social-tile--1 { grid-column:span 6; grid-row:span 2; }
+}
+@media (max-width:620px) {
+  .wahaj-storefront .wahaj-collections__grid, .wahaj-storefront .wahaj-social-world__grid { grid-template-columns:repeat(2,minmax(0,1fr)); gap:9px; }
+  .wahaj-storefront .wahaj-collections__grid { grid-auto-rows:auto; }
+  .wahaj-storefront .wahaj-collection, .wahaj-storefront .wahaj-collection:nth-child(even), .wahaj-storefront .wahaj-collection:first-child {
+    grid-column:span 1;
+    grid-row:span 1;
+    min-height:240px;
+    height:auto;
+    aspect-ratio:.78;
+    margin-top:0;
+    border-radius:3px 28px 3px 3px;
+  }
+  .wahaj-storefront .wahaj-collection:first-child {
+    grid-column:span 2;
+    min-height:220px;
+    aspect-ratio:1.48;
+    border-radius:3px 38px 3px 3px;
+  }
+  .wahaj-storefront .wahaj-collection:nth-child(3n+2), .wahaj-storefront .wahaj-collection:nth-child(4n+3) { border-radius:3px 28px 3px 3px; }
+  .wahaj-storefront .wahaj-collection__content { max-width:calc(100% - 26px); }
+  .wahaj-storefront .wahaj-social-world__grid { grid-auto-rows:185px; }
+  .wahaj-storefront .wahaj-social-tile, .wahaj-storefront .wahaj-social-tile:nth-child(even), .wahaj-storefront .wahaj-social-tile:nth-child(3n+2), .wahaj-storefront .wahaj-social-tile--1 {
+    grid-column:span 1;
+    grid-row:span 1;
+    min-height:0;
+    height:100%;
+    aspect-ratio:auto;
+    margin-top:0;
+    border-radius:3px 22px 3px 3px;
+  }
+  .wahaj-storefront .wahaj-social-tile--1 { grid-column:span 2; }
+}
+@media (max-width:380px) {
+  .wahaj-storefront .wahaj-collection { min-height:215px; }
+  .wahaj-storefront .wahaj-collection:first-child { min-height:200px; }
+  .wahaj-storefront .wahaj-social-world__grid { grid-auto-rows:165px; gap:7px; }
+}
+.wahaj-storefront .wahaj-collections { padding-block: var(--home-space); border-bottom: 1px solid var(--border); background: var(--surface); }
+
+.wahaj-storefront { --home-space: var(--wahaj-section-space); }
+.wahaj-storefront .wahaj-section-heading { margin-bottom: 18px; }
+.wahaj-storefront .wahaj-collections, .wahaj-storefront .wahaj-products-section, .wahaj-storefront .wahaj-story, .wahaj-storefront .wahaj-offers, .wahaj-storefront .wahaj-testimonials, .wahaj-storefront .wahaj-social-world, .wahaj-storefront .wahaj-newsletter, .wahaj-storefront .wahaj-most-requested, .wahaj-storefront .wahaj-gift-section { padding-block: var(--wahaj-section-space); }
+
+@media (max-width: 760px) {
+  .wahaj-storefront { --home-space: 30px; }
+  .wahaj-storefront .wahaj-section-heading { margin-bottom: 15px; }
+}
+
+@media (max-width: 620px) {
+  .wahaj-storefront { --home-space: 24px; }
+  .wahaj-storefront .wahaj-section-heading { margin-bottom: 14px; }
+  .wahaj-storefront .wahaj-collections, .wahaj-storefront .wahaj-products-section, .wahaj-storefront .wahaj-story, .wahaj-storefront .wahaj-offers, .wahaj-storefront .wahaj-testimonials, .wahaj-storefront .wahaj-social-world, .wahaj-storefront .wahaj-newsletter, .wahaj-storefront .wahaj-most-requested, .wahaj-storefront .wahaj-gift-section { padding-block: 28px; }
+  .wahaj-storefront .wahaj-collections { padding-block: 24px; }
+}
+.wahaj-storefront .wahaj-collections .wahaj-category-track {
+  gap: clamp(16px, 2.2vw, 26px);
+}
+.wahaj-storefront .wahaj-collections .wahaj-category-browser.is-grid .wahaj-category-track {
+  gap: clamp(18px, 2.2vw, 26px);
+}
+@media (max-width: 600px) {
+  .wahaj-storefront .wahaj-collections .wahaj-category-track { gap: 16px; }
+  .wahaj-storefront .wahaj-collections .wahaj-category-browser.is-grid .wahaj-category-track {
+    gap: 18px 14px;
+  }
+}
+.wahaj-storefront .wahaj-story__visual img {
+  object-fit: contain !important;
+  object-position: center;
+  transform: none !important;
+}
+.wahaj-storefront .wahaj-story__card:hover .wahaj-story__visual img {
+  transform: none !important;
+}
+.wahaj-storefront .wahaj-story__visual {
+  aspect-ratio: var(--wahaj-story-image-ratio, 1 / 1) !important;
+  min-height: 0 !important;
+  height: auto;
+}
+.wahaj-storefront .wahaj-story__card {
+  grid-template-columns: minmax(0, 1fr) !important;
+}
+.wahaj-storefront .wahaj-story__visual {
+  width: 100%;
+  aspect-ratio: var(--wahaj-story-image-ratio, 1 / 1) !important;
+  min-height: 0 !important;
+  height: auto;
+}
+.wahaj-storefront .wahaj-story__content {
+  min-width: 0;
+}
+@media (min-width: 801px) {
+  .wahaj-storefront .wahaj-story__card {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+    align-items: start;
+    max-width: 980px;
+    margin-inline: auto;
+  }
+  .wahaj-storefront .wahaj-story__visual {
+    align-self: start;
+    width: 100%;
+    aspect-ratio: var(--wahaj-story-image-ratio, 1 / 1) !important;
+    min-height: 0 !important;
+    height: auto;
+  }
+  .wahaj-storefront .wahaj-story__content {
+    justify-content: center;
+    gap: 0;
+    padding: clamp(20px, 3vw, 34px);
+  }
+  .wahaj-storefront .wahaj-story__content h2 {
+    margin-block: 10px 11px;
+    font-size: clamp(24px, 2.5vw, 34px);
+    line-height: 1.25;
+  }
+  .wahaj-storefront .wahaj-story__content > p {
+    font-size: 11px;
+    line-height: 1.8;
+  }
+  .wahaj-storefront .wahaj-story__values {
+    gap: 8px 12px;
+    margin-top: 14px;
+    font-size: 9px;
+  }
+  .wahaj-storefront .wahaj-story__link {
+    min-height: 38px;
+    margin-top: 16px;
+    padding: 8px 11px;
+  }
+}
+
+.wahaj-storefront .wahaj-section-heading__eyebrow, .wahaj-storefront .wahaj-section-heading__subtitle, .wahaj-storefront .wahaj-trust__title, .wahaj-storefront .wahaj-trust__text, .wahaj-storefront .wahaj-products-section__count, .wahaj-storefront .wahaj-products-section__link, .wahaj-storefront .wahaj-story__visual-caption, .wahaj-storefront .wahaj-story__eyebrow, .wahaj-storefront .wahaj-story__values, .wahaj-storefront .wahaj-story__link { font-size: var(--font-size-secondary); }
+.wahaj-storefront .wahaj-home-kicker, .wahaj-storefront .wahaj-section-heading__eyebrow, .wahaj-storefront .wahaj-section-heading__subtitle, .wahaj-storefront .wahaj-story__visual-caption, .wahaj-storefront .wahaj-story__eyebrow, .wahaj-storefront .wahaj-story__values span, .wahaj-storefront .wahaj-story__content > p, .wahaj-storefront .wahaj-story__link { font-size: var(--font-size-secondary) !important; }
