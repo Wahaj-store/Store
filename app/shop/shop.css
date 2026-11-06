@@ -324,8 +324,6 @@
   .wahaj-shop-page { padding-block: 18px 42px; }
   .wahaj-shop-catalog { padding-top: 18px; }
 }
-.wahaj-shop-product-grid { grid-template-columns:repeat(4,minmax(0,1fr)); }
-@media (max-width:1024px) { .wahaj-shop-product-grid { grid-template-columns:repeat(3,minmax(0,1fr)); } }
 .wahaj-shop-empty h1 { margin:8px 0 5px; color:var(--foreground); font-size:20px; font-weight:800; }
 .wahaj-shop-error .wahaj-shop-empty__icon { color:var(--gold); }
 .wahaj-shop-empty__action:is(button) { cursor:pointer; border:0; font-family:inherit; }
