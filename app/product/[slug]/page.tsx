@@ -18,10 +18,10 @@ import ProductPurchase from '@/components/ProductPurchase';
 import ProductDetailsAccordion from '@/components/ProductDetailsAccordion';
 import WishlistButton from '@/components/WishlistButton';
 import ClientRecentTracker from '@/components/ClientRecentTracker';
+import DeferredReviewForm from '@/components/DeferredReviewForm';
 import FeatureFlagGate from '@/components/FeatureFlagGate';
 
 const ProductCard = dynamic(() => import('@/components/ProductCard'), { ssr: true });
-const ReviewForm = dynamic(() => import('@/components/ReviewForm'), { ssr: true });
 const BackInStockForm = dynamic(() => import('@/components/BackInStockForm'), { ssr: true });
 const RecentlyViewed = dynamic(() => import('@/components/RecentlyViewed'), { ssr: true });
 
@@ -311,7 +311,7 @@ export default async function ProductPage(props: { params: Promise<{ slug: strin
               <p className="wahaj-product-review-empty">لم تُضف تقييمات لهذا المنتج بعد. يسعدنا أن تكوني أول من يشارك تجربته.</p>
             )}
 
-            <ReviewForm productId={product.id} />
+            <DeferredReviewForm productId={product.id} />
           </section>
         </section>
 

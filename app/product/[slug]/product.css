@@ -644,6 +644,26 @@
   .wahaj-product-accordions .wahaj-faq-answer p,
   .wahaj-product-accordions .wahaj-faq-answer a { font-size: 10px !important; }
 }
+.wahaj-review-form-placeholder {
+  display: grid;
+  gap: 14px;
+  min-height: 350px;
+  margin-top: 18px;
+  padding: 17px;
+  border: 1px solid color-mix(in srgb,var(--gold) 22%,var(--border));
+  border-radius: 16px;
+  background: color-mix(in srgb,var(--gold-soft) 30%,var(--card));
+  color: var(--muted-foreground);
+  font-size: 11px;
+}
+.wahaj-review-form-placeholder__line,
+.wahaj-review-form-placeholder__field { display: block; border-radius: 7px; background: color-mix(in srgb,var(--border) 56%,transparent); }
+.wahaj-review-form-placeholder__line { width: 55%; height: 11px; }
+.wahaj-review-form-placeholder__line--short { width: 34%; }
+.wahaj-review-form-placeholder__field { width: 100%; min-height: 104px; margin-top: 2px; }
+@media (max-width: 340px) {
+  .wahaj-review-form-placeholder { min-height: 371px; }
+}
 .wahaj-product-gallery__stage { cursor: zoom-in; }
 .wahaj-product-gallery__image {
   padding: 0 !important;
