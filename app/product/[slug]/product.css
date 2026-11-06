@@ -454,6 +454,7 @@
   .wahaj-product-purchase__actions { display:grid; grid-template-columns:minmax(0,1fr) auto; }
   .wahaj-product-purchase__add > button { min-height:50px !important; }
   .wahaj-product-quantity { min-width:104px; }
+  .wahaj-product-buy-now { min-height:50px; }
   .wahaj-product-payments { padding:14px; }
 }
 .wahaj-storefront .wahaj-product-grid { grid-template-columns:repeat(4,minmax(0,1fr)); gap:clamp(9px,1.4vw,17px); }
