@@ -2,6 +2,7 @@ import Link from 'next/link';
 import dynamic from 'next/dynamic';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
+import { Suspense } from 'react';
 import {
   ArrowLeft,
   Check,
@@ -18,10 +19,13 @@ import ProductPurchase from '@/components/ProductPurchase';
 import ProductDetailsAccordion from '@/components/ProductDetailsAccordion';
 import WishlistButton from '@/components/WishlistButton';
 import ClientRecentTracker from '@/components/ClientRecentTracker';
-import DeferredReviewForm from '@/components/DeferredReviewForm';
-import FeatureFlagGate from '@/components/FeatureFlagGate';
+import {
+  ProductRelatedSection,
+  ProductReviewSection,
+  ProductReviewSummary,
+  ProductStructuredData,
+} from '@/components/product/ProductAsyncSections';
 
-const ProductCard = dynamic(() => import('@/components/ProductCard'), { ssr: true });
 const BackInStockForm = dynamic(() => import('@/components/BackInStockForm'), { ssr: true });
 const RecentlyViewed = dynamic(() => import('@/components/RecentlyViewed'), { ssr: true });
 
@@ -86,32 +90,6 @@ export default async function ProductPage(props: { params: Promise<{ slug: strin
         images: { orderBy: { sortOrder: 'asc' } },
         category: true,
         variants: true,
-        relationsFrom: {
-          where: {
-            type: { in: ['RELATED', 'COMPLEMENTARY', 'UPSELL', 'CROSS_SELL'] },
-            toProduct: { status: 'PUBLISHED' },
-          },
-          include: {
-            toProduct: {
-              include: {
-                images: { orderBy: { sortOrder: 'asc' }, take: 1 },
-                category: true,
-                variants: {
-                  select: { id: true, name: true, value: true, stock: true, price: true, imageUrl: true },
-                  orderBy: { stock: 'desc' },
-                },
-              },
-            },
-          },
-          orderBy: { sortOrder: 'asc' },
-          take: 8,
-        },
-        reviews: {
-          where: { approved: true },
-          include: { customer: { select: { name: true } } },
-          orderBy: { createdAt: 'desc' },
-          take: 20,
-        },
       },
     }),
     prisma.paymentSetting.findMany({ where: { enabled: true } }),
@@ -121,35 +99,11 @@ export default async function ProductPage(props: { params: Promise<{ slug: strin
 
   const price = Number(product.price);
   const mainImage = product.images[0]?.url || '/placeholder.svg';
-  const reviews = product.reviews;
-  const averageRating = reviews.length
-    ? reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length
-    : 0;
   const availablePayments = paymentOptions.filter((option) =>
     payments.some((payment) => payment.method === option.method),
   );
 
   const productUrl = `${SITE_URL}/product/${encodeURIComponent(product.slug)}`;
-  const jsonLd = {
-    '@context': 'https://schema.org',
-    '@type': 'Product',
-    '@id': `${productUrl}#product`,
-    name: product.name,
-    description: product.description || '',
-    sku: product.sku,
-    brand: { '@type': 'Brand', name: 'وَهَج' },
-    image: product.images.map((image) => image.url),
-    ...(reviews.length ? { aggregateRating: { '@type': 'AggregateRating', ratingValue: Number(averageRating.toFixed(1)), reviewCount: reviews.length, bestRating: 5, worstRating: 1 } } : {}),
-    offers: {
-      '@type': 'Offer',
-      price: price.toFixed(2),
-      priceCurrency: 'EGP',
-      availability: product.stock > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
-      itemCondition: 'https://schema.org/NewCondition',
-      url: productUrl,
-    },
-  };
-
   const breadcrumbLd = {
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
@@ -163,7 +117,18 @@ export default async function ProductPage(props: { params: Promise<{ slug: strin
 
   return (
     <main className="wahaj-product-page" dir="rtl">
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c') }} />
+      <Suspense fallback={null}>
+        <ProductStructuredData
+          productId={product.id}
+          productName={product.name}
+          description={product.description}
+          sku={product.sku}
+          imageUrls={product.images.map((image) => image.url)}
+          price={price}
+          stock={product.stock}
+          productUrl={productUrl}
+        />
+      </Suspense>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd).replace(/</g, '\\u003c') }} />
       <ClientRecentTracker
         product={{ name: product.name, slug: product.slug, price, image: mainImage }}
@@ -197,13 +162,9 @@ export default async function ProductPage(props: { params: Promise<{ slug: strin
                 <div className="wahaj-product-title-row">
                   <div className="wahaj-product-title-copy">
                     <h1 id="product-title">{product.name}</h1>
-                    <div className="wahaj-product-rating" aria-label={reviews.length ? `متوسط التقييمات المعروضة ${averageRating.toFixed(1)} من 5` : 'لا توجد تقييمات بعد'}>
-                      <span className="wahaj-product-rating__stars" aria-hidden="true">
-                        {'★'.repeat(Math.round(averageRating))}{'☆'.repeat(5 - Math.round(averageRating))}
-                      </span>
-                      <span>{reviews.length ? `${averageRating.toLocaleString('ar-EG', { maximumFractionDigits: 1 })} من 5` : 'لا توجد تقييمات بعد'}</span>
-                      {reviews.length ? <a href="#product-reviews">({reviews.length.toLocaleString('ar-EG')} تقييمات معتمدة معروضة)</a> : null}
-                    </div>
+                    <Suspense fallback={<div className="wahaj-product-rating" aria-hidden="true" style={{ minHeight: 18 }} />}>
+                      <ProductReviewSummary productId={product.id} productName={product.name} />
+                    </Suspense>
                   </div>
                   <div className="wahaj-product-wishlist" aria-label="حفظ المنتج في المفضلة">
                     <WishlistButton productId={product.id} />
@@ -277,62 +238,14 @@ export default async function ProductPage(props: { params: Promise<{ slug: strin
             <div className="wahaj-product-specs__note"><Check size={15} /> تفاصيل المنتج ومعلوماته محدثة من متجر وَهَج.</div>
           </article>
 
-          <section className="wahaj-product-reviews" id="product-reviews" aria-labelledby="reviews-title">
-            <div className="wahaj-product-section-heading">
-              <span className="wahaj-product-section-heading__icon wahaj-product-section-heading__icon--star">★</span>
-              <div>
-                <span>تجارب عميلاتنا</span>
-                <h2 id="reviews-title">تقييمات المنتج</h2>
-              </div>
-              <span className="wahaj-product-reviews__count">{reviews.length.toLocaleString('ar-EG')}</span>
-            </div>
-
-            {reviews.length ? (
-              <div className="wahaj-product-review-list">
-                {reviews.map((review) => {
-                  const reviewer = String(review.customer?.name || '').trim().split(/\s+/)[0] || 'عميلة وَهَج';
-                  return (
-                    <article className="wahaj-product-review" key={review.id}>
-                      <div className="wahaj-product-review__top">
-                        <div className="wahaj-product-review__customer">
-                          <span className="wahaj-product-review__avatar" aria-hidden="true">{reviewer.slice(0, 1)}</span>
-                          <div><b>{reviewer}</b><small>تقييم معتمد</small></div>
-                        </div>
-                        <span className="wahaj-product-review__stars" aria-label={`${review.rating} من 5 نجوم`}>
-                          {'★'.repeat(review.rating)}{'☆'.repeat(Math.max(0, 5 - review.rating))}
-                        </span>
-                      </div>
-                      {review.text ? <p>{review.text}</p> : <p className="wahaj-product-review__empty">شاركت العميلة تقييمها للمنتج.</p>}
-                    </article>
-                  );
-                })}
-              </div>
-            ) : (
-              <p className="wahaj-product-review-empty">لم تُضف تقييمات لهذا المنتج بعد. يسعدنا أن تكوني أول من يشارك تجربته.</p>
-            )}
-
-            <DeferredReviewForm productId={product.id} />
-          </section>
+          <Suspense fallback={null}>
+            <ProductReviewSection productId={product.id} />
+          </Suspense>
         </section>
 
-        {product.relationsFrom.length ? (
-          <FeatureFlagGate flag="smart_recommendations">
-          <section className="wahaj-product-related" aria-labelledby="related-products-title">
-            <div className="wahaj-product-related__heading">
-              <div>
-                <span className="wahaj-product-section-heading__eyebrow">اختيارات تكمل إطلالتك</span>
-                <h2 id="related-products-title">قد يعجبكِ أيضًا</h2>
-              </div>
-              <Link href="/shop">اكتشفي المتجر <ArrowLeft size={15} /></Link>
-            </div>
-            <div className="wahaj-product-related__grid">
-              {product.relationsFrom.map((relation) => (
-                <ProductCard key={relation.id} product={relation.toProduct} variant="shop" />
-              ))}
-            </div>
-          </section>
-          </FeatureFlagGate>
-        ) : null}
+        <Suspense fallback={null}>
+          <ProductRelatedSection productId={product.id} />
+        </Suspense>
 
         <RecentlyViewed products={[product]} />
       </div>

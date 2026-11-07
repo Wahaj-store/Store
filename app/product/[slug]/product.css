@@ -156,8 +156,6 @@
   object-fit: contain;
   transition: opacity .28s ease, transform .55s cubic-bezier(.2,.7,.2,1);
 }
-/* Paint the LCP image immediately; keep the entrance reveal for non-critical gallery items. */
-.wahaj-product-gallery__stage > .wahaj-product-gallery__image.wahaj-gallery-image-enter { animation: none; }
 .wahaj-product-gallery__stage:hover .wahaj-product-gallery__image { transform: scale(1.025); }
 .wahaj-product-gallery__label,
 .wahaj-product-gallery__count {
