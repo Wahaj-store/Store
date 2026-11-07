@@ -632,6 +632,9 @@
   .wahaj-storefront .wahaj-story__card { grid-template-columns:minmax(0,1fr) minmax(0,1fr); }
   .wahaj-storefront .wahaj-trust__grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
 }
+@media (max-width: 1024px), (hover: none) and (pointer: coarse) {
+  .wahaj-storefront .wahaj-product-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+}
 @media (max-width: 620px) {
   .wahaj-storefront .container, .wahaj-storefront .wahaj-hero__inner { width:calc(100% - 24px); }
   .wahaj-storefront main > section:not(.wahaj-hero) { contain-intrinsic-size:430px; }
