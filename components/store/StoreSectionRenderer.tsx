@@ -200,7 +200,7 @@ function ProductsSection({
   title?: string;
   subtitle?: string;
 }) {
-  const products = Array.isArray(data?.products) ? data.products : [];
+  const products = (Array.isArray(data?.products) ? data.products : []).slice(0, 6);
 
   return (
     <section className="wahaj-products-section">
