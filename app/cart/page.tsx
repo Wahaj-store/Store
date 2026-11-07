@@ -199,8 +199,8 @@ export default function Cart() {
             <div className="wahaj-summary-lines"><div><span>عدد القطع</span><b>{quantity}</b></div><div><span>الإجمالي المبدئي</span><b>{money(subtotal)}</b></div><div><span>الشحن</span><b className={hasFreeShipping ? 'is-gold' : 'is-muted'}>{hasFreeShipping ? 'مجانًا' : 'يُحسب حسب العنوان'}</b></div></div>
             {hasFreeShipping && <p className="wahaj-shipping-free-note"><Check size={14} /> تم استبعاد رسوم الشحن من إجمالي طلبكِ لوصولكِ لحد الشحن المجاني.</p>}
             <div className="wahaj-summary-total"><span>{hasFreeShipping ? 'الإجمالي بعد الشحن المجاني' : 'الإجمالي الحالي'}</span><strong>{money(subtotal)}</strong></div>
-            <Link href={coupon ? `/checkout?coupon=${encodeURIComponent(coupon)}` : '/checkout'} className="wahaj-commerce-primary wahaj-cart-summary__cta">تحديد عنوان الشحن <ArrowLeft size={17} /></Link>
-            <p className="wahaj-summary-note"><ShieldCheck size={14} /> سيتم تأكيد السعر النهائي قبل إرسال الطلب</p>
+            <Link href={coupon ? `/checkout?coupon=${encodeURIComponent(coupon)}` : '/checkout'} className="wahaj-commerce-primary wahaj-cart-summary__cta wahaj-mobile-conversion-cta">تحديد عنوان الشحن <ArrowLeft size={17} /></Link>
+            <p className="wahaj-summary-note"><Truck size={14} /> ستظهر تكلفة الشحن بعد اختيار المحافظة، وستراجعين الإجمالي النهائي قبل تأكيد الطلب.</p>
           </aside>
         </div>
       </div>

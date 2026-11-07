@@ -555,7 +555,11 @@ function CheckoutContent() {
             {pricingKey !== previewKey && <div className="wahaj-pricing-note" role="status" aria-live="polite">{pricingLoading ? 'جارٍ تحديث إجمالي الطلب…' : 'ملخص الأسعار يحتاج إلى تحديث قبل التأكيد.'}</div>}
             {pricingMessage && <div className="wahaj-pricing-note" role={pricingKey ? 'status' : 'alert'}>{pricingMessage}{!pricingKey && <button type="button" className="ms-2 underline underline-offset-2" onClick={() => setPricingRefreshToken(value => value + 1)}>إعادة المحاولة</button>}</div>}
             <div className="wahaj-summary-total"><span>الإجمالي النهائي {pricingLoading ? '…' : ''}</span><strong>{finalTotal.toLocaleString('ar-EG')} ج.م</strong></div>
-            <button disabled={busy || !c.length || !methods.length || pricingLoading || pricingKey !== previewKey || Boolean(pricing.giftCardError)} className="wahaj-commerce-primary wahaj-checkout-submit">{busy ? 'جارٍ إرسال الطلب...' : 'تأكيد وإتمام الطلب'}<CheckCircle2 size={18} /></button>
+            <button aria-label={busy ? 'جارٍ إرسال الطلب' : 'تأكيد وإتمام الطلب'} disabled={busy || !c.length || !methods.length || pricingLoading || pricingKey !== previewKey || Boolean(pricing.giftCardError)} className="wahaj-commerce-primary wahaj-checkout-submit wahaj-mobile-conversion-cta">
+              <span className="wahaj-checkout-submit__label">{busy ? 'جارٍ إرسال الطلب...' : 'تأكيد وإتمام الطلب'}</span>
+              <span className="wahaj-checkout-submit__amount" aria-live="polite"><small>الإجمالي النهائي</small><strong>{finalTotal.toLocaleString('ar-EG')} ج.م</strong></span>
+              <CheckCircle2 size={18} aria-hidden="true" />
+            </button>
             <p className="wahaj-summary-note"><ShieldCheck size={14} /> بياناتكِ وطلبكِ محميان بعناية</p>
           </aside>
         </form>}

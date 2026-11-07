@@ -71,10 +71,97 @@ test('checkout completes with the freshly verified expected total', async ({ pag
   await fillCheckoutDetails(page);
   const submitButton = page.getByRole('button', { name: 'تأكيد وإتمام الطلب' });
   await expect(submitButton).toBeEnabled();
+  await expect(submitButton.locator('.wahaj-checkout-submit__amount')).toHaveCSS('display', 'none');
   await submitButton.click();
 
   await expect.poll(() => checkoutRequestBody).toContain('"expectedTotal":155');
   await expect(page).toHaveURL(/\/checkout\/success\?order=WAH-E2E-001/);
+});
+
+test('mobile cart keeps the shipping step reachable across narrow screens', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.addInitScript((cart) => {
+    window.localStorage.setItem('wahaj_cart', JSON.stringify(cart));
+  }, cartFixture);
+  await page.route('**/api/cart/abandoned', async (route) => {
+    await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ ok: true }) });
+  });
+  await page.route('**/api/settings', async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({ settings: { free_shipping: 500 }, payments: [], features: {} }),
+    });
+  });
+
+  await page.goto('/cart');
+  const cta = page.locator('.wahaj-cart-summary__cta');
+  await expect(page.getByRole('heading', { name: 'سلة المشتريات' })).toBeVisible();
+  await expect(cta).toHaveCSS('position', 'fixed');
+  await expect(cta).toBeVisible();
+  await expect(page.locator('.wahaj-mobile-bottom-nav')).toBeHidden();
+  await expect(page.getByText(/ستظهر تكلفة الشحن بعد اختيار المحافظة/)).toBeVisible();
+
+  for (const width of [320, 360, 390, 430]) {
+    await page.setViewportSize({ width, height: 844 });
+    const box = await cta.boundingBox();
+    expect(box).not.toBeNull();
+    expect(box!.x).toBeGreaterThanOrEqual(0);
+    expect(box!.x + box!.width).toBeLessThanOrEqual(width + 1);
+    expect(box!.y).toBeGreaterThanOrEqual(0);
+    expect(box!.y + box!.height).toBeLessThanOrEqual(845);
+  }
+});
+
+test('mobile checkout keeps the final total and confirmation reachable across narrow screens', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.route('**/api/settings', async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        settings: {},
+        features: {},
+        payments: [{ method: 'COD', label: 'الدفع عند الاستلام', enabled: true }],
+      }),
+    });
+  });
+  await page.route('**/api/checkout/preview', async (route) => {
+    await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(previewFixture) });
+  });
+
+  let checkoutRequestBody = '';
+  await page.route('**/api/checkout', async (route) => {
+    checkoutRequestBody = route.request().postDataBuffer()?.toString('utf8') || '';
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({ orderNumber: 'WAH-E2E-MOBILE' }),
+    });
+  });
+
+  await prepareCheckout(page);
+  const submitButton = page.locator('.wahaj-checkout-submit');
+  await expect(submitButton).toHaveCSS('position', 'fixed');
+  await expect(submitButton).toBeVisible();
+  await expect(submitButton.locator('.wahaj-checkout-submit__amount')).toContainText('١٥٥');
+  await expect(page.locator('.wahaj-mobile-bottom-nav')).toBeHidden();
+  await fillCheckoutDetails(page);
+  await expect(submitButton).toBeEnabled();
+
+  for (const width of [320, 360, 390, 430]) {
+    await page.setViewportSize({ width, height: 844 });
+    const box = await submitButton.boundingBox();
+    expect(box).not.toBeNull();
+    expect(box!.x).toBeGreaterThanOrEqual(0);
+    expect(box!.x + box!.width).toBeLessThanOrEqual(width + 1);
+    expect(box!.y).toBeGreaterThanOrEqual(0);
+    expect(box!.y + box!.height).toBeLessThanOrEqual(845);
+  }
+
+  await submitButton.click();
+  await expect.poll(() => checkoutRequestBody).toContain('"expectedTotal":155');
+  await expect(page).toHaveURL(/\/checkout\/success\?order=WAH-E2E-MOBILE/);
 });
 
 test('checkout keeps confirmation blocked on preview failure and recovers through retry', async ({ page }) => {

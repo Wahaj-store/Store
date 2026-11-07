@@ -1,6 +1,8 @@
 import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
 
+import '../commerce-mobile.css';
+
 export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
