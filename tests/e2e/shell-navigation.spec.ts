@@ -16,6 +16,29 @@ test('cart drawer closes on Escape and restores focus to its trigger', async ({ 
   await expect(trigger).toBeFocused();
 });
 
+test('mobile drawer code loads on demand and restores focus after Escape', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  const scriptRequests = new Set<string>();
+  page.on('request', request => {
+    if (request.resourceType() === 'script') scriptRequests.add(request.url());
+  });
+
+  await page.goto('/about');
+  await page.waitForLoadState('networkidle');
+  const initialScripts = new Set(scriptRequests);
+  const trigger = page.getByRole('button', { name: 'فتح القائمة' });
+  await trigger.click();
+
+  const dialog = page.getByRole('dialog', { name: 'قائمة التنقل الرئيسية' });
+  await expect(dialog).toBeVisible();
+  await expect(dialog.getByRole('button', { name: 'إغلاق القائمة' })).toBeFocused();
+  await expect.poll(() => [...scriptRequests].filter(url => !initialScripts.has(url)).length).toBeGreaterThan(0);
+
+  await page.keyboard.press('Escape');
+  await expect(dialog).toHaveCount(0);
+  await expect(trigger).toBeFocused();
+});
+
 test('mobile quick navigation exposes the primary destinations and tracks the active route', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/faq');
