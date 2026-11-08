@@ -47,7 +47,12 @@ async function fillCheckoutDetails(page: Page) {
   await page.getByLabel('الاسم بالكامل').fill('عميل اختبار');
   await page.getByLabel('رقم الهاتف').fill('01012345678');
   await page.getByLabel('المحافظة').selectOption('القاهرة');
-  await page.getByLabel('المدينة / المركز').fill('مدينة الاختبار');
+  const cityField = page.getByLabel('المدينة / المركز');
+  if (await cityField.evaluate(element => element.tagName === 'SELECT')) {
+    await cityField.selectOption('القاهرة');
+  } else {
+    await cityField.fill('القاهرة');
+  }
   await page.getByLabel('العنوان بالتفصيل').fill('شارع الاختبار، مبنى 1');
 }
 
@@ -68,7 +73,12 @@ test('checkout completes with the freshly verified expected total', async ({ pag
   });
 
   await prepareCheckout(page);
+  await expect(page.locator('.wahaj-checkout-progress__status')).toContainText('الخطوة 1 من 3');
+  await page.getByRole('button', { name: /مراجعة الطلب/ }).click();
+  await expect(page).toHaveURL(/\/checkout$/);
   await fillCheckoutDetails(page);
+  await expect(page.locator('.wahaj-checkout-progress__status')).toContainText('الخطوة 3 من 3');
+  await expect(page.locator('.wahaj-checkout-progress__step button[aria-current="step"]')).toContainText('مراجعة الطلب');
   const submitButton = page.getByRole('button', { name: 'تأكيد وإتمام الطلب' });
   await expect(submitButton).toBeEnabled();
   await expect(submitButton.locator('.wahaj-checkout-submit__amount')).toHaveCSS('display', 'none');
@@ -76,6 +86,51 @@ test('checkout completes with the freshly verified expected total', async ({ pag
 
   await expect.poll(() => checkoutRequestBody).toContain('"expectedTotal":155');
   await expect(page).toHaveURL(/\/checkout\/success\?order=WAH-E2E-001/);
+});
+
+test('required shipping fields explain what is missing and focus the first invalid field', async ({ page }) => {
+  let checkoutRequests = 0;
+  await page.route('**/api/checkout', async (route) => {
+    checkoutRequests += 1;
+    await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ orderNumber: 'SHOULD-NOT-EXIST' }) });
+  });
+
+  await prepareCheckout(page);
+  const submitButton = page.getByRole('button', { name: 'تأكيد وإتمام الطلب' });
+  await expect(submitButton).toBeEnabled();
+  await submitButton.click();
+
+  await expect(page.getByRole('alert').filter({ hasText: 'الاسم بالكامل' })).toBeVisible();
+  await expect(page.locator('#checkout-name')).toHaveAttribute('aria-invalid', 'true');
+  await expect(page.locator('#checkout-name-error')).toBeVisible();
+  await expect(page.locator('#checkout-phone')).toHaveAttribute('aria-invalid', 'true');
+  await expect(page.locator('#checkout-governorate')).toHaveAttribute('aria-invalid', 'true');
+  await expect(page.locator('#checkout-city')).toHaveAttribute('aria-invalid', 'true');
+  await expect(page.locator('#checkout-address')).toHaveAttribute('aria-invalid', 'true');
+  await expect(page.locator('#checkout-name')).toBeFocused();
+  expect(checkoutRequests).toBe(0);
+});
+
+test('city-specific shipping zones require a listed city before price preview', async ({ page }) => {
+  let previewRequests = 0;
+  await page.route('**/api/checkout/preview', async (route) => {
+    previewRequests += 1;
+    await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(previewFixture) });
+  });
+
+  await prepareCheckout(page);
+  await page.getByLabel('الاسم بالكامل').fill('عميل اختبار');
+  await page.getByLabel('رقم الهاتف').fill('01012345678');
+  await page.getByLabel('المحافظة').selectOption('القاهرة');
+  const cityField = page.getByLabel('المدينة / المركز');
+  await expect(cityField).toHaveJSProperty('tagName', 'SELECT');
+  await page.getByLabel('العنوان بالتفصيل').fill('شارع الاختبار، مبنى 1');
+
+  const submitButton = page.getByRole('button', { name: 'تأكيد وإتمام الطلب' });
+  await expect(submitButton).toBeEnabled();
+  await submitButton.click();
+  await expect(page.locator('#checkout-city-error')).toContainText('اختاري المدينة');
+  expect(previewRequests).toBe(0);
 });
 
 test('mobile cart keeps the shipping step reachable across narrow screens', async ({ page }) => {
@@ -141,16 +196,23 @@ test('mobile checkout keeps the final total and confirmation reachable across na
   });
 
   await prepareCheckout(page);
+  await fillCheckoutDetails(page);
   const submitButton = page.locator('.wahaj-checkout-submit');
   await expect(submitButton).toHaveCSS('position', 'fixed');
   await expect(submitButton).toBeVisible();
   await expect(submitButton.locator('.wahaj-checkout-submit__amount')).toContainText('١٥٥');
   await expect(page.locator('.wahaj-mobile-bottom-nav')).toBeHidden();
-  await fillCheckoutDetails(page);
+  const progress = page.locator('.wahaj-checkout-progress');
+  await expect(progress).toBeVisible();
   await expect(submitButton).toBeEnabled();
 
   for (const width of [320, 360, 390, 430]) {
     await page.setViewportSize({ width, height: 844 });
+    const progressBox = await progress.boundingBox();
+    expect(progressBox).not.toBeNull();
+    expect(progressBox!.x).toBeGreaterThanOrEqual(0);
+    expect(progressBox!.x + progressBox!.width).toBeLessThanOrEqual(width + 1);
+    expect(await progress.evaluate(element => element.scrollWidth <= element.clientWidth)).toBe(true);
     const box = await submitButton.boundingBox();
     expect(box).not.toBeNull();
     expect(box!.x).toBeGreaterThanOrEqual(0);
@@ -179,6 +241,7 @@ test('checkout keeps confirmation blocked on preview failure and recovers throug
   });
 
   await prepareCheckout(page);
+  await fillCheckoutDetails(page);
   const previewError = page.getByRole('alert').filter({ hasText: 'تعذر تحديث الأسعار حاليًا' });
   await expect(previewError).toBeVisible();
   const submitButton = page.getByRole('button', { name: 'تأكيد وإتمام الطلب' });

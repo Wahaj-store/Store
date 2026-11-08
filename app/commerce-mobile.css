@@ -78,3 +78,197 @@
     grid-row: 1 / span 2;
   }
 }
+
+.wahaj-checkout-progress {
+  margin: 0 0 24px;
+  padding: 16px 20px;
+  border: 1px solid color-mix(in srgb, var(--gold) 24%, var(--border));
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--card) 82%, transparent);
+  box-shadow: var(--shadow-soft);
+}
+
+.wahaj-checkout-progress__status {
+  margin: 0 0 12px;
+  color: var(--muted-foreground);
+  font-size: 10px;
+  line-height: 1.6;
+  text-align: center;
+}
+
+.wahaj-checkout-progress__status strong {
+  color: var(--gold-muted);
+  font-weight: 800;
+}
+
+.wahaj-checkout-progress__steps {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(24px, 64px) minmax(0, 1fr) minmax(24px, 64px) minmax(0, 1fr);
+  align-items: center;
+}
+
+.wahaj-checkout-progress__step {
+  min-width: 0;
+}
+
+.wahaj-checkout-progress__step button {
+  display: flex;
+  width: 100%;
+  min-height: 46px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 5px 3px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--muted-foreground);
+  font: inherit;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1.4;
+  text-align: center;
+  cursor: pointer;
+  transition: background-color .18s ease, color .18s ease;
+}
+
+.wahaj-checkout-progress__step button:hover {
+  background: color-mix(in srgb, var(--gold) 7%, transparent);
+}
+
+.wahaj-checkout-progress__step button:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+}
+
+.wahaj-checkout-progress__number {
+  display: grid;
+  width: 28px;
+  height: 28px;
+  flex: 0 0 28px;
+  place-items: center;
+  border: 1px solid var(--border-strong);
+  border-radius: 50%;
+  background: var(--background);
+  color: var(--muted-foreground);
+  font-size: 9px;
+  font-weight: 800;
+}
+
+.wahaj-checkout-progress__step.is-current button {
+  color: var(--foreground);
+}
+
+.wahaj-checkout-progress__step.is-current .wahaj-checkout-progress__number {
+  border-color: var(--gold);
+  background: var(--gold);
+  color: var(--gold-contrast);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--gold) 13%, transparent);
+}
+
+.wahaj-checkout-progress__step.is-complete button,
+.wahaj-checkout-progress__step.is-complete .wahaj-checkout-progress__number {
+  color: var(--gold-muted);
+}
+
+.wahaj-checkout-progress__step.is-complete .wahaj-checkout-progress__number {
+  border-color: color-mix(in srgb, var(--gold) 65%, var(--border));
+  background: var(--gold-soft);
+}
+
+.wahaj-checkout-progress__connector {
+  display: block;
+  height: 2px;
+  overflow: hidden;
+  border-radius: 99px;
+  background: var(--border);
+}
+
+.wahaj-checkout-progress__connector > span {
+  display: block;
+  width: 0;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--gold);
+  transition: width .25s ease;
+}
+
+.wahaj-checkout-progress__connector.is-complete > span {
+  width: 100%;
+}
+
+.wahaj-checkout-page .wahaj-checkout-form-alert {
+  grid-column: 1 / -1;
+  margin: 0 0 18px;
+  text-align: right;
+}
+
+.wahaj-checkout-page .wahaj-checkout-field-hint {
+  display: block;
+  color: var(--muted-foreground) !important;
+  font-size: 9px;
+  font-weight: 400;
+  line-height: 1.6;
+}
+
+.wahaj-checkout-page .wahaj-checkout-field-error {
+  display: block;
+  margin: 0;
+  color: var(--danger) !important;
+  font-size: 9px;
+  font-weight: 700;
+  line-height: 1.6;
+}
+
+.wahaj-checkout-page input[aria-invalid="true"],
+.wahaj-checkout-page select[aria-invalid="true"],
+.wahaj-checkout-page textarea[aria-invalid="true"] {
+  border-color: var(--danger) !important;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--danger) 11%, transparent);
+}
+
+.wahaj-checkout-page [id^="checkout-"] {
+  scroll-margin-top: 84px;
+}
+
+@media (max-width: 600px) {
+  .wahaj-checkout-progress {
+    margin-bottom: 18px;
+    padding: 12px 10px;
+  }
+
+  .wahaj-checkout-progress__status {
+    margin-bottom: 8px;
+    font-size: 9px;
+  }
+
+  .wahaj-checkout-progress__steps {
+    grid-template-columns: minmax(0, 1fr) 18px minmax(0, 1fr) 18px minmax(0, 1fr);
+  }
+
+  .wahaj-checkout-progress__step button {
+    min-height: 58px;
+    flex-direction: column;
+    gap: 4px;
+    padding: 4px 1px;
+    font-size: 8px;
+    line-height: 1.35;
+  }
+
+  .wahaj-checkout-progress__number {
+    width: 25px;
+    height: 25px;
+    flex-basis: 25px;
+  }
+
+  .wahaj-checkout-progress__connector {
+    margin-top: -16px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wahaj-checkout-progress__step button,
+  .wahaj-checkout-progress__connector > span {
+    transition: none;
+  }
+}

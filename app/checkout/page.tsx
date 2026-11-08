@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Truck, CreditCard, ShieldCheck, ArrowRight, Upload, Check, CheckCircle2, Sparkles, ShoppingBag } from 'lucide-react';
 import { buildCheckoutPreviewPayload, checkoutTotalsMatch } from '@/lib/checkout-preview-client';
+import { normalizeShippingLocation } from '@/lib/shipping-location';
 
 interface Address {
   id: string;
@@ -21,6 +22,18 @@ interface Address {
 }
 
 interface CustomerSummary { id: string; name?: string | null; phone?: string | null; email?: string | null }
+
+type CheckoutRequiredField = 'name' | 'phone' | 'governorate' | 'city' | 'address' | 'paymentReference';
+type CheckoutFieldErrors = Partial<Record<CheckoutRequiredField, string>>;
+
+const checkoutFieldLabels: Record<CheckoutRequiredField, string> = {
+  name: 'الاسم بالكامل',
+  phone: 'رقم الهاتف',
+  governorate: 'المحافظة',
+  city: 'المدينة / المركز',
+  address: 'العنوان بالتفصيل',
+  paymentReference: 'رقم عملية التحويل',
+};
 
 function AddressSelector({ selectedId, onSelectAddress, onAuthState }: { selectedId: string | null, onSelectAddress: (address: Address | null) => void, onAuthState: (authenticated: boolean) => void }) {
   const [addresses, setAddresses] = useState<Address[]>([]);
@@ -125,6 +138,8 @@ function CheckoutContent() {
     address: '',
     notes: '',
   });
+  const [fieldErrors, setFieldErrors] = useState<CheckoutFieldErrors>({});
+  const [paymentReference, setPaymentReference] = useState('');
 
   const [proofFile, setProofFile] = useState<File | null>(null);
   const [proofPreview, setProofPreview] = useState<string>('');
@@ -191,13 +206,14 @@ function CheckoutContent() {
       .then(data => {
         if (Array.isArray(data)) {
           setShippingZones(data);
-          if (data[0] && !selectedGovernorate) setSelectedGovernorate(data[0].governorate);
         }
       })
       .catch(() => {});
   }, [sp]);
 
   const handleSelectAddress = (addr: Address | null) => {
+    setFieldErrors({});
+    setMsg('');
     if (addr) {
       setSelectedAddressId(addr.id);
       setFormData({
@@ -209,26 +225,57 @@ function CheckoutContent() {
       });
       if (addr.governorate) {
         const matchedZone = shippingZones.find(
-          z => z.governorate.trim().toLowerCase() === addr.governorate.trim().toLowerCase()
+          z => normalizeShippingLocation(z.governorate) === normalizeShippingLocation(addr.governorate)
         );
         if (matchedZone) {
           setSelectedGovernorate(matchedZone.governorate);
-        } else if (shippingZones.length > 0) {
+        } else {
           setSelectedGovernorate(addr.governorate);
         }
       }
     } else {
       setSelectedAddressId(null);
+      setSelectedGovernorate('');
       setFormData({ name: customer?.name || '', phone: customer?.phone || '', city: '', address: '', notes: '' });
     }
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+  const clearFieldError = (field: CheckoutRequiredField) => {
+    setFieldErrors(current => {
+      if (!current[field]) return current;
+      const next = { ...current };
+      delete next[field];
+      return next;
+    });
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setFormData(current => ({ ...current, [name]: value }));
+    if (name in checkoutFieldLabels) clearFieldError(name as CheckoutRequiredField);
+    setMsg('');
   };
 
   const selected = methods.find(x => x.method === pay);
-  const currentZone = shippingZones.find(z => z.governorate.trim().toLowerCase() === selectedGovernorate.trim().toLowerCase());
+  const normalizedGovernorate = normalizeShippingLocation(selectedGovernorate);
+  const governorateZones = shippingZones.filter((zone: any) => normalizeShippingLocation(zone.governorate) === normalizedGovernorate);
+  const governorateOptions = Array.from(new Map(
+    shippingZones
+      .map((zone: any) => String(zone?.governorate || '').trim())
+      .filter(Boolean)
+      .map((governorate: string) => [normalizeShippingLocation(governorate), governorate] as const),
+  ).values());
+  const governorateFallback = governorateZones.find((zone: any) => zone.city === null);
+  const citySpecificZones = governorateZones.filter((zone: any) => zone.city !== null && normalizeShippingLocation(zone.city));
+  const cityOptions = Array.from(new Map(
+    citySpecificZones
+      .map((zone: any) => String(zone.city || '').trim())
+      .filter(Boolean)
+      .map((city: string) => [normalizeShippingLocation(city), city] as const),
+  ).values());
+  const requiresCitySelection = cityOptions.length > 0 && !governorateFallback;
+  const citySpecificZone = citySpecificZones.find((zone: any) => normalizeShippingLocation(zone.city) === normalizeShippingLocation(formData.city));
+  const currentZone = citySpecificZone || governorateFallback;
   const shippingCost = currentZone ? Number(currentZone.price) : 0;
   const subtotal = Number(pricing.subtotal || 0);
   const offerDiscount = Number(pricing.discount || 0);
@@ -239,13 +286,27 @@ function CheckoutContent() {
   const previewPayload = buildCheckoutPreviewPayload({
     items: c.map((item: any) => ({ productId: item.productId, variantId: item.variantId, quantity: item.quantity })),
     giftCardCode: coupon,
-    governorate: selectedGovernorate,
-    city: formData.city,
-    phone: formData.phone,
+    governorate: selectedGovernorate.trim(),
+    city: formData.city.trim(),
+    phone: formData.phone.trim(),
     giftWrap: giftWrapAvailable && giftWrapSelected,
   });
   const previewKey = JSON.stringify(previewPayload);
   const hasCartItems = c.length > 0;
+  const hasShippingLocation = Boolean(currentZone && formData.city.trim().length >= 2);
+  const phoneDigits = formData.phone.replace(/\D/g, '');
+  const deliveryFieldsComplete = formData.name.trim().length >= 2
+    && phoneDigits.length >= 10
+    && phoneDigits.length <= 15
+    && Boolean(currentZone)
+    && formData.city.trim().length >= 2
+    && formData.address.trim().length >= 5;
+  const paymentFieldsComplete = methods.length > 0
+    && Boolean(pay)
+    && (!selected?.proofRequired || (paymentReference.trim().length > 0 && Boolean(proofPreview)));
+  const pricingIsCurrent = !pricingLoading && pricingKey === previewKey;
+  const checkoutProgressStep = !deliveryFieldsComplete ? 1 : paymentFieldsComplete && pricingIsCurrent ? 3 : 2;
+  const checkoutProgressLabels = ['بيانات التوصيل', 'الدفع والشحن', 'مراجعة الطلب'];
 
   useEffect(() => {
     let cancelled = false;
@@ -257,7 +318,14 @@ function CheckoutContent() {
         setPricingMessage('');
         return;
       }
+      if (!hasShippingLocation) {
+        setPricingKey('');
+        setPricingLoading(false);
+        setPricingMessage('');
+        return;
+      }
       setPricingLoading(true);
+      setPricingMessage('');
       try {
         const res = await fetch('/api/checkout/preview', {
           method: 'POST',
@@ -284,11 +352,12 @@ function CheckoutContent() {
       }
     }, 250);
     return () => { cancelled = true; window.clearTimeout(timer); };
-  }, [hasCartItems, previewKey, pricingRefreshToken]);
+  }, [hasCartItems, hasShippingLocation, previewKey, pricingRefreshToken]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     setUploadError('');
+    setMsg('');
     if (!file) return;
 
     if (!file.type.startsWith('image/')) {
@@ -336,11 +405,49 @@ function CheckoutContent() {
     reader.readAsDataURL(file);
   };
 
-  async function submit(e: any) {
+  async function submit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    const formElement = e.currentTarget as HTMLFormElement;
-    const paymentReference = (formElement.elements.namedItem('paymentReference') as HTMLInputElement | null)?.value || undefined;
+    const formElement = e.currentTarget;
+    const submittedPaymentReference = paymentReference.trim();
     if (!c.length || !methods.length) return;
+
+    const nextErrors: CheckoutFieldErrors = {};
+    if (formData.name.trim().length < 2) nextErrors.name = 'أدخلي الاسم الكامل، بمقدار حرفين على الأقل.';
+    const submittedPhoneDigits = formData.phone.replace(/\D/g, '');
+    if (submittedPhoneDigits.length < 10 || submittedPhoneDigits.length > 15) {
+      nextErrors.phone = 'تحققي من رقم الهاتف؛ أدخلي من 10 إلى 15 رقمًا صالحًا للتواصل.';
+    }
+    if (!governorateZones.length) {
+      nextErrors.governorate = governorateOptions.length
+        ? 'اختاري المحافظة من القائمة لتحديد منطقة الشحن.'
+        : 'تعذر تحميل المحافظات المتاحة. أعيدي المحاولة قبل إتمام الطلب.';
+    }
+    if (formData.city.trim().length < 2) {
+      nextErrors.city = requiresCitySelection ? 'اختاري المدينة من قائمة مناطق التوصيل المتاحة.' : 'أدخلي اسم المدينة أو المركز، بمقدار حرفين على الأقل.';
+    } else if (governorateZones.length > 0 && !currentZone) {
+      nextErrors.city = 'لا توجد منطقة شحن مفعّلة لهذه المدينة. اختاري مدينة متاحة أو راجعي العنوان المحفوظ.';
+    }
+    if (formData.address.trim().length < 5) nextErrors.address = 'أدخلي عنوانًا تفصيليًا لا يقل عن 5 أحرف.';
+    if (selected?.proofRequired && !submittedPaymentReference) {
+      nextErrors.paymentReference = 'أدخلي رقم العملية أو مرجع التحويل.';
+    }
+
+    const fieldOrder: CheckoutRequiredField[] = ['name', 'phone', 'governorate', 'city', 'address', 'paymentReference'];
+    const firstInvalidField = fieldOrder.find(field => nextErrors[field]);
+    if (firstInvalidField) {
+      setFieldErrors(nextErrors);
+      const missingFields = fieldOrder.filter(field => nextErrors[field]).map(field => checkoutFieldLabels[field]);
+      setMsg(`لا يمكن إتمام الطلب قبل استكمال: ${missingFields.join('، ')}.`);
+      window.requestAnimationFrame(() => {
+        const firstInvalidControl = formElement.querySelector<HTMLElement>(`[name="${firstInvalidField}"]`);
+        firstInvalidControl?.focus({ preventScroll: true });
+        firstInvalidControl?.scrollIntoView({
+          behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
+          block: 'center',
+        });
+      });
+      return;
+    }
 
     if (pricingLoading || pricingKey !== previewKey) {
       setMsg('جارٍ تحديث ملخص الطلب. انتظري حتى تظهر الأسعار المحدثة قبل التأكيد.');
@@ -353,6 +460,10 @@ function CheckoutContent() {
     
     if (selected?.proofRequired && !proofPreview) {
       setMsg('يرجى رفع صورة إيصال التحويل لإتمام الطلب');
+      document.querySelector('.wahaj-proof-upload')?.scrollIntoView({
+        behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
+        block: 'center',
+      });
       return;
     }
 
@@ -406,17 +517,17 @@ function CheckoutContent() {
     }
 
     const checkoutIntent = {
-      name: formData.name,
-      phone: formData.phone,
-      governorate: selectedGovernorate,
-      city: formData.city,
-      address: formData.address,
-      notes: formData.notes,
+      name: formData.name.trim(),
+      phone: formData.phone.trim(),
+      governorate: selectedGovernorate.trim(),
+      city: formData.city.trim(),
+      address: formData.address.trim(),
+      notes: formData.notes.trim(),
       giftWrap: giftWrapAvailable && giftWrapSelected,
       addressId: selectedAddressId || undefined,
       paymentMethod: pay,
       giftCardCode: coupon.trim() || undefined,
-      paymentReference,
+      paymentReference: submittedPaymentReference || undefined,
       items: c.map(x => ({ productId: x.productId, variantId: x.variantId, quantity: x.quantity }))
     };
     const intentFingerprint = JSON.stringify(checkoutIntent);
@@ -493,6 +604,16 @@ function CheckoutContent() {
     }
   };
 
+  const goToCheckoutSection = (sectionId: string) => {
+    const target = document.getElementById(sectionId);
+    if (!target) return;
+    target.focus({ preventScroll: true });
+    target.scrollIntoView({
+      behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
+      block: 'start',
+    });
+  };
+
   return (
     <main className="wahaj-checkout-page" dir="rtl">
       <div className="wahaj-commerce-shell">
@@ -505,11 +626,35 @@ function CheckoutContent() {
           <Link href="/cart" className="wahaj-commerce-ghost"><ArrowRight size={16} /> العودة إلى السلة</Link>
         </header>
 
-        <nav className="wahaj-order-steps" aria-label="مراحل الطلب">
-          <Link href="/cart" className={cartLoaded && c.length === 0 ? 'is-active' : ''} aria-current={cartLoaded && c.length === 0 ? 'step' : undefined}><b>01</b><span>السلة</span></Link><i />
-          <div className={cartLoaded && c.length === 0 ? '' : 'is-active'}><b>02</b><span>الشحن والدفع</span></div><i />
-          <div><b>03</b><span>التأكيد</span></div>
-        </nav>
+        {cartLoaded && c.length > 0 && (
+          <nav className="wahaj-checkout-progress" aria-label="تقدم إتمام الطلب">
+            <p className="wahaj-checkout-progress__status" role="status" aria-live="polite">
+              الخطوة {checkoutProgressStep} من 3: <strong>{checkoutProgressLabels[checkoutProgressStep - 1]}</strong>
+            </p>
+            <div className="wahaj-checkout-progress__steps" role="list">
+              <div className={`wahaj-checkout-progress__step ${deliveryFieldsComplete ? 'is-complete' : checkoutProgressStep === 1 ? 'is-current' : 'is-upcoming'}`} role="listitem">
+                <button type="button" aria-controls="checkout-shipping" aria-current={checkoutProgressStep === 1 ? 'step' : undefined} onClick={() => goToCheckoutSection('checkout-shipping')}>
+                  <span className="wahaj-checkout-progress__number">{deliveryFieldsComplete ? <Check size={13} aria-hidden="true" /> : '01'}</span>
+                  <span>بيانات التوصيل</span>
+                </button>
+              </div>
+              <span className={`wahaj-checkout-progress__connector ${deliveryFieldsComplete ? 'is-complete' : ''}`} aria-hidden="true"><span /></span>
+              <div className={`wahaj-checkout-progress__step ${checkoutProgressStep === 2 ? 'is-current' : deliveryFieldsComplete && paymentFieldsComplete && pricingIsCurrent ? 'is-complete' : 'is-upcoming'}`} role="listitem">
+                <button type="button" aria-controls="checkout-payment" aria-current={checkoutProgressStep === 2 ? 'step' : undefined} onClick={() => goToCheckoutSection('checkout-payment')}>
+                  <span className="wahaj-checkout-progress__number">{deliveryFieldsComplete && paymentFieldsComplete && pricingIsCurrent ? <Check size={13} aria-hidden="true" /> : '02'}</span>
+                  <span>الدفع والشحن</span>
+                </button>
+              </div>
+              <span className={`wahaj-checkout-progress__connector ${checkoutProgressStep === 3 ? 'is-complete' : ''}`} aria-hidden="true"><span /></span>
+              <div className={`wahaj-checkout-progress__step ${checkoutProgressStep === 3 ? 'is-current' : 'is-upcoming'}`} role="listitem">
+                <button type="button" aria-controls="checkout-review" aria-current={checkoutProgressStep === 3 ? 'step' : undefined} onClick={() => goToCheckoutSection('checkout-review')}>
+                  <span className="wahaj-checkout-progress__number">03</span>
+                  <span>مراجعة الطلب</span>
+                </button>
+              </div>
+            </div>
+          </nav>
+        )}
 
         {!cartLoaded ? (
           <div className="wahaj-checkout-empty-card" role="status" aria-live="polite">جارٍ التحقق من سلتكِ...</div>
@@ -521,43 +666,43 @@ function CheckoutContent() {
             <p>أضيفي اختياراتكِ إلى السلة أولًا، ثم سنجهز لكِ خطوات الشحن والدفع.</p>
             <Link href="/shop" className="wahaj-commerce-primary"><ArrowRight size={17} /> اكتشفي المجموعة</Link>
           </div>
-        ) : <form onSubmit={submit} className="wahaj-checkout-layout">
+        ) : <form noValidate onSubmit={submit} className="wahaj-checkout-layout">
+          {msg && <p className="wahaj-checkout-error wahaj-checkout-form-alert" role="alert">{msg}</p>}
           <section className="wahaj-checkout-main">
-            <div className="wahaj-checkout-card">
+            <div id="checkout-shipping" tabIndex={-1} className="wahaj-checkout-card">
               <div className="wahaj-checkout-card__heading"><span className="wahaj-checkout-icon"><Truck size={19} /></span><div><span>التوصيل إلى بابكِ</span><h2>بيانات الشحن</h2></div><em>01</em></div>
               {customer ? <div className="checkout-member-strip"><span>مرحبًا {customer.name || 'بكِ'}، سيتم استخدام بيانات حسابكِ بأمان.</span><Link href="/account">إدارة الحساب</Link></div> : addressAuthState === false ? <div className="checkout-login-hint">سجّلي الدخول لعرض عناوينكِ المحفوظة تلقائيًا، أو أكملي كزائرة بإدخال عنوان جديد.</div> : null}
               <AddressSelector selectedId={selectedAddressId} onSelectAddress={handleSelectAddress} onAuthState={setAddressAuthState} />
               <div className="wahaj-form-grid">
-                <label>الاسم بالكامل<input name="name" required value={formData.name} onChange={handleInputChange} placeholder="أدخلي اسمكِ الثلاثي" /></label>
-                <label>رقم الهاتف<input name="phone" required readOnly={Boolean(customer?.phone)} value={formData.phone} onChange={handleInputChange} dir="ltr" placeholder="01xxxxxxxx" />{customer?.phone && <small>رقم الهاتف الأساسي لحسابكِ — غير قابل للتعديل من صفحة الطلب.</small>}</label>
-                <label>المحافظة<select name="governorate" required disabled={Boolean(selectedAddressId)} value={selectedGovernorate} onChange={event => setSelectedGovernorate(event.target.value)}>{shippingZones.map(zone => <option key={zone.id} value={zone.governorate}>{zone.governorate} ({Number(zone.price).toLocaleString('ar-EG')} ج.م)</option>)}</select></label>
-                <label>المدينة / المركز<input name="city" required readOnly={Boolean(selectedAddressId)} value={formData.city} onChange={handleInputChange} placeholder="اسم المدينة أو الحي" /></label>
+                <label htmlFor="checkout-name">الاسم بالكامل<input id="checkout-name" name="name" required autoComplete="name" maxLength={100} aria-invalid={fieldErrors.name ? 'true' : undefined} aria-describedby={fieldErrors.name ? 'checkout-name-error' : undefined} value={formData.name} onChange={handleInputChange} placeholder="أدخلي اسمكِ بالكامل" />{fieldErrors.name && <small id="checkout-name-error" className="wahaj-checkout-field-error">{fieldErrors.name}</small>}</label>
+                <label htmlFor="checkout-phone">رقم الهاتف<input id="checkout-phone" name="phone" type="tel" inputMode="tel" autoComplete="tel" required readOnly={Boolean(customer?.phone)} maxLength={30} aria-invalid={fieldErrors.phone ? 'true' : undefined} aria-describedby={fieldErrors.phone ? 'checkout-phone-error' : customer?.phone ? 'checkout-phone-hint' : undefined} value={formData.phone} onChange={handleInputChange} dir="ltr" placeholder="01xxxxxxxx" />{fieldErrors.phone && <small id="checkout-phone-error" className="wahaj-checkout-field-error">{fieldErrors.phone}</small>}{customer?.phone && <small id="checkout-phone-hint">رقم الهاتف الأساسي لحسابكِ — غير قابل للتعديل من صفحة الطلب.</small>}</label>
+                <label htmlFor="checkout-governorate">المحافظة<select id="checkout-governorate" name="governorate" autoComplete="address-level1" required disabled={Boolean(selectedAddressId)} aria-invalid={fieldErrors.governorate ? 'true' : undefined} aria-describedby={fieldErrors.governorate ? 'checkout-governorate-error' : undefined} value={selectedGovernorate} onChange={event => { setSelectedGovernorate(event.target.value); setFormData(current => ({ ...current, city: '' })); clearFieldError('governorate'); clearFieldError('city'); setMsg(''); }}><option value="">اختاري المحافظة</option>{governorateOptions.map(governorate => <option key={governorate} value={governorate}>{governorate}</option>)}</select>{fieldErrors.governorate && <small id="checkout-governorate-error" className="wahaj-checkout-field-error">{fieldErrors.governorate}</small>}</label>
+                <label htmlFor="checkout-city">المدينة / المركز{requiresCitySelection ? <select id="checkout-city" name="city" required disabled={Boolean(selectedAddressId)} autoComplete="address-level2" aria-invalid={fieldErrors.city ? 'true' : undefined} aria-describedby={`checkout-city-hint${fieldErrors.city ? ' checkout-city-error' : ''}`} value={formData.city} onChange={handleInputChange}><option value="">اختاري المدينة أو المركز</option>{cityOptions.map(city => <option key={normalizeShippingLocation(city)} value={city}>{city}</option>)}</select> : <><input id="checkout-city" name="city" required readOnly={Boolean(selectedAddressId)} autoComplete="address-level2" list={cityOptions.length ? 'checkout-city-options' : undefined} maxLength={100} aria-invalid={fieldErrors.city ? 'true' : undefined} aria-describedby={`checkout-city-hint${fieldErrors.city ? ' checkout-city-error' : ''}`} value={formData.city} onChange={handleInputChange} placeholder="مثال: المعادي" />{cityOptions.length > 0 && <datalist id="checkout-city-options">{cityOptions.map(city => <option key={normalizeShippingLocation(city)} value={city} />)}</datalist>}</>}<small id="checkout-city-hint" className="wahaj-checkout-field-hint">{requiresCitySelection ? 'اختاري مدينة مدرجة ضمن مناطق التوصيل.' : cityOptions.length > 0 ? 'اختاري مدينة مقترحة أو اكتبي مدينة أخرى ضمن المحافظة.' : 'اكتبي المدينة أو المركز بوضوح لسهولة تحديد العنوان.'}</small>{fieldErrors.city && <small id="checkout-city-error" className="wahaj-checkout-field-error">{fieldErrors.city}</small>}</label>
               </div>
-              <label className="wahaj-form-field">العنوان بالتفصيل<textarea name="address" required readOnly={Boolean(selectedAddressId)} rows={3} value={formData.address} onChange={handleInputChange} placeholder="اسم الشارع، رقم العمارة، رقم الشقة..." /></label>
+              <label htmlFor="checkout-address" className="wahaj-form-field">العنوان بالتفصيل<textarea id="checkout-address" name="address" required readOnly={Boolean(selectedAddressId)} autoComplete="street-address" maxLength={500} rows={3} aria-invalid={fieldErrors.address ? 'true' : undefined} aria-describedby={`checkout-address-hint${fieldErrors.address ? ' checkout-address-error' : ''}`} value={formData.address} onChange={handleInputChange} placeholder="اسم الشارع، رقم العمارة، الدور أو الشقة..." /><small id="checkout-address-hint" className="wahaj-checkout-field-hint">اذكري الشارع ورقم العقار والدور أو الشقة لتقليل صعوبة الوصول.</small>{fieldErrors.address && <small id="checkout-address-error" className="wahaj-checkout-field-error">{fieldErrors.address}</small>}</label>
               {giftWrapAvailable && <label className="mt-4 flex cursor-pointer items-start gap-3 rounded-2xl border border-(--gold)/30 bg-(--gold)/5 p-4"><input type="checkbox" checked={giftWrapSelected} onChange={event => { const enabled = event.target.checked; setGiftWrapSelected(enabled); try { localStorage.setItem('wahaj_gift_wrap', enabled ? 'true' : 'false'); } catch {} }} className="mt-1 accent-(--gold)" /><span className="grid gap-1"><b className="text-sm text-foreground">خدمة تغليف هدايا</b><small className="text-xs leading-5 text-muted-foreground">{giftWrapFee > 0 ? `رسوم الخدمة: ${giftWrapFee.toLocaleString('ar-EG')} ج.م` : 'خدمة تغليف هدايا مجانية'}. يمكنكِ اختيارها قبل تأكيد الطلب.</small></span></label>}
-              <div className="wahaj-form-grid wahaj-form-grid--secondary"><label>ملاحظات التوصيل <span>اختياري</span><input name="notes" value={formData.notes} onChange={handleInputChange} placeholder="أي ملاحظات خاصة بالتوصيل..." /></label><label>بطاقة هدية <span>اختياري</span><input value={coupon} onChange={event => setCoupon(event.target.value.toUpperCase())} placeholder="أدخلي رمز البطاقة" dir="ltr" /></label></div>
+              <div className="wahaj-form-grid wahaj-form-grid--secondary"><label>ملاحظات التوصيل <span>اختياري</span><input name="notes" maxLength={1000} value={formData.notes} onChange={handleInputChange} placeholder="أي ملاحظات خاصة بالتوصيل..." /></label><label>بطاقة هدية <span>اختياري</span><input value={coupon} onChange={event => setCoupon(event.target.value.toUpperCase())} placeholder="أدخلي رمز البطاقة" dir="ltr" /></label></div>
             </div>
 
-            <div className="wahaj-checkout-card">
+            <div id="checkout-payment" tabIndex={-1} className="wahaj-checkout-card">
               <div className="wahaj-checkout-card__heading"><span className="wahaj-checkout-icon"><CreditCard size={19} /></span><div><span>اختاري ما يناسبكِ</span><h2>طريقة الدفع</h2></div><em>02</em></div>
-              <fieldset className="wahaj-payment-list"><legend className="sr-only">طرق الدفع المتاحة</legend>{methods.map((method: any) => <label key={method.method} className={pay === method.method ? 'is-selected' : ''}><span className="wahaj-payment-radio"><input type="radio" name="payment" checked={pay === method.method} onChange={() => setPay(method.method)} /><i /></span><span className="wahaj-payment-icon">{getPaymentIcon(method.method)}</span><span className="wahaj-payment-copy"><b>{method.label}</b>{method.description && <small>{method.description}</small>}</span>{pay === method.method && <CheckCircle2 className="wahaj-payment-check" size={17} />}</label>)}</fieldset>
-              {selected && (selected.instructions || selected.accountNumber || selected.proofRequired) && <div className="wahaj-payment-instructions"><b>تعليمات الدفع الإلكتروني</b>{selected.accountName && <p>اسم الحساب: {selected.accountName}</p>}{selected.accountNumber && <p dir="ltr">{selected.accountNumber}</p>}{selected.instructions && <p>{selected.instructions}</p>}{selected.proofRequired && <div className="wahaj-proof-fields"><label>رقم عملية التحويل<input name="paymentReference" required dir="ltr" placeholder="رقم العملية أو المرجع" /></label><label className="wahaj-proof-upload">{proofFile ? <CheckCircle2 size={17} /> : <Upload size={17} />}<span>{proofFile ? proofFile.name : 'رفع صورة إيصال التحويل'}</span><small>JPG أو PNG — بحد أقصى 10 ميجابايت</small><input type="file" accept="image/jpeg,image/png,image/webp" onChange={handleFileChange} /></label>{uploadError && <p className="wahaj-upload-error">{uploadError}</p>}{proofPreview && <img src={proofPreview} alt="معاينة إيصال التحويل" className="wahaj-proof-preview" />}</div>}</div>}
-              {msg && <p className="wahaj-checkout-error" role="alert">{msg}</p>}
+              <fieldset className="wahaj-payment-list"><legend className="sr-only">طرق الدفع المتاحة</legend>{methods.map((method: any) => <label key={method.method} className={pay === method.method ? 'is-selected' : ''}><span className="wahaj-payment-radio"><input type="radio" name="payment" checked={pay === method.method} onChange={() => { setPay(method.method); clearFieldError('paymentReference'); setMsg(''); }} /><i /></span><span className="wahaj-payment-icon">{getPaymentIcon(method.method)}</span><span className="wahaj-payment-copy"><b>{method.label}</b>{method.description && <small>{method.description}</small>}</span>{pay === method.method && <CheckCircle2 className="wahaj-payment-check" size={17} />}</label>)}</fieldset>
+              {selected && (selected.instructions || selected.accountNumber || selected.proofRequired) && <div className="wahaj-payment-instructions"><b>تعليمات الدفع الإلكتروني</b>{selected.accountName && <p>اسم الحساب: {selected.accountName}</p>}{selected.accountNumber && <p dir="ltr">{selected.accountNumber}</p>}{selected.instructions && <p>{selected.instructions}</p>}{selected.proofRequired && <div className="wahaj-proof-fields"><label htmlFor="checkout-payment-reference">رقم عملية التحويل<input id="checkout-payment-reference" name="paymentReference" required maxLength={100} autoComplete="off" aria-invalid={fieldErrors.paymentReference ? 'true' : undefined} aria-describedby={fieldErrors.paymentReference ? 'checkout-payment-reference-error' : undefined} value={paymentReference} onChange={event => { setPaymentReference(event.target.value); clearFieldError('paymentReference'); setMsg(''); }} dir="ltr" placeholder="رقم العملية أو المرجع" />{fieldErrors.paymentReference && <small id="checkout-payment-reference-error" className="wahaj-checkout-field-error">{fieldErrors.paymentReference}</small>}</label><label className="wahaj-proof-upload">{proofFile ? <CheckCircle2 size={17} /> : <Upload size={17} />}<span>{proofFile ? proofFile.name : 'رفع صورة إيصال التحويل'}</span><small>JPG أو PNG — بحد أقصى 10 ميجابايت</small><input type="file" accept="image/jpeg,image/png,image/webp" onChange={handleFileChange} /></label>{uploadError && <p className="wahaj-upload-error">{uploadError}</p>}{proofPreview && <img src={proofPreview} alt="معاينة إيصال التحويل" className="wahaj-proof-preview" />}</div>}</div>}
             </div>
           </section>
 
-          <aside className="wahaj-checkout-summary">
+          <aside id="checkout-review" tabIndex={-1} className="wahaj-checkout-summary">
             <div className="wahaj-cart-summary__label">مراجعة نهائية</div><h2>ملخص طلبكِ</h2>
             <div className="wahaj-checkout-items">{c.map((item: any, index: number) => <div key={`${item.productId}:${item.variantId || index}`}><span><b>{item.quantity}×</b> {item.name}</span><strong>{(Number(item.price) * Number(item.quantity)).toLocaleString('ar-EG')} ج.م</strong></div>)}</div>
-            <div className="wahaj-summary-lines"><div><span>الإجمالي المبدئي</span><b>{subtotal.toLocaleString('ar-EG')} ج.م</b></div>{offerDiscount > 0 && <div className="is-discount"><span>خصم العروض</span><b>−{offerDiscount.toLocaleString('ar-EG')} ج.م</b></div>}{giftCardAmount > 0 && <div className="is-discount"><span>خصم بطاقة الهدية</span><b>−{giftCardAmount.toLocaleString('ar-EG')} ج.م</b></div>}<div><span>الشحن</span><b>{pricing.freeShipping ? <span className="is-gold">مجانًا</span> : `${finalShipping.toLocaleString('ar-EG')} ج.م`}</b></div>{giftWrapAvailable && giftWrapSelected && <div><span>خدمة تغليف هدايا</span><b>{appliedGiftWrapFee.toLocaleString('ar-EG')} ج.م</b></div>}</div>
-            {pricing.freeShipping && <p className="wahaj-shipping-free-note"><Check size={14} /> تم خصم رسوم الشحن من إجمالي طلبكِ؛ الشحن مجاني.</p>}
+            <div className="wahaj-summary-lines"><div><span>الإجمالي المبدئي</span><b>{pricingIsCurrent ? `${subtotal.toLocaleString('ar-EG')} ج.م` : '—'}</b></div>{pricingIsCurrent && offerDiscount > 0 && <div className="is-discount"><span>خصم العروض</span><b>−{offerDiscount.toLocaleString('ar-EG')} ج.م</b></div>}{pricingIsCurrent && giftCardAmount > 0 && <div className="is-discount"><span>خصم بطاقة الهدية</span><b>−{giftCardAmount.toLocaleString('ar-EG')} ج.م</b></div>}<div><span>الشحن</span><b>{!pricingIsCurrent ? '—' : pricing.freeShipping ? <span className="is-gold">مجانًا</span> : `${finalShipping.toLocaleString('ar-EG')} ج.م`}</b></div>{pricingIsCurrent && giftWrapAvailable && giftWrapSelected && <div><span>خدمة تغليف هدايا</span><b>{appliedGiftWrapFee.toLocaleString('ar-EG')} ج.م</b></div>}</div>
+            {pricingIsCurrent && pricing.freeShipping && <p className="wahaj-shipping-free-note"><Check size={14} /> تم خصم رسوم الشحن من إجمالي طلبكِ؛ الشحن مجاني.</p>}
             {priceConfirmationRequired && <div className="wahaj-pricing-note" role="alert">تحدّث إجمالي الطلب. راجعي المبلغ المعروض ثم اضغطي «تأكيد وإتمام الطلب» مرة أخرى للموافقة عليه.</div>}
-            {pricingKey !== previewKey && <div className="wahaj-pricing-note" role="status" aria-live="polite">{pricingLoading ? 'جارٍ تحديث إجمالي الطلب…' : 'ملخص الأسعار يحتاج إلى تحديث قبل التأكيد.'}</div>}
+            {pricingKey !== previewKey && !pricingMessage && <div className="wahaj-pricing-note" role="status" aria-live="polite">{pricingLoading ? 'جارٍ تحديث إجمالي الطلب…' : !hasShippingLocation ? 'اختاري المحافظة وأدخلي المدينة لعرض تكلفة الشحن والإجمالي.' : 'ملخص الأسعار يحتاج إلى تحديث قبل التأكيد.'}</div>}
             {pricingMessage && <div className="wahaj-pricing-note" role={pricingKey ? 'status' : 'alert'}>{pricingMessage}{!pricingKey && <button type="button" className="ms-2 underline underline-offset-2" onClick={() => setPricingRefreshToken(value => value + 1)}>إعادة المحاولة</button>}</div>}
-            <div className="wahaj-summary-total"><span>الإجمالي النهائي {pricingLoading ? '…' : ''}</span><strong>{finalTotal.toLocaleString('ar-EG')} ج.م</strong></div>
-            <button aria-label={busy ? 'جارٍ إرسال الطلب' : 'تأكيد وإتمام الطلب'} disabled={busy || !c.length || !methods.length || pricingLoading || pricingKey !== previewKey || Boolean(pricing.giftCardError)} className="wahaj-commerce-primary wahaj-checkout-submit wahaj-mobile-conversion-cta">
+            <div className="wahaj-summary-total"><span>الإجمالي النهائي {pricingLoading ? '…' : ''}</span><strong>{pricingIsCurrent ? `${finalTotal.toLocaleString('ar-EG')} ج.م` : '—'}</strong></div>
+            <button aria-label={busy ? 'جارٍ إرسال الطلب' : 'تأكيد وإتمام الطلب'} disabled={busy || !c.length || !methods.length || (deliveryFieldsComplete && !pricingIsCurrent) || (pricingIsCurrent && Boolean(pricing.giftCardError))} className="wahaj-commerce-primary wahaj-checkout-submit wahaj-mobile-conversion-cta">
               <span className="wahaj-checkout-submit__label">{busy ? 'جارٍ إرسال الطلب...' : 'تأكيد وإتمام الطلب'}</span>
-              <span className="wahaj-checkout-submit__amount" aria-live="polite"><small>الإجمالي النهائي</small><strong>{finalTotal.toLocaleString('ar-EG')} ج.م</strong></span>
+              <span className="wahaj-checkout-submit__amount" aria-live="polite"><small>الإجمالي النهائي</small><strong>{pricingIsCurrent ? `${finalTotal.toLocaleString('ar-EG')} ج.م` : '—'}</strong></span>
               <CheckCircle2 size={18} aria-hidden="true" />
             </button>
             <p className="wahaj-summary-note"><ShieldCheck size={14} /> بياناتكِ وطلبكِ محميان بعناية</p>
