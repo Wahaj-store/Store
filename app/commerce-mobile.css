@@ -276,6 +276,7 @@
 .wahaj-checkout-progress--unified {
   position: relative;
   display: grid;
+  justify-items: center;
   gap: 17px;
   margin: 0 0 24px;
   padding: 18px 20px 16px;
@@ -298,54 +299,12 @@
   content: '';
 }
 
-.wahaj-checkout-progress--unified .wahaj-checkout-progress__header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 14px;
-}
-
-.wahaj-checkout-progress--unified .wahaj-checkout-progress__identity {
-  display: flex;
-  min-width: 0;
-  align-items: center;
-  gap: 10px;
-}
-
-.wahaj-checkout-progress--unified .wahaj-checkout-progress__emblem {
-  display: grid;
-  width: 34px;
-  height: 34px;
-  flex: 0 0 34px;
-  place-items: center;
-  border: 1px solid color-mix(in srgb, var(--gold) 32%, var(--border));
-  border-radius: 11px;
-  background: color-mix(in srgb, var(--gold) 10%, var(--card));
-  color: var(--gold-muted);
-}
-
-.wahaj-checkout-progress--unified .wahaj-checkout-progress__identity-copy {
-  display: grid;
-  gap: 2px;
-  min-width: 0;
-}
-
-.wahaj-checkout-progress--unified .wahaj-checkout-progress__identity-copy strong {
-  color: var(--foreground);
-  font-size: 12px;
-  font-weight: 900;
-}
-
-.wahaj-checkout-progress--unified .wahaj-checkout-progress__identity-copy small {
-  color: var(--muted-foreground);
-  font-size: 9px;
-  line-height: 1.5;
-}
-
 .wahaj-checkout-progress--unified .wahaj-checkout-progress__status {
   display: flex;
+  justify-self: center;
   min-width: 0;
   align-items: center;
+  justify-content: center;
   gap: 6px;
   margin: 0;
   padding: 7px 11px;
@@ -386,6 +345,9 @@
 
 .wahaj-checkout-progress--unified .wahaj-checkout-progress__steps {
   display: grid;
+  justify-self: center;
+  width: 100%;
+  max-width: 900px;
   grid-template-columns: minmax(0, 1fr) 56px minmax(0, 1fr) 56px minmax(0, 1fr);
   align-items: center;
   gap: 0;
@@ -400,6 +362,7 @@
   width: 100%;
   min-height: 58px;
   align-items: center;
+  justify-content: center;
   gap: 10px;
   padding: 8px 10px;
   border: 1px solid transparent;
@@ -407,7 +370,7 @@
   background: transparent;
   color: var(--muted-foreground);
   font: inherit;
-  text-align: start;
+  text-align: center;
   text-decoration: none;
   transition: border-color .18s ease, background-color .18s ease, color .18s ease, transform .18s ease;
 }
@@ -442,6 +405,7 @@
 
 .wahaj-checkout-progress--unified .wahaj-checkout-progress__copy {
   display: grid;
+  justify-items: center;
   min-width: 0;
   gap: 3px;
 }
@@ -520,27 +484,6 @@
     margin-bottom: 18px;
     padding: 13px 11px 11px;
     border-radius: 17px;
-  }
-
-  .wahaj-checkout-progress--unified .wahaj-checkout-progress__header {
-    align-items: flex-start;
-    flex-direction: column;
-    gap: 9px;
-  }
-
-  .wahaj-checkout-progress--unified .wahaj-checkout-progress__emblem {
-    width: 30px;
-    height: 30px;
-    flex-basis: 30px;
-    border-radius: 10px;
-  }
-
-  .wahaj-checkout-progress--unified .wahaj-checkout-progress__identity-copy strong {
-    font-size: 11px;
-  }
-
-  .wahaj-checkout-progress--unified .wahaj-checkout-progress__identity-copy small {
-    font-size: 9px;
   }
 
   .wahaj-checkout-progress--unified .wahaj-checkout-progress__status {

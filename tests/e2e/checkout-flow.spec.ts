@@ -73,6 +73,11 @@ test('checkout completes with the freshly verified expected total', async ({ pag
   });
 
   await prepareCheckout(page);
+  const progress = page.locator('.wahaj-checkout-progress');
+  await expect(progress.getByText('رحلة الطلب')).toHaveCount(0);
+  await expect(progress.getByText('خطوات واضحة وتجربة شراء آمنة')).toHaveCount(0);
+  await expect(progress.locator('.wahaj-checkout-progress__status')).toHaveCSS('justify-self', 'center');
+  await expect(progress.locator('.wahaj-checkout-progress__steps')).toHaveCSS('justify-self', 'center');
   await expect(page.locator('.wahaj-checkout-progress__status')).toContainText('الخطوة 2 من 3');
   await page.getByRole('button', { name: /مراجعة الطلب/ }).click();
   await expect(page).toHaveURL(/\/checkout$/);
@@ -154,6 +159,8 @@ test('mobile cart keeps the shipping step reachable across narrow screens', asyn
   const progress = page.locator('.wahaj-checkout-progress');
   await expect(page.getByRole('heading', { name: 'سلة المشتريات' })).toBeVisible();
   await expect(progress).toBeVisible();
+  await expect(progress.getByText('رحلة الطلب')).toHaveCount(0);
+  await expect(progress.getByText('خطوات واضحة وتجربة شراء آمنة')).toHaveCount(0);
   await expect(progress.locator('[aria-current="step"]')).toContainText('سلة المشتريات');
   await expect(progress.getByRole('link', { name: /التوصيل والدفع/ })).toHaveAttribute('href', '/checkout');
   await expect(cta).toHaveCSS('position', 'fixed');

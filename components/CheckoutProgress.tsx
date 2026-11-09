@@ -2,7 +2,7 @@
 
 import { Fragment } from 'react';
 import Link from 'next/link';
-import { Check, ShieldCheck } from 'lucide-react';
+import { Check } from 'lucide-react';
 
 type StepTarget = string | (() => void);
 
@@ -27,22 +27,13 @@ export default function CheckoutProgress({
 
   return (
     <nav className="wahaj-checkout-progress wahaj-checkout-progress--unified" aria-label="مراحل إتمام الطلب">
-      <div className="wahaj-checkout-progress__header">
-        <div className="wahaj-checkout-progress__identity">
-          <span className="wahaj-checkout-progress__emblem" aria-hidden="true"><ShieldCheck size={17} strokeWidth={1.8} /></span>
-          <span className="wahaj-checkout-progress__identity-copy">
-            <strong>رحلة الطلب</strong>
-            <small>خطوات واضحة وتجربة شراء آمنة</small>
-          </span>
-        </div>
-        <p className="wahaj-checkout-progress__status" role="status" aria-live="polite">
-          <span>الخطوة</span>{' '}
-          <strong className="wahaj-checkout-progress__status-number">{activeStep.number}</strong>
-          {' '}<span>من {steps.length}</span>{' '}
-          <i aria-hidden="true">·</i>{' '}
-          <b>{activeStep.title}</b>
-        </p>
-      </div>
+      <p className="wahaj-checkout-progress__status" role="status" aria-live="polite">
+        <span>الخطوة</span>{' '}
+        <strong className="wahaj-checkout-progress__status-number">{activeStep.number}</strong>
+        {' '}<span>من {steps.length}</span>{' '}
+        <i aria-hidden="true">·</i>{' '}
+        <b>{activeStep.title}</b>
+      </p>
 
       <div className="wahaj-checkout-progress__steps" role="list">
         {steps.map((step, index) => {
