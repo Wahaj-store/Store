@@ -19,7 +19,7 @@
     "test:e2e:install": "playwright install chromium"
   },
   "dependencies": {
-    "@prisma/client": "5.22.0",
+    "@prisma/client": "7.10.1",
     "@vercel/blob": "2.8.2",
     "jose": "6.2.14",
     "lucide-react": "^1.66.0",
