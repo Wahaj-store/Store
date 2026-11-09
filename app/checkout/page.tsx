@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { Truck, CreditCard, ShieldCheck, ArrowRight, Upload, Check, CheckCircle2, Sparkles, ShoppingBag } from 'lucide-react';
 import { buildCheckoutPreviewPayload, checkoutTotalsMatch } from '@/lib/checkout-preview-client';
 import { normalizeShippingLocation } from '@/lib/shipping-location';
+import CheckoutProgress from '@/components/CheckoutProgress';
 
 interface Address {
   id: string;
@@ -305,8 +306,7 @@ function CheckoutContent() {
     && Boolean(pay)
     && (!selected?.proofRequired || (paymentReference.trim().length > 0 && Boolean(proofPreview)));
   const pricingIsCurrent = !pricingLoading && pricingKey === previewKey;
-  const checkoutProgressStep = !deliveryFieldsComplete ? 1 : paymentFieldsComplete && pricingIsCurrent ? 3 : 2;
-  const checkoutProgressLabels = ['بيانات التوصيل', 'الدفع والشحن', 'مراجعة الطلب'];
+  const checkoutProgressStep = deliveryFieldsComplete && paymentFieldsComplete && pricingIsCurrent ? 3 : 2;
 
   useEffect(() => {
     let cancelled = false;
@@ -627,33 +627,14 @@ function CheckoutContent() {
         </header>
 
         {cartLoaded && c.length > 0 && (
-          <nav className="wahaj-checkout-progress" aria-label="تقدم إتمام الطلب">
-            <p className="wahaj-checkout-progress__status" role="status" aria-live="polite">
-              الخطوة {checkoutProgressStep} من 3: <strong>{checkoutProgressLabels[checkoutProgressStep - 1]}</strong>
-            </p>
-            <div className="wahaj-checkout-progress__steps" role="list">
-              <div className={`wahaj-checkout-progress__step ${deliveryFieldsComplete ? 'is-complete' : checkoutProgressStep === 1 ? 'is-current' : 'is-upcoming'}`} role="listitem">
-                <button type="button" aria-controls="checkout-shipping" aria-current={checkoutProgressStep === 1 ? 'step' : undefined} onClick={() => goToCheckoutSection('checkout-shipping')}>
-                  <span className="wahaj-checkout-progress__number">{deliveryFieldsComplete ? <Check size={13} aria-hidden="true" /> : '01'}</span>
-                  <span>بيانات التوصيل</span>
-                </button>
-              </div>
-              <span className={`wahaj-checkout-progress__connector ${deliveryFieldsComplete ? 'is-complete' : ''}`} aria-hidden="true"><span /></span>
-              <div className={`wahaj-checkout-progress__step ${checkoutProgressStep === 2 ? 'is-current' : deliveryFieldsComplete && paymentFieldsComplete && pricingIsCurrent ? 'is-complete' : 'is-upcoming'}`} role="listitem">
-                <button type="button" aria-controls="checkout-payment" aria-current={checkoutProgressStep === 2 ? 'step' : undefined} onClick={() => goToCheckoutSection('checkout-payment')}>
-                  <span className="wahaj-checkout-progress__number">{deliveryFieldsComplete && paymentFieldsComplete && pricingIsCurrent ? <Check size={13} aria-hidden="true" /> : '02'}</span>
-                  <span>الدفع والشحن</span>
-                </button>
-              </div>
-              <span className={`wahaj-checkout-progress__connector ${checkoutProgressStep === 3 ? 'is-complete' : ''}`} aria-hidden="true"><span /></span>
-              <div className={`wahaj-checkout-progress__step ${checkoutProgressStep === 3 ? 'is-current' : 'is-upcoming'}`} role="listitem">
-                <button type="button" aria-controls="checkout-review" aria-current={checkoutProgressStep === 3 ? 'step' : undefined} onClick={() => goToCheckoutSection('checkout-review')}>
-                  <span className="wahaj-checkout-progress__number">03</span>
-                  <span>مراجعة الطلب</span>
-                </button>
-              </div>
-            </div>
-          </nav>
+          <CheckoutProgress
+            currentStep={checkoutProgressStep}
+            completedSteps={checkoutProgressStep === 3 ? [1, 2] : [1]}
+            stepTargets={{
+              2: () => goToCheckoutSection('checkout-payment'),
+              3: () => goToCheckoutSection('checkout-review'),
+            }}
+          />
         )}
 
         {!cartLoaded ? (

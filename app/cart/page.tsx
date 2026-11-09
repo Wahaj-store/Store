@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { ArrowLeft, ArrowRight, Check, Minus, Plus, ShieldCheck, ShoppingBag, Sparkles, Trash2, Truck } from 'lucide-react';
 import { useFeatureFlags } from '@/lib/use-feature-flags';
+import CheckoutProgress from '@/components/CheckoutProgress';
 
 type CartItem = {
   productId: string;
@@ -124,13 +125,11 @@ export default function Cart() {
           <Link href="/shop" className="wahaj-commerce-ghost"><ArrowRight size={16} /> متابعة التسوق</Link>
         </header>
 
-        <nav className="wahaj-order-steps" aria-label="مراحل الطلب">
-          <div className="is-active"><b>01</b><span>السلة</span></div>
-          <i />
-          <div><b>02</b><span>الشحن والدفع</span></div>
-          <i />
-          <div><b>03</b><span>التأكيد</span></div>
-        </nav>
+        <CheckoutProgress
+          currentStep={1}
+          completedSteps={[]}
+          stepTargets={{ 2: coupon ? `/checkout?coupon=${encodeURIComponent(coupon)}` : '/checkout' }}
+        />
 
         <div className="wahaj-cart-layout wahaj-cart-layout--summary">
           <aside className="wahaj-cart-summary" aria-label="ملخص الطلب">

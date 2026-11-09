@@ -73,12 +73,12 @@ test('checkout completes with the freshly verified expected total', async ({ pag
   });
 
   await prepareCheckout(page);
-  await expect(page.locator('.wahaj-checkout-progress__status')).toContainText('الخطوة 1 من 3');
+  await expect(page.locator('.wahaj-checkout-progress__status')).toContainText('الخطوة 2 من 3');
   await page.getByRole('button', { name: /مراجعة الطلب/ }).click();
   await expect(page).toHaveURL(/\/checkout$/);
   await fillCheckoutDetails(page);
   await expect(page.locator('.wahaj-checkout-progress__status')).toContainText('الخطوة 3 من 3');
-  await expect(page.locator('.wahaj-checkout-progress__step button[aria-current="step"]')).toContainText('مراجعة الطلب');
+  await expect(page.locator('.wahaj-checkout-progress [aria-current="step"]')).toContainText('مراجعة الطلب');
   const submitButton = page.getByRole('button', { name: 'تأكيد وإتمام الطلب' });
   await expect(submitButton).toBeEnabled();
   await expect(submitButton.locator('.wahaj-checkout-submit__amount')).toHaveCSS('display', 'none');
@@ -151,7 +151,11 @@ test('mobile cart keeps the shipping step reachable across narrow screens', asyn
 
   await page.goto('/cart');
   const cta = page.locator('.wahaj-cart-summary__cta');
+  const progress = page.locator('.wahaj-checkout-progress');
   await expect(page.getByRole('heading', { name: 'سلة المشتريات' })).toBeVisible();
+  await expect(progress).toBeVisible();
+  await expect(progress.locator('[aria-current="step"]')).toContainText('سلة المشتريات');
+  await expect(progress.getByRole('link', { name: /التوصيل والدفع/ })).toHaveAttribute('href', '/checkout');
   await expect(cta).toHaveCSS('position', 'fixed');
   await expect(cta).toBeVisible();
   await expect(page.locator('.wahaj-mobile-bottom-nav')).toBeHidden();
@@ -159,6 +163,11 @@ test('mobile cart keeps the shipping step reachable across narrow screens', asyn
 
   for (const width of [320, 360, 390, 430]) {
     await page.setViewportSize({ width, height: 844 });
+    const progressBox = await progress.boundingBox();
+    expect(progressBox).not.toBeNull();
+    expect(progressBox!.x).toBeGreaterThanOrEqual(0);
+    expect(progressBox!.x + progressBox!.width).toBeLessThanOrEqual(width + 1);
+    expect(await progress.evaluate(element => element.scrollWidth <= element.clientWidth)).toBe(true);
     const box = await cta.boundingBox();
     expect(box).not.toBeNull();
     expect(box!.x).toBeGreaterThanOrEqual(0);
