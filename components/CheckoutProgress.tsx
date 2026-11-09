@@ -13,9 +13,9 @@ type CheckoutProgressProps = {
 };
 
 const steps = [
-  { number: 1, title: 'سلة المشتريات', detail: 'اختياراتكِ' },
-  { number: 2, title: 'التوصيل والدفع', detail: 'العنوان وطريقة الدفع' },
-  { number: 3, title: 'مراجعة الطلب', detail: 'الإجمالي قبل التأكيد' },
+  { number: 1, title: 'السلة', detail: 'مراجعة اختياراتكِ' },
+  { number: 2, title: 'الشحن والدفع', detail: 'العنوان وطريقة الدفع' },
+  { number: 3, title: 'تأكيد الطلب', detail: 'تم استلام الطلب' },
 ] as const;
 
 export default function CheckoutProgress({

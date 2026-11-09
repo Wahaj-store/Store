@@ -3,6 +3,7 @@
 import { useState, use } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, Check, CheckCircle2, Copy, Home, PackageCheck, ShieldCheck, ShoppingBag, Sparkles, Truck } from 'lucide-react';
+import CheckoutProgress from '@/components/CheckoutProgress';
 
 export default function Success(props: { searchParams: Promise<{ order?: string }> }) {
   const searchParams = use(props.searchParams);
@@ -31,11 +32,7 @@ export default function Success(props: { searchParams: Promise<{ order?: string 
           <Link href="/" className="wahaj-commerce-ghost"><Home size={16} /> العودة للرئيسية</Link>
         </header>
 
-        <nav className="wahaj-order-steps wahaj-success-steps" aria-label="مراحل الطلب">
-          <div className="is-complete"><b><Check size={13} /></b><span>السلة</span></div><i className="is-complete" />
-          <div className="is-complete"><b><Check size={13} /></b><span>الشحن والدفع</span></div><i className="is-complete" />
-          <div className="is-active"><b>03</b><span>التأكيد</span></div>
-        </nav>
+        <CheckoutProgress currentStep={3} completedSteps={[1, 2]} />
 
         <section className="wahaj-success-layout">
           <div className="wahaj-success-main">

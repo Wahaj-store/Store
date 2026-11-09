@@ -413,7 +413,7 @@
 .wahaj-checkout-progress--unified .wahaj-checkout-progress__copy strong {
   overflow: hidden;
   color: inherit;
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 850;
   line-height: 1.45;
   text-overflow: ellipsis;
@@ -423,7 +423,7 @@
 .wahaj-checkout-progress--unified .wahaj-checkout-progress__copy small {
   overflow: hidden;
   color: var(--muted-foreground);
-  font-size: 9px;
+  font-size: 10px;
   line-height: 1.45;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -527,7 +527,7 @@
   .wahaj-checkout-progress--unified .wahaj-checkout-progress__copy strong {
     min-height: 2.7em;
     overflow: visible;
-    font-size: 10px;
+    font-size: 11px;
     line-height: 1.35;
     text-overflow: clip;
     white-space: normal;
