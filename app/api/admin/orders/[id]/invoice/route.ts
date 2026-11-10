@@ -79,9 +79,10 @@ function paymentTone(status: string) {
   return 'muted';
 }
 
-export async function GET(_: Request, { params }: { params: Promise<{ id: string }> }) {
+export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const user = await requireUser(['OWNER', 'ADMIN', 'MANAGER', 'ORDER_MANAGER', 'VIEWER']);
   if (!user) return new NextResponse('غير مصرح', { status: 403 });
+  const cspNonce = req.headers.get('x-csp-nonce') || '';
 
   try {
     const { id } = await params;
@@ -458,7 +459,7 @@ export async function GET(_: Request, { params }: { params: Promise<{ id: string
       <footer class="invoice__footer"><div class="thank-you">شكرًا لاختيارك وَهَج<span>نتمنى أن تستمتعي بتجربتك معنا.</span></div><div class="footer-mark"><span class="footer-mark__line"></span><span>Wahaj Store · فاتورة إلكترونية</span></div></footer>
     </div>
   </main>
-  <script>
+  <script nonce="${cspNonce}">
     (function () {
       var toggle = document.getElementById('gift-wrap-note-toggle');
       var paidRow = document.getElementById('gift-wrap-paid-row');

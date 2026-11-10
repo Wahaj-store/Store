@@ -61,8 +61,8 @@ export async function POST(req: Request) {
     const clientKey = getClientKey(req);
     const loginKey = loginRateKey(req, body.email || body.phone || '');
     const limit = body.action === 'login'
-      ? await checkRateLimit(loginKey, LOGIN_LIMIT, LOGIN_WINDOW_MS)
-      : await rateLimit(`customer-auth:register:${clientKey}`, 5, LOGIN_WINDOW_MS);
+      ? await checkRateLimit(loginKey, LOGIN_LIMIT, LOGIN_WINDOW_MS, { requireDistributedStore: true })
+      : await rateLimit(`customer-auth:register:${clientKey}`, 5, LOGIN_WINDOW_MS, { requireDistributedStore: true });
     if (!limit.ok) {
       const retryAfter = Math.max(1, Math.ceil((limit.reset - Date.now()) / 1000));
       return NextResponse.json(
@@ -89,7 +89,7 @@ export async function POST(req: Request) {
         : await customerLogin(body.email || body.phone || '', body.password, Boolean(body.rememberMe));
     } catch (error) {
       if (body.action === 'login') {
-        await rateLimit(loginKey, LOGIN_LIMIT, LOGIN_WINDOW_MS);
+        await rateLimit(loginKey, LOGIN_LIMIT, LOGIN_WINDOW_MS, { requireDistributedStore: true });
       }
       throw error;
     }

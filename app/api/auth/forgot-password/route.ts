@@ -38,8 +38,8 @@ export async function POST(req: Request) {
     }
 
     const clientKey = getClientKey(req);
-    const ipLimit = await rateLimit(`forgot-password:ip:${clientKey}`, 5, RATE_WINDOW_MS);
-    const emailLimit = await rateLimit(`forgot-password:email:${hashIdentifier(email)}`, 3, RATE_WINDOW_MS);
+    const ipLimit = await rateLimit(`forgot-password:ip:${clientKey}`, 5, RATE_WINDOW_MS, { requireDistributedStore: true });
+    const emailLimit = await rateLimit(`forgot-password:email:${hashIdentifier(email)}`, 3, RATE_WINDOW_MS, { requireDistributedStore: true });
 
     if (!ipLimit.ok || !emailLimit.ok) {
       return NextResponse.json(

@@ -42,6 +42,7 @@ export async function POST(req: Request) {
       `admin-login:ip:${getClientKey(req)}`,
       IP_LIMIT,
       IP_WINDOW_MS,
+      { requireDistributedStore: true },
     );
     if (!ipLimit.ok) return tooManyAttempts(ipLimit.reset);
 
@@ -62,6 +63,7 @@ export async function POST(req: Request) {
       accountKey,
       ACCOUNT_FAILURE_LIMIT,
       ACCOUNT_WINDOW_MS,
+      { requireDistributedStore: true },
     );
     if (!accountStatus.ok) return tooManyAttempts(accountStatus.reset);
 
@@ -77,6 +79,7 @@ export async function POST(req: Request) {
         accountKey,
         ACCOUNT_FAILURE_LIMIT,
         ACCOUNT_WINDOW_MS,
+        { requireDistributedStore: true },
       );
 
       if (!failedAttempt.ok) return tooManyAttempts(failedAttempt.reset);

@@ -32,8 +32,8 @@ export async function POST(req: Request) {
 
     // حماية من تخمين الـOTP: 5 محاولات لكل IP + بريد خلال 10 دقائق.
     const clientKey = getClientKey(req);
-    const ipLimit = await rateLimit(`reset-password:ip:${clientKey}`, 10, OTP_RATE_WINDOW_MS);
-    const emailLimit = await rateLimit(`reset-password:email:${hashIdentifier(email)}`, 5, OTP_RATE_WINDOW_MS);
+    const ipLimit = await rateLimit(`reset-password:ip:${clientKey}`, 10, OTP_RATE_WINDOW_MS, { requireDistributedStore: true });
+    const emailLimit = await rateLimit(`reset-password:email:${hashIdentifier(email)}`, 5, OTP_RATE_WINDOW_MS, { requireDistributedStore: true });
 
     if (!ipLimit.ok || !emailLimit.ok) {
       return NextResponse.json(

@@ -20,10 +20,12 @@ test('distributed rate-limit fail-closed behavior is explicit and production-onl
   try {
     delete process.env.RATE_LIMIT_FAIL_CLOSED;
     assert.equal(shouldFailClosedRateLimit('production', false), false);
+    assert.equal(shouldFailClosedRateLimit('production', false, true), true);
     process.env.RATE_LIMIT_FAIL_CLOSED = 'true';
     assert.equal(shouldFailClosedRateLimit('production', false), true);
     assert.equal(shouldFailClosedRateLimit('development', false), false);
     assert.equal(shouldFailClosedRateLimit('production', true), false);
+    assert.equal(shouldFailClosedRateLimit('production', true, true), false);
   } finally {
     if (previous === undefined) delete process.env.RATE_LIMIT_FAIL_CLOSED;
     else process.env.RATE_LIMIT_FAIL_CLOSED = previous;

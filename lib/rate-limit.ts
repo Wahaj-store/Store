@@ -131,13 +131,10 @@ function rejectedResult(windowMs: number): RateLimitResult {
 export function shouldFailClosedRateLimit(
   nodeEnv: string | undefined,
   distributedStoreAvailable: boolean,
+  requireDistributedStore = false,
 ): boolean {
-  // لا نرفض أول طلب لكل المستخدمين إذا كانت متغيرات Upstash غير موجودة
-  // أو كانت الخدمة متوقفة؛ نستخدم الحماية المحلية المؤقتة بدلًا من ذلك.
-  // يمكن تفعيل الرفض الصارم صراحةً في بيئة إنتاج مجهزة بالكامل عبر:
-  // RATE_LIMIT_FAIL_CLOSED=true
   return nodeEnv === 'production'
-    && process.env.RATE_LIMIT_FAIL_CLOSED === 'true'
+    && (process.env.RATE_LIMIT_FAIL_CLOSED === 'true' || requireDistributedStore)
     && !distributedStoreAvailable;
 }
 
@@ -294,6 +291,7 @@ async function runRateLimit(
   limit: number,
   windowMs: number,
   increment: boolean,
+  requireDistributedStore = false,
 ): Promise<RateLimitResult> {
   if (!validateArguments(key, limit, windowMs)) return rejectedResult(windowMs);
 
@@ -315,7 +313,7 @@ async function runRateLimit(
     try {
       return await requestUpstash(key, limit, windowMs, increment);
     } catch (error) {
-      if (shouldFailClosedRateLimit(process.env.NODE_ENV, false)) {
+      if (shouldFailClosedRateLimit(process.env.NODE_ENV, false, requireDistributedStore)) {
         warnLocalFallback(`distributed store unavailable; rejecting request: ${error instanceof Error ? error.message : 'unknown error'}`);
         return rejectedResult(windowMs);
       }
@@ -325,7 +323,7 @@ async function runRateLimit(
   }
 
   warnLocalFallback('Upstash credentials are missing; limits are per-instance only');
-  if (shouldFailClosedRateLimit(process.env.NODE_ENV, false)) return rejectedResult(windowMs);
+  if (shouldFailClosedRateLimit(process.env.NODE_ENV, false, requireDistributedStore)) return rejectedResult(windowMs);
   return localResult(bucketKey, limit, windowMs, increment);
 }
 
@@ -334,8 +332,9 @@ export async function rateLimit(
   key: string,
   limit = 8,
   windowMs = 10 * 60 * 1000,
+  options: { requireDistributedStore?: boolean } = {},
 ): Promise<RateLimitResult> {
-  return runRateLimit(key, limit, windowMs, true);
+  return runRateLimit(key, limit, windowMs, true, options.requireDistributedStore);
 }
 
 /** Reads the current sliding-window count without incrementing it. */
@@ -343,8 +342,9 @@ export async function checkRateLimit(
   key: string,
   limit = 8,
   windowMs = 10 * 60 * 1000,
+  options: { requireDistributedStore?: boolean } = {},
 ): Promise<RateLimitResult> {
-  return runRateLimit(key, limit, windowMs, false);
+  return runRateLimit(key, limit, windowMs, false, options.requireDistributedStore);
 }
 
 /** Clears a bucket, for example after a successful authentication. */

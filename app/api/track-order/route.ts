@@ -2,11 +2,13 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getClientKey, rateLimit } from '@/lib/rate-limit';
 import { hashIdentifier, normalizePhone } from '@/lib/security';
+import { getCustomer } from '@/lib/customer-auth';
 
 const GENERIC_NOT_FOUND_MESSAGE = 'عذراً، لم يتم العثور على طلب بهذه البيانات. تأكد من البيانات واطلب المساعدة.';
 
 function cleanOrderNumber(value: unknown) {
-  return String(value || '').trim().replace(/^#+/, '').toUpperCase();
+  const orderNumber = String(value || '').trim().replace(/^#+/, '').toUpperCase();
+  return orderNumber.length <= 64 ? orderNumber : '';
 }
 
 function cleanPhone(value: unknown) {
@@ -29,11 +31,12 @@ export async function POST(req: Request) {
 
     // Track Order is intentionally public, so protect it against enumeration.
     const clientKey = getClientKey(req);
-    const ipLimit = await rateLimit(`track-order:ip:${clientKey}`, 5, 10 * 60 * 1000);
+    const ipLimit = await rateLimit(`track-order:ip:${clientKey}`, 5, 10 * 60 * 1000, { requireDistributedStore: true });
     const credentialLimit = await rateLimit(
       `track-order:credential:${hashIdentifier(`${orderNumber}:${phone}`)}`,
       5,
       10 * 60 * 1000,
+      { requireDistributedStore: true },
     );
 
     if (!ipLimit.ok || !credentialLimit.ok) {
@@ -53,6 +56,7 @@ export async function POST(req: Request) {
       where: { number: orderNumber },
       select: {
         number: true,
+        customerId: true,
         status: true,
         paymentMethod: true,
         paymentStatus: true,
@@ -141,11 +145,37 @@ export async function POST(req: Request) {
       );
     }
 
-    // Do not expose customer records, internal notes, payment references,
-    // product internals, or other administrative fields through this public API.
-    const { customerPhoneSnapshot: _customerPhoneSnapshot, customer: _customer, ...publicOrder } = order;
+    const customer = await getCustomer();
+    const isAuthenticatedOwner = customer?.id === order.customerId;
+    // Guests can follow status and shipping progress, but personal address,
+    // basket contents and payment totals are returned only to the order owner.
+    const {
+      customerPhoneSnapshot: _customerPhoneSnapshot,
+      customer: _customer,
+      customerId: _customerId,
+      shippingAddress,
+      items,
+      total,
+      paymentMethod,
+      paymentStatus,
+      returnRequests,
+      ...publicOrder
+    } = order;
+    const responseOrder = isAuthenticatedOwner
+      ? { ...publicOrder, shippingAddress, items, total, paymentMethod, paymentStatus, returnRequests, detailsRestricted: false }
+      : {
+          number: order.number,
+          status: order.status,
+          shippingProvider: order.shippingProvider,
+          trackingNumber: order.trackingNumber,
+          shippingGovernorate: order.shippingGovernorate,
+          shippingCity: order.shippingCity,
+          timeline: order.timeline,
+          shipments: order.shipments,
+          detailsRestricted: true,
+        };
 
-    return NextResponse.json(publicOrder, {
+    return NextResponse.json(responseOrder, {
       headers: { 'Cache-Control': 'no-store' },
     });
   } catch (error) {

@@ -48,8 +48,28 @@ async function isMaintenanceEnabled(req: NextRequest): Promise<boolean> {
   });
 }
 
+function createContentSecurityPolicy(nonce: string) {
+  return [
+    "default-src 'self'",
+    "base-uri 'self'",
+    "object-src 'none'",
+    "frame-ancestors 'self'",
+    "form-action 'self' https:",
+    "img-src 'self' data: blob: https:",
+    "font-src 'self' data: https:",
+    "style-src 'self' 'unsafe-inline' https:",
+    `script-src 'self' 'nonce-${nonce}' 'strict-dynamic'`,
+    "connect-src 'self' https: wss:",
+  ].join('; ');
+}
+
 export async function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
+  const nonce = btoa(globalThis.crypto.randomUUID());
+  const contentSecurityPolicy = createContentSecurityPolicy(nonce);
+  const requestHeaders = new Headers(req.headers);
+  requestHeaders.set('Content-Security-Policy', contentSecurityPolicy);
+  requestHeaders.set('x-csp-nonce', nonce);
 
   // Browser-facing API mutations must provide Origin or Referer and match the
   // request origin. Only scheduled server-to-server cron calls may omit both.
@@ -63,11 +83,11 @@ export async function proxy(req: NextRequest) {
     );
 
     if (isMutation && !isCronApi && !hasOriginOrReferer) {
-      return applySecurityHeaders(csrfDeniedResponse(), pathname);
+      return applySecurityHeaders(csrfDeniedResponse(), pathname, contentSecurityPolicy);
     }
 
     if (!isSameOriginMutation(req)) {
-      return applySecurityHeaders(csrfDeniedResponse(), pathname);
+      return applySecurityHeaders(csrfDeniedResponse(), pathname, contentSecurityPolicy);
     }
   }
 
@@ -83,32 +103,31 @@ export async function proxy(req: NextRequest) {
         return applySecurityHeaders(NextResponse.json(
           { error: 'المتجر في وضع الصيانة حاليًا. يرجى المحاولة لاحقًا.' },
           { status: 503, headers: { 'Retry-After': '300', 'Cache-Control': 'no-store' } },
-        ), pathname);
+        ), pathname, contentSecurityPolicy);
       }
       const maintenanceUrl = req.nextUrl.clone();
       maintenanceUrl.pathname = '/maintenance';
       maintenanceUrl.search = '';
-      const response = NextResponse.rewrite(maintenanceUrl);
+      const response = NextResponse.rewrite(maintenanceUrl, { request: { headers: requestHeaders } });
       response.headers.set('Cache-Control', 'no-store, max-age=0');
-      applySecurityHeaders(response, pathname);
+      applySecurityHeaders(response, pathname, contentSecurityPolicy);
       return response;
     }
   }
 
   if (!isAdminPage && !isAdminApi) {
-    const response = NextResponse.next();
-    applySecurityHeaders(response, pathname);
+    const response = NextResponse.next({ request: { headers: requestHeaders } });
+    applySecurityHeaders(response, pathname, contentSecurityPolicy);
     return response;
   }
 
   const secretValue = process.env.AUTH_SECRET;
   const token = req.cookies.get('wahaj_session')?.value;
-
   const deny = () => {
     if (isAdminApi) {
-      return applySecurityHeaders(NextResponse.json({ error: 'Unauthorized' }, { status: 401 }), pathname);
+      return applySecurityHeaders(NextResponse.json({ error: 'Unauthorized' }, { status: 401 }), pathname, contentSecurityPolicy);
     }
-    return applySecurityHeaders(NextResponse.redirect(new URL('/admin/login', req.url)), pathname);
+    return applySecurityHeaders(NextResponse.redirect(new URL('/admin/login', req.url)), pathname, contentSecurityPolicy);
   };
 
   if (!secretValue || secretValue.length < 32 || !token) return deny();
@@ -130,19 +149,19 @@ export async function proxy(req: NextRequest) {
     ) {
       return deny();
     }
-    const headers = new Headers(req.headers);
+    const headers = new Headers(requestHeaders);
     if (!headers.get('x-request-id')) {
       headers.set('x-request-id', globalThis.crypto.randomUUID());
     }
     const response = NextResponse.next({ request: { headers } });
-    applySecurityHeaders(response, pathname);
+    applySecurityHeaders(response, pathname, contentSecurityPolicy);
     return response;
   } catch {
     return deny();
   }
 }
 
-function applySecurityHeaders(response: NextResponse, pathname?: string) {
+function applySecurityHeaders(response: NextResponse, pathname: string | undefined, contentSecurityPolicy: string) {
   response.headers.set('X-Content-Type-Options', 'nosniff');
   response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
   response.headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
@@ -150,11 +169,7 @@ function applySecurityHeaders(response: NextResponse, pathname?: string) {
   if (pathname && isPrivateApiPath(pathname)) {
     response.headers.set('Cache-Control', 'private, no-store, max-age=0');
   }
-  // Start in report-only mode so legitimate Next.js and store assets are not blocked.
-  response.headers.set(
-    'Content-Security-Policy-Report-Only',
-    "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'self'; form-action 'self' https:; img-src 'self' data: blob: https:; font-src 'self' data: https:; style-src 'self' 'unsafe-inline' https:; script-src 'self' 'unsafe-inline' https:; connect-src 'self' https: wss:",
-  );
+  response.headers.set('Content-Security-Policy', contentSecurityPolicy);
   if (process.env.NODE_ENV === 'production') {
     response.headers.set('Strict-Transport-Security', 'max-age=15552000');
   }

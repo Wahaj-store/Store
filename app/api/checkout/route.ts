@@ -316,7 +316,7 @@ export async function POST(req: Request) {
         await tx.address.create({ data: { customerId: c.id, name: checkoutName, phone: checkoutPhone, governorate: checkoutGovernorate, city: checkoutCity, address: checkoutAddress, notes: checkoutNotes } });
       }
 
-      const number = `WAH-${crypto.randomUUID().slice(0, 8).toUpperCase()}`;
+      const number = `WAH-${crypto.randomUUID().toUpperCase()}`;
       const o = await tx.order.create({ data: {
         number, idempotencyKey, customerId: c.id, customerNameSnapshot: checkoutName, customerPhoneSnapshot: checkoutPhone,
         paymentMethod: b.paymentMethod, total: Math.max(0, transactionTotal - giftCardAmount), shipping: transactionPricing.shipping, discount: transactionPricing.discount, giftCardId, giftCardAmount, notes: transactionOrderNotes || checkoutNotes, shippingGovernorate: checkoutGovernorate, shippingCity: checkoutCity, shippingAddress: checkoutAddress,
