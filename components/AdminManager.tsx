@@ -843,7 +843,7 @@ function Editor({ tab, value, cats, products, onCancel, onSave, upload }: any) {
         <div className="md:col-span-2 rounded-2xl bg-(--bg) border border-(--gold)/20 p-4">
           <p className="text-xs text-muted-foreground">كود البطاقة</p>
           {v.id ? (
-            <p className="mt-1 font-mono text-base tracking-wider text-foreground" dir="ltr">{v.code}</p>
+            <p className="mt-1 font-mono text-base tracking-wider text-foreground" dir="ltr">{v.code || '•••••••••••• — الكود محمي'}</p>
           ) : (
             <p className="mt-1 text-sm font-medium text-(--gold)">سيتم إنشاء كود البطاقة تلقائيًا عند الحفظ.</p>
           )}
@@ -1353,7 +1353,8 @@ function Content({ tab, data, onEdit, onDelete, onRefresh, onReorder, onSavePopu
             <div className="flex flex-wrap items-start justify-between gap-4">
               <div className="space-y-2">
                 <div className="flex flex-wrap items-center gap-2">
-                  <b className="font-mono text-sm md:text-base tracking-wider" dir="ltr">{card.code}</b>
+                  <b className="font-mono text-sm md:text-base tracking-wider" dir="ltr">{card.code || '••••••••••••'}</b>
+                  {!card.code && <span className="text-[10px] text-muted-foreground">الكود مخفي لصلاحياتك</span>}
                   <span className={`px-2.5 py-1 rounded-full text-[11px] border ${usable ? 'text-green-600 border-green-500/20 bg-green-500/10' : 'text-muted-foreground border-border/40 bg-muted/20'}`}>{usable ? 'صالحة' : expired ? 'منتهية' : card.active ? 'بدون رصيد' : 'موقوفة'}</span>
                 </div>
                 <div className="flex flex-wrap gap-x-5 gap-y-1 text-xs text-muted-foreground">

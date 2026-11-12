@@ -4,8 +4,17 @@ import { can } from '../../lib/rbac';
 
 test('customer details require the customer-read permission', () => {
   assert.equal(can('EDITOR', 'customersRead'), false);
-  assert.equal(can('VIEWER', 'customersRead'), true);
+  assert.equal(can('VIEWER', 'customersRead'), false);
   assert.equal(can('ORDER_MANAGER', 'customersRead'), true);
+});
+
+test('gift card codes are restricted to trusted administrators, not general readers or writers', () => {
+  for (const role of ['MANAGER', 'EDITOR', 'ORDER_MANAGER', 'VIEWER']) {
+    assert.equal(can(role, 'giftCardCodesRead'), false, `${role} must not read existing gift-card bearer codes`);
+  }
+  assert.equal(can('OWNER', 'giftCardCodesRead'), true);
+  assert.equal(can('ADMIN', 'giftCardCodesRead'), true);
+  assert.equal(can('VIEWER', 'giftCardsRead'), true);
 });
 
 test('product relations read requires product-read permission', () => {

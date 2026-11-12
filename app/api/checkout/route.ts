@@ -17,6 +17,7 @@ import { getClientKey, rateLimit } from '@/lib/rate-limit';
 import { revalidateShopProducts } from '@/lib/shop-cache';
 import { getCustomerOrderMetrics } from '@/lib/customer-order-metrics';
 import { checkoutTotalsMatch } from '@/lib/checkout-preview-client';
+import { hasRequiredPaymentReference } from '@/lib/payment-reference';
 import { CheckoutRequestSchema, type CheckoutRequest } from '@/lib/checkout-request-schema';
 import { InvalidMultipartBodyError, MultipartBodyLimitError, parseBoundedMultipart } from '@/lib/bounded-multipart';
 import {
@@ -117,6 +118,7 @@ export async function POST(req: Request) {
     const pay = await prisma.paymentSetting.findUnique({ where: { method: b.paymentMethod } });
     if (!pay?.enabled) return NextResponse.json({ error: 'طريقة الدفع غير متاحة حالياً' }, { status: 400 });
     if (pay.proofRequired && !hasProofFile) return NextResponse.json({ error: 'إثبات الدفع مطلوب لهذه الطريقة' }, { status: 400 });
+    if (!hasRequiredPaymentReference(pay.proofRequired, b.paymentReference)) return NextResponse.json({ error: 'رقم عملية التحويل مطلوب لهذه الطريقة' }, { status: 400, headers: { 'Cache-Control': 'no-store' } });
 
     for (const item of b.items) {
       const product = products.find((candidate) => candidate.id === item.productId)!;
@@ -155,6 +157,7 @@ export async function POST(req: Request) {
       });
       if (!transactionPayment?.enabled) throw new CheckoutDomainError('طريقة الدفع غير متاحة حالياً');
       if (transactionPayment.proofRequired && !hasProofFile) throw new CheckoutDomainError('إثبات الدفع مطلوب لهذه الطريقة');
+      if (!hasRequiredPaymentReference(transactionPayment.proofRequired, b.paymentReference)) throw new CheckoutDomainError('رقم عملية التحويل مطلوب لهذه الطريقة');
 
       const transactionProducts = await tx.product.findMany({
         where: { id: { in: ids }, status: 'PUBLISHED' },

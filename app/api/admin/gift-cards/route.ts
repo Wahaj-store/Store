@@ -7,7 +7,7 @@ import { generateGiftCardCode, hashGiftCardCode, normalizeGiftCardCode } from '@
 
 const schema = z.object({
   id: z.string().cuid().optional(),
-  code: z.string().trim().max(40).optional(),
+  code: z.preprocess(value => value === null ? undefined : value, z.string().trim().min(1).max(40).optional()),
   amount: z.coerce.number().positive(),
   expiresAt: z.preprocess(
     value => value === '' || value === null || value === undefined ? null : value,
@@ -30,7 +30,10 @@ export async function GET() {
     if (!user) return unauthorized();
     if (!can(user.role, 'giftCardsRead')) return forbidden();
     const cards = await prisma.giftCard.findMany({ select: publicSelect, orderBy: { createdAt: 'desc' } });
-    return NextResponse.json(cards, { headers: { 'Cache-Control': 'no-store' } });
+    const responseCards = can(user.role, 'giftCardCodesRead')
+      ? cards
+      : cards.map(({ code: _code, ...card }) => ({ ...card, code: null }));
+    return NextResponse.json(responseCards, { headers: { 'Cache-Control': 'private, no-store, max-age=0' } });
   } catch (error: any) {
     return NextResponse.json({ error: error?.message || 'تعذر جلب بطاقات الهدايا.' }, { status: 500 });
   }
@@ -72,7 +75,11 @@ export async function PUT(req: Request) {
     const code = normalizeGiftCardCode(value.code || existing.code);
     const card = await prisma.giftCard.update({ where: { id: value.id }, data: { code, codeHash: hashGiftCardCode(code), expiresAt: value.expiresAt ? new Date(value.expiresAt) : null, active: value.active ?? true }, select: publicSelect });
     await prisma.activityLog.create({ data: { userId: user.id, action: 'UPDATE_GIFT_CARD', entity: 'GiftCard', entityId: card.id } });
-    return NextResponse.json(card);
+    // Editing a card must not become a read-back endpoint for its existing bearer code.
+    const responseCard = can(user.role, 'giftCardCodesRead') || value.code !== undefined
+      ? card
+      : { ...card, code: null };
+    return NextResponse.json(responseCard, { headers: { 'Cache-Control': 'private, no-store, max-age=0' } });
   } catch (error: any) {
     const message = error?.issues?.[0]?.message || error?.message || 'تعذر تحديث بطاقة الهدايا.';
     return NextResponse.json({ error: message }, { status: error?.code === 'P2002' ? 409 : 400 });

@@ -37,7 +37,17 @@ export async function GET() {
     take: 100,
   });
 
-  return NextResponse.json(orders, {
+  const responseOrders = u.role === 'VIEWER'
+    ? orders.map(order => ({
+        ...order,
+        customer: order.customer ? { id: order.customer.id, name: order.customer.name } : null,
+        customerPhoneSnapshot: null,
+        shippingAddress: null,
+        payments: order.payments.map(({ reference: _reference, ...payment }) => payment),
+      }))
+    : orders;
+
+  return NextResponse.json(responseOrders, {
     headers: { 'Cache-Control': 'private, no-store, max-age=0' },
   });
 }

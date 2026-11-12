@@ -58,8 +58,18 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
       }
     }));
 
+    const responseOrder = u.role === 'VIEWER'
+      ? {
+          ...o,
+          customer: o.customer ? { id: o.customer.id, name: o.customer.name } : null,
+          customerPhoneSnapshot: null,
+          shippingAddress: null,
+          payments: payments.map(({ reference: _reference, ...payment }) => payment),
+        }
+      : { ...o, payments };
+
     return NextResponse.json(
-      { ...o, payments },
+      responseOrder,
       { headers: { 'Cache-Control': 'private, no-store, max-age=0' } },
     );
   } catch (error) {

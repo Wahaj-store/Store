@@ -17,12 +17,14 @@ export const PERMISSIONS = {
   ordersRead: ['OWNER', 'ADMIN', 'MANAGER', 'ORDER_MANAGER', 'VIEWER'],
   ordersWrite: ['OWNER', 'ADMIN', 'MANAGER', 'ORDER_MANAGER'],
 
-  customersRead: ['OWNER', 'ADMIN', 'MANAGER', 'ORDER_MANAGER', 'VIEWER'],
+  customersRead: ['OWNER', 'ADMIN', 'MANAGER', 'ORDER_MANAGER'],
 
   marketingRead: ['OWNER', 'ADMIN', 'MANAGER', 'EDITOR', 'VIEWER'],
   marketingWrite: ['OWNER', 'ADMIN', 'MANAGER', 'EDITOR'],
 
   giftCardsRead: ['OWNER', 'ADMIN', 'MANAGER', 'EDITOR', 'VIEWER'],
+  // Gift-card codes are bearer credentials that can spend stored value.
+  giftCardCodesRead: ['OWNER', 'ADMIN'],
   giftCardsWrite: ['OWNER', 'ADMIN', 'MANAGER', 'EDITOR'],
 
   reviewsRead: ['OWNER', 'ADMIN', 'MANAGER', 'EDITOR', 'VIEWER'],
